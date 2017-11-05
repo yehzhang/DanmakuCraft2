@@ -1,0 +1,31 @@
+{
+  "name": "danmaku-craft-2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yehzhang/DanmakuCraft-2.git"
+  },
+  "author": "Simon Zhang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yehzhang/DanmakuCraft-2/issues"
+  },
+  "homepage": "https://github.com/yehzhang/DanmakuCraft-2#readme",
+  "devDependencies": {
+    "@types/jquery": "^3.2.16",
+    "@types/node": "^8.0.47",
+    "expose-loader": "^0.7.3",
+    "jquery": "^3.2.1",
+    "phaser": "^2.6.2",
+    "ts-loader": "^3.1.1",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.1",
+    "webpack": "^3.8.1"
+  },
+  "dependencies": {}
+}

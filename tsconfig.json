@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "ES6",
+      "DOM"
+    ],
+    "module": "amd",
+    "target": "ES5",
+    "moduleResolution": "node",
+    "declaration": false,
+    "outDir": "./dist",
+    "allowJs": false,
+    "rootDir": "./src",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "inlineSources": false
+  },
+  "include": [
+    "./src/index.ts"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "extends": "tslint:recommended",
+  "rulesDirectory": [],
+  "rules": {
+    "ordered-imports": false,
+    "max-classes-per-file": [false],
+    "interface-name": false,
+    "no-reference": false,
+    "indent": ["spaces", 2],
+    "prefer-const": false,
+    "member-access": false,
+    "quotemark": ["single"]
+  },
+  "jsRules": {
+  }
+}
