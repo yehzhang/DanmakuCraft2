@@ -1,4 +1,4 @@
-import {EnvironmentAdapter} from './environment/components';
+import {EnvironmentAdapter, WorldProxy} from './environment/components';
 
 export default class DanmakuCraft {
   game: Phaser.Game;
@@ -26,5 +26,10 @@ export default class DanmakuCraft {
     logo.scale.setTo(0.2, 0.2);
 
     this.game.add.tween(logo.scale).to({x: 1, y: 1}, 2000, Phaser.Easing.Bounce.Out, true);
+  }
+
+  getProxy(): WorldProxy {
+    // TODO
+    throw new Error('Not implemented');
   }
 }
