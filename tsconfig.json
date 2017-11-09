@@ -1,19 +1,19 @@
 {
   "compilerOptions": {
     "lib": [
-      "ES6",
-      "DOM"
+      "DOM",
+      "es2015"
     ],
-    "module": "amd",
+    "module": "commonjs",
     "target": "ES5",
     "moduleResolution": "node",
     "declaration": false,
     "outDir": "./dist",
     "allowJs": false,
     "rootDir": "./src",
-    "noImplicitAny": true,
     "sourceMap": true,
-    "inlineSources": false
+    "inlineSources": false,
+    "noImplicitAny": true
   },
   "include": [
     "./src/index.ts"

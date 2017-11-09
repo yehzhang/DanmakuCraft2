@@ -2,14 +2,23 @@
   "extends": "tslint:recommended",
   "rulesDirectory": [],
   "rules": {
+    "trailing-comma": false,
+    "arrow-parens": false,
+    "no-bitwise": false,
+    "no-consecutive-blank-lines": [false],
+    "no-trailing-whitespace": false,
+    "member-ordering": false,
+    "object-literal-sort-keys": false,
+    "no-console": [false],
+    "no-empty": [true, "allow-empty-catch"],
     "ordered-imports": false,
     "max-classes-per-file": [false],
     "interface-name": false,
     "no-reference": false,
-    "indent": ["spaces", 2],
+    "indent": [true, "spaces", 2],
     "prefer-const": false,
     "member-access": false,
-    "quotemark": ["single"]
+    "quotemark": [true, "single"]
   },
   "jsRules": {
   }
