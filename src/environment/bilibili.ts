@@ -37,10 +37,22 @@ export default class BilibiliAdapter implements EnvironmentAdapter {
 
 class BilibiliContainerProvider implements GameContainerProvider {
   getContainer() {
+    if (!BilibiliContainerProvider.canRunOnThisWebPage()) {
+      throw new Error('Script cannot be run on this page');
+    }
+
+    // TODO check if wrap content is recovered on fullscreen / widescreen change.
     let $videoFrame = $('.bilibili-player-video-wrap');
     $videoFrame.empty();
 
     return $videoFrame[0];
+  }
+
+  private static canRunOnThisWebPage() {
+    if (Parameters.aid !== Constants.aid) {
+      return false;
+    }
+    return true;
   }
 }
 
@@ -186,7 +198,7 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
 
     let data: any = {
       uid: Parameters.uid,
-      roomid: Parameters.roomId,
+      roomid: Constants.roomId,
       protover: 1,
     };
     if (Parameters.aid) {
@@ -345,7 +357,6 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
 class Parameters {
   static readonly aid: number = parseInt((window as any).aid, 10);
   static readonly cid: number = parseInt((window as any).cid, 10);
-  static readonly roomId: number = 4145439; // TODO update to real one
   static readonly uid: string = (window as any).uid;
   static readonly isHttps: boolean = window.location.protocol === 'https://';
 
@@ -357,4 +368,9 @@ class Parameters {
       'http', `comment.bilibili.com/${Parameters.cid}.xml`);
   static readonly chatBroadcastUrl: string = Parameters.buildUrl(
       'ws', 'broadcast.chat.bilibili.com:4095/sub');
+}
+
+class Constants {
+  static readonly roomId: number = 4145439; // TODO update to real one
+  static readonly aid: number = 2718860; // TODO update to real one
 }
