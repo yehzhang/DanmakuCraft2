@@ -1,4 +1,5 @@
-import {EnvironmentAdapter, WorldProxy} from './environment/components';
+import {EnvironmentAdapter} from './environment/inwardAdapter';
+import {WorldProxy} from './environment/outwardAdapter';
 
 export default class DanmakuCraft {
   game: Phaser.Game;

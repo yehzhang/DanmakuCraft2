@@ -3,13 +3,13 @@ import {
   CommentProvider,
   EnvironmentAdapter,
   GameContainerProvider,
-  NewCommentEvent,
-  WorldProxy
-} from './components';
+  NewCommentEvent
+} from './inwardAdapter';
 import {EventDispatcher} from '../util';
 import {bindFirst, CommentDataUtil, webSocketManager} from './util';
 import {CommentData} from '../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
+import {WorldProxy} from './outwardAdapter';
 import Timer = NodeJS.Timer;
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
