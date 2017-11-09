@@ -49,7 +49,7 @@ class BilibiliContainerProvider implements GameContainerProvider {
   }
 
   private static canRunOnThisWebPage() {
-    if (Parameters.aid !== Constants.aid) {
+    if (EnvironmentVariables.aid !== Parameters.AID) {
       return false;
     }
     return true;
@@ -65,7 +65,7 @@ class BilibiliCommentProvider extends CommentProvider {
 
     this.injector = new LocalCommentInjector(worldProxy);
 
-    this.receiver = new RemoteCommentReceiver(Parameters.chatBroadcastUrl);
+    this.receiver = new RemoteCommentReceiver(EnvironmentVariables.chatBroadcastUrl);
     this.receiver.addEventListener(CommentProvider.NEW_COMMENT, this.onNewComment.bind(this));
   }
 
@@ -77,7 +77,7 @@ class BilibiliCommentProvider extends CommentProvider {
     return new Promise<Document>((resolve, reject) => {
       $.ajax({
         type: 'GET',
-        url: Parameters.commentXmlUrl,
+        url: EnvironmentVariables.commentXmlUrl,
         dataType: 'xml',
         success: resolve,
         error: reject,
@@ -91,7 +91,7 @@ class BilibiliCommentProvider extends CommentProvider {
                 return CommentDataUtil.parseFromXmlStrings(attributes, text);
               });
         }, xhr => {
-          let msg = `Cannot get comments from ${Parameters.commentXmlUrl}: ${xhr.statusText}`;
+          let msg = `Cannot get comments from ${EnvironmentVariables.commentXmlUrl}: ${xhr.statusText}`;
           throw new Error(msg);
         });
   }
@@ -197,12 +197,12 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
     let that = this;
 
     let data: any = {
-      uid: Parameters.uid,
-      roomid: Constants.roomId,
+      uid: EnvironmentVariables.uid,
+      roomid: Parameters.ROOM_ID,
       protover: 1,
     };
-    if (Parameters.aid) {
-      data.aid = Parameters.aid;
+    if (EnvironmentVariables.aid) {
+      data.aid = EnvironmentVariables.aid;
     }
     data.from = 7;
     let message = this.encode(data, 7);
@@ -354,7 +354,7 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
   }
 }
 
-class Parameters {
+class EnvironmentVariables {
   static readonly aid: number = parseInt((window as any).aid, 10);
   static readonly cid: number = parseInt((window as any).cid, 10);
   static readonly uid: string = (window as any).uid;
@@ -364,13 +364,13 @@ class Parameters {
     return `${protocolName}${this.isHttps ? 's' : ''}://${url}`;
   }
 
-  static readonly commentXmlUrl: string = Parameters.buildUrl(
-      'http', `comment.bilibili.com/${Parameters.cid}.xml`);
-  static readonly chatBroadcastUrl: string = Parameters.buildUrl(
+  static readonly commentXmlUrl: string = EnvironmentVariables.buildUrl(
+      'http', `comment.bilibili.com/${EnvironmentVariables.cid}.xml`);
+  static readonly chatBroadcastUrl: string = EnvironmentVariables.buildUrl(
       'ws', 'broadcast.chat.bilibili.com:4095/sub');
 }
 
-class Constants {
-  static readonly roomId: number = 4145439; // TODO update to real one
-  static readonly aid: number = 2718860; // TODO update to real one
+class Parameters {
+  static readonly ROOM_ID: number = 4145439; // TODO update to real one
+  static readonly AID: number = 2718860; // TODO update to real one
 }
