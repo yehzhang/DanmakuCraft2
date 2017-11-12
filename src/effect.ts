@@ -1,6 +1,6 @@
 import {CommentEntity} from './comment';
 
-export class EffectManager {
+export class LocallyOriginatedCommentEffectManager {
   private activatedEffects: Effect[];
 
   constructor(private maxActivatedEffectsCount: number) {

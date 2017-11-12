@@ -1,6 +1,6 @@
-import {Entity} from './entity';
+import {Entity, PlayerEntity} from './entity';
 
-export class BuffManager<E extends Entity> {
+export class EntityBuffManager<E extends Entity> {
   private activatedBuffs: Array<Buff<E>>;
 
   constructor(private readonly entity: E) {
@@ -27,7 +27,7 @@ export class BuffManager<E extends Entity> {
   }
 }
 
-export abstract class Buff<E extends Entity> {
+export abstract class Buff<E extends Entity = PlayerEntity> {
   private ticks: number;
 
   constructor(private readonly lifetime: number) {
