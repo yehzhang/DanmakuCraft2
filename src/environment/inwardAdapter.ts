@@ -23,8 +23,12 @@ export interface GameContainerProvider {
 export class NewCommentEvent extends CustomEvent {
   static type: EventType = 'newComment';
 
-  constructor(comment: CommentData) {
-    super(NewCommentEvent.type, {detail: comment});
+  constructor(commentData: CommentData) {
+    super(NewCommentEvent.type, {detail: commentData});
+  }
+
+  getData(): CommentData {
+    return this.detail;
   }
 }
 
@@ -38,6 +42,7 @@ export abstract class CommentProvider extends EventDispatcher<NewCommentEvent> {
   /**
    * Returns all comments currently available.
    * This operation is probably expensive, so listen on NEW_COMMENT for new comments.
+   * Throws an error if fails to get all comments.
    */
   abstract async getAllComments(): Promise<CommentData[]>;
 }
