@@ -31,26 +31,26 @@ export class ArrayEntityManager<E extends Entity = Entity> implements EntityMana
     if (this.renderChunksCount <= 0) {
       throw new Error('Invalid render distance');
     }
-    if (this.renderChunksCount * this.chunkSize * 2 > worldSize) {
+    if ((this.renderChunksCount * 2 + 1) * this.chunkSize > worldSize) {
       throw new Error('Render distance too large');
     }
   }
 
   private static makeChunks<E extends Entity>(chunksCount: number): Array<Array<Chunk<E>>> {
-    let regions = [];
+    let chunks = [];
 
     for (let y = 0; y < chunksCount; y++) {
-      let regionsRow = [];
+      let chunksRow = [];
 
       for (let x = 0; x < chunksCount; x++) {
         let id = y * chunksCount + x;
-        regionsRow.push(new Chunk<E>(id));
+        chunksRow.push(new Chunk<E>(id));
       }
 
-      regions.push(regionsRow);
+      chunks.push(chunksRow);
     }
 
-    return regions;
+    return chunks;
   }
 
   loadBatch(entities: E[]): void {
@@ -59,24 +59,29 @@ export class ArrayEntityManager<E extends Entity = Entity> implements EntityMana
 
   load(entity: E): void {
     let coordinate = this.toChunkCoordinate(entity.getPosition());
-    let region = this.getChunk(coordinate);
-    region.addEntity(entity);
+    let chunk = this.getChunk(coordinate);
+    chunk.addEntity(entity);
   }
 
-  listRenderableRegions(worldCoordinate: Phaser.Point): Array<Region<E>> {
+  listRenderableRegions(worldCoordinate: Phaser.Point): Array<Chunk<E>> {
+    let chunks: Array<Chunk<E>> = [];
+
     let coordinate = this.toChunkCoordinate(worldCoordinate);
-    return this.getNChunksAround(coordinate, this.renderChunksCount);
+    let bound = this.inflate(coordinate, this.renderChunksCount);
+    this.pushChunksInBound(bound.left, bound.right, bound.top, bound.bottom, chunks);
+
+    return chunks;
   }
 
   leftOuterJoinRenderableRegions(
-      worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Region<E>> {
+      worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Chunk<E>> {
     let leftCoordinate = this.toChunkCoordinate(worldCoordinate);
     let rightCoordinate = this.toChunkCoordinate(otherCoordinate);
     if (leftCoordinate.equals(rightCoordinate)) {
       return [];
     }
 
-    // Collect all regions in either vertical or horizontal area.
+    // Collect all chunks in either vertical or horizontal area.
     // Case 1:
     // V V H H
     // V V H H
@@ -94,14 +99,11 @@ export class ArrayEntityManager<E extends Entity = Entity> implements EntityMana
     //     H H V V
     //     H H V V
     //     H H V V
-    let regions: Array<Region<E>> = [];
+    let chunks: Array<Chunk<E>> = [];
 
-    // Collect regions in vertical area.
-    // TODO handle world-wrapping
-    let leftBound = new Phaser.Rectangle(leftCoordinate.x, leftCoordinate.y, 0, 0)
-        .inflate(this.renderChunksCount, this.renderChunksCount);
-    let rightBound = new Phaser.Rectangle(rightCoordinate.x, rightCoordinate.y, 0, 0)
-        .inflate(this.renderChunksCount, this.renderChunksCount);
+    // Collect chunks in vertical area.
+    let leftBound = this.inflate(leftCoordinate, this.renderChunksCount);
+    let rightBound = this.inflate(rightCoordinate, this.renderChunksCount);
     if (leftCoordinate.x !== rightCoordinate.x) {
       let left;
       let right;
@@ -115,10 +117,10 @@ export class ArrayEntityManager<E extends Entity = Entity> implements EntityMana
 
       let top = leftBound.top;
       let bottom = leftBound.bottom;
-      this.pushChunksInBound(left, right, top, bottom, regions);
+      this.pushChunksInBound(left, right, top, bottom, chunks);
     }
 
-    // Collect regions in horizontal area.
+    // Collect chunks in horizontal area.
     if (leftCoordinate.y !== rightCoordinate.y) {
       let left;
       let right;
@@ -140,51 +142,59 @@ export class ArrayEntityManager<E extends Entity = Entity> implements EntityMana
         bottom = leftBound.bottom;
       }
 
-      this.pushChunksInBound(left, right, top, bottom, regions);
+      this.pushChunksInBound(left, right, top, bottom, chunks);
     }
 
-    return regions;
-  }
-
-  private getNChunksAround(chunkCoordinate: Phaser.Point, n: number): Array<Region<E>> {
-    let regions = [];
-    for (let deltaY = -n; deltaY <= n; deltaY++) {
-      let y = (chunkCoordinate.y + deltaY + this.chunksCount) % this.chunksCount;
-      for (let deltaX = -n; deltaX <= n; deltaX++) {
-        let x = (chunkCoordinate.x + deltaX + this.chunksCount) % this.chunksCount;
-        regions.push(this.chunks[y][x]);
-      }
-    }
-    return regions;
+    return chunks;
   }
 
   /**
-   * Expects a non-wrapping bound.
+   * Handles bounds that wrap around the world.
    */
   private pushChunksInBound(
       left: number,
       right: number,
       top: number,
       bottom: number,
-      regions: Array<Region<E>>): void {
+      chunks: Array<Chunk<E>>): void {
     for (let indexY = top; indexY <= bottom; indexY++) {
+      let y = (indexY + this.chunksCount) % this.chunksCount;
       for (let indexX = left; indexX <= right; indexX++) {
-        regions.push(this.chunks[indexY][indexX]);
+        let x = (indexX + this.chunksCount) % this.chunksCount;
+        chunks.push(this.chunks[y][x]);
       }
     }
   }
 
+  /**
+   * Wraps coordinates that are out of one side of the world to the other side.
+   */
   private toChunkCoordinate(worldCoordinate: Phaser.Point): Phaser.Point {
     let coordinate = worldCoordinate.clone().divide(this.chunkSize, this.chunkSize).floor();
+    coordinate.x = (coordinate.x % this.chunksCount + this.chunksCount) % this.chunksCount;
+    coordinate.y = (coordinate.y % this.chunksCount + this.chunksCount) % this.chunksCount;
 
-    if (!(coordinate.x < this.chunksCount
-            && coordinate.x >= 0
-            && coordinate.y < this.chunksCount
-            && coordinate.y >= 0)) {
+    if (isNaN(coordinate.x)
+        || !isFinite(coordinate.x)
+        || isNaN(coordinate.y)
+        || !isFinite(coordinate.y)) {
       throw new Error('Invalid world coordinate');
     }
 
     return coordinate;
+  }
+
+  /**
+   * If bounds are beyond the left or top of the world, they will be wrapped to the opposite ends.
+   * All coordinates are guaranteed to be greater than or equal to 0.
+   */
+  private inflate(coordinate: Phaser.Point, n: number): Phaser.Rectangle {
+    let bound = new Phaser.Rectangle(coordinate.x, coordinate.y, 0, 0)
+        .inflate(n, n)
+        .offset(this.chunksCount, this.chunksCount);
+    bound.x %= this.chunksCount;
+    bound.y %= this.chunksCount;
+    return bound;
   }
 
   private getChunk(coordinate: Phaser.Point) {
