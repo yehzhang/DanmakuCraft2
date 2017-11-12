@@ -1,4 +1,6 @@
-import {ChunkManager} from './chunk';
+import {EntityManager} from './entity';
+import {Effect} from './effect';
+import {Entity} from './entity';
 
 export class CommentData {
   constructor(
@@ -11,15 +13,14 @@ export class CommentData {
       public readonly text: string,
       public readonly positionX: number, // These positions may be invalid.
       public readonly positionY: number,
-      public readonly advancedCommentType: number,
-      public readonly advancedCommentParameter: number) {
+      public readonly effect: Effect | null) {
   }
 }
 
-export class CommentManager {
+export class CommentEntityManager {
   private isLoaded: boolean;
 
-  constructor(private chunkManager: ChunkManager) {
+  constructor(private entityManager: EntityManager) {
     this.isLoaded = false;
   }
 
@@ -39,5 +40,19 @@ export class CommentManager {
 
   areInitialCommentsLoaded() {
     return this.isLoaded;
+  }
+}
+
+export class CommentEntity extends Entity {
+  constructor(position: Phaser.Point, private effect: Effect | null) {
+    super(position);
+  }
+
+  hasEffect() {
+    return this.effect != null;
+  }
+
+  getEffect() {
+    return this.effect;
   }
 }

@@ -10,10 +10,11 @@ import {bindFirst, webSocketManager} from './util';
 import {CommentData} from '../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import {WorldProxy} from './outwardAdapter';
+import {EffectFactory} from '../effect';
 import Timer = NodeJS.Timer;
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
-  worldProxy: WorldProxy;
+  worldProxy: WorldProxy | null;
 
   constructor() {
     this.worldProxy = null;
@@ -87,10 +88,10 @@ class BilibiliCommentProvider extends CommentProvider {
           return (data.getElementsByTagName('d') as any as Node[])
               .map(commentElement => {
                 let attributes = commentElement.attributes.getNamedItem('p').value;
-                let text = commentElement.textContent;
+                let text = commentElement.textContent || '';
                 return CommentDataUtil.parseFromXmlStrings(attributes, text);
               })
-              .filter(Boolean);
+              .filter(Boolean) as CommentData[];
         }, xhr => {
           let msg = `Cannot get comments from ${EnvironmentVariables.commentXmlUrl}: ${xhr.statusText}`;
           throw new Error(msg);
@@ -118,7 +119,7 @@ class LocalCommentInjector {
       return;
     }
 
-    let commentText = this.$textInput.val().toString();
+    let commentText = String(this.$textInput.val());
 
     if (commentText === '') {
       return;
@@ -127,7 +128,8 @@ class LocalCommentInjector {
     let injectedCommentText = this.buildInjectedCommentText(commentText);
 
     let $fontSelection = $('.bilibili-player-mode-selection-row.fontsize .selection-span.active');
-    let commentSize = parseInt($fontSelection.attr('data-value'), 10);
+    let commentSize =
+        Number($fontSelection.attr('data-value')) || Parameters.DEFAULT_FONT_SIZE;
 
     if (!this.worldProxy.requestForPlacingComment(commentText, commentSize)) {
       event.stopImmediatePropagation();
@@ -159,7 +161,7 @@ class LocalCommentInjector {
 class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
   private socket: WebSocket;
   private doRetry: boolean;
-  private heartBeat: Timer;
+  private heartBeat: Timer | null;
 
   private static frameDefinitionEntries = [
     {name: 'Header Length', key: 'headerLen', size: 2, offset: 4, value: 16},
@@ -191,7 +193,9 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
     this.socket.onclose = event => {
       console.debug('RemoteCommentReceiver onClose', event);
 
-      clearTimeout(that.heartBeat);
+      if (that.heartBeat != null) {
+        clearTimeout(that.heartBeat);
+      }
 
       if (that.doRetry) {
         setTimeout(() => {
@@ -223,7 +227,9 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
   private startHeartBeat() {
     let that = this;
 
-    clearTimeout(this.heartBeat);
+    if (this.heartBeat != null) {
+      clearTimeout(this.heartBeat);
+    }
 
     let data = this.encode({}, 2);
     this.socket.send(data);
@@ -280,7 +286,9 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
         let text = info[1];
         let comment = CommentDataUtil.parseFromXmlStrings(attributes, text);
 
-        this.dispatchEvent(new NewCommentEvent(comment));
+        if (comment != null) {
+          this.dispatchEvent(new NewCommentEvent(comment));
+        }
       }
     }
   }
@@ -367,7 +375,7 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
 class CommentDataUtil {
   static readonly METADATA_DELIMITER = '/[';
 
-  static parseFromXmlStrings(attributes: string, text: string) {
+  static parseFromXmlStrings(attributes: string, text: string): CommentData | null {
     // Parse metadata
     let indexMetadata = text.lastIndexOf(this.METADATA_DELIMITER);
     if (indexMetadata === -1) {
@@ -399,14 +407,15 @@ class CommentDataUtil {
     // Parse properties
     let positionX;
     let positionY;
-    let advancedCommentType;
-    let advancedCommentParameter;
+    let effect;
     if (properties.length === 2) {
       [positionX, positionY] = properties;
-      advancedCommentType = null;
-      advancedCommentParameter = null;
+      effect = null;
     } else if (properties.length === 4) {
-      [positionX, positionY, advancedCommentType, advancedCommentParameter] = properties;
+      let effectType;
+      let effectParameter;
+      [positionX, positionY, effectType, effectParameter] = properties;
+      effect = EffectFactory.build(effectType, effectParameter);
     } else {
       return null;
     }
@@ -425,8 +434,7 @@ class CommentDataUtil {
         commentText,
         positionX,
         positionY,
-        advancedCommentType,
-        advancedCommentParameter);
+        effect);
   }
 
   static generateCommentMetadata(text: string, commentX: number, commentY: number) {
@@ -505,6 +513,7 @@ class EnvironmentVariables {
 }
 
 class Parameters {
-  static readonly ROOM_ID: number = 4145439; // TODO update to real one
-  static readonly AID: number = 2718860; // TODO update to real one
+  static readonly ROOM_ID = 4145439; // TODO update to real one
+  static readonly AID = 2718860; // TODO update to real one
+  static readonly DEFAULT_FONT_SIZE = 25;
 }
