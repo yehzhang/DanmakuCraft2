@@ -6,7 +6,7 @@ import {
   NewCommentEvent
 } from './inwardAdapter';
 import {EventDispatcher} from '../util';
-import {bindFirst, CommentDataUtil, webSocketManager} from './util';
+import {bindFirst, webSocketManager} from './util';
 import {CommentData} from '../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import {WorldProxy} from './outwardAdapter';
@@ -36,7 +36,7 @@ export default class BilibiliAdapter implements EnvironmentAdapter {
 }
 
 class BilibiliContainerProvider implements GameContainerProvider {
-  getContainer() {
+  getContainer(): HTMLElement {
     if (!BilibiliContainerProvider.canRunOnThisWebPage()) {
       throw new Error('Script cannot be run on this page');
     }
@@ -89,7 +89,8 @@ class BilibiliCommentProvider extends CommentProvider {
                 let attributes = commentElement.attributes.getNamedItem('p').value;
                 let text = commentElement.textContent;
                 return CommentDataUtil.parseFromXmlStrings(attributes, text);
-              });
+              })
+              .filter(Boolean);
         }, xhr => {
           let msg = `Cannot get comments from ${EnvironmentVariables.commentXmlUrl}: ${xhr.statusText}`;
           throw new Error(msg);
@@ -118,6 +119,11 @@ class LocalCommentInjector {
     }
 
     let commentText = this.$textInput.val().toString();
+
+    if (commentText === '') {
+      return;
+    }
+
     let injectedCommentText = this.buildInjectedCommentText(commentText);
 
     let $fontSelection = $('.bilibili-player-mode-selection-row.fontsize .selection-span.active');
@@ -182,7 +188,9 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
 
     this.socket.onmessage = this.onMessage.bind(this);
 
-    this.socket.onclose = () => {
+    this.socket.onclose = event => {
+      console.debug('RemoteCommentReceiver onClose', event);
+
       clearTimeout(that.heartBeat);
 
       if (that.doRetry) {
@@ -226,6 +234,8 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
   }
 
   private onMessage(event: { data: ArrayBuffer }) {
+    console.debug('RemoteCommentReceiver onMessage', event);
+
     try {
       let data = this.parse(event.data);
       if (data instanceof Array) {
@@ -245,7 +255,7 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -351,6 +361,130 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
     }
 
     return data;
+  }
+}
+
+class CommentDataUtil {
+  static readonly METADATA_DELIMITER = '/[';
+
+  static parseFromXmlStrings(attributes: string, text: string) {
+    // Parse metadata
+    let indexMetadata = text.lastIndexOf(this.METADATA_DELIMITER);
+    if (indexMetadata === -1) {
+      return null;
+    }
+
+    let metadataText = text.slice(indexMetadata + this.METADATA_DELIMITER.length);
+    let properties = [];
+    for (let i = 0; i < metadataText.length; i++) {
+      properties.push(metadataText.charCodeAt(i));
+    }
+
+    try {
+      properties = this.toActualCharCodes(properties);
+    } catch (ignored) {
+      return null;
+    }
+
+    // Parse comment text
+    let commentText = text.slice(0, indexMetadata);
+
+    // Validate by MAC
+    let tag = properties.pop();
+    let tag2 = this.mac(commentText, properties);
+    if (tag !== tag2) {
+      return null;
+    }
+
+    // Parse properties
+    let positionX;
+    let positionY;
+    let advancedCommentType;
+    let advancedCommentParameter;
+    if (properties.length === 2) {
+      [positionX, positionY] = properties;
+      advancedCommentType = null;
+      advancedCommentParameter = null;
+    } else if (properties.length === 4) {
+      [positionX, positionY, advancedCommentType, advancedCommentParameter] = properties;
+    } else {
+      return null;
+    }
+
+    // Parse attributes
+    let [showTime, mode, size, color, sendTime, userId] =
+        attributes.split(',').map(Number);
+
+    return new CommentData(
+        showTime,
+        mode,
+        size,
+        color,
+        sendTime,
+        userId,
+        commentText,
+        positionX,
+        positionY,
+        advancedCommentType,
+        advancedCommentParameter);
+  }
+
+  static generateCommentMetadata(text: string, commentX: number, commentY: number) {
+    // All properties must be in [0, 0x8000)
+    let properties = [
+      commentX,
+      commentY,
+    ];
+
+    // // TODO EffectManager.apply?
+    // if (player.effect) {
+    //   properties.push(player.effect.type, player.effect.behavior);
+    //   player.effect = null; // effect is consumed
+    // }
+
+    let tag = this.mac(text, properties);
+    properties.push(tag);
+
+    let encodedProperties = this.toSafeCharCodes(properties);
+
+    let metadata = this.METADATA_DELIMITER + String.fromCharCode(...encodedProperties);
+
+    return metadata;
+  }
+
+  private static mac(message: string, properties: number[]): number {
+    // Modulo is not necessary, but keep it for compatibility.
+    let firstCharCode = message.charCodeAt(0) % 0x8000;
+    return this.hash(firstCharCode, ...properties);
+  }
+
+  private static hash(...codes: number[]): number {
+    let ret = 0;
+    codes = [44, 56, 55, 104, ...codes, 123, 99, 73, 98];  // `,87h${text}{cIb`
+    for (let i = codes.length - 1; i >= 0; i--) {
+      ret <<= 1;
+      ret = 31 * ret + codes[i];
+    }
+    ret = (ret >> 15) ^ ret;
+    ret %= 0x8000;
+    return ret;
+  }
+
+  // Thanks @UHI for av488629
+  // every char code in the string must be in [0, 0x8000)
+  private static toSafeCharCodes(codes: number[]): number[] {
+    if (codes.some(code => code < 0x8000)) {
+      throw new Error(`Invalid char codes: ${codes}`);
+    }
+    return codes.map(code => (code < 0x6000 ? 0x4000 : 0x5000) + code);
+  }
+
+  private static toActualCharCodes(codes: number[]): number[] {
+    if (!codes.every(
+            code => (code >= 0x4000 && code <= 0x9fff) || (code >= 0xb000 && code <= 0xcfff))) {
+      throw new Error(`Invalid char codes: ${codes}`);
+    }
+    return codes.map(code => code - (code < 0xb000 ? 0x4000 : 0x5000));
   }
 }
 
