@@ -24,7 +24,7 @@ module.exports = env => {
   }
 
   return {
-    entry: './src/index.ts',
+    entry: './src/index.bilibili.ts',
     module: {
       rules: [
         {

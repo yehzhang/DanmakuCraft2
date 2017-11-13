@@ -9,12 +9,12 @@ import {EventDispatcher} from '../util';
 import {bindFirst, webSocketManager} from './util';
 import {CommentData} from '../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
-import {WorldProxy} from './outwardAdapter';
+import {UniverseProxy} from './outwardAdapter';
 import {EffectData} from '../effect';
 import Timer = NodeJS.Timer;
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
-  worldProxy: WorldProxy | null;
+  worldProxy: UniverseProxy | null;
 
   constructor() {
     this.worldProxy = null;
@@ -22,12 +22,12 @@ export default class BilibiliAdapter implements EnvironmentAdapter {
 
   getCommentProvider(): CommentProvider {
     if (this.worldProxy == null) {
-      throw new Error('WorldProxy is not set');
+      throw new Error('UniverseProxy is not set');
     }
     return new BilibiliCommentProvider(this.worldProxy);
   }
 
-  setWorldProxy(worldProxy: WorldProxy) {
+  setWorldProxy(worldProxy: UniverseProxy) {
     this.worldProxy = worldProxy;
   }
 
@@ -61,7 +61,7 @@ class BilibiliCommentProvider extends CommentProvider {
   receiver: RemoteCommentReceiver;
   injector: LocalCommentInjector;
 
-  constructor(worldProxy: WorldProxy) {
+  constructor(worldProxy: UniverseProxy) {
     super();
 
     this.injector = new LocalCommentInjector(worldProxy);
@@ -103,7 +103,7 @@ class LocalCommentInjector {
   private $textInput: JQuery<HTMLElement>;
   private $sendButton: JQuery<HTMLElement>;
 
-  constructor(private worldProxy: WorldProxy) {
+  constructor(private worldProxy: UniverseProxy) {
     this.$textInput = $('.bilibili-player-video-danmaku-input');
 
     this.$sendButton = $('.bilibili-player-video-btn-send');

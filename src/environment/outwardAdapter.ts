@@ -1,4 +1,4 @@
-export interface WorldProxy {
+export interface UniverseProxy {
   /**
    * Checks if `text` can be placed in the world. Probably triggers some notification
    * in game if request is rejected.
