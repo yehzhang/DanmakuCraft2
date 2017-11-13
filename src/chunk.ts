@@ -148,6 +148,14 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     return chunks;
   }
 
+  forEach(f: (entity: E) => void): void {
+    for (let chunkRow of this.chunks) {
+      for (let chunk of chunkRow) {
+        chunk.forEach(f);
+      }
+    }
+  }
+
   /**
    * Handles bounds that wrap around the world.
    */

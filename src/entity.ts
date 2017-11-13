@@ -17,6 +17,11 @@ export interface EntityManager<E extends Entity = Entity> {
 
   leftOuterJoinRenderableRegions(
       worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Region<E>>;
+
+  /**
+   * Iterates over all managed entities.
+   */
+  forEach(f: (entity: E) => void): void;
 }
 
 /**
