@@ -1,6 +1,8 @@
 /**
  * Stores entities in regions and provides modifiers and accessors.
  */
+import {BuffManager} from './buff';
+
 export interface EntityManager<E extends Entity = Entity> {
   loadBatch(entities: E[]): void;
 
@@ -30,14 +32,31 @@ export interface Region<E extends Entity> {
 
 export abstract class Entity {
   // TODO
-  constructor(private position: Phaser.Point) {
+  constructor(protected coordinate: Phaser.Point) {
   }
 
-  getPosition() {
-    return this.position;
+  /**
+   * Returns coordinate of the entity. It might be outside of the world.
+   */
+  getCoordinate() {
+    return this.coordinate;
   }
 }
 
-export class PlayerEntity extends Entity {
+export abstract class AnimatedEntity extends Entity {
+  protected buffManager: BuffManager<this>;
+
+  constructor(coordinate: Phaser.Point) {
+    super(coordinate);
+
+    this.buffManager = new BuffManager(this);
+  }
+
+  tick() {
+    this.buffManager.tick();
+  }
+}
+
+export class PlayerEntity extends AnimatedEntity {
   // TODO
 }

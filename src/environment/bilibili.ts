@@ -10,7 +10,7 @@ import {bindFirst, webSocketManager} from './util';
 import {CommentData} from '../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import {WorldProxy} from './outwardAdapter';
-import {EffectFactory} from '../effect';
+import {EffectData} from '../effect';
 import Timer = NodeJS.Timer;
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
@@ -407,15 +407,15 @@ class CommentDataUtil {
     // Parse properties
     let positionX;
     let positionY;
-    let effect;
+    let effectData;
     if (properties.length === 2) {
       [positionX, positionY] = properties;
-      effect = null;
+      effectData = null;
     } else if (properties.length === 4) {
       let effectType;
       let effectParameter;
       [positionX, positionY, effectType, effectParameter] = properties;
-      effect = EffectFactory.build(effectType, effectParameter);
+      effectData = new EffectData(effectType, effectParameter);
     } else {
       return null;
     }
@@ -434,7 +434,7 @@ class CommentDataUtil {
         commentText,
         positionX,
         positionY,
-        effect);
+        effectData);
   }
 
   static generateCommentMetadata(text: string, commentX: number, commentY: number) {

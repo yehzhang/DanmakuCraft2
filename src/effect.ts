@@ -1,40 +1,54 @@
 import {CommentEntity} from './comment';
+import {Entity} from './entity';
 
 export class LocallyOriginatedCommentEffectManager {
-  private activatedEffects: Effect[];
+  private inactiveEffects: Array<Effect<CommentEntity>>;
 
   constructor(private maxActivatedEffectsCount: number) {
-    this.activatedEffects = [];
+    this.inactiveEffects = [];
   }
 
-  activate(effect: Effect) {
-    this.activatedEffects.push(effect);
-    if (this.activatedEffects.length > this.maxActivatedEffectsCount) {
-      this.activatedEffects.shift();
+  add(effect: Effect<CommentEntity>) {
+    this.inactiveEffects.push(effect);
+    if (this.inactiveEffects.length > this.maxActivatedEffectsCount) {
+      this.inactiveEffects.shift();
     }
   }
 
-  apply(comment: CommentEntity): boolean {
-    for (let i = 0; i < this.activatedEffects.length; i++) {
-      let effect = this.activatedEffects[i];
-      if (effect.apply(comment)) {
-        this.activatedEffects.splice(i, 1);
-        return true;
-      }
+  hasEffect() {
+    return this.inactiveEffects.length !== 0;
+  }
+
+  activateOne(): EffectData {
+    if (!this.hasEffect()) {
+      throw new Error('No effect to activate');
     }
-    return false;
+
+    let effect = this.inactiveEffects.shift() as Effect<CommentEntity>;
+    let effectName = effect.constructor.name.toUpperCase();
+    let effectType = (EffectType as any)[effectName];
+    return new EffectData(effectType, effect.parameter || 0);
+  }
+}
+
+export class EffectData {
+  constructor(public readonly type: number, public readonly parameter: number) {
+  }
+
+  toString() {
+    return `Type: ${this.type}; Parameter: ${this.parameter}`;
   }
 }
 
 export class EffectFactory {
-  static build(type: number, parameter: number | null): Effect {
-    switch (type) {
+  static build(effectData: EffectData): Effect<Entity> {
+    switch (effectData.type) {
       case EffectType.ETHEREAL:
         return Ethereal.getInstance();
       case EffectType.CHROMATIC:
         return new Chromatic();
       default:
-        throw new Error(`Invalid effect type: ${type}`);
+        throw new Error(`Invalid effect type: ${effectData}`);
     }
   }
 }
@@ -50,21 +64,24 @@ enum EffectType {
   // Reserved HASTY = 7,
 }
 
-export interface Effect {
-  apply(comment: CommentEntity): boolean;
-}
-
-class Chromatic implements Effect {
-  apply(comment: CommentEntity): boolean {
-    // TODO
-    throw new Error('Method not implemented.');
+/**
+ * Permanently changes the behavior of an {@link Entity}.
+ */
+export abstract class Effect<E extends Entity> {
+  constructor(public readonly parameter?: number) {
   }
+
+  abstract initialize(entity: E): void;
 }
 
-class Ethereal implements Effect {
-  private static instance: Ethereal | null;
+/**
+ * Nothing.
+ */
+class Ethereal<E extends Entity> extends Effect<E> {
+  private static instance: Ethereal<Entity> | null;
 
   private constructor() {
+    super();
   }
 
   static getInstance() {
@@ -74,7 +91,17 @@ class Ethereal implements Effect {
     return this.instance;
   }
 
-  apply(comment: CommentEntity): boolean {
-    return true;
+  initialize(_: E): void {
+    return undefined;
+  }
+}
+
+/**
+ * Makes a {@link CommentEntity} constantly changes its color.
+ */
+class Chromatic<E extends CommentEntity> extends Effect<E> {
+  initialize(entity: E): void {
+    // TODO
+    throw new Error('Not implemented');
   }
 }

@@ -1,6 +1,10 @@
-import {Entity, PlayerEntity} from './entity';
+import {AnimatedEntity} from './entity';
+import {Effect} from './effect';
 
-export class EntityBuffManager<E extends Entity> {
+/**
+ * Manages buffs applied on an entity.
+ */
+export class BuffManager<E extends AnimatedEntity> {
   private activatedBuffs: Array<Buff<E>>;
 
   constructor(private readonly entity: E) {
@@ -27,10 +31,14 @@ export class EntityBuffManager<E extends Entity> {
   }
 }
 
-export abstract class Buff<E extends Entity = PlayerEntity> {
+/**
+ * Effect that updates and expires.
+ */
+export abstract class Buff<E extends AnimatedEntity> extends Effect<E> {
   private ticks: number;
 
-  constructor(private readonly lifetime: number) {
+  constructor(private readonly lifetime: number, parameter?: number) {
+    super(parameter);
     this.ticks = 0;
   }
 
@@ -42,9 +50,7 @@ export abstract class Buff<E extends Entity = PlayerEntity> {
     return this.ticks >= this.lifetime;
   }
 
-  abstract initialize(entity: E);
+  abstract update(entity: E): void;
 
-  abstract update(entity: E);
-
-  abstract reset(entity: E);
+  abstract reset(entity: E): void;
 }

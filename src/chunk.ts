@@ -58,7 +58,7 @@ export class ArrayEntityManager<E extends Entity = Entity> implements EntityMana
   }
 
   load(entity: E): void {
-    let coordinate = this.toChunkCoordinate(entity.getPosition());
+    let coordinate = this.toChunkCoordinate(entity.getCoordinate());
     let chunk = this.getChunk(coordinate);
     chunk.addEntity(entity);
   }

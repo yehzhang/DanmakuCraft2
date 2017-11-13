@@ -1,5 +1,5 @@
 import {EntityManager} from './entity';
-import {Effect} from './effect';
+import {Effect, EffectData, EffectFactory} from './effect';
 import {Entity} from './entity';
 
 export class CommentData {
@@ -11,9 +11,9 @@ export class CommentData {
       public readonly sendTime: number,
       public readonly userId: number,
       public readonly text: string,
-      public readonly positionX: number, // These positions may be invalid.
-      public readonly positionY: number,
-      public readonly effect: Effect | null) {
+      public readonly coordinateX: number, // These positions may be invalid.
+      public readonly coordinateY: number,
+      public readonly effectData: EffectData | null) {
   }
 }
 
@@ -29,13 +29,27 @@ export class CommentEntityManager {
       throw new Error('Initial comments are loaded already');
     }
 
-    // TODO
+    let comments = commentsData.map(CommentEntityManager.buildComment);
+    this.entityManager.loadBatch(comments);
 
     this.isLoaded = true;
   }
 
   loadComment(commentData: CommentData) {
+    let comment = CommentEntityManager.buildComment(commentData);
+    this.entityManager.load(comment);
+  }
 
+  private static buildComment(data: CommentData) {
+    let coordinate = new Phaser.Point(data.coordinateX, data.coordinateY);
+    let comment = new CommentEntity(data.size, data.color, data.text, coordinate);
+
+    if (data.effectData != null) {
+      let effect = EffectFactory.build(data.effectData);
+      effect.initialize(comment);
+    }
+
+    return comment;
   }
 
   areInitialCommentsLoaded() {
@@ -44,15 +58,11 @@ export class CommentEntityManager {
 }
 
 export class CommentEntity extends Entity {
-  constructor(position: Phaser.Point, private effect: Effect | null) {
-    super(position);
-  }
-
-  hasEffect() {
-    return this.effect != null;
-  }
-
-  getEffect() {
-    return this.effect;
+  constructor(
+      private size: number,
+      private color: number,
+      private text: string,
+      coordinate: Phaser.Point) {
+    super(coordinate);
   }
 }
