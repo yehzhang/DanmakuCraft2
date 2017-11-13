@@ -3,7 +3,7 @@ import {Entity, EntityManager, Region} from './entity';
 /**
  * Implements {@link EntityManager} with arrays of {@link Chunk}s.
  */
-export class ArrayEntityManager<E extends Entity = Entity> implements EntityManager<E> {
+export class ChunkEntityManager<E extends Entity = Entity> implements EntityManager<E> {
   private renderChunksCount: number;
   private chunkSize: number;
   private chunksCount: number;
@@ -18,7 +18,7 @@ export class ArrayEntityManager<E extends Entity = Entity> implements EntityMana
     this.chunksCount = Math.floor(chunksCount);
     this.chunkSize = worldSize / this.chunksCount;
     this.renderChunksCount = Math.ceil(renderDistance / this.chunkSize);
-    this.chunks = ArrayEntityManager.makeChunks(this.chunksCount);
+    this.chunks = ChunkEntityManager.makeChunks(this.chunksCount);
 
     if (worldSize <= 0) {
       throw new Error('Invalid world size');
@@ -208,7 +208,7 @@ export class ArrayEntityManager<E extends Entity = Entity> implements EntityMana
 export class Chunk<E extends Entity> implements Region<E> {
   private entities: E[];
 
-  constructor(public readonly id: number) {
+  constructor(public readonly uniqueId: number) {
     this.entities = [];
   }
 
