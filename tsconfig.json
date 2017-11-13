@@ -17,6 +17,7 @@
     "strictNullChecks": true
   },
   "include": [
-    "./src/index.bilibili.ts"
+    "./src/index.bilibili.ts",
+    "./src/index.testing.ts"
   ]
 }
