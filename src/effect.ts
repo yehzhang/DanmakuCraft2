@@ -77,8 +77,8 @@ export abstract class Effect<E extends Entity> {
 /**
  * Nothing.
  */
-class Ethereal<E extends Entity> extends Effect<E> {
-  private static instance: Ethereal<Entity> | null;
+class Ethereal extends Effect<Entity> {
+  private static instance: Ethereal | null;
 
   private constructor() {
     super();
@@ -91,7 +91,7 @@ class Ethereal<E extends Entity> extends Effect<E> {
     return this.instance;
   }
 
-  initialize(_: E): void {
+  initialize(_: Entity): void {
     return undefined;
   }
 }
@@ -99,8 +99,8 @@ class Ethereal<E extends Entity> extends Effect<E> {
 /**
  * Makes a {@link CommentEntity} constantly changes its color.
  */
-class Chromatic<E extends CommentEntity> extends Effect<E> {
-  initialize(entity: E): void {
+class Chromatic extends Effect<CommentEntity> {
+  initialize(entity: CommentEntity): void {
     // TODO
     throw new Error('Not implemented');
   }
