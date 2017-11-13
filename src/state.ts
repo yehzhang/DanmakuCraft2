@@ -1,5 +1,5 @@
 import {EnvironmentAdapter} from './environment/inwardAdapter';
-import {CommentEntityManager} from './comment';
+import {CommentManager} from './comment';
 
 /**
  * Displays the opening, loads all comments, and adds a new-comment listener
@@ -10,7 +10,7 @@ export class BootState extends Phaser.State {
 
   constructor(
       private adapter: EnvironmentAdapter,
-      private commentManager: CommentEntityManager) {
+      private commentManager: CommentManager) {
     super();
     this.error = null;
   }

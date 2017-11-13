@@ -17,7 +17,7 @@ export class CommentData {
   }
 }
 
-export class CommentEntityManager {
+export class CommentManager {
   private isLoaded: boolean;
 
   constructor(private entityManager: EntityManager) {
@@ -29,14 +29,14 @@ export class CommentEntityManager {
       throw new Error('Initial comments are loaded already');
     }
 
-    let comments = commentsData.map(CommentEntityManager.buildComment);
+    let comments = commentsData.map(CommentManager.buildComment);
     this.entityManager.loadBatch(comments);
 
     this.isLoaded = true;
   }
 
   loadComment(commentData: CommentData) {
-    let comment = CommentEntityManager.buildComment(commentData);
+    let comment = CommentManager.buildComment(commentData);
     this.entityManager.load(comment);
   }
 
@@ -54,6 +54,11 @@ export class CommentEntityManager {
 
   areInitialCommentsLoaded() {
     return this.isLoaded;
+  }
+
+  canPlaceComment(commentText: string, commentSize: number): boolean {
+    // TODO
+    throw new Error('Not implemented');
   }
 }
 

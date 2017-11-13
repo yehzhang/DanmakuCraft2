@@ -1,17 +1,19 @@
 import {EnvironmentAdapter} from './environment/inwardAdapter';
 import {UniverseProxy} from './environment/outwardAdapter';
-import {CommentEntityManager} from './comment';
+import {CommentManager} from './comment';
 import {EntityManager} from './entity';
 import {BootState, EndState} from './state';
 import {ChunkEntityManager} from './chunk';
+import {Notifier} from './notification';
 
 /**
  * Instantiates and connects components. Starts the game.
  */
 export default class Universe {
   private game: Phaser.Game;
-  private commentManager: CommentEntityManager;
+  private commentManager: CommentManager;
   private entityManager: EntityManager;
+  private notifier: Notifier;
 
   constructor(private adapter: EnvironmentAdapter) {
     this.game = new Phaser.Game(
@@ -23,7 +25,8 @@ export default class Universe {
         PhysicalConstants.WORLD_SIZE,
         PhysicalConstants.CHUNKS_COUNT,
         PhysicalConstants.renderDistance);
-    this.commentManager = new CommentEntityManager(this.entityManager);
+    this.commentManager = new CommentManager(this.entityManager);
+    this.notifier = new Notifier();
   }
 
   genesis() {
@@ -34,8 +37,7 @@ export default class Universe {
   }
 
   getProxy(): UniverseProxy {
-    // TODO
-    throw new Error('Not implemented');
+    return new Proxy(this.commentManager, this.notifier);
   }
 }
 
@@ -43,4 +45,27 @@ class PhysicalConstants {
   public static readonly WORLD_SIZE = 1000; // TODO
   public static readonly CHUNKS_COUNT = 50;
   public static renderDistance = 1000; // TODO change depending on Phaser.screenSize
+}
+
+class Proxy implements UniverseProxy {
+  constructor(
+      private commentManager: CommentManager,
+      private notifier: Notifier) {
+  }
+
+  requestForPlacingComment(text: string, size: number): boolean {
+    if (this.commentManager.canPlaceComment(text, size)) {
+      return true;
+    }
+
+    // TODO
+    throw new Error('Not implemented');
+    // this.notifier.notify('');
+    //
+    // return false;
+  }
+
+  getPlayer() {
+    throw new Error('Method not implemented.');
+  }
 }
