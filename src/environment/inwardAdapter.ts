@@ -1,4 +1,4 @@
-import {EventDispatcher, EventType} from '../util';
+import {EventDispatcher, UnaryEvent} from '../util';
 import {CommentData} from '../comment';
 
 /**
@@ -8,6 +8,8 @@ export interface EnvironmentAdapter {
   getGameContainerProvider(): GameContainerProvider;
 
   getCommentProvider(): CommentProvider;
+
+  getSettingsProvider(): SettingsProvider;
 }
 
 /**
@@ -20,15 +22,11 @@ export interface GameContainerProvider {
 /**
  * Used by {@link CommentProvider} to dispatch a single new comment.
  */
-export class NewCommentEvent extends CustomEvent {
-  static type: EventType = 'newComment';
+export class NewCommentEvent extends UnaryEvent<CommentData> {
+  static type = 'newComment';
 
   constructor(commentData: CommentData) {
-    super(NewCommentEvent.type, {detail: commentData});
-  }
-
-  getData(): CommentData {
-    return this.detail;
+    super(NewCommentEvent.type, commentData);
   }
 }
 
@@ -37,7 +35,7 @@ export class NewCommentEvent extends CustomEvent {
  * comment is available.
  */
 export abstract class CommentProvider extends EventDispatcher<NewCommentEvent> {
-  static NEW_COMMENT: EventType = NewCommentEvent.type;
+  static NEW_COMMENT = NewCommentEvent.type;
 
   /**
    * Returns all comments currently available.
@@ -47,13 +45,25 @@ export abstract class CommentProvider extends EventDispatcher<NewCommentEvent> {
   abstract async getAllComments(): Promise<CommentData[]>;
 }
 
-export interface SettingsProvider {
-  getSettings(): Settings;
+/**
+ * Used by {@link CommentProvider} to dispatch a single new comment.
+ */
+export class NewSettingsEvent extends UnaryEvent<Settings> {
+  static type = 'newSettings';
+
+  constructor(settings: Settings) {
+    super(NewSettingsEvent.type, settings);
+  }
 }
 
 export class Settings {
   constructor(
-      public fontFamilies: string[],
-  ) {
+      public readonly fontFamily: string) {
   }
+}
+
+export abstract class SettingsProvider extends EventDispatcher<NewSettingsEvent> {
+  static NEW_SETTINGS = NewSettingsEvent.type;
+
+  abstract getSettings(): Settings;
 }

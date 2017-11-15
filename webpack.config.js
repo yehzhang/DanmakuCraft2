@@ -23,8 +23,15 @@ module.exports = env => {
     outputPath = path.resolve(__dirname, 'build');
   }
 
+  let entry;
+  if (isProduction) {
+    entry = './src/index.bilibili.ts';
+  } else {
+    entry = './src/index.testing.ts';
+  }
+
   return {
-    entry: './src/index.bilibili.ts',
+    entry,
     module: {
       rules: [
         {

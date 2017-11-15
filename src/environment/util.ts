@@ -19,3 +19,8 @@ class WebSocketManager {
 }
 
 export const webSocketManager = new WebSocketManager();
+
+export function isLinux() {
+  let ua = navigator.userAgent;
+  return /Linux/i.test(ua);
+}

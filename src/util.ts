@@ -5,7 +5,7 @@ export class EventDispatcher<T extends Event> {
     this.delegate = document.createDocumentFragment();
   }
 
-  addEventListener(type: EventType, listener: (event: T) => void, options?: any) {
+  addEventListener(type: string, listener: (event: T) => void, options?: any) {
     return this.delegate.addEventListener(type, listener, options);
   }
 
@@ -13,9 +13,17 @@ export class EventDispatcher<T extends Event> {
     return this.delegate.dispatchEvent(event);
   }
 
-  removeEventListener(type: EventType, listener: (event: T) => void, options?: any) {
+  removeEventListener(type: string, listener: (event: T) => void, options?: any) {
     return this.delegate.removeEventListener(type, listener, options);
   }
 }
 
-export type EventType = string;
+export class UnaryEvent<T> extends CustomEvent {
+  constructor(eventType: string, detail: T) {
+    super(eventType, {detail});
+  }
+
+  getDetail(): T {
+    return this.detail;
+  }
+}

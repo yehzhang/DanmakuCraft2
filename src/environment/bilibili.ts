@@ -3,10 +3,12 @@ import {
   CommentProvider,
   EnvironmentAdapter,
   GameContainerProvider,
-  NewCommentEvent
+  NewCommentEvent,
+  Settings,
+  SettingsProvider
 } from './inwardAdapter';
 import {EventDispatcher} from '../util';
-import {bindFirst, webSocketManager} from './util';
+import {bindFirst, isLinux, webSocketManager} from './util';
 import {CommentData} from '../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import {UniverseProxy} from './outwardAdapter';
@@ -14,6 +16,10 @@ import {EffectData, LocallyOriginatedCommentEffectManager} from '../effect';
 import Timer = NodeJS.Timer;
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
+  getSettingsProvider(): SettingsProvider {
+    throw new Error('Method not implemented.');
+  }
+
   universeProxy: UniverseProxy | null;
 
   constructor() {
@@ -183,7 +189,7 @@ class LocalCommentInjector {
 class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
   private socket: WebSocket;
   private doRetry: boolean;
-  private heartBeat: Timer | null;
+  private heartBeat: number | null;
 
   private static frameDefinitionEntries = [
     {name: 'Header Length', key: 'headerLen', size: 2, offset: 4, value: 16},
@@ -256,7 +262,7 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
     let data = this.encode({}, 2);
     this.socket.send(data);
 
-    this.heartBeat = setTimeout(() => {
+    this.heartBeat = window.setTimeout(() => {
       that.startHeartBeat();
     }, 30 * 1e3);
   }
@@ -517,6 +523,28 @@ class CommentDataUtil {
       throw new Error(`Invalid char codes: ${codes}`);
     }
     return codes.map(code => code - (code < 0xb000 ? 0x4000 : 0x5000));
+  }
+}
+
+class BilibiliSettingsProvider extends SettingsProvider {
+  // TODO implement listener
+  private static DEFAULT_SETTINGS = {
+    fontFamily: (isLinux()
+        ? `'Noto Sans CJK SC DemiLight'`
+        : `SimHei, 'Microsoft JhengHei', YaHei`) + ', Arial, Helvetica, sans-serif',
+  };
+
+  private settings: any;
+
+  constructor() {
+    super();
+
+    // TODO read settings from bilibili player
+    this.settings = Object.assign({}, BilibiliSettingsProvider.DEFAULT_SETTINGS, {});
+  }
+
+  getSettings(): Settings {
+    return new Settings(this.settings.fontFamily);
   }
 }
 
