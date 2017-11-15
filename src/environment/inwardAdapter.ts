@@ -46,3 +46,14 @@ export abstract class CommentProvider extends EventDispatcher<NewCommentEvent> {
    */
   abstract async getAllComments(): Promise<CommentData[]>;
 }
+
+export interface SettingsProvider {
+  getSettings(): Settings;
+}
+
+export class Settings {
+  constructor(
+      public fontFamilies: string[],
+  ) {
+  }
+}

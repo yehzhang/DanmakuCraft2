@@ -4,8 +4,6 @@ import {Entity} from './entity';
 
 export class CommentData {
   constructor(
-      public readonly showTime: number,
-      public readonly mode: number,
       public readonly size: number,
       public readonly color: number,
       public readonly sendTime: number,

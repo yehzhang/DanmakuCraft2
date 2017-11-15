@@ -10,25 +10,25 @@ import {bindFirst, webSocketManager} from './util';
 import {CommentData} from '../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import {UniverseProxy} from './outwardAdapter';
-import {EffectData} from '../effect';
+import {EffectData, LocallyOriginatedCommentEffectManager} from '../effect';
 import Timer = NodeJS.Timer;
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
-  worldProxy: UniverseProxy | null;
+  universeProxy: UniverseProxy | null;
 
   constructor() {
-    this.worldProxy = null;
+    this.universeProxy = null;
   }
 
   getCommentProvider(): CommentProvider {
-    if (this.worldProxy == null) {
+    if (this.universeProxy == null) {
       throw new Error('UniverseProxy is not set');
     }
-    return new BilibiliCommentProvider(this.worldProxy);
+    return new BilibiliCommentProvider(this.universeProxy);
   }
 
-  setWorldProxy(worldProxy: UniverseProxy) {
-    this.worldProxy = worldProxy;
+  setUniverseProxy(universeProxy: UniverseProxy) {
+    this.universeProxy = universeProxy;
   }
 
   getGameContainerProvider(): GameContainerProvider {
@@ -42,9 +42,9 @@ class BilibiliContainerProvider implements GameContainerProvider {
       throw new Error('Script cannot be run on this page');
     }
 
-    // TODO check if wrap content is recovered on fullscreen / widescreen change.
     let $videoFrame = $('.bilibili-player-video-wrap');
     $videoFrame.empty();
+    // $videoFrame is not recovered when player's size is changed.
 
     return $videoFrame[0];
   }
@@ -61,10 +61,10 @@ class BilibiliCommentProvider extends CommentProvider {
   receiver: RemoteCommentReceiver;
   injector: LocalCommentInjector;
 
-  constructor(worldProxy: UniverseProxy) {
+  constructor(universeProxy: UniverseProxy) {
     super();
 
-    this.injector = new LocalCommentInjector(worldProxy);
+    this.injector = new LocalCommentInjector(universeProxy);
 
     this.receiver = new RemoteCommentReceiver(EnvironmentVariables.chatBroadcastUrl);
     this.receiver.addEventListener(CommentProvider.NEW_COMMENT, this.onNewComment.bind(this));
@@ -102,12 +102,15 @@ class BilibiliCommentProvider extends CommentProvider {
 class LocalCommentInjector {
   private $textInput: JQuery<HTMLElement>;
   private $sendButton: JQuery<HTMLElement>;
+  private effectManager: LocallyOriginatedCommentEffectManager;
 
-  constructor(private worldProxy: UniverseProxy) {
+  constructor(private universeProxy: UniverseProxy) {
     this.$textInput = $('.bilibili-player-video-danmaku-input');
 
     this.$sendButton = $('.bilibili-player-video-btn-send');
     bindFirst(this.$sendButton, 'click', this.onClickSendButtonInitial.bind(this));
+
+    this.effectManager = universeProxy.getEffectManager();
   }
 
   /**
@@ -119,22 +122,20 @@ class LocalCommentInjector {
       return;
     }
 
-    let commentText = String(this.$textInput.val());
-
-    if (commentText === '') {
+    let commentValue = this.$textInput.val();
+    if (!commentValue) {
       return;
     }
 
+    let commentText = commentValue.toString();
     let injectedCommentText = this.buildInjectedCommentText(commentText);
-
-    let $fontSelection = $('.bilibili-player-mode-selection-row.fontsize .selection-span.active');
-    let commentSize =
-        Number($fontSelection.attr('data-value')) || Parameters.DEFAULT_FONT_SIZE;
-
-    if (!this.worldProxy.requestForPlacingComment(commentText, commentSize)) {
+    let commentSize = LocalCommentInjector.getSelectedFontSize();
+    if (!this.universeProxy.requestForPlacingComment(injectedCommentText, commentSize)) {
       event.stopImmediatePropagation();
       return;
     }
+
+    this.effectManager.activateOne();
 
     // Update comment text in UI and let player check if the text is valid.
     this.$textInput.val(injectedCommentText);
@@ -148,9 +149,30 @@ class LocalCommentInjector {
     }
   }
 
+  private static getSelectedFontSize() {
+    let commentSize;
+
+    let $fontSelection = $('.bilibili-player-mode-selection-row.fontsize .selection-span.active');
+    let commentSizeValue = $fontSelection.attr('data-value');
+    if (commentSizeValue) {
+      commentSize = Number(commentSizeValue);
+    } else {
+      commentSize = Parameters.DEFAULT_FONT_SIZE;
+    }
+
+    return commentSize;
+  }
+
   private buildInjectedCommentText(text: string): string {
-    throw new Error('Not implemented'); // TODO
-    // return text + CommentDataUtil.generateCommentMetadata(text, x, y);
+    let effectData;
+    if (this.effectManager.hasEffect()) {
+      effectData = this.effectManager.peek();
+    }
+
+    let player = this.universeProxy.getPlayer();
+    let playerCoordinate = player.getCoordinate();
+
+    return CommentDataUtil.buildInjectedCommentText(text, playerCoordinate, effectData);
   }
 
   private isSendButtonDisabled() {
@@ -421,41 +443,43 @@ class CommentDataUtil {
     }
 
     // Parse attributes
-    let [showTime, mode, size, color, sendTime, userId] =
-        attributes.split(',').map(Number);
+    let [, , size, color, sendTime, , userId, ] = attributes.split(',');
 
     return new CommentData(
-        showTime,
-        mode,
-        size,
-        color,
-        sendTime,
-        userId,
+        Number(size),
+        Number(color),
+        Number(sendTime),
+        parseInt(userId, 16),
         commentText,
         positionX,
         positionY,
         effectData);
   }
 
-  static generateCommentMetadata(text: string, commentX: number, commentY: number) {
+  static buildInjectedCommentText(
+      text: string, commentCoordinate: Phaser.Point, effect?: EffectData) {
+    let metadata = this.generateCommentMetadata(text, commentCoordinate, effect);
+    return text + this.METADATA_DELIMITER + metadata;
+  }
+
+  static generateCommentMetadata(
+      text: string, commentCoordinate: Phaser.Point, effect?: EffectData) {
     // All properties must be in [0, 0x8000)
     let properties = [
-      commentX,
-      commentY,
+      commentCoordinate.x,
+      commentCoordinate.y,
     ];
 
-    // // TODO EffectManager.apply?
-    // if (player.effect) {
-    //   properties.push(player.effect.type, player.effect.behavior);
-    //   player.effect = null; // effect is consumed
-    // }
+    if (effect) {
+      properties.push(effect.type, effect.parameter);
+    }
 
     let tag = this.mac(text, properties);
     properties.push(tag);
 
     let encodedProperties = this.toSafeCharCodes(properties);
 
-    let metadata = this.METADATA_DELIMITER + String.fromCharCode(...encodedProperties);
+    let metadata = String.fromCharCode(...encodedProperties);
 
     return metadata;
   }

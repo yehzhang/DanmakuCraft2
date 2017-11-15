@@ -15,16 +15,38 @@ export class LocallyOriginatedCommentEffectManager {
     }
   }
 
+  get(index: number): EffectData {
+    if (index < 0 || index >= this.inactiveEffects.length) {
+      throw new Error(`No effect at index ${index}`);
+    }
+
+    let effect = this.inactiveEffects[index];
+    return this.toEffectData(effect);
+  }
+
   hasEffect() {
     return this.inactiveEffects.length !== 0;
   }
 
   activateOne(): EffectData {
-    if (!this.hasEffect()) {
+    let effect = this.inactiveEffects.shift();
+
+    if (effect == null) {
       throw new Error('No effect to activate');
     }
 
-    let effect = this.inactiveEffects.shift() as Effect<CommentEntity>;
+    return this.toEffectData(effect);
+  }
+
+  peek() {
+    if (!this.hasEffect()) {
+      throw new Error('No effect to peek');
+    }
+
+    return this.toEffectData(this.inactiveEffects[0]);
+  }
+
+  private toEffectData(effect: Effect<Entity>) {
     let effectName = effect.constructor.name.toUpperCase();
     let effectType = (EffectType as any)[effectName];
     return new EffectData(effectType, effect.parameter || 0);
