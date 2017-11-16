@@ -6,13 +6,21 @@ export interface MessageProvider {
  * Creates a message bubble in UI.
  */
 export class Notifier {
-  notify(provider: MessageProvider) {
+  notifyFrom(provider: MessageProvider) {
     let message = provider.getMessage();
     if (!message) {
       return;
     }
 
+    this.notify(message);
+  }
+
+  notify(message: string) {
     // TODO
     throw new Error('Not implemented');
   }
+}
+
+export class Messages {
+
 }
