@@ -9,7 +9,7 @@ import BiliBiliAdapter from './environment/bilibili';
 function main() {
   let adapter = new BiliBiliAdapter();
   let universe = new Universe(adapter);
-  adapter.setWorldProxy(universe.getProxy());
+  adapter.setUniverseProxy(universe.getProxy());
 
   universe.genesis();
 }
