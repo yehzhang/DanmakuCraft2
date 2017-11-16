@@ -13,13 +13,8 @@ import {CommentData} from '../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import {UniverseProxy} from './outwardAdapter';
 import {EffectData, LocallyOriginatedCommentEffectManager} from '../effect';
-import Timer = NodeJS.Timer;
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
-  getSettingsProvider(): SettingsProvider {
-    throw new Error('Method not implemented.');
-  }
-
   universeProxy: UniverseProxy | null;
 
   constructor() {
@@ -39,6 +34,10 @@ export default class BilibiliAdapter implements EnvironmentAdapter {
 
   getGameContainerProvider(): GameContainerProvider {
     return new BilibiliContainerProvider();
+  }
+
+  getSettingsProvider(): SettingsProvider {
+    return new BilibiliSettingsProvider();
   }
 }
 
@@ -74,6 +73,16 @@ class BilibiliCommentProvider extends CommentProvider {
 
     this.receiver = new RemoteCommentReceiver(EnvironmentVariables.chatBroadcastUrl);
     this.receiver.addEventListener(CommentProvider.NEW_COMMENT, this.onNewComment.bind(this));
+  }
+
+  connect() {
+    if (this.connected) {
+      return;
+    }
+
+    this.receiver.connect();
+
+    this.connected = true;
   }
 
   private onNewComment(event: NewCommentEvent) {
@@ -187,6 +196,7 @@ class LocalCommentInjector {
 }
 
 class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
+  private connected: boolean;
   private socket: WebSocket;
   private doRetry: boolean;
   private heartBeat: number | null;
@@ -203,17 +213,24 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
 
     this.doRetry = true;
     this.heartBeat = null;
+  }
+
+  connect() {
+    if (this.connected) {
+      return;
+    }
 
     this.startWebSocket();
+
+    this.connected = true;
   }
 
   private startWebSocket() {
     this.socket = webSocketManager.build(this.url);
     this.socket.binaryType = 'arraybuffer';
 
-    let that = this;
     this.socket.onopen = () => {
-      that.sendInitialMessage();
+      this.sendInitialMessage();
     };
 
     this.socket.onmessage = this.onMessage.bind(this);
@@ -221,13 +238,13 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
     this.socket.onclose = event => {
       console.debug('RemoteCommentReceiver onClose', event);
 
-      if (that.heartBeat != null) {
-        clearTimeout(that.heartBeat);
+      if (this.heartBeat != null) {
+        clearTimeout(this.heartBeat);
       }
 
-      if (that.doRetry) {
+      if (this.doRetry) {
         setTimeout(() => {
-          that.startWebSocket();
+          this.startWebSocket();
         }, 5 * 1e3);
       }
     };

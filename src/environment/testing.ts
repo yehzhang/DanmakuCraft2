@@ -27,6 +27,10 @@ class TestingContainerProvider implements GameContainerProvider {
 }
 
 class TestingCommentProvider extends CommentProvider {
+  connect(): void {
+    return undefined;
+  }
+
   async getAllComments(): Promise<CommentData[]> {
     return new Promise<CommentData[]>(resolve => resolve([]));
   }
