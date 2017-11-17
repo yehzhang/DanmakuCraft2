@@ -1,6 +1,8 @@
-import {EntityManager} from './entity';
-import {Effect, EffectData, EffectFactory} from './effect';
-import {Entity} from './entity';
+import {Entity, EntityManager} from './entity';
+import {EffectData, EffectFactory} from './effect';
+import SettingsManager from './environment/SettingsManager';
+import CommentProvider, {NewCommentEvent} from './environment/CommentProvider';
+import {UnaryEvent} from './util';
 
 export class CommentData {
   constructor(
@@ -16,29 +18,41 @@ export class CommentData {
 }
 
 export class CommentManager {
-  private isLoaded: boolean;
+  private fontFamily: string;
 
-  constructor(private entityManager: EntityManager) {
-    this.isLoaded = false;
+  constructor(
+      private game: Phaser.Game,
+      private entityManager: EntityManager,
+      settingsManager: SettingsManager) {
+    this.fontFamily = settingsManager.getSetting(SettingsManager.Options.FONT_FAMILY);
+    settingsManager.addEventListener(
+        SettingsManager.Options.FONT_FAMILY, this.onFontChanged.bind(this));
   }
 
-  loadInitialComments(commentsData: CommentData[]) {
-    if (this.isLoaded) {
-      throw new Error('Initial comments are loaded already');
+  private onFontChanged(event: UnaryEvent<string>) {
+    let fontFamily = event.getDetail();
+    if (this.fontFamily === fontFamily) {
+      return;
     }
 
-    let comments = commentsData.map(CommentManager.buildComment);
+    this.fontFamily = fontFamily;
+
+    // TODO redraw all sprites?
+  }
+
+  loadBatch(commentsData: CommentData[]) {
+    let comments = commentsData.map(CommentManager.buildEntity);
     this.entityManager.loadBatch(comments);
-
-    this.isLoaded = true;
+    return comments;
   }
 
-  loadComment(commentData: CommentData) {
-    let comment = CommentManager.buildComment(commentData);
+  load(commentData: CommentData) {
+    let comment = CommentManager.buildEntity(commentData);
     this.entityManager.load(comment);
+    return comment;
   }
 
-  private static buildComment(data: CommentData) {
+  private static buildEntity(data: CommentData) {
     let coordinate = new Phaser.Point(data.coordinateX, data.coordinateY);
     let comment = new CommentEntity(data.size, data.color, data.text, coordinate);
 
@@ -50,13 +64,32 @@ export class CommentManager {
     return comment;
   }
 
-  areInitialCommentsLoaded() {
-    return this.isLoaded;
+  addSprite(text: string, size: number, color: string, group: Phaser.Group): Phaser.Sprite {
+    // TODO add font shadow
+    return this.game.add.text(
+        0,
+        0,
+        text,
+        {
+          font: this.fontFamily,
+          fontSize: size,
+          fill: color,
+        },
+        group);
   }
 
-  canPlaceComment(commentText: string, commentSize: number): boolean {
+  canPlace(text: string, size: number): boolean {
     // TODO
     throw new Error('Not implemented');
+  }
+
+  listenOn(commentProvider: CommentProvider) {
+    commentProvider.addEventListener(CommentProvider.NEW_COMMENT, this.onNewComment.bind(this));
+  }
+
+  private onNewComment(event: NewCommentEvent) {
+    let commentData = event.getDetail();
+    this.load(commentData);
   }
 }
 
