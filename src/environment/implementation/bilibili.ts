@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
 import EnvironmentAdapter from '../EnvironmentAdapter';
-import {EventDispatcher} from '../../util';
+import {EventDispatcher} from '../../dispatcher';
 import {bindFirst, isLinux, webSocketManager} from '../util';
 import {CommentData} from '../../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';

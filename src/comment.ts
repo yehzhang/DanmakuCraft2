@@ -2,7 +2,7 @@ import {Entity, EntityManager} from './entity';
 import {EffectData, EffectFactory} from './effect';
 import SettingsManager from './environment/SettingsManager';
 import CommentProvider, {NewCommentEvent} from './environment/CommentProvider';
-import {UnaryEvent} from './util';
+import {UnaryEvent} from './dispatcher';
 
 export class CommentData {
   constructor(

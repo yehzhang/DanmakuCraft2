@@ -1,4 +1,4 @@
-import {TypedDispatcher, Typeful} from '../util';
+import {TypedDispatcher, Typeful} from '../dispatcher';
 
 export class SettingsOption<T> implements Typeful<T> {
   private static readonly KEY_PREFIX = 'danmakuCraftSettings';

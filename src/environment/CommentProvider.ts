@@ -1,4 +1,4 @@
-import {EventDispatcher, UnaryEvent} from '../util';
+import {EventDispatcher, UnaryEvent} from '../dispatcher';
 import {CommentData} from '../comment';
 
 /**
