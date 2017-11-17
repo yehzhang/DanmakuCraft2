@@ -4,7 +4,7 @@ import 'p2';
 import 'phaser';
 
 import Universe from './Universe';
-import BiliBiliAdapter from './environment/bilibili';
+import BiliBiliAdapter from './environment/implementation/bilibili';
 
 function main() {
   let adapter = new BiliBiliAdapter();

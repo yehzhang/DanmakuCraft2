@@ -1,18 +1,14 @@
 import * as $ from 'jquery';
-import {
-  CommentProvider,
-  EnvironmentAdapter,
-  GameContainerProvider,
-  NewCommentEvent,
-  Settings,
-  SettingsProvider
-} from './inwardAdapter';
-import {EventDispatcher} from '../util';
-import {bindFirst, isLinux, webSocketManager} from './util';
-import {CommentData} from '../comment';
+import EnvironmentAdapter from '../EnvironmentAdapter';
+import {EventDispatcher} from '../../util';
+import {bindFirst, isLinux, webSocketManager} from '../util';
+import {CommentData} from '../../comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
-import {UniverseProxy} from './outwardAdapter';
-import {EffectData, LocallyOriginatedCommentEffectManager} from '../effect';
+import UniverseProxy from '../UniverseProxy';
+import {EffectData, LocallyOriginatedCommentEffectManager} from '../../effect';
+import CommentProvider, {NewCommentEvent} from '../CommentProvider';
+import GameContainerProvider from '../GameContainerProvider';
+import SettingsManager, {SettingsOption} from '../SettingsManager';
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
   universeProxy: UniverseProxy | null;
@@ -36,8 +32,8 @@ export default class BilibiliAdapter implements EnvironmentAdapter {
     return new BilibiliContainerProvider();
   }
 
-  getSettingsProvider(): SettingsProvider {
-    return new BilibiliSettingsProvider();
+  getSettingsManager(): SettingsManager {
+    return new LocalStorageSettingsManager();
   }
 }
 
@@ -543,7 +539,7 @@ class CommentDataUtil {
   }
 }
 
-class BilibiliSettingsProvider extends SettingsProvider {
+class LocalStorageSettingsManager extends SettingsManager {
   // TODO implement listener
   private static DEFAULT_SETTINGS = {
     fontFamily: (isLinux()
@@ -557,11 +553,15 @@ class BilibiliSettingsProvider extends SettingsProvider {
     super();
 
     // TODO read settings from bilibili player
-    this.settings = Object.assign({}, BilibiliSettingsProvider.DEFAULT_SETTINGS, {});
+    this.settings = Object.assign({}, LocalStorageSettingsManager.DEFAULT_SETTINGS, {});
   }
 
-  getSettings(): Settings {
-    return new Settings(this.settings.fontFamily);
+  getSetting<T>(option: SettingsOption<T>): T {
+    throw new Error('Method not implemented.'); // TODO
+  }
+
+  setSetting<T>(option: SettingsOption<T>, value: T): void {
+    throw new Error('Method not implemented.');
   }
 }
 

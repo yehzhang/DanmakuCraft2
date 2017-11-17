@@ -13,7 +13,7 @@ import 'p2';
 import 'phaser';
 
 import Universe from './Universe';
-import TestingAdapter from './environment/testing';
+import TestingAdapter from './environment/implementation/testing';
 
 function main() {
   let adapter = new TestingAdapter();
