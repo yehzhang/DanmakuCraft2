@@ -1,10 +1,11 @@
-import {EnvironmentAdapter} from './environment/inwardAdapter';
-import {UniverseProxy} from './environment/outwardAdapter';
+import EnvironmentAdapter from './environment/EnvironmentAdapter';
+import UniverseProxy from './environment/UniverseProxy';
 import {CommentManager} from './comment';
-import {EntityManager} from './entity';
-import {BootState, EndState} from './state';
+import {EntityManager, PlayerEntity} from './entity';
+import BootState from './BootState';
 import {ChunkEntityManager} from './chunk';
 import {Notifier} from './notification';
+import {LocallyOriginatedCommentEffectManager} from './effect';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -14,6 +15,7 @@ export default class Universe {
   private commentManager: CommentManager;
   private entityManager: EntityManager;
   private notifier: Notifier;
+  private effectManager: LocallyOriginatedCommentEffectManager;
 
   constructor(private adapter: EnvironmentAdapter) {
     this.game = new Phaser.Game(
@@ -25,36 +27,42 @@ export default class Universe {
         PhysicalConstants.WORLD_SIZE,
         PhysicalConstants.CHUNKS_COUNT,
         PhysicalConstants.renderDistance);
-    this.commentManager = new CommentManager(this.entityManager);
+
+    let settingsManager = adapter.getSettingsManager();
+    this.commentManager = new CommentManager(this.game, this.entityManager, settingsManager);
+
     this.notifier = new Notifier();
+    this.effectManager = new LocallyOriginatedCommentEffectManager(1);
   }
 
   genesis() {
-    this.game.state.add(BootState.name, new BootState(this.adapter, this.commentManager));
-    this.game.state.add(EndState.name, new EndState());
+    let commentProvider = this.adapter.getCommentProvider();
+
+    this.game.state.add(BootState.name, new BootState(commentProvider, this.commentManager));
 
     this.game.state.start(BootState.name);
   }
 
   getProxy(): UniverseProxy {
-    return new Proxy(this.commentManager, this.notifier);
+    return new Proxy(this.commentManager, this.notifier, this.effectManager);
   }
 }
 
-class PhysicalConstants {
+export class PhysicalConstants {
   public static readonly WORLD_SIZE = 1000; // TODO
   public static readonly CHUNKS_COUNT = 50;
-  public static renderDistance = 1000; // TODO change depending on Phaser.screenSize
+  public static renderDistance = 1; // TODO change depending on Phaser.screenSize
 }
 
 class Proxy implements UniverseProxy {
   constructor(
       private commentManager: CommentManager,
-      private notifier: Notifier) {
+      private notifier: Notifier,
+      private effectManager: LocallyOriginatedCommentEffectManager) {
   }
 
   requestForPlacingComment(text: string, size: number): boolean {
-    if (this.commentManager.canPlaceComment(text, size)) {
+    if (this.commentManager.canPlace(text, size)) {
       return true;
     }
 
@@ -65,7 +73,11 @@ class Proxy implements UniverseProxy {
     // return false;
   }
 
-  getPlayer() {
+  getPlayer(): PlayerEntity {
     throw new Error('Method not implemented.');
+  }
+
+  getEffectManager(): LocallyOriginatedCommentEffectManager {
+    return this.effectManager;
   }
 }
