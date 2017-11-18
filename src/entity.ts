@@ -1,5 +1,6 @@
 import {BuffManager} from './buff';
 import {PhysicalConstants} from './Universe';
+import {Animated, Superposed} from './law';
 
 /**
  * Stores entities in regions and provides modifiers and accessors.
@@ -67,31 +68,6 @@ abstract class EntityBase {
 }
 
 /**
- * An object that has two states.
- * When at the displayable state, the object is displayable.
- * When at the non-displayable state, the object is non-displayable.
- *
- * This is an optimization that frees up resources taken by this object when appropriate.
- * Otherwise, the object could have only {@link measure}.
- */
-interface Superposed {
-  /**
-   * Transitions to the displayable state. Generates a display.
-   */
-  decohere(parentCoordinate: Phaser.Point): void;
-
-  /**
-   * Transitions to the non-displayable state. Discards the display.
-   */
-  cohere(): void;
-
-  /**
-   * Returns the object's display.
-   */
-  measure(): PIXI.DisplayObject;
-}
-
-/**
  * A maybe-displayable object that has a world coordinate.
  */
 export abstract class Entity extends EntityBase implements Superposed {
@@ -145,10 +121,10 @@ export abstract class Region<E extends Entity> extends Entity {
       throw new Error('Region is coherent');
     }
 
-    this.forEach(entity => entity.cohere());
-
     this.display.removeChildren(0, this.display.children.length);
     this.display = null;
+
+    this.forEach(entity => entity.cohere());
   }
 
   measure(): PIXI.DisplayObjectContainer {
@@ -160,7 +136,7 @@ export abstract class Region<E extends Entity> extends Entity {
   }
 }
 
-export abstract class AnimatedEntity extends Entity {
+export abstract class AnimatedEntity extends Entity implements Animated {
   protected buffManager: BuffManager<this>;
 
   constructor(coordinate: Phaser.Point) {

@@ -1,10 +1,11 @@
 import {AnimatedEntity} from './entity';
 import {Effect} from './effect';
+import {Animated} from './law';
 
 /**
  * Manages buffs applied on an entity.
  */
-export class BuffManager<E extends AnimatedEntity> {
+export class BuffManager<E extends AnimatedEntity> implements Animated {
   private activatedBuffs: Array<Buff<E>>;
 
   constructor(private readonly entity: E) {
@@ -34,7 +35,7 @@ export class BuffManager<E extends AnimatedEntity> {
 /**
  * Effect that updates and expires.
  */
-export abstract class Buff<E extends AnimatedEntity> extends Effect<E> {
+export abstract class Buff<E extends AnimatedEntity> extends Effect<E> implements Animated {
   private ticks: number;
 
   constructor(private readonly lifetime: number, parameter?: number) {
