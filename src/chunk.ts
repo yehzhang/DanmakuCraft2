@@ -18,7 +18,6 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     this.chunksCount = Math.floor(chunksCount);
     this.chunkSize = worldSize / this.chunksCount;
     this.renderChunksCount = Math.ceil(renderDistance / this.chunkSize);
-    this.chunks = ChunkEntityManager.makeChunks(this.chunksCount);
 
     if (worldSize <= 0) {
       throw new Error('Invalid world size');
@@ -34,17 +33,22 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     if ((this.renderChunksCount * 2 + 1) * this.chunkSize > worldSize) {
       throw new Error('Render distance too large');
     }
+
+    this.chunks = ChunkEntityManager.makeChunks(this.chunksCount, this.chunkSize);
   }
 
-  private static makeChunks<E extends Entity>(chunksCount: number): Array<Array<Chunk<E>>> {
+  private static makeChunks<E extends Entity>(
+      chunksCount: number, chunkSize: number): Array<Array<Chunk<E>>> {
     let chunks = [];
+    let coordinate = new Phaser.Point();
 
     for (let y = 0; y < chunksCount; y++) {
+      coordinate.y = y * chunkSize;
       let chunksRow = [];
 
       for (let x = 0; x < chunksCount; x++) {
-        let id = y * chunksCount + x;
-        chunksRow.push(new Chunk<E>(id));
+        coordinate.x = x * chunkSize;
+        chunksRow.push(new Chunk<E>(coordinate));
       }
 
       chunks.push(chunksRow);
@@ -58,7 +62,7 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
   }
 
   load(entity: E): void {
-    let coordinate = this.toChunkCoordinate(entity.getCoordinate());
+    let coordinate = this.toChunkCoordinate(entity.coordinate);
     let chunk = this.getChunk(coordinate);
     chunk.addEntity(entity);
   }
@@ -213,14 +217,18 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
 /**
  * Implements {@link Region} with an array.
  */
-export class Chunk<E extends Entity> implements Region<E> {
+export class Chunk<E extends Entity> extends Region<E> {
   private entities: E[];
 
-  constructor(public readonly uniqueId: number) {
+  constructor(coordinate: Phaser.Point) {
+    super(coordinate);
     this.entities = [];
   }
 
   addEntity(entity: E) {
+    // TODO test entity is not double added
+    entity.coordinate.subtract(this.coordinate.x, this.coordinate.y);
+    // TODO test entity.coordinate >= 0
     this.entities.push(entity);
   }
 
@@ -229,6 +237,8 @@ export class Chunk<E extends Entity> implements Region<E> {
   }
 
   forEach(f: (entity: E) => void) {
-    this.entities.forEach(f);
+    for (let entity of this.entities) {
+      f(entity);
+    }
   }
 }
