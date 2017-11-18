@@ -1,4 +1,5 @@
 import {Entity, EntityManager, Region} from './entity';
+import {PhysicalConstants} from './Universe';
 
 /**
  * Implements {@link EntityManager} with arrays of {@link Chunk}s.
@@ -10,18 +11,13 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
   private chunks: Array<Array<Chunk<E>>>;
 
   /**
-   * @param worldSize Size of the world.
    * @param chunksCount Number of chunks in a certain dimension.
    * @param renderDistance Minimum distance in world coordinate to render around a point.
    */
-  constructor(worldSize: number, chunksCount: number, renderDistance: number) {
+  constructor(chunksCount: number, renderDistance: number) {
     this.chunksCount = Math.floor(chunksCount);
-    this.chunkSize = worldSize / this.chunksCount;
+    this.chunkSize = PhysicalConstants.WORLD_SIZE / this.chunksCount;
     this.renderChunksCount = Math.ceil(renderDistance / this.chunkSize);
-
-    if (worldSize <= 0) {
-      throw new Error('Invalid world size');
-    }
 
     if (this.chunksCount <= 0) {
       throw new Error('Invalid chunks count');
@@ -30,7 +26,7 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     if (this.renderChunksCount <= 0) {
       throw new Error('Invalid render distance');
     }
-    if ((this.renderChunksCount * 2 + 1) * this.chunkSize > worldSize) {
+    if ((this.renderChunksCount * 2 + 1) * this.chunkSize > PhysicalConstants.WORLD_SIZE) {
       throw new Error('Render distance too large');
     }
 
@@ -62,7 +58,7 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
   }
 
   load(entity: E): void {
-    let coordinate = this.toChunkCoordinate(entity.coordinate);
+    let coordinate = this.toChunkCoordinate(entity.getCoordinate());
     let chunk = this.getChunk(coordinate);
     chunk.addEntity(entity);
   }
@@ -227,7 +223,6 @@ export class Chunk<E extends Entity> extends Region<E> {
 
   addEntity(entity: E) {
     // TODO test entity is not double added
-    entity.coordinate.subtract(this.coordinate.x, this.coordinate.y);
     // TODO test entity.coordinate >= 0
     this.entities.push(entity);
   }

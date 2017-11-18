@@ -1,8 +1,9 @@
+import {BuffManager} from './buff';
+import {PhysicalConstants} from './Universe';
+
 /**
  * Stores entities in regions and provides modifiers and accessors.
  */
-import {BuffManager} from './buff';
-
 export interface EntityManager<E extends Entity = Entity> {
   loadBatch(entities: E[]): void;
 
@@ -25,16 +26,43 @@ export interface EntityManager<E extends Entity = Entity> {
 }
 
 /**
- * An object that has a coordinate relative to its parent.
+ * An object that has a world coordinate.
  *
  * @param worldCoordinate may be outside of the world.
  */
 abstract class EntityBase {
-  // TODO
-  public readonly coordinate: Phaser.Point;
+  protected readonly worldCoordinate: Phaser.Point;
 
-  constructor(coordinate: Phaser.Point) {
-    this.coordinate = coordinate.clone();
+  constructor(worldCoordinate: Phaser.Point) {
+    this.worldCoordinate = worldCoordinate.clone();
+  }
+
+  getCoordinate() {
+    return this.worldCoordinate.clone();
+  }
+
+  protected getWorldWrappingOffsetRelativeTo(coordinate: Phaser.Point): Phaser.Point {
+    let offsetX = EntityBase.getWorldWrappingOffset(this.worldCoordinate.x, coordinate.x);
+    let offsetY = EntityBase.getWorldWrappingOffset(this.worldCoordinate.y, coordinate.y);
+    return new Phaser.Point(offsetX, offsetY);
+  }
+
+  // TODO test
+  private static getWorldWrappingOffset(coordinate: number, other: number): number {
+    let offset = coordinate - other;
+
+    let wrappingOffset;
+    if (coordinate < other) {
+      wrappingOffset = offset + PhysicalConstants.WORLD_SIZE;
+    } else {
+      wrappingOffset = offset - PhysicalConstants.WORLD_SIZE;
+    }
+
+    if (Math.abs(offset) <= Math.abs(wrappingOffset)) {
+      return offset;
+    } else {
+      return wrappingOffset;
+    }
   }
 }
 
@@ -50,7 +78,7 @@ interface Superposed {
   /**
    * Transitions to the displayable state. Generates a display.
    */
-  decohere(): void;
+  decohere(parentCoordinate: Phaser.Point): void;
 
   /**
    * Transitions to the non-displayable state. Discards the display.
@@ -64,10 +92,10 @@ interface Superposed {
 }
 
 /**
- * A maybe-displayable object that has a coordinate relative to parent.
+ * A maybe-displayable object that has a world coordinate.
  */
 export abstract class Entity extends EntityBase implements Superposed {
-  abstract decohere(): void;
+  abstract decohere(parentCoordinate: Phaser.Point): void;
 
   abstract cohere(): void;
 
@@ -94,15 +122,16 @@ export abstract class Region<E extends Entity> extends Entity {
   /**
    * In addition to generating a display, also attaches to it all children's displays.
    */
-  decohere() {
+  decohere(parentCoordinate: Phaser.Point): void {
     if (this.display != null) {
       throw new Error('Region is decoherent');
     }
 
     let container = new PIXI.DisplayObjectContainer();
+    container.position = this.getWorldWrappingOffsetRelativeTo(parentCoordinate);
 
     this.forEach(entity => {
-      entity.decohere();
+      entity.decohere(this.worldCoordinate);
 
       let display = entity.measure();
       container.addChild(display);
@@ -116,7 +145,7 @@ export abstract class Region<E extends Entity> extends Entity {
       throw new Error('Region is coherent');
     }
 
-    this.forEach(entity => entity.decohere());
+    this.forEach(entity => entity.cohere());
 
     this.display.removeChildren(0, this.display.children.length);
     this.display = null;
@@ -124,7 +153,7 @@ export abstract class Region<E extends Entity> extends Entity {
 
   measure(): PIXI.DisplayObjectContainer {
     if (this.display == null) {
-      throw new Error('Chunk is not renderable');
+      throw new Error('Chunk is not displayable');
     }
 
     return this.display;

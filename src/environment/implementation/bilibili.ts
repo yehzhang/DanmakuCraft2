@@ -181,7 +181,7 @@ class LocalCommentInjector {
     }
 
     let player = this.universeProxy.getPlayer();
-    let playerCoordinate = player.coordinate;
+    let playerCoordinate = player.getCoordinate();
 
     return CommentDataUtil.buildInjectedCommentText(text, playerCoordinate, effectData);
   }
