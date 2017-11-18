@@ -15,6 +15,7 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
    * @param renderDistance Minimum distance in world coordinate to render around a point.
    */
   constructor(chunksCount: number, renderDistance: number) {
+    // TODO support for updating render distance
     this.chunksCount = Math.floor(chunksCount);
     this.chunkSize = PhysicalConstants.WORLD_SIZE / this.chunksCount;
     this.renderChunksCount = Math.ceil(renderDistance / this.chunkSize);

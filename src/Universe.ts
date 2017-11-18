@@ -1,41 +1,64 @@
 import EnvironmentAdapter from './environment/EnvironmentAdapter';
 import UniverseProxy from './environment/UniverseProxy';
-import {CommentManager} from './comment';
+import {CommentEntity, CommentManager} from './comment';
 import {EntityManager, PlayerEntity} from './entity';
 import BootState from './BootState';
 import {ChunkEntityManager} from './chunk';
 import {Notifier} from './notification';
 import {LocallyOriginatedCommentEffectManager} from './effect';
+import EntityProjector from './EntityProjector';
 
 /**
  * Instantiates and connects components. Starts the game.
  */
 export default class Universe {
+  private static instance: Universe;
+
   private game: Phaser.Game;
   private commentManager: CommentManager;
-  private entityManager: EntityManager;
+  private commentEntityManager: EntityManager<CommentEntity>;
   private notifier: Notifier;
   private effectManager: LocallyOriginatedCommentEffectManager;
+  private projector: EntityProjector;
+  private player: PlayerEntity;
 
-  constructor(private adapter: EnvironmentAdapter) {
+  private constructor(private adapter: EnvironmentAdapter) {
     this.game = new Phaser.Game(
         '100',
         '100',
         Phaser.AUTO,
         adapter.getGameContainerProvider().getContainer());
-    this.entityManager = new ChunkEntityManager(
-        PhysicalConstants.WORLD_SIZE,
-        PhysicalConstants.CHUNKS_COUNT,
-        PhysicalConstants.renderDistance);
+    this.commentEntityManager = new ChunkEntityManager(
+        PhysicalConstants.CHUNKS_COUNT, PhysicalConstants.renderDistance);
 
     let settingsManager = adapter.getSettingsManager();
-    this.commentManager = new CommentManager(this.game, this.entityManager, settingsManager);
+    this.commentManager = new CommentManager(this.game, this.commentEntityManager, settingsManager);
 
     this.notifier = new Notifier();
     this.effectManager = new LocallyOriginatedCommentEffectManager(1);
+    this.player = new PlayerEntity(new Phaser.Point()); // TODO set actual spawn point
+    this.projector = new EntityProjector([this.commentEntityManager], this.player);
   }
 
-  genesis() {
+  static genesis(adapter: EnvironmentAdapter) {
+    if (this.instance != null) {
+      throw new Error('Universe is already started');
+    }
+
+    this.instance = new this(adapter);
+
+    return this.instance;
+  }
+
+  static getGame() {
+    if (this.instance == null) {
+      throw new Error('Universe is not instantiated');
+    }
+
+    return this.instance.game;
+  }
+
+  start() {
     let commentProvider = this.adapter.getCommentProvider();
 
     this.game.state.add(BootState.name, new BootState(commentProvider, this.commentManager));
@@ -48,6 +71,7 @@ export default class Universe {
   }
 }
 
+// TODO add asserting test on validity of constants?
 export class PhysicalConstants {
   public static readonly WORLD_SIZE = 1000; // TODO
   public static readonly CHUNKS_COUNT = 50;
