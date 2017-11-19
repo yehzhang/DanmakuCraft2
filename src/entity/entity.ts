@@ -1,11 +1,11 @@
-import {BuffManager} from './buff';
-import {PhysicalConstants} from './Universe';
-import {Animated, Superposed} from './law';
+import {BuffManager} from '../buff';
+import {PhysicalConstants} from '../Universe';
+import {Animated, Container, Superposed} from '../law';
 
 /**
  * Stores entities in regions and provides modifiers and accessors.
  */
-export interface EntityManager<E extends Entity = Entity> {
+export interface EntityManager<E extends Entity = Entity> extends Container<Region<E>> {
   /**
    * Loads many entities.
    */
@@ -25,11 +25,6 @@ export interface EntityManager<E extends Entity = Entity> {
 
   leftOuterJoinRenderableRegions(
       worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Region<E>>;
-
-  /**
-   * Iterates over all managed regions.
-   */
-  forEach(f: (region: Region<E>) => void): void;
 
   /**
    * @param {(chunks: Array<Region<E extends Entity>>) => void} f scans every aggregation of
@@ -108,7 +103,7 @@ export abstract class Entity extends EntityBase implements Superposed {
 /**
  * Contains entities.
  */
-export abstract class Region<E extends Entity> extends Entity {
+export abstract class Region<E extends Entity> extends Entity implements Container<E> {
   private display: PIXI.DisplayObjectContainer | null;
 
   constructor(coordinate: Phaser.Point) {
@@ -120,7 +115,7 @@ export abstract class Region<E extends Entity> extends Entity {
 
   abstract countEntities(): number;
 
-  abstract forEach(f: (entity: E) => void): void;
+  abstract forEach(f: (value: E, index: number) => void, thisArg?: any): void;
 
   /**
    * In addition to generating a display, also attaches to it all children's displays.
@@ -174,19 +169,5 @@ export abstract class AnimatedEntity extends Entity implements Animated {
 
   tick() {
     this.buffManager.tick();
-  }
-}
-
-export class PlayerEntity extends AnimatedEntity {
-  decohere(): void {
-    throw new Error('Method not implemented. Currently player is always displayed.');
-  }
-
-  cohere(): void {
-    throw new Error('Method not implemented. Currently player is always displayed.');
-  }
-
-  measure(): PIXI.DisplayObject {
-    throw new Error('Method not implemented.');  // TODO
   }
 }

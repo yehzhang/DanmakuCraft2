@@ -1,5 +1,5 @@
 import * as $ from 'jquery';
-import {CommentData} from '../../comment';
+import {CommentData} from '../../entity/comment';
 import EnvironmentAdapter from '../EnvironmentAdapter';
 import SettingsManager, {SettingsOption} from '../SettingsManager';
 import CommentProvider from '../CommentProvider';

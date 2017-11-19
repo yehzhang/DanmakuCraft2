@@ -1,5 +1,5 @@
 import {Entity, EntityManager, Region} from './entity';
-import {Phenomenal} from './law';
+import {Phenomenal} from '../law';
 
 /**
  * Displays entities.

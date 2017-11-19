@@ -1,8 +1,8 @@
 import {Entity, EntityManager} from './entity';
-import {EffectData, EffectFactory} from './effect';
-import SettingsManager from './environment/SettingsManager';
-import CommentProvider, {NewCommentEvent} from './environment/CommentProvider';
-import {UnaryEvent} from './dispatcher';
+import {EffectData, EffectFactory} from '../effect';
+import SettingsManager from '../environment/SettingsManager';
+import CommentProvider, {NewCommentEvent} from '../environment/CommentProvider';
+import {UnaryEvent} from '../dispatcher';
 
 export class CommentData {
   constructor(
@@ -100,5 +100,17 @@ export class CommentEntity extends Entity {
       private text: string,
       coordinate: Phaser.Point) {
     super(coordinate);
+  }
+
+  decohere(parentCoordinate: Phaser.Point): void {
+    throw new Error('Not implemented');
+  }
+
+  cohere(): void {
+    throw new Error('Not implemented');
+  }
+
+  measure(): PIXI.DisplayObject {
+    throw new Error('Not implemented');
   }
 }

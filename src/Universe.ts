@@ -1,12 +1,15 @@
 import EnvironmentAdapter from './environment/EnvironmentAdapter';
 import UniverseProxy from './environment/UniverseProxy';
-import {CommentEntity, CommentManager} from './comment';
-import {EntityManager, PlayerEntity} from './entity';
+import {CommentEntity, CommentManager} from './entity/comment';
+import {EntityManager} from './entity/entity';
 import BootState from './BootState';
-import {ChunkEntityManager} from './chunk';
+import {ChunkEntityManager} from './entity/chunk';
 import {Notifier} from './notification';
 import {LocallyOriginatedCommentEffectManager} from './effect';
-import EntityProjector from './EntityProjector';
+import EntityProjector from './entity/EntityProjector';
+import Background from './Background';
+import {PlayerEntity} from './entity/player';
+import EntityTracker from './entity/EntityTracker';
 
 /**
  * Instantiates and connects components. Starts the game.

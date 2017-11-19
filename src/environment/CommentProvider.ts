@@ -1,11 +1,11 @@
 import {EventDispatcher, UnaryEvent} from '../dispatcher';
-import {CommentData} from '../comment';
+import {CommentData} from '../entity/comment';
 
 /**
  * Used by {@link CommentProvider} to dispatch a single new comment.
  */
 export class NewCommentEvent extends UnaryEvent<CommentData> {
-  static type = 'newComment';
+  static readonly type = 'newComment';
 
   constructor(commentData: CommentData) {
     super(NewCommentEvent.type, commentData);
@@ -17,7 +17,7 @@ export class NewCommentEvent extends UnaryEvent<CommentData> {
  * comment is available.
  */
 export default abstract class CommentProvider extends EventDispatcher<NewCommentEvent> {
-  static NEW_COMMENT = NewCommentEvent.type;
+  static readonly NEW_COMMENT = NewCommentEvent.type;
 
   protected connected: boolean = false;
 

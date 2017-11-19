@@ -1,4 +1,4 @@
-import {AnimatedEntity} from './entity';
+import {AnimatedEntity} from './entity/entity';
 import {Effect} from './effect';
 import {Animated} from './law';
 

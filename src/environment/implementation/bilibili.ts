@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import EnvironmentAdapter from '../EnvironmentAdapter';
 import {EventDispatcher} from '../../dispatcher';
 import {bindFirst, isLinux, webSocketManager} from '../util';
-import {CommentData} from '../../comment';
+import {CommentData} from '../../entity/comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import UniverseProxy from '../UniverseProxy';
 import {EffectData, LocallyOriginatedCommentEffectManager} from '../../effect';

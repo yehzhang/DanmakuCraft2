@@ -48,3 +48,10 @@ export interface Superposed {
    */
   measure(): PIXI.DisplayObject;
 }
+
+/**
+ * A type that contains a list of items that can be mapped over.
+ */
+export interface Container<T> {
+  forEach(f: (value: T, index: number) => void, thisArg?: any): void;
+}

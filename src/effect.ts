@@ -1,5 +1,5 @@
-import {CommentEntity} from './comment';
-import {Entity} from './entity';
+import {CommentEntity} from './entity/comment';
+import {Entity} from './entity/entity';
 
 export class LocallyOriginatedCommentEffectManager {
   private inactiveEffects: Array<Effect<CommentEntity>>;

@@ -1,4 +1,4 @@
-import {CommentManager} from './comment';
+import {CommentManager} from './entity/comment';
 import Texts from './Texts';
 import Colors from './Colors';
 import CommentProvider from './environment/CommentProvider';

@@ -1,5 +1,5 @@
 import {Entity, EntityManager, Region} from './entity';
-import {PhysicalConstants} from './Universe';
+import {PhysicalConstants} from '../Universe';
 
 /**
  * Implements {@link EntityManager} with arrays of {@link Chunk}s.
@@ -147,12 +147,13 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     return chunks;
   }
 
-  forEach(f: (chunk: Chunk<E>) => void): void {
-    for (let chunkRow of this.chunks) {
-      for (let chunk of chunkRow) {
-        f(chunk);
-      }
-    }
+  forEach(f: (value: Chunk<E>, index: number) => void, thisArg?: any) {
+    this.chunks.forEach((chunkRow, chunkRowIndex) => {
+      chunkRow.forEach((chunk, chunkIndex) => {
+        let index = chunkRowIndex * this.chunksCount + chunkIndex;
+        f.call(thisArg, chunk, index);
+      });
+    });
   }
 
   scan(f: (chunks: Array<Chunk<E>>) => void, radius: number): void {
@@ -281,9 +282,7 @@ export class Chunk<E extends Entity> extends Region<E> {
     return this.entities.length;
   }
 
-  forEach(f: (entity: E) => void) {
-    for (let entity of this.entities) {
-      f(entity);
-    }
+  forEach(f: (value: E, index: number) => void, thisArg?: any) {
+    return this.entities.forEach(f, thisArg);
   }
 }
