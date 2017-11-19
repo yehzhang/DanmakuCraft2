@@ -1,71 +1,66 @@
-import {Entity, EntityManager, Region} from './entity';
-import {Phenomenal} from '../law';
+import {AnimatedEntity, Entity, EntityManager, Region} from './entity';
+import {Existent} from '../law';
+import EntityTracker from './EntityTracker';
 
 /**
  * Displays entities.
  */
-export default class EntityProjector implements Phenomenal {
-  private displayInfoList: DisplayInfo[];
-  private lastObserverCoordinate: Phaser.Point;
+export default class EntityProjector<E extends AnimatedEntity> implements Existent {
   private container: PIXI.DisplayObjectContainer;
 
-  constructor(entityManagers: EntityManager[], private observer: Entity) {
+  constructor(private entityTracker: EntityTracker<E>) {
     this.container = new PIXI.DisplayObjectContainer();
 
-    this.displayInfoList = [];
-    let observerCoordinate = this.observer.getCoordinate();
-    for (let entityManager of entityManagers) {
-      let displayInfo = new DisplayInfo(entityManager, observerCoordinate);
-      this.displayInfoList.push(displayInfo);
+    let observerCoordinate = entityTracker.getTrackee().getCoordinate();
+    entityTracker.forEach(entityManager => {
+      let container = new PIXI.DisplayObjectContainer();
+      this.container.addChild(container);
 
-      this.container.addChild(displayInfo.container);
-    }
+      entityManager.listRenderableRegions(observerCoordinate)
+          .forEach(region => EntityProjector.decohereRegion(observerCoordinate, region, container));
+    });
 
-    this.lastObserverCoordinate = observer.getCoordinate();
+    entityTracker.addEventListener(EntityTracker.REGION_CHANGE, event => {
+      let regionChangeData = event.getDetail();
+      this.onRegionChange(
+          regionChangeData.entityManager,
+          regionChangeData.entityManagerIndex,
+          regionChangeData.trackee.getCoordinate(),
+          regionChangeData.previousWorldCoordinate);
+    });
   }
 
-  tick() {
-    let observerCoordinate = this.observer.getCoordinate();
-    for (let displayInfo of this.displayInfoList) {
-      displayInfo.tick(observerCoordinate, this.lastObserverCoordinate);
-    }
+  onRegionChange(
+      entityManager: EntityManager,
+      entityManagerIndex: number,
+      observerCoordinate: Phaser.Point,
+      previousCoordinate: Phaser.Point) {
+    let container = this.container.getChildAt(entityManagerIndex) as PIXI.DisplayObjectContainer;
 
-    this.lastObserverCoordinate = observerCoordinate;
+    entityManager.leftOuterJoinRenderableRegions(previousCoordinate, observerCoordinate)
+        .forEach(region => EntityProjector.cohereRegion(region, container));
+
+    entityManager.leftOuterJoinRenderableRegions(observerCoordinate, previousCoordinate)
+        .forEach(region => EntityProjector.decohereRegion(observerCoordinate, region, container));
   }
 
   display(): PIXI.DisplayObjectContainer {
     return this.container;
   }
-}
 
-class DisplayInfo {
-  readonly container: PIXI.DisplayObjectContainer;
-
-  constructor(readonly entityManager: EntityManager, initialObserverCoordinate: Phaser.Point) {
-    this.container = new PIXI.DisplayObjectContainer();
-
-    entityManager.listRenderableRegions(initialObserverCoordinate)
-        .forEach(this.decohereRegion.bind(this, initialObserverCoordinate));
-  }
-
-  tick(coordinate: Phaser.Point, lastCoordinate: Phaser.Point) {
-    this.entityManager.leftOuterJoinRenderableRegions(lastCoordinate, coordinate)
-        .forEach(this.cohereRegion.bind(this));
-
-    this.entityManager.leftOuterJoinRenderableRegions(coordinate, lastCoordinate)
-        .forEach(this.decohereRegion.bind(this, coordinate));
-  }
-
-  private decohereRegion(observerCoordinate: Phaser.Point, region: Region<Entity>) {
+  private static decohereRegion(
+      observerCoordinate: Phaser.Point,
+      region: Region<Entity>,
+      container: PIXI.DisplayObjectContainer) {
     region.decohere(observerCoordinate);
 
     let display = region.measure();
-    this.container.addChild(display);
+    container.addChild(display);
   }
 
-  private cohereRegion(region: Region<Entity>) {
+  private static cohereRegion(region: Region<Entity>, container: PIXI.DisplayObjectContainer) {
     let display = region.measure();
-    this.container.removeChild(display);
+    container.removeChild(display);
 
     region.cohere();
   }
