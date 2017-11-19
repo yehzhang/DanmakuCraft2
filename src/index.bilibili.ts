@@ -8,10 +8,10 @@ import BiliBiliAdapter from './environment/implementation/bilibili';
 
 function main() {
   let adapter = new BiliBiliAdapter();
-  let universe = new Universe(adapter);
+  let universe = Universe.genesis(adapter);
   adapter.setUniverseProxy(universe.getProxy());
 
-  universe.genesis();
+  universe.start();
 }
 
 main();

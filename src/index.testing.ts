@@ -17,9 +17,9 @@ import TestingAdapter from './environment/implementation/testing';
 
 function main() {
   let adapter = new TestingAdapter();
-  let universe = new Universe(adapter);
+  let universe = Universe.genesis(adapter);
 
-  universe.genesis();
+  universe.start();
 }
 
 main();
