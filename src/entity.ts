@@ -6,8 +6,14 @@ import {Animated, Superposed} from './law';
  * Stores entities in regions and provides modifiers and accessors.
  */
 export interface EntityManager<E extends Entity = Entity> {
+  /**
+   * Loads many entities.
+   */
   loadBatch(entities: E[]): void;
 
+  /**
+   * Loads a single entity.
+   */
   load(entity: E): void;
 
   /**
@@ -21,9 +27,30 @@ export interface EntityManager<E extends Entity = Entity> {
       worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Region<E>>;
 
   /**
-   * Iterates over all managed entities.
+   * Iterates over all managed regions.
    */
-  forEach(f: (entity: E) => void): void;
+  forEach(f: (region: Region<E>) => void): void;
+
+  /**
+   * @param {(chunks: Array<Region<E extends Entity>>) => void} f scans every aggregation of
+   *     regions.
+   * @param {number} radius the radius of each aggregation in world coordinate passed to
+   *     {@param f}. The actual radius of each aggregation can be approximate.
+   */
+  scan(f: (regions: Array<Region<E>>) => void, radius: number): void;
+
+  /**
+   * @param {Phaser.Point} worldCoordinate the center of an aggregation containing regions.
+   * @param {number} radius the radius of the aggregation. The actual radius of the aggregation
+   *     returned can be approximate. If zero, returns an empty array.
+   * @return {Array<Region<E extends Entity>>} the aggregation.
+   */
+  listNeighborsAround(worldCoordinate: Phaser.Point, radius: number): Array<Region<E>>;
+
+  /**
+   * Checks if the two world coordinates are in a same managed region.
+   */
+  isInSameRegion(worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): boolean;
 }
 
 /**

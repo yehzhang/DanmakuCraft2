@@ -55,23 +55,21 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
   }
 
   loadBatch(entities: E[]): void {
-    entities.forEach(this.load.bind(this));
+    for (let entity of entities) {
+      this.load(entity);
+    }
   }
 
   load(entity: E): void {
     let coordinate = this.toChunkCoordinate(entity.getCoordinate());
-    let chunk = this.getChunk(coordinate);
+    let chunk = this.getChunk(coordinate.x, coordinate.y);
     chunk.addEntity(entity);
   }
 
   listRenderableRegions(worldCoordinate: Phaser.Point): Array<Chunk<E>> {
-    let chunks: Array<Chunk<E>> = [];
-
     let coordinate = this.toChunkCoordinate(worldCoordinate);
     let bound = this.inflate(coordinate, this.renderChunksCount);
-    this.pushChunksInBound(bound.left, bound.right, bound.top, bound.bottom, chunks);
-
-    return chunks;
+    return this.listChunksInBound(bound.left, bound.right, bound.top, bound.bottom);
   }
 
   leftOuterJoinRenderableRegions(
@@ -149,16 +147,67 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     return chunks;
   }
 
-  forEach(f: (entity: E) => void): void {
+  forEach(f: (chunk: Chunk<E>) => void): void {
     for (let chunkRow of this.chunks) {
       for (let chunk of chunkRow) {
-        chunk.forEach(f);
+        f(chunk);
       }
     }
   }
 
+  scan(f: (chunks: Array<Chunk<E>>) => void, radius: number): void {
+    let size = Math.ceil(radius * 2 / this.chunkSize);
+    if (!(size > 0 && size <= this.chunksCount)) {
+      throw new Error(`Radius '${radius}' is invalid`);
+    }
+
+    let inflation = size - 1;
+    let end = this.chunksCount - inflation;
+    for (let y = 0; y < end; y++) {
+      for (let x = 0; x < end; x++) {
+        let neighbors = this.listChunksInBound(x, x + inflation, y, y + inflation);
+        f(neighbors);
+      }
+    }
+  }
+
+  listNeighborsAround(worldCoordinate: Phaser.Point, radius: number) {
+    if (radius === 0) {
+      return [];
+    }
+
+    if (!(radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
+      throw new Error(`Radius '${radius}' is invalid`);
+    }
+
+    let topLeft = this.toChunkCoordinate(worldCoordinate.clone().subtract(radius, radius));
+    let bottomRight = this.toChunkCoordinate(worldCoordinate.clone().add(radius, radius));
+    if (topLeft.x > bottomRight.x) {
+      bottomRight.x += this.chunksCount;
+    }
+    if (topLeft.y > bottomRight.y) {
+      bottomRight.y += this.chunksCount;
+    }
+    return this.listChunksInBound(topLeft.x, bottomRight.x, topLeft.y, bottomRight.y);
+  }
+
+  isInSameRegion(worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): boolean {
+    return this.toChunkCoordinate(worldCoordinate).equals(this.toChunkCoordinate(otherCoordinate));
+  }
+
+  private listChunksInBound(
+      left: number,
+      right: number,
+      top: number,
+      bottom: number): Array<Chunk<E>> {
+    let chunks: Array<Chunk<E>> = [];
+    this.pushChunksInBound(left, right, top, bottom, chunks);
+    return chunks;
+  }
+
   /**
    * Handles bounds that wrap around the world.
+   * However, right and bottom must be greater than left and top, respectively.
    */
   private pushChunksInBound(
       left: number,
@@ -197,8 +246,8 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
    * If bounds are beyond the left or top of the world, they will be wrapped to the opposite ends.
    * All coordinates are guaranteed to be greater than or equal to 0.
    */
-  private inflate(coordinate: Phaser.Point, n: number): Phaser.Rectangle {
-    let bound = new Phaser.Rectangle(coordinate.x, coordinate.y, 0, 0)
+  private inflate(chunkCoordinate: Phaser.Point, n: number): Phaser.Rectangle {
+    let bound = new Phaser.Rectangle(chunkCoordinate.x, chunkCoordinate.y, 1, 1)
         .inflate(n, n)
         .offset(this.chunksCount, this.chunksCount);
     bound.x %= this.chunksCount;
@@ -206,8 +255,8 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     return bound;
   }
 
-  private getChunk(coordinate: Phaser.Point) {
-    return this.chunks[coordinate.y][coordinate.x];
+  private getChunk(x: number, y: number) {
+    return this.chunks[y][x];
   }
 }
 
