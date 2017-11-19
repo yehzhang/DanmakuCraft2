@@ -27,14 +27,6 @@ export interface EntityManager<E extends Entity = Entity> extends Container<Regi
       worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Region<E>>;
 
   /**
-   * @param {(chunks: Array<Region<E extends Entity>>) => void} f scans every aggregation of
-   *     regions.
-   * @param {number} radius the radius of each aggregation in world coordinate passed to
-   *     {@param f}. The actual radius of each aggregation can be approximate.
-   */
-  scan(f: (regions: Array<Region<E>>) => void, radius: number): void;
-
-  /**
    * @param {Phaser.Point} worldCoordinate the center of an aggregation containing regions.
    * @param {number} radius the radius of the aggregation. The actual radius of the aggregation
    *     returned can be approximate. If zero, returns an empty array.

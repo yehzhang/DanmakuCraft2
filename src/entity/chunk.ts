@@ -72,6 +72,7 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     return this.listChunksInBound(bound.left, bound.right, bound.top, bound.bottom);
   }
 
+  // TODO remove renderable chunks count
   leftOuterJoinRenderableRegions(
       worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Chunk<E>> {
     let leftCoordinate = this.toChunkCoordinate(worldCoordinate);
@@ -154,22 +155,6 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
         f.call(thisArg, chunk, index);
       });
     });
-  }
-
-  scan(f: (chunks: Array<Chunk<E>>) => void, radius: number): void {
-    let size = Math.ceil(radius * 2 / this.chunkSize);
-    if (!(size > 0 && size <= this.chunksCount)) {
-      throw new Error(`Radius '${radius}' is invalid`);
-    }
-
-    let inflation = size - 1;
-    let end = this.chunksCount - inflation;
-    for (let y = 0; y < end; y++) {
-      for (let x = 0; x < end; x++) {
-        let neighbors = this.listChunksInBound(x, x + inflation, y, y + inflation);
-        f(neighbors);
-      }
-    }
   }
 
   listNeighborsAround(worldCoordinate: Phaser.Point, radius: number) {
