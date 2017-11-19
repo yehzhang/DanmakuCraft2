@@ -1,4 +1,4 @@
-import {AnimatedEntity, Entity, EntityManager, Region} from './entity';
+import {AnimatedEntity, Entity, Region} from './entity';
 import {Existent} from '../law';
 import EntityTracker from './EntityTracker';
 
@@ -22,30 +22,31 @@ export default class EntityProjector<E extends AnimatedEntity> implements Existe
 
     entityTracker.addEventListener(EntityTracker.REGION_CHANGE, event => {
       let regionChangeData = event.getDetail();
-      this.onRegionChange(
-          regionChangeData.entityManager,
-          regionChangeData.entityManagerIndex,
+      let container = this.container.getChildAt(
+          regionChangeData.entityManagerIndex) as PIXI.DisplayObjectContainer;
+      EntityProjector.onRegionChange(
           regionChangeData.trackee.getCoordinate(),
-          regionChangeData.previousWorldCoordinate);
+          container,
+          regionChangeData.leavingRegions,
+          regionChangeData.enteringRegions);
     });
-  }
-
-  onRegionChange(
-      entityManager: EntityManager,
-      entityManagerIndex: number,
-      observerCoordinate: Phaser.Point,
-      previousCoordinate: Phaser.Point) {
-    let container = this.container.getChildAt(entityManagerIndex) as PIXI.DisplayObjectContainer;
-
-    entityManager.leftOuterJoinRenderableRegions(previousCoordinate, observerCoordinate)
-        .forEach(region => EntityProjector.cohereRegion(region, container));
-
-    entityManager.leftOuterJoinRenderableRegions(observerCoordinate, previousCoordinate)
-        .forEach(region => EntityProjector.decohereRegion(observerCoordinate, region, container));
   }
 
   display(): PIXI.DisplayObjectContainer {
     return this.container;
+  }
+
+  private static onRegionChange(
+      observerCoordinate: Phaser.Point,
+      container: PIXI.DisplayObjectContainer,
+      leavingRegions: Region[],
+      enteringRegions: Region[]) {
+    for (let region of leavingRegions) {
+      EntityProjector.cohereRegion(region, container);
+    }
+    for (let region of enteringRegions) {
+      EntityProjector.decohereRegion(observerCoordinate, region, container);
+    }
   }
 
   private static decohereRegion(

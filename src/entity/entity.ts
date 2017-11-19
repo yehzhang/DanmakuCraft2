@@ -103,7 +103,7 @@ export abstract class Entity extends EntityBase implements Superposed {
 /**
  * Contains entities.
  */
-export abstract class Region<E extends Entity> extends Entity implements Container<E> {
+export abstract class Region<E extends Entity = Entity> extends Entity implements Container<E> {
   private display: PIXI.DisplayObjectContainer | null;
 
   constructor(coordinate: Phaser.Point) {

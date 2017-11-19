@@ -1,4 +1,4 @@
-import {AnimatedEntity, EntityManager} from './entity';
+import {AnimatedEntity, EntityManager, Region} from './entity';
 import {EventDispatcher, UnaryEvent} from '../dispatcher';
 import {Animated, Container} from '../law';
 
@@ -13,9 +13,18 @@ export class RegionChangeEvent<E extends AnimatedEntity> extends UnaryEvent<Regi
 export class RegionChangeData<E extends AnimatedEntity> {
   constructor(
       readonly trackee: E,
-      readonly previousWorldCoordinate: Phaser.Point,
+      private readonly originalLeavingRegions: Region[],
+      private readonly originalEnteringRegions: Region[],
       readonly entityManager: EntityManager,
       readonly entityManagerIndex: number) {
+  }
+
+  get leavingRegions() {
+    return this.originalLeavingRegions.slice();
+  }
+
+  get enteringRegions() {
+    return this.originalEnteringRegions.slice();
   }
 }
 
@@ -26,9 +35,7 @@ export default class EntityTracker<E extends AnimatedEntity>
   private entityManagers: EntityManager[];
   private previousCoordinate: Phaser.Point;
 
-  constructor(
-      private trackee: E,
-      entityManagers: EntityManager[]) {
+  constructor(private trackee: E, entityManagers: EntityManager[]) {
     super();
 
     this.entityManagers = entityManagers.slice();
@@ -50,11 +57,12 @@ export default class EntityTracker<E extends AnimatedEntity>
         return;
       }
 
+      let leavingRegions =
+          entityManager.leftOuterJoinRenderableRegions(this.previousCoordinate, coordinate);
+      let enteringRegions =
+          entityManager.leftOuterJoinRenderableRegions(coordinate, this.previousCoordinate);
       let regionChangeData = new RegionChangeData(
-          this.trackee,
-          this.previousCoordinate,
-          entityManager,
-          entityManagerIndex);
+          this.trackee, leavingRegions, enteringRegions, entityManager, entityManagerIndex);
       this.dispatchEvent(new RegionChangeEvent(regionChangeData));
     });
   }
