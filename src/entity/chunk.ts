@@ -1,7 +1,7 @@
 import {Entity} from './entity';
 import {PhysicalConstants} from '../Universe';
 import {toWorldCoordinate2d} from '../law';
-import {EntityManager, Region} from './EntityManager';
+import EntityManager, {Region} from './EntityManager';
 
 /**
  * Implements {@link EntityManager} with arrays of {@link Chunk}s.

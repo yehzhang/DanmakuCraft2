@@ -1,5 +1,5 @@
 import {AnimatedEntity} from '../entity/entity';
-import {EntityManager, Region} from '../entity/EntityManager';
+import EntityManager, {Region} from '../entity/EntityManager';
 import {PhysicalConstants} from '../Universe';
 import EntityTracker, {RegionChangeEvent} from './EntityTracker';
 

@@ -2,7 +2,7 @@ import {AnimatedEntity} from '../entity/entity';
 import {Existent} from '../law';
 import EntityTracker from './EntityTracker';
 import Universe from '../Universe';
-import {EntityManager, Region} from '../entity/EntityManager';
+import EntityManager, {Region} from '../entity/EntityManager';
 import RegionChangeEventDigester from './RegionChangeEventDigester';
 
 /**

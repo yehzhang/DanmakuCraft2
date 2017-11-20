@@ -4,7 +4,7 @@ import {Entity} from './entity';
 /**
  * Stores entities in regions and provides modifiers and accessors.
  */
-export interface EntityManager<E extends Entity = Entity> extends Container<Region<E>> {
+export default interface EntityManager<E extends Entity = Entity> extends Container<Region<E>> {
   /**
    * Loads many entities.
    */

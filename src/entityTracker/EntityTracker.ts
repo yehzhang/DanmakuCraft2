@@ -1,7 +1,7 @@
 import {AnimatedEntity} from '../entity/entity';
 import {EventDispatcher, UnaryEvent} from '../dispatcher';
 import {Animated, Container} from '../law';
-import {EntityManager} from '../entity/EntityManager';
+import EntityManager from '../entity/EntityManager';
 
 export class RegionChangeEvent<E extends AnimatedEntity> extends UnaryEvent<RegionChangeData<E>> {
   static readonly type = 'regionChange';
