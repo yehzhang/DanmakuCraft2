@@ -8,7 +8,7 @@
     "target": "ES5",
     "moduleResolution": "node",
     "declaration": false,
-    "outDir": "./dist",
+    "outDir": "./build",
     "allowJs": false,
     "rootDir": "./src",
     "sourceMap": true,

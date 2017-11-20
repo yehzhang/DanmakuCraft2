@@ -14,7 +14,6 @@ export class RegionChangeEvent<E extends AnimatedEntity> extends UnaryEvent<Regi
 export class RegionChangeData<E extends AnimatedEntity> {
   constructor(
       readonly trackee: E,
-      readonly previousCoordinate: Phaser.Point,
       readonly entityManager: EntityManager,
       readonly entityManagerIndex: number) {
   }
@@ -42,10 +41,6 @@ export default class EntityTracker<E extends AnimatedEntity>
     return this.trackee;
   }
 
-  getPreviousCoordinate() {
-    return this.previousCoordinate.clone();
-  }
-
   forEach(f: (value: EntityManager, index: number) => void, thisArg?: any) {
     return this.entityManagers.forEach(f, thisArg);
   }
@@ -57,13 +52,11 @@ export default class EntityTracker<E extends AnimatedEntity>
         return;
       }
 
-      let regionChangeData = new RegionChangeData(
-          this.trackee,
-          this.previousCoordinate,
-          entityManager,
-          entityManagerIndex);
+      let regionChangeData = new RegionChangeData(this.trackee, entityManager, entityManagerIndex);
       this.dispatchEvent(new RegionChangeEvent(regionChangeData));
     });
+
+    this.previousCoordinate = coordinate;
   }
 }
 
@@ -76,7 +69,7 @@ export default class EntityTracker<E extends AnimatedEntity>
  * Does not call those methods if the regions related to trackee are not changed.
  */
 export abstract class RegionChangeEventDigester<E extends AnimatedEntity, T> {
-  private entityManagerDigestContexts: { [entityManagerIndex: number]: T };
+  private entityManagerDigestContexts: { [entityManagerIndex: number]: DigestContext<T> };
 
   constructor(private entityTracker: EntityTracker<E>, private samplingRadius: number) {
     RegionChangeEventDigester.validateRadius(samplingRadius);
@@ -90,10 +83,11 @@ export abstract class RegionChangeEventDigester<E extends AnimatedEntity, T> {
       }
 
       let initialRegions = entityManager.listAround(coordinate, samplingRadius);
-      let digestContext = this.makeContext(entityManager, trackee, initialRegions);
+      let userContext = this.makeContext(entityManager, trackee, initialRegions);
+      let digestContext = new DigestContext(initialRegions, userContext);
       this.entityManagerDigestContexts[entityManagerIndex] = digestContext;
 
-      this.update(entityManager, trackee, initialRegions, [], digestContext);
+      this.update(entityManager, trackee, digestContext);
     });
 
     entityTracker.addEventListener(EntityTracker.REGION_CHANGE, event => {
@@ -114,20 +108,18 @@ export abstract class RegionChangeEventDigester<E extends AnimatedEntity, T> {
       return;
     }
 
+    this.samplingRadius = samplingRadius;
+
     let trackee = this.entityTracker.getTrackee();
-    let previousCoordinate = this.entityTracker.getPreviousCoordinate();
     this.entityTracker.forEach((entityManager, entityManagerIndex) => {
       this.applyIfDigestible(entityManagerIndex, digestContext => {
-        let currentRegions = entityManager.listAround(previousCoordinate, this.samplingRadius);
-        let newRegions = entityManager.listAround(previousCoordinate, samplingRadius);
-        this.update(entityManager, trackee, newRegions, currentRegions, digestContext);
+        this.update(entityManager, trackee, digestContext);
       });
     });
-
-    this.samplingRadius = samplingRadius;
   }
 
-  private applyIfDigestible(entityManagerIndex: number, f: (digestContext: T) => void) {
+  private applyIfDigestible(
+      entityManagerIndex: number, f: (digestContext: DigestContext<T>) => void) {
     if (!(entityManagerIndex in this.entityManagerDigestContexts)) {
       return;
     }
@@ -158,41 +150,33 @@ export abstract class RegionChangeEventDigester<E extends AnimatedEntity, T> {
   digest(event: RegionChangeEvent<E>) {
     let regionChangeData = event.getDetail();
     this.applyIfDigestible(regionChangeData.entityManagerIndex, digestContext => {
-      this.digestData(
-          regionChangeData.entityManager,
-          regionChangeData.trackee,
-          regionChangeData.previousCoordinate,
-          digestContext);
+      this.update(regionChangeData.entityManager, regionChangeData.trackee, digestContext);
     });
   }
 
-  private digestData(
-      entityManager: EntityManager,
-      trackee: E,
-      previousCoordinate: Phaser.Point,
-      digestContext: T) {
-    let currCoordinate = trackee.getCoordinate();
-    let enteringRegions = entityManager
-        .leftOuterJoinAround(currCoordinate, previousCoordinate, this.samplingRadius);
-    let exitingRegions = entityManager
-        .leftOuterJoinAround(previousCoordinate, currCoordinate, this.samplingRadius);
-    this.update(entityManager, trackee, enteringRegions, exitingRegions, digestContext);
-  }
+  private update(entityManager: EntityManager, trackee: E, digestContext: DigestContext<T>) {
+    let currentCoordinate = trackee.getCoordinate();
+    let newRegions = entityManager.listAround(currentCoordinate, this.samplingRadius);
+    let newRegionsSet = RegionSet.from(newRegions);
 
-  private update(
-      entityManager: EntityManager,
-      trackee: E,
-      enteringRegions: Region[],
-      exitingRegions: Region[],
-      digestContext: T) {
-    if (enteringRegions.length > 0) {
-      this.onEnter(entityManager, trackee, enteringRegions, digestContext);
+    let enteringRegions = newRegionsSet.leftOuterJoin(digestContext.currentRegions);
+    let hasEnteringRegions = enteringRegions.length > 0;
+    if (hasEnteringRegions) {
+      enteringRegions.forEach(RegionSet.prototype.add, digestContext.currentRegions);
+
+      this.onEnter(entityManager, trackee, enteringRegions, digestContext.userContext);
     }
-    if (exitingRegions.length > 0) {
-      this.onExit(entityManager, trackee, exitingRegions, digestContext);
+
+    let exitingRegions = digestContext.currentRegions.leftOuterJoin(newRegionsSet);
+    let hasExitingRegions = exitingRegions.length > 0;
+    if (hasExitingRegions) {
+      exitingRegions.forEach(RegionSet.prototype.remove, digestContext.currentRegions);
+
+      this.onExit(entityManager, trackee, exitingRegions, digestContext.userContext);
     }
-    if (enteringRegions.length > 0 || exitingRegions.length > 0) {
-      this.onUpdate(entityManager, trackee, digestContext);
+
+    if (hasEnteringRegions || hasExitingRegions) {
+      this.onUpdate(entityManager, trackee, digestContext.userContext);
     }
   }
 
@@ -220,6 +204,46 @@ export abstract class RegionChangeEventDigester<E extends AnimatedEntity, T> {
    * This method will be called immediately after {@link makeContext} if necessary.
    */
   protected onUpdate(entityManager: EntityManager, trackee: E, digestContext: T): void {
+  }
+}
+
+class DigestContext<T> {
+  public currentRegions: RegionSet;
+
+  constructor(initialRegions: Region[], public userContext: T) {
+    this.currentRegions = RegionSet.from(initialRegions);
+  }
+}
+
+class RegionSet {
+  private set: { [regionId: string]: Region };
+
+  constructor() {
+    this.set = {};
+  }
+
+  static from(regions: Region[]) {
+    let set = new this();
+
+    for (let region of regions) {
+      set.add(region);
+    }
+
+    return set;
+  }
+
+  add(region: Region): void {
+    this.set[region.id] = region;
+  }
+
+  remove(region: Region): void {
+    delete this.set[region.id];
+  }
+
+  leftOuterJoin(set: RegionSet): Region[] {
+    return Object.keys(this.set)
+        .filter(regionId => !(regionId in set.set))
+        .map(regionId => this.set[regionId]);
   }
 }
 

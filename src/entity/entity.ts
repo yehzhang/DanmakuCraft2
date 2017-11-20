@@ -1,6 +1,6 @@
 import {BuffManager} from '../buff';
+import {Animated, Container, Superposed, toWorldCoordinateOffset2d} from '../law';
 import {PhysicalConstants} from '../Universe';
-import {Animated, Container, Superposed} from '../law';
 
 /**
  * Stores entities in regions and provides modifiers and accessors.
@@ -26,21 +26,10 @@ export interface EntityManager<E extends Entity = Entity> extends Container<Regi
    * The distance between a region returned and {@param worldCoordinate} could be larger than
    * {@param radius}.
    *
-   * Note that this world has a , regions around a coordinate
+   * Note that the world is bicylinder, which means the aggregation of regions around a coordinate
+   * within a certain radius looks like a rectangle, not a circle.
    */
   listAround(worldCoordinate: Phaser.Point, radius: number): Array<Region<E>>;
-
-  /**
-   * Equivalent to:
-   * 1. Call {@link listAround} twice with {@param worldCoordinate} and {@param otherCoordinate},
-   * respectively, and with the same {@param radius}.
-   * 2. Remove from the first call's result regions that exist in both calls' results.
-   * 3. Return the first call's result.
-   */
-  leftOuterJoinAround(
-      worldCoordinate: Phaser.Point,
-      otherCoordinate: Phaser.Point,
-      radius: number): Array<Region<E>>;
 }
 
 /**
@@ -60,27 +49,8 @@ abstract class EntityBase {
   }
 
   protected getWorldWrappingOffsetRelativeTo(coordinate: Phaser.Point): Phaser.Point {
-    let offsetX = EntityBase.getWorldWrappingOffset(this.worldCoordinate.x, coordinate.x);
-    let offsetY = EntityBase.getWorldWrappingOffset(this.worldCoordinate.y, coordinate.y);
-    return new Phaser.Point(offsetX, offsetY);
-  }
-
-  // TODO test
-  private static getWorldWrappingOffset(coordinate: number, other: number): number {
-    let offset = coordinate - other;
-
-    let wrappingOffset;
-    if (coordinate < other) {
-      wrappingOffset = offset + PhysicalConstants.WORLD_SIZE;
-    } else {
-      wrappingOffset = offset - PhysicalConstants.WORLD_SIZE;
-    }
-
-    if (Math.abs(offset) <= Math.abs(wrappingOffset)) {
-      return offset;
-    } else {
-      return wrappingOffset;
-    }
+    return toWorldCoordinateOffset2d(
+        this.worldCoordinate, coordinate, PhysicalConstants.WORLD_SIZE);
   }
 }
 
@@ -99,10 +69,15 @@ export abstract class Entity extends EntityBase implements Superposed {
  * Contains entities.
  */
 export abstract class Region<E extends Entity = Entity> extends Entity implements Container<E> {
+  private static idCounter = 0;
+
   private display: PIXI.DisplayObjectContainer | null;
+  public readonly id: string;
 
   constructor(coordinate: Phaser.Point) {
     super(coordinate);
+
+    this.id = Region.generateUniqueId().toString();
     this.display = null;
   }
 
@@ -150,6 +125,10 @@ export abstract class Region<E extends Entity = Entity> extends Entity implement
     }
 
     return this.display;
+  }
+
+  private static generateUniqueId(): number {
+    return this.idCounter++;
   }
 }
 
