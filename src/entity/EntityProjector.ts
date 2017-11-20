@@ -1,68 +1,72 @@
-import {AnimatedEntity, Entity, Region} from './entity';
+import {AnimatedEntity, EntityManager, Region} from './entity';
 import {Existent} from '../law';
-import EntityTracker from './EntityTracker';
+import EntityTracker, {RegionChangeEventDigester} from './EntityTracker';
+import Universe from '../Universe';
 
 /**
  * Displays entities.
  */
-export default class EntityProjector<E extends AnimatedEntity> implements Existent {
+export default class EntityProjector<E extends AnimatedEntity>
+    extends RegionChangeEventDigester<E, PIXI.DisplayObjectContainer>
+    implements Existent {
   private container: PIXI.DisplayObjectContainer;
 
-  constructor(private entityTracker: EntityTracker<E>) {
+  constructor(entityTracker: EntityTracker<E>) {
+    let game = Universe.getGame();
+    let samplingRadius = EntityProjector.getSamplingRadius(game.width, game.height);
+    super(entityTracker, samplingRadius);
+
     this.container = new PIXI.DisplayObjectContainer();
 
-    let observerCoordinate = entityTracker.getTrackee().getCoordinate();
-    entityTracker.forEach(entityManager => {
-      let container = new PIXI.DisplayObjectContainer();
-      this.container.addChild(container);
+    game.scale.onSizeChange.add(this.onGameResize, this);
+  }
 
-      entityManager.listRenderableRegions(observerCoordinate)
-          .forEach(region => EntityProjector.decohereRegion(observerCoordinate, region, container));
-    });
+  private onGameResize(width: number, height: number) {
+    let samplingRadius = EntityProjector.getSamplingRadius(width, height);
+    this.updateSamplingRadius(samplingRadius);
+  }
 
-    entityTracker.addEventListener(EntityTracker.REGION_CHANGE, event => {
-      let regionChangeData = event.getDetail();
-      let container = this.container.getChildAt(
-          regionChangeData.entityManagerIndex) as PIXI.DisplayObjectContainer;
-      EntityProjector.onRegionChange(
-          regionChangeData.trackee.getCoordinate(),
-          container,
-          regionChangeData.leavingRegions,
-          regionChangeData.enteringRegions);
-    });
+  private static getSamplingRadius(width: number, height: number): number {
+    let longerSide = Math.max(width, height);
+    let radius = 0; // TODO calculate actual size;
+    throw new Error('Not implemented');
+    // return radius;
+  }
+
+  protected makeContext(entityManager: EntityManager, trackee: E, regions: Region[]) {
+    let container = new PIXI.DisplayObjectContainer();
+    this.container.addChild(container);
+    return container;
+  }
+
+  protected onEnter(
+      entityManager: EntityManager,
+      trackee: E,
+      regions: Region[],
+      container: PIXI.DisplayObjectContainer): void {
+    let observerCoordinate = trackee.getCoordinate();
+    for (let region of regions) {
+      region.decohere(observerCoordinate);
+
+      let display = region.measure();
+      container.addChild(display);
+    }
+  }
+
+  protected onExit(
+      entityManager: EntityManager,
+      trackee: E,
+      regions: Region[],
+      container: PIXI.DisplayObjectContainer): void {
+    for (let region of regions) {
+      let display = region.measure();
+      container.removeChild(display);
+
+      region.cohere();
+    }
   }
 
   display(): PIXI.DisplayObjectContainer {
     return this.container;
-  }
-
-  private static onRegionChange(
-      observerCoordinate: Phaser.Point,
-      container: PIXI.DisplayObjectContainer,
-      leavingRegions: Region[],
-      enteringRegions: Region[]) {
-    for (let region of leavingRegions) {
-      EntityProjector.cohereRegion(region, container);
-    }
-    for (let region of enteringRegions) {
-      EntityProjector.decohereRegion(observerCoordinate, region, container);
-    }
-  }
-
-  private static decohereRegion(
-      observerCoordinate: Phaser.Point,
-      region: Region<Entity>,
-      container: PIXI.DisplayObjectContainer) {
-    region.decohere(observerCoordinate);
-
-    let display = region.measure();
-    container.addChild(display);
-  }
-
-  private static cohereRegion(region: Region<Entity>, container: PIXI.DisplayObjectContainer) {
-    let display = region.measure();
-    container.removeChild(display);
-
-    region.cohere();
   }
 }

@@ -5,30 +5,20 @@ import {PhysicalConstants} from '../Universe';
  * Implements {@link EntityManager} with arrays of {@link Chunk}s.
  */
 export class ChunkEntityManager<E extends Entity = Entity> implements EntityManager<E> {
-  private renderChunksCount: number;
   private chunkSize: number;
   private chunksCount: number;
   private chunks: Array<Array<Chunk<E>>>;
 
   /**
    * @param chunksCount Number of chunks in a certain dimension.
-   * @param renderDistance Minimum distance in world coordinate to render around a point.
    */
-  constructor(chunksCount: number, renderDistance: number) {
+  constructor(chunksCount: number) {
     // TODO support for updating render distance
     this.chunksCount = Math.floor(chunksCount);
     this.chunkSize = PhysicalConstants.WORLD_SIZE / this.chunksCount;
-    this.renderChunksCount = Math.ceil(renderDistance / this.chunkSize);
 
     if (this.chunksCount <= 0) {
       throw new Error('Invalid chunks count');
-    }
-
-    if (this.renderChunksCount <= 0) {
-      throw new Error('Invalid render distance');
-    }
-    if ((this.renderChunksCount * 2 + 1) * this.chunkSize > PhysicalConstants.WORLD_SIZE) {
-      throw new Error('Render distance too large');
     }
 
     this.chunks = ChunkEntityManager.makeChunks(this.chunksCount, this.chunkSize);
@@ -66,23 +56,15 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     chunk.addEntity(entity);
   }
 
-  listRenderableRegions(worldCoordinate: Phaser.Point): Array<Chunk<E>> {
-    let coordinate = this.toChunkCoordinate(worldCoordinate);
-    let bound = this.inflate(coordinate, this.renderChunksCount);
-    return this.listChunksInBound(bound.left, bound.right, bound.top, bound.bottom);
-  }
-
   // TODO remove renderable chunks count
-  leftOuterJoinRenderableRegions(
-      worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Chunk<E>> {
-    let leftCoordinate = this.toChunkCoordinate(worldCoordinate);
-    let rightCoordinate = this.toChunkCoordinate(otherCoordinate);
-    if (leftCoordinate.equals(rightCoordinate)) {
-      return [];
-    }
+  leftOuterJoinAround(
+      worldCoordinate: Phaser.Point,
+      otherCoordinate: Phaser.Point,
+      radius: number): Array<Chunk<E>> {
+    ChunkEntityManager.validateRadius(radius);
 
     // Collect all chunks in either vertical or horizontal area.
-    // Case 1:
+    // Case 1.A:
     // V V H H
     // V V H H
     // V V H H
@@ -91,7 +73,18 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     //     o o o o
     //     o o o o
     //
-    // Case 2:
+    // Case 1.B:
+    // V V V V
+    // V V V V
+    // V V V V
+    // V V V V
+    //
+    //           o o o o
+    //           o o o o
+    //           o o o o
+    //           o o o o
+    //
+    // Case 2.A:
     // o o o o
     // o o o o
     // o o o o
@@ -99,19 +92,35 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     //     H H V V
     //     H H V V
     //     H H V V
+    //
+    // Case 2.B:
+    // o o o o
+    // o o o o
+    // o o o o
+    // o o o o
+    //
+    //           V V V V
+    //           V V V V
+    //           V V V V
+    //           V V V V
+    //
+    // Width and height of an square must not be shorter in both ends than those of another square,
+    // which is guaranteed by both coordinates being inflated by the same radius.
     let chunks: Array<Chunk<E>> = [];
 
-    // Collect chunks in vertical area.
-    let leftBound = this.inflate(leftCoordinate, this.renderChunksCount);
-    let rightBound = this.inflate(rightCoordinate, this.renderChunksCount);
-    if (leftCoordinate.x !== rightCoordinate.x) {
+    let leftBound = this.inflate(worldCoordinate, radius);
+    let rightBound = this.inflate(otherCoordinate, radius);
+    if (leftBound.left !== rightBound.left || leftBound.right !== rightBound.right) {
+      // Collect chunks in vertical area. (V)
       let left;
       let right;
-      if (leftCoordinate.x < rightCoordinate.x) {
+      if (leftBound.left < rightBound.left) {
+        // Case 1
         left = leftBound.left;
-        right = rightBound.left - 1;
+        right = Math.min(leftBound.right, rightBound.left - 1);
       } else {
-        left = rightBound.right + 1;
+        // Case 2
+        left = Math.max(leftBound.left, rightBound.right + 1);
         right = leftBound.right;
       }
 
@@ -120,25 +129,29 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
       this.pushChunksInBound(left, right, top, bottom, chunks);
     }
 
-    // Collect chunks in horizontal area.
-    if (leftCoordinate.y !== rightCoordinate.y) {
+    if (leftBound.top !== rightBound.top || leftBound.bottom !== rightBound.bottom) {
+      // Collect chunks in horizontal area. (H)
       let left;
       let right;
-      if (leftCoordinate.x < rightCoordinate.x) {
+      if (leftBound.left < rightBound.left) {
+        // Case 1
         left = rightBound.left;
         right = leftBound.right;
       } else {
+        // Case 2
         left = leftBound.left;
         right = rightBound.right;
       }
 
       let top;
       let bottom;
-      if (leftCoordinate.y < rightCoordinate.y) {
+      if (leftBound.top < rightBound.top) {
+        // Case 1
         top = leftBound.top;
-        bottom = rightBound.top - 1;
+        bottom = Math.min(leftBound.bottom, rightBound.top - 1);
       } else {
-        top = rightBound.bottom + 1;
+        // Case 2
+        top = Math.max(leftBound.top, rightBound.bottom + 1);
         bottom = leftBound.bottom;
       }
 
@@ -157,24 +170,21 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     });
   }
 
-  listNeighborsAround(worldCoordinate: Phaser.Point, radius: number) {
+  listAround(worldCoordinate: Phaser.Point, radius: number) {
+    ChunkEntityManager.validateRadius(radius);
+
     if (radius === 0) {
       return [];
     }
 
-    if (!(radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
-      throw new Error(`Radius '${radius}' is invalid`);
-    }
+    let bound = this.inflate(worldCoordinate, radius);
+    return this.listChunksInBound(bound.left, bound.right, bound.top, bound.bottom);
+  }
 
-    let topLeft = this.toChunkCoordinate(worldCoordinate.clone().subtract(radius, radius));
-    let bottomRight = this.toChunkCoordinate(worldCoordinate.clone().add(radius, radius));
-    if (topLeft.x > bottomRight.x) {
-      bottomRight.x += this.chunksCount;
+  private static validateRadius(radius: number) {
+    if (!(radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
+      throw new Error(`Invalid radius: '${radius}'`);
     }
-    if (topLeft.y > bottomRight.y) {
-      bottomRight.y += this.chunksCount;
-    }
-    return this.listChunksInBound(topLeft.x, bottomRight.x, topLeft.y, bottomRight.y);
   }
 
   isInSameRegion(worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): boolean {
@@ -232,12 +242,20 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
    * If bounds are beyond the left or top of the world, they will be wrapped to the opposite ends.
    * All coordinates are guaranteed to be greater than or equal to 0.
    */
-  private inflate(chunkCoordinate: Phaser.Point, n: number): Phaser.Rectangle {
-    let bound = new Phaser.Rectangle(chunkCoordinate.x, chunkCoordinate.y, 1, 1)
-        .inflate(n, n)
-        .offset(this.chunksCount, this.chunksCount);
-    bound.x %= this.chunksCount;
-    bound.y %= this.chunksCount;
+  private inflate(worldCoordinate: Phaser.Point, radius: number): Phaser.Rectangle {
+    let topLeft = this.toChunkCoordinate(worldCoordinate.clone().subtract(radius, radius));
+    let bound = new Phaser.Rectangle(topLeft.x, topLeft.y, 0, 0);
+
+    let bottomRight = this.toChunkCoordinate(worldCoordinate.clone().add(radius, radius));
+    if (topLeft.x > bottomRight.x) {
+      bottomRight.x += this.chunksCount;
+    }
+    if (topLeft.y > bottomRight.y) {
+      bottomRight.y += this.chunksCount;
+    }
+    bound.right = bottomRight.x;
+    bound.bottom = bottomRight.y;
+
     return bound;
   }
 

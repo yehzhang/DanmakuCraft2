@@ -7,7 +7,6 @@ import {ChunkEntityManager} from './entity/chunk';
 import {Notifier} from './notification';
 import {LocallyOriginatedCommentEffectManager} from './effect';
 import EntityProjector from './entity/EntityProjector';
-import Background from './Background';
 import {PlayerEntity} from './entity/player';
 import EntityTracker from './entity/EntityTracker';
 
@@ -22,8 +21,9 @@ export default class Universe {
   private commentEntityManager: EntityManager<CommentEntity>;
   private notifier: Notifier;
   private effectManager: LocallyOriginatedCommentEffectManager;
-  private projector: EntityProjector;
+  private projector: EntityProjector<PlayerEntity>;
   private player: PlayerEntity;
+  private tracker: EntityTracker<PlayerEntity>;
 
   private constructor(private adapter: EnvironmentAdapter) {
     this.game = new Phaser.Game(
@@ -31,8 +31,7 @@ export default class Universe {
         '100',
         Phaser.AUTO,
         adapter.getGameContainerProvider().getContainer());
-    this.commentEntityManager = new ChunkEntityManager(
-        PhysicalConstants.CHUNKS_COUNT, PhysicalConstants.renderDistance);
+    this.commentEntityManager = new ChunkEntityManager(PhysicalConstants.CHUNKS_COUNT);
 
     let settingsManager = adapter.getSettingsManager();
     this.commentManager = new CommentManager(this.game, this.commentEntityManager, settingsManager);
@@ -40,7 +39,8 @@ export default class Universe {
     this.notifier = new Notifier();
     this.effectManager = new LocallyOriginatedCommentEffectManager(1);
     this.player = new PlayerEntity(new Phaser.Point()); // TODO set actual spawn point
-    this.projector = new EntityProjector([this.commentEntityManager], this.player);
+    this.tracker = new EntityTracker(this.player, [this.commentEntityManager]);
+    this.projector = new EntityProjector(this.tracker);
   }
 
   static genesis(adapter: EnvironmentAdapter) {
@@ -76,7 +76,8 @@ export default class Universe {
 
 // TODO add asserting test on validity of constants?
 export class PhysicalConstants {
-  public static readonly WORLD_SIZE = 1000; // TODO
+  public static readonly WORLD_SIZE = 30000; // TODO
+  public static readonly BACKGROUND_SAMPLING_RADIUS = 2000; // TODO
   public static readonly CHUNKS_COUNT = 50;
   public static renderDistance = 1; // TODO change depending on Phaser.screenSize
 }

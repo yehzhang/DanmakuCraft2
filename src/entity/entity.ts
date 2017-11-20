@@ -17,27 +17,30 @@ export interface EntityManager<E extends Entity = Entity> extends Container<Regi
   load(entity: E): void;
 
   /**
-   * Returns all regions displayable around the world coordinate.
-   * If the coordinate is close to the edge of the world, expects to return displayable regions on
-   * the other side of the world as well.
-   */
-  listRenderableRegions(worldCoordinate: Phaser.Point): Array<Region<E>>;
-
-  leftOuterJoinRenderableRegions(
-      worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): Array<Region<E>>;
-
-  /**
-   * @param {Phaser.Point} worldCoordinate the center of an aggregation containing regions.
-   * @param {number} radius the radius of the aggregation. The actual radius of the aggregation
-   *     returned can be approximate. If zero, returns an empty array.
-   * @return {Array<Region<E extends Entity>>} the aggregation.
-   */
-  listNeighborsAround(worldCoordinate: Phaser.Point, radius: number): Array<Region<E>>;
-
-  /**
    * Checks if the two world coordinates are in a same managed region.
    */
   isInSameRegion(worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): boolean;
+
+  /**
+   * Returns an array of regions around {@param worldCoordinate} within {@param radius}.
+   * The distance between a region returned and {@param worldCoordinate} could be larger than
+   * {@param radius}.
+   *
+   * Note that this world has a , regions around a coordinate
+   */
+  listAround(worldCoordinate: Phaser.Point, radius: number): Array<Region<E>>;
+
+  /**
+   * Equivalent to:
+   * 1. Call {@link listAround} twice with {@param worldCoordinate} and {@param otherCoordinate},
+   * respectively, and with the same {@param radius}.
+   * 2. Remove from the first call's result regions that exist in both calls' results.
+   * 3. Return the first call's result.
+   */
+  leftOuterJoinAround(
+      worldCoordinate: Phaser.Point,
+      otherCoordinate: Phaser.Point,
+      radius: number): Array<Region<E>>;
 }
 
 /**
