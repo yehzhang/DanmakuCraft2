@@ -1,8 +1,9 @@
-import {Entity, EntityManager} from './entity';
+import {Entity} from './entity';
 import {EffectData, EffectFactory} from '../effect';
 import SettingsManager from '../environment/SettingsManager';
 import CommentProvider, {NewCommentEvent} from '../environment/CommentProvider';
 import {UnaryEvent} from '../dispatcher';
+import {EntityManager} from './EntityManager';
 
 export class CommentData {
   constructor(
@@ -95,9 +96,9 @@ export class CommentManager {
 
 export class CommentEntity extends Entity {
   constructor(
-      private size: number,
-      private color: number,
-      private text: string,
+      public readonly size: number,
+      public readonly color: number,
+      public readonly text: string,
       coordinate: Phaser.Point) {
     super(coordinate);
   }

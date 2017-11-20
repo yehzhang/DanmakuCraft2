@@ -1,7 +1,8 @@
-import {AnimatedEntity, EntityManager, Region} from './entity';
+import {AnimatedEntity} from './entity';
 import {Existent} from '../law';
 import EntityTracker, {RegionChangeEventDigester} from './EntityTracker';
 import Universe from '../Universe';
+import {EntityManager, Region} from './EntityManager';
 
 /**
  * Displays entities.
