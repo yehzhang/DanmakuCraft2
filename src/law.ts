@@ -37,7 +37,8 @@ export interface Phenomenal extends Existent, Animated {
  */
 export interface Superposed {
   /**
-   * Transitions to the displayable state. Generates a display.
+   * Transitions to the displayable state. Generates a display that has a position relative to a
+   * world coordinate {@param parentCoordinate}.
    */
   decohere(parentCoordinate: Phaser.Point): void;
 

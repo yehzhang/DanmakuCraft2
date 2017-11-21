@@ -106,7 +106,5 @@ export abstract class Observer extends Entity implements Existent {
  * Technically a {@link Observer}.
  */
 export abstract class Player extends AnimatedEntity implements Existent {
-  abstract tick(): void;
-
-  abstract display(): PIXI.DisplayObject;
+  abstract display(): PIXI.Graphics;
 }

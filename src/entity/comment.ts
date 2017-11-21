@@ -1,9 +1,10 @@
-import {SuperposedEntity} from './entity';
+import {Entity} from './entity';
 import {EffectData, EffectFactory} from '../effect';
 import SettingsManager from '../environment/SettingsManager';
 import CommentProvider, {NewCommentEvent} from '../environment/CommentProvider';
 import {UnaryEvent} from '../dispatcher';
 import EntityManager from './EntityManager';
+import {Superposed} from '../law';
 
 export class CommentData {
   constructor(
@@ -94,13 +95,15 @@ export class CommentManager {
   }
 }
 
-export interface Comment {
+export interface Comment extends Superposed {
   readonly size: number;
   readonly color: number;
   readonly text: string;
+
+  measure(): Phaser.Text;
 }
 
-export class CommentEntity extends SuperposedEntity implements Comment {
+export class CommentEntity extends Entity implements Comment {
   constructor(
       readonly size: number,
       readonly color: number,
@@ -117,7 +120,7 @@ export class CommentEntity extends SuperposedEntity implements Comment {
     throw new Error('Not implemented');
   }
 
-  measure(): PIXI.DisplayObject {
+  measure(): Phaser.Text {
     throw new Error('Not implemented');
   }
 }
