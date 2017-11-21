@@ -1,7 +1,7 @@
 import {AnimatedEntity, SuperposedEntity} from '../entity/entity';
 import {Existent} from '../law';
 import EntityManager, {Region} from '../entity/EntityManager';
-import EntityTrackerListener from './RegionChangeEventListener';
+import EntityTrackerListener from './EntityTrackerListener';
 
 /**
  * Displays entities around an entity.

@@ -1,7 +1,7 @@
 import {AnimatedEntity, SuperposedEntity} from '../entity/entity';
 import {Animated} from '../law';
 import EntityManager, {Region} from '../entity/EntityManager';
-import EntityTrackerListener from './RegionChangeEventListener';
+import EntityTrackerListener from './EntityTrackerListener';
 import {PhysicalConstants} from '../Universe';
 
 /**
