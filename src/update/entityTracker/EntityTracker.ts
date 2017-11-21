@@ -49,15 +49,25 @@ export default class EntityTracker<T extends AnimatedEntity = AnimatedEntity> im
         trackingRecord.update(this.trackee, nextCoordinate, this.samplingRadius);
       }
 
-      trackingRecord.onTick(this.trackee);
+      trackingRecord.tick(this.trackee);
     });
 
     this.currentCoordinate = nextCoordinate;
   }
+
+  getCurrentRegions<E extends SuperposedEntity>(entityManager: EntityManager<E>): Array<Region<E>> {
+    for (let record of this.trackingRecords) {
+      if (record.entityManager === entityManager) {
+        return record.getCurrentRegions() as Array<Region<E>>;
+      }
+    }
+
+    throw new Error('EntityManager is not tracked');
+  }
 }
 
 class EntityTrackerBuilder<T extends AnimatedEntity> {
-  private entityManagers: Map<EntityManager, TrackingBinder<T, SuperposedEntity>>;
+  private entityManagers: Map<EntityManager, TrackingRecord<T, SuperposedEntity>>;
 
   constructor(private trackee: T, private samplingRadius: number) {
   }
@@ -78,53 +88,35 @@ class EntityTrackerBuilder<T extends AnimatedEntity> {
     return this;
   }
 
-  private getBinder(entityManager: EntityManager<any>) {
-    let binder = this.entityManagers.get(entityManager);
-    if (binder === undefined) {
-      binder = new TrackingBinder();
-      this.entityManagers.set(entityManager, binder);
-    }
-    return binder;
-  }
-
   build() {
     if (this.entityManagers.size === 0) {
       throw new Error('No entity managers are tracked');
     }
 
     let trackingRecords = [];
-    for (let [entityManager, trackingBinder] of this.entityManagers) {
-      let trackingRecord = new TrackingRecord(entityManager, trackingBinder);
+    for (let [_, trackingRecord] of this.entityManagers) {
       trackingRecords.push(trackingRecord);
     }
 
     return new EntityTracker(this.trackee, this.samplingRadius, trackingRecords);
   }
+
+  private getBinder(entityManager: EntityManager<any>) {
+    let binder = this.entityManagers.get(entityManager);
+    if (binder === undefined) {
+      binder = new TrackingRecord(entityManager);
+      this.entityManagers.set(entityManager, binder);
+    }
+    return binder;
+  }
 }
 
 class TrackingRecord<T extends AnimatedEntity, E extends SuperposedEntity> {
-  constructor(private entityManager: EntityManager<E>, private binder: TrackingBinder<T, E>) {
-  }
+  regionChangeListeners: Array<RegionChangeListener<T, E>>;
+  tickListeners: Array<TickListener<T, E>>;
+  currentRegions: Set<Region<E>>;
 
-  canUpdate(currentCoordinate: Phaser.Point, nextCoordinate: Phaser.Point) {
-    return this.entityManager.isInSameRegion(currentCoordinate, nextCoordinate);
-  }
-
-  update(trackee: T, nextCoordinate: Phaser.Point, samplingRadius: number) {
-    this.binder.update(this.entityManager, trackee, nextCoordinate, samplingRadius);
-  }
-
-  onTick(trackee: T) {
-    this.binder.onTick(trackee);
-  }
-}
-
-class TrackingBinder<T extends AnimatedEntity, E extends SuperposedEntity> {
-  private regionChangeListeners: Array<RegionChangeListener<T, E>>;
-  private tickListeners: Array<TickListener<T, E>>;
-  private currentRegions: Set<Region<E>>;
-
-  constructor() {
+  constructor(public entityManager: EntityManager<E>) {
     this.regionChangeListeners = [];
     this.tickListeners = [];
     this.currentRegions = new Set();
@@ -138,26 +130,30 @@ class TrackingBinder<T extends AnimatedEntity, E extends SuperposedEntity> {
     this.tickListeners.push(listener);
   }
 
-  update(
-      entityManager: EntityManager<E>,
-      trackee: T,
-      nextCoordinate: Phaser.Point,
-      samplingRadius: number) {
-    let nextRegions = entityManager.listAround(nextCoordinate, samplingRadius);
+  getCurrentRegions() {
+    return Array.from(this.currentRegions);
+  }
+
+  canUpdate(currentCoordinate: Phaser.Point, nextCoordinate: Phaser.Point) {
+    return this.entityManager.isInSameRegion(currentCoordinate, nextCoordinate);
+  }
+
+  update(trackee: T, nextCoordinate: Phaser.Point, samplingRadius: number) {
+    let nextRegions = this.entityManager.listAround(nextCoordinate, samplingRadius);
     let nextRegionsSet = new Set(nextRegions);
-    let enteringRegions = TrackingBinder.leftOuterJoin(nextRegionsSet, this.currentRegions);
-    let exitingRegions = TrackingBinder.leftOuterJoin(this.currentRegions, nextRegionsSet);
+    let enteringRegions = TrackingRecord.leftOuterJoin(nextRegionsSet, this.currentRegions);
+    let exitingRegions = TrackingRecord.leftOuterJoin(this.currentRegions, nextRegionsSet);
 
     for (let listener of this.regionChangeListeners) {
-      listener.update(entityManager, trackee, enteringRegions.slice(), exitingRegions.slice());
+      listener.update(this.entityManager, trackee, enteringRegions.slice(), exitingRegions.slice());
     }
 
     this.currentRegions = nextRegionsSet;
   }
 
-  onTick(trackee: T): void {
+  tick(trackee: T) {
     for (let listener of this.tickListeners) {
-      listener.onTick(trackee, Array.from(this.currentRegions));
+      listener.onTick(trackee, this.getCurrentRegions());
     }
   }
 

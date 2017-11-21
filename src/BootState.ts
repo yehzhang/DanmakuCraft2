@@ -43,7 +43,7 @@ export default class BootState extends Phaser.State {
     this.borderGroup = this.game.add.group();
     this.borderGroup.fixedToCamera = true;
     this.borderGroup.cameraOffset = gameSize.clone().multiply(0.5, 0.5);
-    let title = this.commentManager.addSprite(
+    let title = this.commentManager.addText(
         Texts.forName('boot.ui.title'),
         94,
         Colors.GOLD,
@@ -53,7 +53,7 @@ export default class BootState extends Phaser.State {
     this.loadingStatusGroup = this.game.add.group();
     this.loadingStatusGroup.fixedToCamera = true;
     this.loadingStatusGroup.cameraOffset = gameSize.clone().multiply(0.95, 0.95);
-    let loadingText = this.commentManager.addSprite(
+    let loadingText = this.commentManager.addText(
         Texts.forName('boot.ui.loading'),
         18,
         Colors.GREY,
@@ -105,7 +105,7 @@ export default class BootState extends Phaser.State {
     this.commentManager.loadBatch(commentsData);
 
     this.commentProvider.connect();
-    this.commentManager.listenOn(this.commentProvider);
+    this.commentManager.listenTo(this.commentProvider);
 
     console.debug('Comment loaded');
   }
