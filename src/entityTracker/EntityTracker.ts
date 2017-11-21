@@ -61,7 +61,7 @@ class EntityTrackerBuilder<T extends AnimatedEntity> {
   }
 
   registerTracking<E extends SuperposedEntity>(
-      entityManager: EntityManager<E>, listener: EntityTrackerListener<any, T, E>) {
+      entityManager: EntityManager<E>, listener: EntityTrackerListener<T, E>) {
     if (!this.entityManagers.has(entityManager)) {
       this.entityManagers.set(entityManager, new TrackingBinder());
     }
@@ -97,7 +97,7 @@ class TrackingRecord<T extends AnimatedEntity, E extends SuperposedEntity> {
 }
 
 class TrackingBinder<T extends AnimatedEntity, E extends SuperposedEntity> {
-  private listeners: Array<EntityTrackerListener<any, T, E>>;
+  private listeners: Array<EntityTrackerListener<T, E>>;
   private currentRegions: Set<Region<E>>;
 
   constructor() {
@@ -105,7 +105,7 @@ class TrackingBinder<T extends AnimatedEntity, E extends SuperposedEntity> {
     this.currentRegions = new Set();
   }
 
-  addListener(listener: EntityTrackerListener<any, T, E>) {
+  addListener(listener: EntityTrackerListener<T, E>) {
     this.listeners.push(listener);
   }
 
