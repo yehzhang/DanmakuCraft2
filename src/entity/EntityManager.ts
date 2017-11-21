@@ -1,10 +1,15 @@
 import {Container} from '../law';
-import {Entity} from './entity';
+import {SuperposedEntity} from './entity';
 
 /**
- * Stores entities in regions and provides modifiers and accessors.
+ * Stores {@link SuperposedEntity}s in {@link Region}s and supports for querying entities within a
+ * certain area.
+ *
+ * If an entity is not {@link Superposed}, there is no need for a {@link EntityManager}, because
+ * the entity has to be displayed globally anyway.
  */
-export default interface EntityManager<E extends Entity = Entity> extends Container<Region<E>> {
+export default interface EntityManager<E extends SuperposedEntity = SuperposedEntity>
+    extends Container<Region<E>> {
   /**
    * Loads many entities.
    */
@@ -32,18 +37,15 @@ export default interface EntityManager<E extends Entity = Entity> extends Contai
 }
 
 /**
- * Contains entities.
+ * Contains {@link SuperposedEntity}s.
  */
-export abstract class Region<E extends Entity = Entity> extends Entity implements Container<E> {
-  private static idCounter = 0;
-
+export abstract class Region<E extends SuperposedEntity = SuperposedEntity>
+    extends SuperposedEntity
+    implements Container<E> {
   private display: PIXI.DisplayObjectContainer | null;
-  public readonly id: string;
 
   constructor(coordinate: Phaser.Point) {
     super(coordinate);
-
-    this.id = Region.generateUniqueId().toString();
     this.display = null;
   }
 
@@ -91,9 +93,5 @@ export abstract class Region<E extends Entity = Entity> extends Entity implement
     }
 
     return this.display;
-  }
-
-  private static generateUniqueId(): number {
-    return this.idCounter++;
   }
 }

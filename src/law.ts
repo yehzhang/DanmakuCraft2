@@ -1,5 +1,7 @@
 /**
  * An object that is displayable.
+ *
+ * If there is no need to be always displayable, consider {@link Superposed}.
  */
 
 export interface Existent {
@@ -31,7 +33,7 @@ export interface Phenomenal extends Existent, Animated {
  * When at the non-displayable state, the object is non-displayable.
  *
  * This is an optimization that frees up resources taken by this object when appropriate.
- * Otherwise, the object could have only {@link measure}.
+ * Otherwise, consider {@link Existent}.
  */
 export interface Superposed {
   /**

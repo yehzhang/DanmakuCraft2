@@ -1,41 +1,23 @@
-import {AnimatedEntity} from '../entity/entity';
+import {AnimatedEntity, SuperposedEntity} from '../entity/entity';
 import {Existent} from '../law';
-import EntityTracker from './EntityTracker';
-import Universe from '../Universe';
 import EntityManager, {Region} from '../entity/EntityManager';
-import RegionChangeEventDigester from './RegionChangeEventDigester';
+import EntityTrackerListener from './RegionChangeEventListener';
 
 /**
- * Displays entities.
+ * Displays entities around an entity.
  */
-export default class EntityProjector<E extends AnimatedEntity>
-    extends RegionChangeEventDigester<E, PIXI.DisplayObjectContainer>
+export default class EntityProjector<
+    T extends AnimatedEntity = AnimatedEntity, E extends SuperposedEntity = SuperposedEntity>
+    extends EntityTrackerListener<PIXI.DisplayObjectContainer, T, E>
     implements Existent {
   private container: PIXI.DisplayObjectContainer;
 
-  constructor(entityTracker: EntityTracker<E>) {
-    let game = Universe.getGame();
-    let samplingRadius = EntityProjector.getSamplingRadius(game.width, game.height);
-    super(entityTracker, samplingRadius);
-
+  constructor() {
+    super();
     this.container = new PIXI.DisplayObjectContainer();
-
-    game.scale.onSizeChange.add(this.onGameResize, this);
   }
 
-  private onGameResize(width: number, height: number) {
-    let samplingRadius = EntityProjector.getSamplingRadius(width, height);
-    this.updateSamplingRadius(samplingRadius);
-  }
-
-  private static getSamplingRadius(width: number, height: number): number {
-    let longerSide = Math.max(width, height);
-    let radius = 0; // TODO calculate actual size;
-    throw new Error('Not implemented');
-    // return radius;
-  }
-
-  protected makeContext(entityManager: EntityManager, trackee: E, regions: Region[]) {
+  protected makeContext(): PIXI.DisplayObjectContainer {
     let container = new PIXI.DisplayObjectContainer();
     this.container.addChild(container);
     return container;
@@ -43,8 +25,8 @@ export default class EntityProjector<E extends AnimatedEntity>
 
   protected onEnter(
       entityManager: EntityManager,
-      trackee: E,
-      regions: Region[],
+      trackee: T,
+      regions: Array<Region<E>>,
       container: PIXI.DisplayObjectContainer): void {
     let observerCoordinate = trackee.getCoordinate();
     for (let region of regions) {
@@ -57,8 +39,8 @@ export default class EntityProjector<E extends AnimatedEntity>
 
   protected onExit(
       entityManager: EntityManager,
-      trackee: E,
-      regions: Region[],
+      trackee: T,
+      regions: Array<Region<E>>,
       container: PIXI.DisplayObjectContainer): void {
     for (let region of regions) {
       let display = region.measure();

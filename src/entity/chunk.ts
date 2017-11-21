@@ -1,4 +1,4 @@
-import {Entity} from './entity';
+import {SuperposedEntity} from './entity';
 import {PhysicalConstants} from '../Universe';
 import {toWorldCoordinate2d} from '../law';
 import EntityManager, {Region} from './EntityManager';
@@ -6,7 +6,7 @@ import EntityManager, {Region} from './EntityManager';
 /**
  * Implements {@link EntityManager} with arrays of {@link Chunk}s.
  */
-export class ChunkEntityManager<E extends Entity = Entity> implements EntityManager<E> {
+export class ChunkEntityManager<E extends SuperposedEntity> implements EntityManager<E> {
   private chunkSize: number;
   private chunksCount: number;
   private chunks: Array<Array<Chunk<E>>>;
@@ -26,7 +26,7 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
     this.chunks = ChunkEntityManager.makeChunks(this.chunksCount, this.chunkSize);
   }
 
-  private static makeChunks<E extends Entity>(
+  private static makeChunks<E extends SuperposedEntity>(
       chunksCount: number, chunkSize: number): Array<Array<Chunk<E>>> {
     let chunks = [];
     let coordinate = new Phaser.Point();
@@ -80,7 +80,7 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
 
   private static validateRadius(radius: number) {
     // Maximum radius is WORLD_SIZE / 4 for the optimization in left outer join.
-    if (!(radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE / 2)) {
+    if (!(radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
       throw new Error(`Invalid radius: '${radius}'`);
     }
   }
@@ -157,7 +157,7 @@ export class ChunkEntityManager<E extends Entity = Entity> implements EntityMana
 /**
  * Implements {@link Region} with an array.
  */
-export class Chunk<E extends Entity> extends Region<E> {
+export class Chunk<E extends SuperposedEntity> extends Region<E> {
   private entities: E[];
 
   constructor(coordinate: Phaser.Point) {

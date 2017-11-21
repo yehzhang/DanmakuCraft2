@@ -1,4 +1,4 @@
-import {Entity} from './entity';
+import {SuperposedEntity} from './entity';
 import {EffectData, EffectFactory} from '../effect';
 import SettingsManager from '../environment/SettingsManager';
 import CommentProvider, {NewCommentEvent} from '../environment/CommentProvider';
@@ -7,14 +7,14 @@ import EntityManager from './EntityManager';
 
 export class CommentData {
   constructor(
-      public readonly size: number,
-      public readonly color: number,
-      public readonly sendTime: number,
-      public readonly userId: number,
-      public readonly text: string,
-      public readonly coordinateX: number, // These positions may be invalid.
-      public readonly coordinateY: number,
-      public readonly effectData: EffectData | null) {
+      readonly size: number,
+      readonly color: number,
+      readonly sendTime: number,
+      readonly userId: number,
+      readonly text: string,
+      readonly coordinateX: number, // These positions may be invalid.
+      readonly coordinateY: number,
+      readonly effectData: EffectData | null) {
   }
 }
 
@@ -94,11 +94,17 @@ export class CommentManager {
   }
 }
 
-export class CommentEntity extends Entity {
+export interface Comment {
+  readonly size: number;
+  readonly color: number;
+  readonly text: string;
+}
+
+export class CommentEntity extends SuperposedEntity implements Comment {
   constructor(
-      public readonly size: number,
-      public readonly color: number,
-      public readonly text: string,
+      readonly size: number,
+      readonly color: number,
+      readonly text: string,
       coordinate: Phaser.Point) {
     super(coordinate);
   }
