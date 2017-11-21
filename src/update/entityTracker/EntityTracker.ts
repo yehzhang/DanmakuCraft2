@@ -1,8 +1,8 @@
-import {AnimatedEntity, SuperposedEntity} from '../entity/entity';
-import {Animated} from '../law';
-import EntityManager, {Region} from '../entity/EntityManager';
-import RegionChangeListener from './RegionChangeListener';
-import {PhysicalConstants} from '../Universe';
+import {AnimatedEntity, SuperposedEntity} from '../../entity/entity';
+import {Animated} from '../../law';
+import EntityManager, {Region} from '../../entity/EntityManager';
+import RegionChangeListener from '../RegionChangeListener';
+import {PhysicalConstants} from '../../Universe';
 import TickListener from './TickListener';
 
 /**
