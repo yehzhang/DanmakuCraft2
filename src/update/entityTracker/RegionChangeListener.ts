@@ -1,5 +1,5 @@
-import {AnimatedEntity, SuperposedEntity} from '../entity/entity';
-import EntityManager, {Region} from '../entity/EntityManager';
+import {AnimatedEntity, SuperposedEntity} from '../../entity/entity';
+import EntityManager, {Region} from '../../entity/EntityManager';
 
 /**
  * Listens on changes produced by {@link EntityTracker}.

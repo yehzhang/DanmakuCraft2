@@ -1,6 +1,6 @@
-import TickListener from './TickListener';
-import {AnimatedEntity, NonPlayerCharacter} from '../../entity/entity';
-import {Region} from '../../entity/EntityManager';
+import TickListener from './entityTracker/TickListener';
+import {AnimatedEntity, NonPlayerCharacter} from '../entity/entity';
+import {Region} from '../entity/EntityManager';
 
 export default class NonPlayerCharacterTicker
     implements TickListener<AnimatedEntity, NonPlayerCharacter> {
