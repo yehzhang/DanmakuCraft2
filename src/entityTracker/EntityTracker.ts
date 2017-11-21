@@ -1,8 +1,9 @@
 import {AnimatedEntity, SuperposedEntity} from '../entity/entity';
 import {Animated} from '../law';
 import EntityManager, {Region} from '../entity/EntityManager';
-import EntityTrackerListener from './EntityTrackerListener';
+import RegionChangeListener from './RegionChangeListener';
 import {PhysicalConstants} from '../Universe';
+import TickListener from './TickListener';
 
 /**
  * Tracks an animated entity and triggers callbacks whenever the entity moves from one region to
@@ -44,10 +45,11 @@ export default class EntityTracker<T extends AnimatedEntity = AnimatedEntity> im
   tick(): void {
     let nextCoordinate = this.trackee.getCoordinate();
     this.trackingRecords.forEach(trackingRecord => {
-      if (!trackingRecord.canUpdate(this.currentCoordinate, nextCoordinate)) {
-        return;
+      if (trackingRecord.canUpdate(this.currentCoordinate, nextCoordinate)) {
+        trackingRecord.update(this.trackee, nextCoordinate, this.samplingRadius);
       }
-      trackingRecord.update(this.trackee, nextCoordinate, this.samplingRadius);
+
+      trackingRecord.onTick(this.trackee);
     });
 
     this.currentCoordinate = nextCoordinate;
@@ -60,19 +62,36 @@ class EntityTrackerBuilder<T extends AnimatedEntity> {
   constructor(private trackee: T, private samplingRadius: number) {
   }
 
-  registerTracking<E extends SuperposedEntity>(
-      entityManager: EntityManager<E>, listener: EntityTrackerListener<T, E>) {
-    if (!this.entityManagers.has(entityManager)) {
-      this.entityManagers.set(entityManager, new TrackingBinder());
-    }
-
-    let binder = this.entityManagers.get(entityManager) as TrackingBinder<T, E>;
-    binder.addListener(listener);
+  trackOnRegionChange<E extends SuperposedEntity>(
+      entityManager: EntityManager<E>, listener: RegionChangeListener<T, E>) {
+    let binder = this.getBinder(entityManager);
+    binder.addRegionChangeListener(listener);
 
     return this;
   }
 
+  trackOnTick<E extends SuperposedEntity>(
+      entityManager: EntityManager<E>, listener: TickListener<T, E>) {
+    let binder = this.getBinder(entityManager);
+    binder.addTickListener(listener);
+
+    return this;
+  }
+
+  private getBinder(entityManager: EntityManager<any>) {
+    let binder = this.entityManagers.get(entityManager);
+    if (binder === undefined) {
+      binder = new TrackingBinder();
+      this.entityManagers.set(entityManager, binder);
+    }
+    return binder;
+  }
+
   build() {
+    if (this.entityManagers.size === 0) {
+      throw new Error('No entity managers are tracked');
+    }
+
     let trackingRecords = [];
     for (let [entityManager, trackingBinder] of this.entityManagers) {
       let trackingRecord = new TrackingRecord(entityManager, trackingBinder);
@@ -94,19 +113,29 @@ class TrackingRecord<T extends AnimatedEntity, E extends SuperposedEntity> {
   update(trackee: T, nextCoordinate: Phaser.Point, samplingRadius: number) {
     this.binder.update(this.entityManager, trackee, nextCoordinate, samplingRadius);
   }
+
+  onTick(trackee: T) {
+    this.binder.onTick(trackee);
+  }
 }
 
 class TrackingBinder<T extends AnimatedEntity, E extends SuperposedEntity> {
-  private listeners: Array<EntityTrackerListener<T, E>>;
+  private regionChangeListeners: Array<RegionChangeListener<T, E>>;
+  private tickListeners: Array<TickListener<T, E>>;
   private currentRegions: Set<Region<E>>;
 
   constructor() {
-    this.listeners = [];
+    this.regionChangeListeners = [];
+    this.tickListeners = [];
     this.currentRegions = new Set();
   }
 
-  addListener(listener: EntityTrackerListener<T, E>) {
-    this.listeners.push(listener);
+  addRegionChangeListener(listener: RegionChangeListener<T, E>) {
+    this.regionChangeListeners.push(listener);
+  }
+
+  addTickListener(listener: TickListener<T, E>) {
+    this.tickListeners.push(listener);
   }
 
   update(
@@ -119,11 +148,17 @@ class TrackingBinder<T extends AnimatedEntity, E extends SuperposedEntity> {
     let enteringRegions = TrackingBinder.leftOuterJoin(nextRegionsSet, this.currentRegions);
     let exitingRegions = TrackingBinder.leftOuterJoin(this.currentRegions, nextRegionsSet);
 
-    for (let listener of this.listeners) {
+    for (let listener of this.regionChangeListeners) {
       listener.update(entityManager, trackee, enteringRegions.slice(), exitingRegions.slice());
     }
 
     this.currentRegions = nextRegionsSet;
+  }
+
+  onTick(trackee: T): void {
+    for (let listener of this.tickListeners) {
+      listener.onTick(trackee, Array.from(this.currentRegions));
+    }
   }
 
   static leftOuterJoin<T>(set: Set<T>, other: Set<T>): T[] {
