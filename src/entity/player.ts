@@ -9,7 +9,7 @@ export class TinyTelevision extends Player {
     throw new Error('Method not implemented.');
   }
 
-  display(): PIXI.DisplayObject {
+  display(): PIXI.Graphics {
     throw new Error('Method not implemented.');
   }
 }

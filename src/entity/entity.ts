@@ -98,7 +98,7 @@ export abstract class NonPlayerCharacter extends AnimatedEntity implements Super
  * Usually it is a significant object.
  */
 export abstract class Observer extends Entity implements Existent {
-  abstract display(): PIXI.DisplayObject;
+  abstract display(): PIXI.DisplayObjectContainer;
 }
 
 /**
@@ -106,5 +106,5 @@ export abstract class Observer extends Entity implements Existent {
  * Technically a {@link Observer}.
  */
 export abstract class Player extends AnimatedEntity implements Existent {
-  abstract display(): PIXI.Graphics;
+  abstract display(): PIXI.DisplayObjectContainer;
 }
