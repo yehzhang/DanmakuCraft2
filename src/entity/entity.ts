@@ -106,5 +106,14 @@ export abstract class Observer extends Entity implements Existent {
  * Technically a {@link Observer}.
  */
 export abstract class Player extends AnimatedEntity implements Existent {
-  abstract display(): PIXI.DisplayObjectContainer;
+  protected container: Phaser.Sprite;
+
+  constructor(coordinate: Phaser.Point, game: Phaser.Game) {
+    super(coordinate);
+    this.container = game.make.sprite(0, 0);
+  }
+
+  display(): Phaser.Sprite {
+    return this.container;
+  }
 }

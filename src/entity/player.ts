@@ -5,11 +5,16 @@ export class PlayerManager {
 }
 
 export class TinyTelevision extends Player {
+  constructor(coordinate: Phaser.Point, game: Phaser.Game) {
+    super(coordinate, game);
+    this.craftDisplay();
+  }
+
   tick(): void {
     throw new Error('Method not implemented.');
   }
 
-  display(): PIXI.Graphics {
+  private craftDisplay() {
     throw new Error('Method not implemented.');
   }
 }
