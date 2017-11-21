@@ -24,7 +24,7 @@ export default class BilibiliAdapter implements EnvironmentAdapter {
     return new BilibiliCommentProvider(this.universeProxy);
   }
 
-  setUniverseProxy(universeProxy: UniverseProxy) {
+  setProxy(universeProxy: UniverseProxy) {
     this.universeProxy = universeProxy;
   }
 

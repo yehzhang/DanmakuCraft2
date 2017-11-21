@@ -4,8 +4,12 @@ import EnvironmentAdapter from '../EnvironmentAdapter';
 import SettingsManager, {SettingsOption} from '../SettingsManager';
 import CommentProvider from '../CommentProvider';
 import GameContainerProvider from '../GameContainerProvider';
+import UniverseProxy from '../UniverseProxy';
 
 export default class TestingAdapter implements EnvironmentAdapter {
+  setProxy(universeProxy: UniverseProxy): void {
+  }
+
   getSettingsManager(): SettingsManager {
     return new TestingSettingsManager();
   }
