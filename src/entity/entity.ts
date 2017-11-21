@@ -66,7 +66,7 @@ export abstract class SuperposedEntity extends Entity implements Superposed {
  * A {@link Superposed} entity that updates when it is decoherent.
  * Technically a {@link SuperposedEntity}.
  */
-abstract class NonPlayerCharacter extends AnimatedEntity implements Superposed {
+export abstract class NonPlayerCharacter extends AnimatedEntity implements Superposed {
   private decoherent: boolean;
 
   constructor(coordinate: Phaser.Point) {
