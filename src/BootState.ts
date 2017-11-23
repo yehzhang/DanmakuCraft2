@@ -1,90 +1,157 @@
-import {CommentManager} from './entity/comment';
 import Texts from './Texts';
 import Colors from './Colors';
-import CommentProvider from './environment/CommentProvider';
+import EnvironmentAdapter from './environment/EnvironmentAdapter';
+import Universe, {PhysicalConstants, UniverseFactory} from './Universe';
+import SettingsManager from './environment/SettingsManager';
+import MainState from './MainState';
 
 /**
- * Displays the opening, loads all comments, and adds a new-comment listener
+ * Displays the opening and loads the universe
  */
 export default class BootState extends Phaser.State {
-  private borderGroup: Phaser.Group;
-  private loadingStatusGroup: Phaser.Group;
-  private starfieldFilter: Phaser.Filter | null;
+  private initialGameSize: Phaser.Point;
+  private titleGroup: Phaser.Group;
 
-  constructor(
-      private commentProvider: CommentProvider,
-      private commentManager: CommentManager) {
+  private loadingStatusGroup: Phaser.Group;
+  private loadingStatusText: Phaser.Text;
+
+  private waitForAnyInputGroup: Phaser.Group;
+  private earthGroup: Phaser.Group;
+  private borderGroup: Phaser.Group;
+
+  private universe: Universe;
+
+  constructor(private adapter: EnvironmentAdapter, private makeUniverse: UniverseFactory) {
     super();
   }
 
   create() {
-    this.game.stage.disableVisibilityChange = true;
-
-    // this.game.world.resize(PhysicalConstants.WORLD_SIZE, PhysicalConstants.WORLD_SIZE);
-
-    // Enable crisp rendering
-    this.game.renderer.renderSession.roundPixels = true;
-    Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
-
-    this.renderGroups();
-
-    // this.positionGroups();
-
-    if (this.game.device.webGL) {
-      // TODO add filter
-    }
-
-    this.startState().catch(reason => console.error('Error in BootState:', reason));
+    this.configureGame();
+    this.craftRenderGroups();
+    this.startState().catch(reason => this.showFailedLoadingStatus(reason));
   }
 
-  private renderGroups() {
-    let gameSize = new Phaser.Point(this.game.width, this.game.height);
+  private configureGame() {
+    this.game.stage.disableVisibilityChange = true;
+
+    this.game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+
+    // Make game less blurry
+    this.game.renderer.renderSession.roundPixels = true;
+    // TODO need this for more sharpness?
+    // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
+
+    // TODO size?
+    // this.game.world.resize(PhysicalConstants.WORLD_SIZE, PhysicalConstants.WORLD_SIZE);
+  }
+
+  private craftRenderGroups() {
+    this.initialGameSize = this.getCurrentGameSize();
+
+    let settingsManager = this.adapter.getSettingsManager();
+    let fontFamily = settingsManager.getSetting(SettingsManager.Options.FONT_FAMILY);
 
     this.borderGroup = this.game.add.group();
-    this.borderGroup.fixedToCamera = true;
-    this.borderGroup.cameraOffset = gameSize.clone().multiply(0.5, 0.5);
-    let title = this.commentManager.addText(
-        Texts.forName('boot.ui.title'),
-        94,
-        Colors.GOLD,
-        this.borderGroup);
+
+    this.titleGroup = this.game.add.group(this.borderGroup);
+    this.titleGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
+    this.titleGroup.visible = false;
+    let title = this.game.add.text(
+        0,
+        0,
+        Texts.forName('boot.title'),
+        {
+          font: fontFamily,
+          fontSize: 94,
+          fill: Colors.GOLD,
+        },
+        this.titleGroup);
     title.anchor.setTo(0.5, 2);
 
     this.loadingStatusGroup = this.game.add.group();
     this.loadingStatusGroup.fixedToCamera = true;
-    this.loadingStatusGroup.cameraOffset = gameSize.clone().multiply(0.95, 0.95);
-    let loadingText = this.commentManager.addText(
-        Texts.forName('boot.ui.loading'),
-        18,
-        Colors.GREY,
+    this.loadingStatusGroup.cameraOffset = this.initialGameSize.clone().multiply(0.95, 0.95);
+    this.loadingStatusGroup.visible = false;
+    this.loadingStatusText = this.game.add.text(
+        0,
+        0,
+        Texts.forName('boot.loading'),
+        {
+          font: fontFamily,
+          fontSize: 18,
+          fill: Colors.GREY,
+        },
         this.loadingStatusGroup);
-    loadingText.anchor.setTo(1);
+    this.loadingStatusText.anchor.setTo(1);
+
+    this.waitForAnyInputGroup = this.game.add.group(this.borderGroup);
+    this.waitForAnyInputGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
+    this.waitForAnyInputGroup.visible = false;
+    let waitForAnyInputText = this.game.add.text(
+        0,
+        0,
+        Texts.forName('boot.anyInput'),
+        {
+          font: fontFamily,
+          fontSize: 32,
+          fill: Colors.WHITE,
+        },
+        this.waitForAnyInputGroup);
+    waitForAnyInputText.anchor.setTo(0.5, -3);
+
+    this.earthGroup = this.game.add.group(this.borderGroup);
+    this.earthGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
+    this.earthGroup.visible = false;
+    let earthGraphics = this.game.add.graphics(0, 0, this.earthGroup);
+    earthGraphics.beginFill(Colors.SNOW_NUMBER);
+    earthGraphics.drawRect(-5, -5, 10, 10);
+    earthGraphics.endFill();
+
+    this.game.scale.onSizeChange.add(this.onGameResize, this);
+  }
+
+  private onGameResize() {
+    let gameSize = this.getCurrentGameSize();
+
+    this.loadingStatusGroup.cameraOffset = gameSize.clone().multiply(0.95, 0.95);
+
+    this.borderGroup.position = gameSize.clone()
+        .subtract(this.initialGameSize.x, this.initialGameSize.y)
+        .divide(2, 2);
+  }
+
+  private getCurrentGameSize() {
+    return new Phaser.Point(this.game.width, this.game.height);
   }
 
   private async startState(): Promise<void> {
-    let [, , error] = await Promise.all([
+    let [error, , , ] = await Promise.all([
+      this.generateUniverse(),
       this.showLoadingStatus(),
       this.approachUniverseBorder(),
-      this.loadComments().catch((reason: Error) => reason),
+      this.approachEarthFaraway(),
     ]);
 
     if (error != null) {
-      this.showErrorMessage(error);
       throw error;
     }
 
-    await this.listenOnAnyInput();
+    await Promise.all([
+      this.showCompletedLoadingStatus(),
+      this.waitForUniverseBorderOpen(),
+    ]);
 
-    // await Promise.all([
-    //   this.passThroughUniverseBorder(),
-    //   this.approachEarth(),
-    // ]);
+    await Promise.all([
+      this.passThroughUniverseBorder(),
+      this.approachEarth(),
+    ]);
 
-    // this.game.state.start(MainState.name, false);
-    // TODO clear world manually?
+    this.game.state.start('MainState', false, false, this.universe);
   }
 
   private async showLoadingStatus(): Promise<void> {
+    this.loadingStatusGroup.visible = true;
+
     this.loadingStatusGroup.alpha = 0;
     let statusAlphaTween = this.game.add.tween(this.loadingStatusGroup)
         .to(
@@ -94,49 +161,159 @@ export default class BootState extends Phaser.State {
             true);
 
     return new Promise<void>(resolve => {
-      console.debug('Loading status shown');
-
       statusAlphaTween.onComplete.addOnce(resolve);
     });
   }
 
-  private async loadComments(): Promise<void> {
-    let commentsData = await this.commentProvider.getAllComments();
-    this.commentManager.loadBatch(commentsData);
+  private async generateUniverse(): Promise<void | Error> {
+    try {
+      this.universe = this.makeUniverse(this.game, this.adapter);
 
-    this.commentProvider.connect();
-    this.commentManager.listenTo(this.commentProvider);
+      let proxy = this.universe.getProxy();
+      this.adapter.setProxy(proxy);
 
-    console.debug('Comment loaded');
+      await this.universe.loadComments();
+    } catch (error) {
+      return error;
+    }
   }
 
   private async approachUniverseBorder(): Promise<void> {
-    this.borderGroup.scale.setTo(0);
+    this.titleGroup.visible = true;
 
-    let borderScaleTween = this.game.add.tween(this.borderGroup.scale)
+    this.titleGroup.alpha = 0;
+    this.game.add.tween(this.titleGroup)
+        .to(
+            {alpha: 1},
+            200,
+            Phaser.Easing.Linear.None,
+            true,
+            400);
+
+    this.titleGroup.scale.setTo(0);
+    let titleScaleTween = this.game.add.tween(this.titleGroup.scale)
         .to(
             {x: 0.1, y: 0.1},
             2000,
             Phaser.Easing.Quadratic.In,
             true,
             300);
-    let borderScaleTween2 = this.game.add.tween(this.borderGroup.scale)
+    let titleScaleTween2 = this.game.add.tween(this.titleGroup.scale)
         .to(
             {x: 1, y: 1},
             800,
             Phaser.Easing.Quadratic.Out);
-    borderScaleTween.chain(borderScaleTween2);
+    titleScaleTween.chain(titleScaleTween2);
 
     return new Promise<void>(resolve => {
-      console.debug('Border approached');
-
-      borderScaleTween2.onComplete.addOnce(resolve);
+      titleScaleTween2.onComplete.addOnce(resolve);
     });
   }
 
-  private showErrorMessage(error: Error) {
-    console.debug('Show error message');
-    // TODO show error message;
+  private async approachEarthFaraway() {
+    this.earthGroup.visible = true;
+
+    this.earthGroup.alpha = 0;
+    this.game.add.tween(this.earthGroup)
+        .to(
+            {alpha: 1},
+            200,
+            Phaser.Easing.Linear.None,
+            true,
+            400);
+
+    this.earthGroup.scale.setTo(0);
+    let earthScaleTween = this.game.add.tween(this.earthGroup.scale)
+        .to(
+            {x: 1, y: 1},
+            2700,
+            Phaser.Easing.Quadratic.In,
+            true,
+            300);
+
+    return new Promise<void>(resolve => {
+      earthScaleTween.onComplete.addOnce(resolve);
+    });
+  }
+
+  private showFailedLoadingStatus(error: Error) {
+    console.error('Error in BootState:', error);
+
+    if (this.loadingStatusGroup == null) {
+      return;
+    }
+
+    let ignored = this.updateLoadingStatus(Texts.forName('boot.error'));
+
+    this.game.add.tween(this.borderGroup)
+        .to(
+            {alpha: 0},
+            2000,
+            Phaser.Easing.Linear.None,
+            true,
+            700);
+  }
+
+  private async showCompletedLoadingStatus() {
+    await this.updateLoadingStatus(Texts.forName('boot.done'));
+
+    this.game.add.tween(this.loadingStatusGroup)
+        .to(
+            {alpha: 0},
+            500,
+            Phaser.Easing.Linear.None,
+            true,
+            2000);
+    // Does not wait for loading status to disappear.
+  }
+
+  private async updateLoadingStatus(text: string) {
+    let loadingStatusAlphaTween = this.game.add.tween(this.loadingStatusGroup)
+        .to(
+            {alpha: 0},
+            300,
+            Phaser.Easing.Linear.None,
+            true);
+
+    loadingStatusAlphaTween.onComplete.addOnce(() => {
+      this.loadingStatusText.text = text;
+    });
+
+    let loadingStatusAlphaTween2 = this.game.add.tween(this.loadingStatusGroup)
+        .to(
+            {alpha: 1},
+            300,
+            Phaser.Easing.Linear.None);
+    loadingStatusAlphaTween.chain(loadingStatusAlphaTween2);
+
+    return new Promise<void>(resolve => {
+      loadingStatusAlphaTween2.onComplete.addOnce(resolve);
+    });
+  }
+
+  private async waitForUniverseBorderOpen() {
+    let onAnyInputPromise = this.listenOnAnyInput();
+
+    this.waitForAnyInputGroup.alpha = 1;
+    let anyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
+        .to(
+            {alpha: 0.1},
+            PhysicalConstants.COMMENT_BLINK_DURATION_MS,
+            Phaser.Easing.Linear.None,
+            true,
+            0,
+            1,
+            true);
+
+    await Promise.race([
+      this.showWaitingForAnyInput(anyInputAlphaTween),
+      onAnyInputPromise,
+    ]);
+    await onAnyInputPromise;
+
+    anyInputAlphaTween.stop();
+
+    await this.hideWaitingForAnyInput();
   }
 
   private async listenOnAnyInput(): Promise<void> {
@@ -145,23 +322,78 @@ export default class BootState extends Phaser.State {
       this.game.input.keyboard.onDownCallback = resolve;
     })
         .then(() => {
-          console.debug('Got input');
-
           this.game.input.onDown.removeAll();
-          this.game.input.keyboard.onDownCallback = null as any as () => void;
+          this.game.input.keyboard.onDownCallback = null as any;
         });
   }
 
-  private async passThroughUniverseBorder(border: Phaser.Sprite): Promise<void> {
-    return new Promise<void>(resolve => {
-      // TODO
+  private async showWaitingForAnyInput(anyInputAlphaTween: Phaser.Tween) {
+    this.waitForAnyInputGroup.visible = true;
 
+    return new Promise<void>(resolve => {
+      anyInputAlphaTween.onComplete.addOnce(resolve);
     });
   }
 
-  private async approachEarth(earth: Phaser.Sprite): Promise<void> {
+  private async hideWaitingForAnyInput() {
+    let waitForAnyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
+        .to(
+            {alpha: 0},
+            500,
+            Phaser.Easing.Quadratic.Out,
+            true);
+
     return new Promise<void>(resolve => {
-      // TODO
+      waitForAnyInputAlphaTween.onComplete.addOnce(resolve);
+    });
+  }
+
+  private async passThroughUniverseBorder(): Promise<void> {
+    this.game.add.tween(this.titleGroup.scale)
+        .to(
+            {x: 5, y: 5},
+            1000,
+            Phaser.Easing.Cubic.In,
+            true);
+
+    let titlePositionTween = this.game.add.tween(this.titleGroup.position)
+        .to(
+            {y: -100},
+            1000,
+            Phaser.Easing.Cubic.In,
+            true);
+
+    return new Promise<void>(resolve => {
+      titlePositionTween.onComplete.addOnce(resolve);
+    });
+  }
+
+  /**
+   * Expands the center white square until it is as large as the game.
+   */
+  private async approachEarth() {
+    let targetScale = this.initialGameSize.divide(this.earthGroup.width, this.earthGroup.height);
+    targetScale.setTo(Math.max(targetScale.x, targetScale.y) * 5);
+
+    let earthScaleTween = this.game.add.tween(this.earthGroup.scale)
+        .to(
+            targetScale,
+            4000,
+            Phaser.Easing.Quartic.In,
+            true);
+
+    return new Promise<void>(resolve => {
+      earthScaleTween.onStart.addOnce(() => {
+        this.game.camera.fade(Colors.SNOW_NUMBER, 2500);
+
+        this.game.camera.onFadeComplete.addOnce(() => {
+          this.game.stage.backgroundColor = Colors.SNOW;
+
+          earthScaleTween.stop();
+
+          resolve();
+        });
+      });
     });
   }
 }

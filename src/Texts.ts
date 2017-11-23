@@ -1,8 +1,13 @@
 export default class Texts {
   private static TEXTS: { [textName: string]: string } = {
-    'boot.ui.loading': '加载中',
-    'boot.ui.title': '弹幕世界',
-    'boot.ui.tutorial': 'TODO',
+    'boot.anyInput': '按任意键开始游戏',
+    'boot.done': '加载完毕',
+    'boot.error': '加载失败，请刷新页面',
+    'boot.loading': '加载中',
+    'boot.title': '弹幕世界',
+
+    'main.tutorial.move': '按 W、S、A、D 移动',
+    'main.tutorial.comment': '按回车键开始输入弹幕，再次按下发送弹幕',
   };
 
   static forName(name: string): string {
