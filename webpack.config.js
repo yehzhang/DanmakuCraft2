@@ -78,7 +78,7 @@ module.exports = env => {
         p2: path.join(PHASER_DIR, 'build/custom/p2.js'),
       },
     },
-    devtool: 'source-map',
+    devtool: 'eval-cheap-module-source-map',
     plugins,
     output: {
       filename: 'bundle.js',

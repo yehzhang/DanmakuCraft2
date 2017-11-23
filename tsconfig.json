@@ -14,7 +14,8 @@
     "sourceMap": true,
     "inlineSources": false,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "downlevelIteration": true
   },
   "include": [
     "./src/index.bilibili.ts",
