@@ -30,18 +30,23 @@ export class CommentManager {
       private entityTracker: EntityTracker) {
     this.fontFamily = settingsManager.getSetting(SettingsManager.Options.FONT_FAMILY);
     settingsManager.addEventListener(
-        SettingsManager.Options.FONT_FAMILY, this.onFontChanged.bind(this));
+        SettingsManager.Options.FONT_FAMILY,
+        (event: UnaryEvent<string>) => this.onFontChanged(event.getDetail()));
   }
 
-  private onFontChanged(event: UnaryEvent<string>) {
-    let fontFamily = event.getDetail();
-    if (this.fontFamily === fontFamily) {
-      return;
-    }
+  canPlaceIn(bound: Phaser.Rectangle): boolean {
+    return !this.entityTracker.getCurrentRegions(this.entityManager)
+        .some(region => {
+          let hasCollision = false;
+          region.forEach(commentEntity => {
+            if (hasCollision) {
+              return;
+            }
+            hasCollision = commentEntity.measure().textBounds.intersects(bound, 0);
+          });
 
-    this.fontFamily = fontFamily;
-
-    // TODO redraw all sprites?
+          return hasCollision;
+        });
   }
 
   loadBatch(commentsData: CommentData[]) {
@@ -54,14 +59,6 @@ export class CommentManager {
     let comment = this.buildEntity(commentData);
     this.entityManager.load(comment);
     return comment;
-  }
-
-  addText(text: string, size: number, color: string, group: Phaser.Group): Phaser.Text {
-    let textObject = this.makeText(text, size, color);
-
-    group.add(textObject);
-
-    return textObject;
   }
 
   makeText(text: string, size: number, color: string): Phaser.Text {
@@ -77,18 +74,14 @@ export class CommentManager {
         });
   }
 
-  canPlaceIn(bound: Phaser.Rectangle): boolean {
-    return !this.entityTracker.getCurrentRegions(this.entityManager).some(region => {
-      let hasCollision = false;
-      region.forEach(commentEntity => {
-        if (hasCollision) {
-          return;
-        }
-        hasCollision = commentEntity.measure().textBounds.intersects(bound, 0);
-      });
+  private onFontChanged(fontFamily: string) {
+    if (this.fontFamily === fontFamily) {
+      return;
+    }
 
-      return hasCollision;
-    });
+    this.fontFamily = fontFamily;
+
+    // TODO redraw all sprites?
   }
 
   listenTo(commentProvider: CommentProvider) {
@@ -98,8 +91,7 @@ export class CommentManager {
 
   private buildEntity(data: CommentData) {
     let coordinate = new Phaser.Point(data.coordinateX, data.coordinateY);
-    let color = Phaser.Color.getWebRGB(data.color); // TODO test if works?
-    let comment = new CommentEntity(data.size, color, data.text, coordinate, this);
+    let comment = new CommentEntity(data.size, data.color, data.text, coordinate, this);
 
     if (data.effectData != null) {
       let effect = EffectFactory.build(data.effectData);
@@ -117,7 +109,7 @@ export class CommentManager {
 
 export interface Comment extends Superposed {
   readonly size: number;
-  readonly color: string;
+  readonly color: number;
   readonly text: string;
 
   measure(): Phaser.Text;
@@ -128,7 +120,7 @@ export class CommentEntity extends Entity implements Comment {
 
   constructor(
       readonly size: number,
-      readonly color: string,
+      readonly color: number,
       readonly text: string,
       coordinate: Phaser.Point,
       private commentManager: CommentManager) {
@@ -141,7 +133,8 @@ export class CommentEntity extends Entity implements Comment {
       throw new Error('CommentEntity is decoherent');
     }
 
-    this.display = this.commentManager.makeText(this.text, this.size, this.color);
+    let color = Phaser.Color.getWebRGB(this.color); // TODO test if works?
+    this.display = this.commentManager.makeText(this.text, this.size, color);
     this.display.anchor.setTo(0.5);
   }
 
