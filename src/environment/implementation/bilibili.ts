@@ -11,7 +11,7 @@ import GameContainerProvider from '../GameContainerProvider';
 import SettingsManager, {SettingsOption} from '../SettingsManager';
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
-  universeProxy: UniverseProxy | null;
+  private universeProxy: UniverseProxy | null;
 
   constructor() {
     this.universeProxy = null;
@@ -38,7 +38,9 @@ export default class BilibiliAdapter implements EnvironmentAdapter {
 }
 
 class BilibiliContainerProvider implements GameContainerProvider {
-  getContainer(): HTMLElement {
+  private static readonly CONTAINER_ID = 'danmaku-craft-container';
+
+  getContainerId(): string {
     if (!BilibiliContainerProvider.canRunOnThisWebPage()) {
       throw new Error('Script cannot be run on this page');
     }
@@ -47,7 +49,9 @@ class BilibiliContainerProvider implements GameContainerProvider {
     $videoFrame.empty();
     // $videoFrame is not recovered when player's size is changed.
 
-    return $videoFrame[0];
+    $videoFrame.attr('id', BilibiliContainerProvider.CONTAINER_ID);
+
+    return BilibiliContainerProvider.CONTAINER_ID;
   }
 
   private static canRunOnThisWebPage() {

@@ -1,4 +1,3 @@
-import * as $ from 'jquery';
 import {CommentData} from '../../entity/comment';
 import EnvironmentAdapter from '../EnvironmentAdapter';
 import SettingsManager, {SettingsOption} from '../SettingsManager';
@@ -24,9 +23,8 @@ export default class TestingAdapter implements EnvironmentAdapter {
 }
 
 class TestingContainerProvider implements GameContainerProvider {
-  getContainer(): HTMLElement {
-    let $elem = $('#container');
-    return $elem[0];
+  getContainerId(): string {
+    return 'container';
   }
 }
 
