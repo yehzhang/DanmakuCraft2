@@ -12,24 +12,28 @@ import TickListener from './TickListener';
  */
 export default class EntityTracker<T extends AnimatedEntity = AnimatedEntity> implements Animated {
   private currentCoordinate: Phaser.Point;
-  private samplingRadius: number;
 
   constructor(
       private trackee: T,
-      samplingRadius: number,
+      private samplingRadius: number,
       private trackingRecords: Array<TrackingRecord<T, SuperposedEntity>>) {
     this.currentCoordinate = trackee.getCoordinate();
-    this.updateSamplingRadius(samplingRadius);
+
+    EntityTracker.validateSamplingRadius(samplingRadius);
   }
 
   static newBuilder<T extends AnimatedEntity>(trackee: T, samplingRadius: number) {
     return new EntityTrackerBuilder(trackee, samplingRadius);
   }
 
-  updateSamplingRadius(samplingRadius: number) {
-    if (!(samplingRadius >= 0 || samplingRadius * 2 <= PhysicalConstants.WORLD_SIZE)) {
-      throw new Error(`Invalid sampling radius: '${samplingRadius}'`);
+  private static validateSamplingRadius(radius: number) {
+    if (!(radius >= 0 || radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
+      throw new Error(`Invalid sampling radius: '${radius}'`);
     }
+  }
+
+  updateSamplingRadius(samplingRadius: number) {
+    EntityTracker.validateSamplingRadius(samplingRadius);
 
     if (samplingRadius === this.samplingRadius) {
       return;
@@ -70,6 +74,7 @@ class EntityTrackerBuilder<T extends AnimatedEntity> {
   private entityManagers: Map<EntityManager, TrackingRecord<T, SuperposedEntity>>;
 
   constructor(private trackee: T, private samplingRadius: number) {
+    this.entityManagers = new Map();
   }
 
   trackOnRegionChange<E extends SuperposedEntity>(
@@ -93,11 +98,7 @@ class EntityTrackerBuilder<T extends AnimatedEntity> {
       throw new Error('No entity managers are tracked');
     }
 
-    let trackingRecords = [];
-    for (let [_, trackingRecord] of this.entityManagers) {
-      trackingRecords.push(trackingRecord);
-    }
-
+    let trackingRecords = Array.from(this.entityManagers.values());
     return new EntityTracker(this.trackee, this.samplingRadius, trackingRecords);
   }
 
