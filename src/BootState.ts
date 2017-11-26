@@ -28,7 +28,7 @@ export default class BootState extends Phaser.State {
   create() {
     this.configureGame();
     this.craftRenderGroups();
-    this.startState().catch(reason => this.showFailedLoadingStatus(reason));
+    this.runState().catch(reason => this.showFailedLoadingStatus(reason));
   }
 
   private configureGame() {
@@ -124,9 +124,28 @@ export default class BootState extends Phaser.State {
     return new Phaser.Point(this.game.width, this.game.height);
   }
 
-  private async startState(): Promise<void> {
+  private async runState(): Promise<void> {
+    if (__DEBUG__) {
+      await this.loadUniverse();
+    } else {
+      await this.showOpeningAndLoadUniverse();
+    }
+
+    this.game.state.start('MainState', false, false, this.universe);
+  }
+
+  private async loadUniverse() {
+    this.universe = this.makeUniverse(this.game, this.adapter);
+
+    let proxy = this.universe.getProxy();
+    this.adapter.setProxy(proxy);
+
+    await this.universe.loadComments();
+  }
+
+  private async showOpeningAndLoadUniverse() {
     let [error, , , ] = await Promise.all([
-      this.generateUniverse(),
+      this.loadUniverse().catch(reason => reason),
       this.showLoadingStatus(),
       this.approachUniverseBorder(),
       this.approachEarthFaraway(),
@@ -145,8 +164,6 @@ export default class BootState extends Phaser.State {
       this.passThroughUniverseBorder(),
       this.approachEarth(),
     ]);
-
-    this.game.state.start('MainState', false, false, this.universe);
   }
 
   private async showLoadingStatus(): Promise<void> {
@@ -163,19 +180,6 @@ export default class BootState extends Phaser.State {
     return new Promise<void>(resolve => {
       statusAlphaTween.onComplete.addOnce(resolve);
     });
-  }
-
-  private async generateUniverse(): Promise<void | Error> {
-    try {
-      this.universe = this.makeUniverse(this.game, this.adapter);
-
-      let proxy = this.universe.getProxy();
-      this.adapter.setProxy(proxy);
-
-      await this.universe.loadComments();
-    } catch (error) {
-      return error;
-    }
   }
 
   private async approachUniverseBorder(): Promise<void> {

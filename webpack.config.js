@@ -7,7 +7,15 @@ const PHASER_DIR = path.join(__dirname, '/node_modules/phaser');
 module.exports = env => {
   let isProduction = env && env.production;
 
-  let plugins = [];
+  if (isProduction) {
+    console.error('Bundle in production mode.');
+  }
+
+  let plugins = [
+    new webpack.DefinePlugin({
+      __DEBUG__: JSON.stringify(!isProduction),
+    }),
+  ];
   if (isProduction) {
     plugins.push(new webpack.optimize.UglifyJsPlugin({
       output: {
@@ -23,15 +31,8 @@ module.exports = env => {
     outputPath = path.resolve(__dirname, 'build');
   }
 
-  let entry;
-  if (isProduction) {
-    entry = './src/index.bilibili.ts';
-  } else {
-    entry = './src/index.testing.ts';
-  }
-
   return {
-    entry,
+    entry: './src/index.ts',
     module: {
       rules: [
         {

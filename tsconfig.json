@@ -18,7 +18,6 @@
     "downlevelIteration": true
   },
   "include": [
-    "./src/index.bilibili.ts",
-    "./src/index.testing.ts"
+    "./src/index.ts"
   ]
 }
