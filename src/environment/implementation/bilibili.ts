@@ -11,21 +11,26 @@ import GameContainerProvider from '../GameContainerProvider';
 import SettingsManager, {SettingsOption} from '../SettingsManager';
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
-  private universeProxy: UniverseProxy | null;
+  private universeProxy: UniverseProxy;
+  private injector: LocalCommentInjector;
 
   constructor() {
-    this.universeProxy = null;
+    if (!BilibiliAdapter.canRunOnThisWebPage()) {
+      throw new Error('Script cannot run on this page');
+    }
   }
 
-  getCommentProvider(): CommentProvider {
-    if (this.universeProxy == null) {
-      throw new Error('UniverseProxy is not set');
-    }
-    return new BilibiliCommentProvider(this.universeProxy);
+  private static canRunOnThisWebPage() {
+    return EnvironmentVariables.aid === Parameters.AID;
   }
 
   setProxy(universeProxy: UniverseProxy) {
     this.universeProxy = universeProxy;
+    this.injector = new LocalCommentInjector(universeProxy);
+  }
+
+  getCommentProvider(): CommentProvider {
+    return new BilibiliCommentProvider();
   }
 
   getGameContainerProvider(): GameContainerProvider {
@@ -41,10 +46,6 @@ class BilibiliContainerProvider implements GameContainerProvider {
   private static readonly CONTAINER_ID = 'danmaku-craft-container';
 
   getContainerId(): string {
-    if (!BilibiliContainerProvider.canRunOnThisWebPage()) {
-      throw new Error('Script cannot be run on this page');
-    }
-
     let $videoFrame = $('.bilibili-player-video-wrap');
     $videoFrame.empty();
     // $videoFrame is not recovered when player's size is changed.
@@ -53,23 +54,13 @@ class BilibiliContainerProvider implements GameContainerProvider {
 
     return BilibiliContainerProvider.CONTAINER_ID;
   }
-
-  private static canRunOnThisWebPage() {
-    if (EnvironmentVariables.aid !== Parameters.AID) {
-      return false;
-    }
-    return true;
-  }
 }
 
 class BilibiliCommentProvider extends CommentProvider {
   receiver: RemoteCommentReceiver;
-  injector: LocalCommentInjector;
 
-  constructor(universeProxy: UniverseProxy) {
+  constructor() {
     super();
-
-    this.injector = new LocalCommentInjector(universeProxy);
 
     this.receiver = new RemoteCommentReceiver(EnvironmentVariables.chatBroadcastUrl);
     this.receiver.addEventListener(CommentProvider.NEW_COMMENT, this.onNewComment.bind(this));
@@ -545,7 +536,7 @@ class CommentDataUtil {
 
 class LocalStorageSettingsManager extends SettingsManager {
   // TODO implement listener
-  private static DEFAULT_SETTINGS = {
+  private static readonly DEFAULT_SETTINGS = {
     fontFamily: (isLinux()
         ? `'Noto Sans CJK SC DemiLight'`
         : `SimHei, 'Microsoft JhengHei', YaHei`) + ', Arial, Helvetica, sans-serif',

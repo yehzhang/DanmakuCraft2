@@ -9,9 +9,6 @@ import UniverseProxy from './UniverseProxy';
 export default interface EnvironmentAdapter {
   getGameContainerProvider(): GameContainerProvider;
 
-  /**
-   * Should only be invoked in {@link Universe.genesis}.
-   */
   getCommentProvider(): CommentProvider;
 
   getSettingsManager(): SettingsManager;
