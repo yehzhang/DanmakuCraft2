@@ -28,6 +28,10 @@ export class CommentManager {
       private entityManager: EntityManager<CommentEntity>,
       settingsManager: SettingsManager,
       private entityTracker: EntityTracker) {
+    if (!entityTracker.isTracking(entityManager)) {
+      throw new Error('EntityManager is not tracked');
+    }
+
     this.fontFamily = settingsManager.getSetting(SettingsManager.Options.FONT_FAMILY);
     settingsManager.addEventListener(
         SettingsManager.Options.FONT_FAMILY,

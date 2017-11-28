@@ -26,8 +26,7 @@ class SettingsOptions {
 }
 
 /**
- * Provides and manages settings, and dispatches a {@link NEW_SETTINGS} event when settings is
- * changed.
+ * Provides and manages settings, and dispatches a {@link UnaryEvent} when settings is changed.
  */
 export default abstract class SettingsManager extends TypedDispatcher {
   static readonly Options = SettingsOptions;

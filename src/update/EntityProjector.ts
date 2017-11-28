@@ -1,4 +1,4 @@
-import {AnimatedEntity, SuperposedEntity} from '../entity/entity';
+import {Player, SuperposedEntity} from '../entity/entity';
 import {Existent} from '../law';
 import EntityManager, {Region} from '../entity/EntityManager';
 import EntityTrackerListener from './entityTracker/RegionChangeListener';
@@ -7,7 +7,7 @@ import EntityTrackerListener from './entityTracker/RegionChangeListener';
  * Displays entities around an entity.
  */
 export default class EntityProjector<
-    T extends AnimatedEntity = AnimatedEntity, E extends SuperposedEntity = SuperposedEntity>
+    T extends Player = Player, E extends SuperposedEntity = SuperposedEntity>
     extends EntityTrackerListener<T, E>
     implements Existent {
   private container: PIXI.DisplayObjectContainer;
@@ -18,9 +18,9 @@ export default class EntityProjector<
   }
 
   protected onEnter(entityManager: EntityManager, trackee: T, regions: Array<Region<E>>): void {
-    let observerCoordinate = trackee.getCoordinate();
+    let playerDisplayCoordinate = trackee.display().position;
     for (let region of regions) {
-      region.decohere(observerCoordinate);
+      region.decohere(playerDisplayCoordinate);
 
       let display = region.measure();
       this.container.addChild(display);

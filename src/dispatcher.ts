@@ -10,7 +10,7 @@ export class EventDispatcher<E extends Event> {
   }
 
   addEventListener(type: string, listener: (event: E) => void, options?: any) {
-    return this.delegate.addEventListener(type, listener, options);
+    return this.delegate.addEventListener(type, listener as EventListener, options);
   }
 
   dispatchEvent(event: E) {
@@ -18,7 +18,7 @@ export class EventDispatcher<E extends Event> {
   }
 
   removeEventListener(type: string, listener: (event: E) => void, options?: any) {
-    return this.delegate.removeEventListener(type, listener, options);
+    return this.delegate.removeEventListener(type, listener as EventListener, options);
   }
 }
 
@@ -33,7 +33,7 @@ export class TypedDispatcher {
       typeful: K,
       listener: (event: UnaryEvent<V>) => void,
       options?: any) {
-    return this.delegate.addEventListener(typeful.getType(), listener, options);
+    return this.delegate.addEventListener(typeful.getType(), listener as EventListener, options);
   }
 
   dispatchEvent<K extends Typeful<V>, V>(event: TypedEvent<K, V>) {
@@ -44,7 +44,7 @@ export class TypedDispatcher {
       typeful: K,
       listener: (event: UnaryEvent<V>) => void,
       options?: any) {
-    return this.delegate.removeEventListener(typeful.getType(), listener, options);
+    return this.delegate.removeEventListener(typeful.getType(), listener as EventListener, options);
   }
 }
 

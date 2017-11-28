@@ -10,20 +10,23 @@ import TickListener from './TickListener';
  * another.
  * The entity must be animated because otherwise it never updates, and thus requires no tracking.
  */
-export default class EntityTracker<T extends AnimatedEntity = AnimatedEntity> implements Animated {
+export default class EntityTracker<
+    T extends AnimatedEntity = AnimatedEntity, E extends SuperposedEntity = SuperposedEntity>
+    implements Animated {
   private currentCoordinate: Phaser.Point;
 
   constructor(
       private trackee: T,
       private samplingRadius: number,
-      private trackingRecords: Array<TrackingRecord<T, SuperposedEntity>>) {
+      private trackingRecords: Map<EntityManager<E>, TrackingRecord<T, E>>) {
     this.currentCoordinate = trackee.getCoordinate();
 
     EntityTracker.validateSamplingRadius(samplingRadius);
   }
 
-  static newBuilder<T extends AnimatedEntity>(trackee: T, samplingRadius: number) {
-    return new EntityTrackerBuilder(trackee, samplingRadius);
+  static newBuilder<T extends AnimatedEntity, E extends SuperposedEntity>(
+      trackee: T, samplingRadius: number): EntityTrackerBuilder<T, E> {
+    return new EntityTrackerBuilder<T, E>(trackee, samplingRadius);
   }
 
   private static validateSamplingRadius(radius: number) {
@@ -59,34 +62,37 @@ export default class EntityTracker<T extends AnimatedEntity = AnimatedEntity> im
     this.currentCoordinate = nextCoordinate;
   }
 
-  getCurrentRegions<E extends SuperposedEntity>(entityManager: EntityManager<E>): Array<Region<E>> {
-    for (let record of this.trackingRecords) {
-      if (record.entityManager === entityManager) {
-        return record.getCurrentRegions() as Array<Region<E>>;
-      }
+  getCurrentRegions<F extends E>(entityManager: EntityManager<F>): Array<Region<F>> {
+    let trackingRecord = this.trackingRecords.get(entityManager);
+
+    if (trackingRecord === undefined) {
+      throw new Error('EntityManager is not tracked');
     }
 
-    throw new Error('EntityManager is not tracked');
+    return trackingRecord.getCurrentRegions() as Array<Region<F>>;
+  }
+
+  isTracking(entityManager: EntityManager<E>) {
+    return this.trackingRecords.get(entityManager) !== undefined;
   }
 }
 
-class EntityTrackerBuilder<T extends AnimatedEntity> {
-  private entityManagers: Map<EntityManager, TrackingRecord<T, SuperposedEntity>>;
+class EntityTrackerBuilder<T extends AnimatedEntity, E extends SuperposedEntity> {
+  private entityManagers: Map<EntityManager<E>, TrackingRecord<T, E>>;
 
   constructor(private trackee: T, private samplingRadius: number) {
     this.entityManagers = new Map();
   }
 
-  trackOnRegionChange<E extends SuperposedEntity>(
-      entityManager: EntityManager<E>, listener: RegionChangeListener<T, E>) {
+  trackOnRegionChange<F extends E>(
+      entityManager: EntityManager<F>, listener: RegionChangeListener<T, F>) {
     let binder = this.getBinder(entityManager);
     binder.addRegionChangeListener(listener);
 
     return this;
   }
 
-  trackOnTick<E extends SuperposedEntity>(
-      entityManager: EntityManager<E>, listener: TickListener<T, E>) {
+  trackOnTick<F extends E>(entityManager: EntityManager<F>, listener: TickListener<T, F>) {
     let binder = this.getBinder(entityManager);
     binder.addTickListener(listener);
 
@@ -97,9 +103,7 @@ class EntityTrackerBuilder<T extends AnimatedEntity> {
     if (this.entityManagers.size === 0) {
       throw new Error('No entity managers are tracked');
     }
-
-    let trackingRecords = Array.from(this.entityManagers.values());
-    return new EntityTracker(this.trackee, this.samplingRadius, trackingRecords);
+    return new EntityTracker(this.trackee, this.samplingRadius, this.entityManagers);
   }
 
   private getBinder(entityManager: EntityManager<any>) {
