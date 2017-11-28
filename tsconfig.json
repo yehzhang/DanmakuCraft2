@@ -13,8 +13,7 @@
     "rootDir": "./src",
     "sourceMap": true,
     "inlineSources": false,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
+    "strict": true,
     "downlevelIteration": true
   },
   "include": [
