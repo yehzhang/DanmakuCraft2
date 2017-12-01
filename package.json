@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/yehzhang/DanmakuCraft-2#readme",
   "devDependencies": {
-    "@types/core-js": "^0.9.43",
     "@types/jquery": "^3.2.16",
     "@types/node": "^8.0.47",
     "core-js": "^2.5.1",
