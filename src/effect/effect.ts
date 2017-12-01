@@ -1,5 +1,5 @@
-import {CommentEntity} from './entity/comment';
-import {Entity} from './entity/entity';
+import {CommentEntity} from '../entity/comment';
+import {Entity} from '../entity/entity';
 
 export class LocallyOriginatedCommentEffectManager {
   private inactiveEffects: Array<Effect<CommentEntity>>;
@@ -89,11 +89,11 @@ enum EffectType {
 /**
  * Permanently changes the behavior of an {@link Entity}.
  */
-export abstract class Effect<E extends Entity> {
+export abstract class Effect<T extends Entity> {
   constructor(public readonly parameter?: number) {
   }
 
-  abstract initialize(entity: E): void;
+  abstract apply(entity: T): void;
 }
 
 /**
@@ -113,7 +113,7 @@ class Ethereal extends Effect<Entity> {
     return this.instance;
   }
 
-  initialize(_: Entity): void {
+  apply(_: Entity): void {
     return undefined;
   }
 }
@@ -122,7 +122,7 @@ class Ethereal extends Effect<Entity> {
  * Makes a {@link CommentEntity} constantly changes its color.
  */
 class Chromatic extends Effect<CommentEntity> {
-  initialize(entity: CommentEntity): void {
+  apply(entity: CommentEntity): void {
     // TODO
     throw new Error('Not implemented');
   }

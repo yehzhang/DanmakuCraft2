@@ -1,14 +1,15 @@
 import * as $ from 'jquery';
 import EnvironmentAdapter from '../EnvironmentAdapter';
-import {EventDispatcher} from '../../dispatcher';
+import EventDispatcher from '../../event/EventDispatcher';
 import {bindFirst, isLinux, webSocketManager} from '../util';
 import {CommentData} from '../../entity/comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import UniverseProxy from '../UniverseProxy';
-import {EffectData, LocallyOriginatedCommentEffectManager} from '../../effect';
-import CommentProvider, {NewCommentEvent} from '../CommentProvider';
+import {EffectData, LocallyOriginatedCommentEffectManager} from '../../effect/effect';
+import CommentProvider from '../CommentProvider';
 import GameContainerProvider from '../GameContainerProvider';
 import SettingsManager, {SettingsOption} from '../SettingsManager';
+import {EventType} from '../../event/Event';
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
   private universeProxy: UniverseProxy;
@@ -57,13 +58,16 @@ class BilibiliContainerProvider implements GameContainerProvider {
 }
 
 class BilibiliCommentProvider extends CommentProvider {
-  receiver: RemoteCommentReceiver;
+  private connected: boolean;
+  private receiver: RemoteCommentReceiver;
 
   constructor() {
     super();
 
+    this.connected = false;
+
     this.receiver = new RemoteCommentReceiver(EnvironmentVariables.chatBroadcastUrl);
-    this.receiver.addEventListener(CommentProvider.NEW_COMMENT, this.onNewComment.bind(this));
+    this.receiver.delegateEvent(CommentProvider.NEW_COMMENT, this);
   }
 
   connect() {
@@ -74,10 +78,6 @@ class BilibiliCommentProvider extends CommentProvider {
     this.receiver.connect();
 
     this.connected = true;
-  }
-
-  private onNewComment(event: NewCommentEvent) {
-    this.dispatchEvent(event);
   }
 
   async getAllComments(): Promise<CommentData[]> {
@@ -186,7 +186,7 @@ class LocalCommentInjector {
   }
 }
 
-class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
+class RemoteCommentReceiver extends EventDispatcher<EventType.COMMENT_NEW> {
   private connected: boolean;
   private socket: WebSocket;
   private doRetry: boolean;
@@ -323,7 +323,7 @@ class RemoteCommentReceiver extends EventDispatcher<NewCommentEvent> {
         let comment = CommentDataUtil.parseFromXmlStrings(attributes, text);
 
         if (comment != null) {
-          this.dispatchEvent(new NewCommentEvent(comment));
+          this.dispatchEvent(CommentProvider.NEW_COMMENT, comment);
         }
       }
     }

@@ -1,8 +1,7 @@
 import {Entity} from './entity';
-import {EffectData, EffectFactory} from '../effect';
+import {EffectData, EffectFactory} from '../effect/effect';
 import SettingsManager from '../environment/SettingsManager';
-import CommentProvider, {NewCommentEvent} from '../environment/CommentProvider';
-import {UnaryEvent} from '../dispatcher';
+import CommentProvider from '../environment/CommentProvider';
 import EntityManager from './EntityManager';
 import {Superposed} from '../law';
 import EntityTracker from '../update/entityTracker/EntityTracker';
@@ -33,9 +32,7 @@ export class CommentManager {
     }
 
     this.fontFamily = settingsManager.getSetting(SettingsManager.Options.FONT_FAMILY);
-    settingsManager.addEventListener(
-        SettingsManager.Options.FONT_FAMILY,
-        (event: UnaryEvent<string>) => this.onFontChanged(event.getDetail()));
+    settingsManager.addEventListener(SettingsManager.Options.FONT_FAMILY, this.onFontChanged, this);
   }
 
   canPlaceIn(bound: Phaser.Rectangle): boolean {
@@ -89,8 +86,7 @@ export class CommentManager {
   }
 
   listenTo(commentProvider: CommentProvider) {
-    commentProvider.addEventListener(
-        CommentProvider.NEW_COMMENT, event => this.onNewComment(event));
+    commentProvider.addEventListener(CommentProvider.NEW_COMMENT, this.load, this);
   }
 
   private buildEntity(data: CommentData) {
@@ -99,15 +95,10 @@ export class CommentManager {
 
     if (data.effectData != null) {
       let effect = EffectFactory.build(data.effectData);
-      effect.initialize(comment);
+      effect.apply(comment);
     }
 
     return comment;
-  }
-
-  private onNewComment(event: NewCommentEvent) {
-    let commentData = event.getDetail();
-    this.load(commentData);
   }
 }
 
@@ -132,7 +123,7 @@ export class CommentEntity extends Entity implements Comment {
     this.display = null;
   }
 
-  decohere(parentCoordinate: Phaser.Point): void {
+  decohere(parentPosition: Phaser.Point): void {
     if (this.display != null) {
       throw new Error('CommentEntity is decoherent');
     }
