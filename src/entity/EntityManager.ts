@@ -58,13 +58,13 @@ export abstract class Region<E extends SuperposedEntity = SuperposedEntity>
   /**
    * In addition to generating a display, also attaches to it all children's displays.
    */
-  decohere(parentCoordinate: Phaser.Point): void {
+  decohere(parentPosition: Phaser.Point): void {
     if (this.display != null) {
       throw new Error('Region is decoherent');
     }
 
     let container = new PIXI.DisplayObjectContainer();
-    container.position = this.getWorldWrappingOffsetRelativeTo(parentCoordinate);
+    container.position = this.getPositionBy(parentPosition);
 
     this.forEach(entity => {
       entity.decohere(this.worldCoordinate);

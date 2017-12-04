@@ -1,4 +1,4 @@
-import {BuffManager} from '../buff';
+import {BuffManager} from '../buff/BuffManager';
 import {
   Animated,
   Existent,
@@ -14,7 +14,7 @@ import {PhysicalConstants} from '../Universe';
  * A concrete entity should implement either {@link Existent} or {@link Superposed}.
  */
 export abstract class Entity {
-  protected readonly worldCoordinate: Phaser.Point;
+  protected worldCoordinate: Phaser.Point;
 
   /**
    * @param coordinate an arbitrary coordinate that may be outside of the world.
@@ -27,9 +27,12 @@ export abstract class Entity {
     return this.worldCoordinate.clone();
   }
 
-  protected getWorldWrappingOffsetRelativeTo(coordinate: Phaser.Point): Phaser.Point {
-    return toWorldCoordinateOffset2d(
-        this.worldCoordinate, coordinate, PhysicalConstants.WORLD_SIZE);
+  /**
+   * Returns this entity's position relative to {@param position} as if it is a coordinate.
+   */
+  protected getPositionBy(position: Phaser.Point): Phaser.Point {
+    return toWorldCoordinateOffset2d(this.worldCoordinate, position, PhysicalConstants.WORLD_SIZE)
+        .add(position.x, position.y);
   }
 }
 
@@ -37,7 +40,7 @@ export abstract class Entity {
  * An entity that has a {@link BuffManager}.
  */
 export abstract class AnimatedEntity extends Entity implements Animated {
-  protected buffManager: BuffManager<this>;
+  readonly buffManager: BuffManager<this>;
 
   constructor(coordinate: Phaser.Point) {
     super(coordinate);
@@ -48,6 +51,11 @@ export abstract class AnimatedEntity extends Entity implements Animated {
   tick() {
     this.buffManager.tick();
   }
+
+  moveBy(offsetX: number, offsetY: number) {
+    this.worldCoordinate = toWorldCoordinate2d(
+        this.worldCoordinate.add(offsetX, offsetY), PhysicalConstants.WORLD_SIZE);
+  }
 }
 
 /**
@@ -55,7 +63,7 @@ export abstract class AnimatedEntity extends Entity implements Animated {
  * Usually it is a non-significant object.
  */
 export abstract class SuperposedEntity extends Entity implements Superposed {
-  abstract decohere(parentCoordinate: Phaser.Point): void;
+  abstract decohere(parentPosition: Phaser.Point): void;
 
   abstract cohere(): void;
 
@@ -74,13 +82,9 @@ export abstract class NonPlayerCharacter extends AnimatedEntity implements Super
     this.decoherent = false;
   }
 
-  decohere(parentCoordinate: Phaser.Point): void {
-    this.decoherent = true;
-  }
+  abstract decohere(parentPosition: Phaser.Point): void;
 
-  cohere(): void {
-    this.decoherent = false;
-  }
+  abstract cohere(): void;
 
   abstract measure(): PIXI.DisplayObject;
 
@@ -88,7 +92,23 @@ export abstract class NonPlayerCharacter extends AnimatedEntity implements Super
     if (!this.decoherent) {
       return;
     }
+
     super.tick();
+    this.tickOnDecoherent();
+  }
+
+  abstract tickOnDecoherent(): void;
+
+  moveBy(offsetX: number, offsetY: number) {
+    super.moveBy(offsetX, offsetY);
+
+    if (!this.decoherent) {
+      return;
+    }
+
+    let displayPosition = this.measure().position;
+    displayPosition.x += offsetX;
+    displayPosition.y += offsetY;
   }
 }
 
@@ -98,7 +118,7 @@ export abstract class NonPlayerCharacter extends AnimatedEntity implements Super
  * Usually it is a significant object.
  */
 export abstract class Observer extends Entity implements Existent {
-  abstract display(): PIXI.DisplayObjectContainer;
+  abstract display(): Phaser.Sprite;
 }
 
 /**
@@ -106,14 +126,18 @@ export abstract class Observer extends Entity implements Existent {
  * Technically a {@link Observer}.
  */
 export abstract class Player extends AnimatedEntity implements Existent {
-  protected container: Phaser.Sprite;
-
-  constructor(coordinate: Phaser.Point, game: Phaser.Game) {
+  constructor(coordinate: Phaser.Point, protected sprite: Phaser.Sprite) {
     super(coordinate);
-    this.container = game.make.sprite(0, 0);
+    this.sprite.position = this.getCoordinate();
+    // TODO find a way to update sprite position when camera is following other players
   }
 
   display(): Phaser.Sprite {
-    return this.container;
+    return this.sprite;
+  }
+
+  moveBy(offsetX: number, offsetY: number) {
+    super.moveBy(offsetX, offsetY);
+    this.sprite.position.add(offsetX, offsetY);
   }
 }
