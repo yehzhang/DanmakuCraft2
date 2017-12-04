@@ -1,4 +1,6 @@
-export default class Controller {
+import Controller from './Controller';
+
+export default class InputController implements Controller {
   private keys: { [keyName: string]: Phaser.Key };
 
   constructor(game: Phaser.Game) {
