@@ -30,7 +30,6 @@ class TestingContainerProvider implements GameContainerProvider {
 
 class TestingCommentProvider extends CommentProvider {
   connect(): void {
-    this.connected = true;
   }
 
   async getAllComments(): Promise<CommentData[]> {
