@@ -2,11 +2,12 @@ import EntityTracker from './entityTracker/EntityTracker';
 import EntityProjector from './EntityProjector';
 import {CommentEntity} from '../entity/comment';
 import EntityManager from '../entity/EntityManager';
-import {NonPlayerCharacter, Observer, Player} from '../entity/entity';
+import {NonPlayerCharacter, Player} from '../entity/entity';
 import {PhysicalConstants} from '../Universe';
 import BackgroundColorManager from './BackgroundColorManager';
 import NonPlayerCharacterTicker from './NonPlayerCharacterTicker';
 import {Animated} from '../law';
+import RenderingTarget from '../render/RenderTarget';
 
 export default class WorldUpdater implements Animated {
   readonly entityRenderingTracker: EntityTracker<Player>;
@@ -57,19 +58,5 @@ export default class WorldUpdater implements Animated {
   private onGameResize() {
     let samplingRadius = PhysicalConstants.getRenderRadius(this.game.width, this.game.height);
     this.entityRenderingTracker.updateSamplingRadius(samplingRadius);
-  }
-}
-
-export class RenderingTarget {
-  private static zIndices = new Set();
-
-  constructor(
-      readonly observer: Observer,
-      readonly projector: EntityProjector,
-      readonly zIndex: number) {
-    if (RenderingTarget.zIndices.has(zIndex)) {
-      throw new Error('zIndex must be unique');
-    }
-    RenderingTarget.zIndices.add(zIndex);
   }
 }

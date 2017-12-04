@@ -15,13 +15,20 @@ export default class Renderer {
     // Phaser.Canvas.setImageRenderingCrisp(game.canvas);
 
     // Allow camera to move out of the world.
-    game.camera.bounds = null as any;
+    game.camera.bounds = null;
 
     // Add rendering targets to stage.
     let renderingTargets = worldUpdater.getRenderingTargets()
         .sort((target, other) => target.zIndex - other.zIndex);
+
+    let uniqueZIndices = new Set(renderingTargets.map(target => target.zIndex));
+    if (uniqueZIndices.size !== renderingTargets.length) {
+      throw new TypeError('Render targets have duplicate zIndices');
+    }
+
     let projectorGroup = new PhaserDisplayObjectContainer();
     this.container.addChild(projectorGroup);
+
     for (let renderingTarget of renderingTargets) {
       this.container.addChild(renderingTarget.observer.display());
       projectorGroup.addChild(renderingTarget.projector.display());
