@@ -5,7 +5,7 @@ import {bindFirst, isLinux, webSocketManager} from '../util';
 import {CommentData} from '../../entity/comment';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import UniverseProxy from '../UniverseProxy';
-import {EffectData, LocallyOriginatedCommentEffectManager} from '../../effect/effect';
+import LocallyOriginatedCommentEffectManager, {EffectData} from '../../effect/LocallyOriginatedCommentEffectManager';
 import CommentProvider from '../CommentProvider';
 import GameContainerProvider from '../GameContainerProvider';
 import SettingsManager, {SettingsOption} from '../SettingsManager';

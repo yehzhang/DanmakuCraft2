@@ -1,5 +1,5 @@
 import {Entity} from './entity';
-import {EffectData} from '../effect/effect';
+import {EffectData} from '../effect/LocallyOriginatedCommentEffectManager';
 import {Superposed} from '../law';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
 

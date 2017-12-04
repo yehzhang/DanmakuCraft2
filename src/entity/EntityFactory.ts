@@ -2,7 +2,7 @@ import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import BuffFactory from '../buff/BuffFactory';
 import {TinyTelevision} from './player';
 import {CommentData, CommentEntity} from './comment';
-import {EffectFactory} from '../effect/effect';
+import EffectFactory from '../effect/EffectFactory';
 
 /**
  * Factory class for making entities.
@@ -11,7 +11,8 @@ export default class EntityFactory {
   constructor(
       private game: Phaser.Game,
       private graphicsFactory: GraphicsFactory,
-      private buffFactory: BuffFactory) {
+      private buffFactory: BuffFactory,
+      private effectFactory: EffectFactory) {
   }
 
   spawnPlayer() {
@@ -31,7 +32,7 @@ export default class EntityFactory {
         this.graphicsFactory);
 
     if (data.effectData != null) {
-      let effect = EffectFactory.build(data.effectData);
+      let effect = this.effectFactory.create(data.effectData);
       effect.apply(comment);
     }
 
