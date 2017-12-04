@@ -1,10 +1,7 @@
 import {Entity} from './entity';
-import {EffectData, EffectFactory} from '../effect/effect';
-import SettingsManager from '../environment/SettingsManager';
-import CommentProvider from '../environment/CommentProvider';
-import EntityManager from './EntityManager';
+import {EffectData} from '../effect/effect';
 import {Superposed} from '../law';
-import EntityTracker from '../update/entityTracker/EntityTracker';
+import GraphicsFactory from '../render/graphics/GraphicsFactory';
 
 export class CommentData {
   constructor(
@@ -16,89 +13,6 @@ export class CommentData {
       readonly coordinateX: number, // These positions may be invalid.
       readonly coordinateY: number,
       readonly effectData: EffectData | null) {
-  }
-}
-
-export class CommentManager {
-  private fontFamily: string;
-
-  constructor(
-      private game: Phaser.Game,
-      private entityManager: EntityManager<CommentEntity>,
-      settingsManager: SettingsManager,
-      private entityTracker: EntityTracker) {
-    if (!entityTracker.isTracking(entityManager)) {
-      throw new Error('EntityManager is not tracked');
-    }
-
-    this.fontFamily = settingsManager.getSetting(SettingsManager.Options.FONT_FAMILY);
-    settingsManager.addEventListener(SettingsManager.Options.FONT_FAMILY, this.onFontChanged, this);
-  }
-
-  canPlaceIn(bound: Phaser.Rectangle): boolean {
-    return !this.entityTracker.getCurrentRegions(this.entityManager)
-        .some(region => {
-          let hasCollision = false;
-          region.forEach(commentEntity => {
-            if (hasCollision) {
-              return;
-            }
-            hasCollision = commentEntity.measure().textBounds.intersects(bound, 0);
-          });
-
-          return hasCollision;
-        });
-  }
-
-  loadBatch(commentsData: CommentData[]) {
-    let comments = commentsData.map(this.buildEntity, this);
-    this.entityManager.loadBatch(comments);
-    return comments;
-  }
-
-  load(commentData: CommentData) {
-    let comment = this.buildEntity(commentData);
-    this.entityManager.load(comment);
-    return comment;
-  }
-
-  makeText(text: string, size: number, color: string): Phaser.Text {
-    // TODO add font shadow
-    return this.game.make.text(
-        0,
-        0,
-        text,
-        {
-          font: this.fontFamily,
-          fontSize: size,
-          fill: color,
-        });
-  }
-
-  private onFontChanged(fontFamily: string) {
-    if (this.fontFamily === fontFamily) {
-      return;
-    }
-
-    this.fontFamily = fontFamily;
-
-    // TODO redraw all sprites?
-  }
-
-  listenTo(commentProvider: CommentProvider) {
-    commentProvider.addEventListener(CommentProvider.NEW_COMMENT, this.load, this);
-  }
-
-  private buildEntity(data: CommentData) {
-    let coordinate = new Phaser.Point(data.coordinateX, data.coordinateY);
-    let comment = new CommentEntity(data.size, data.color, data.text, coordinate, this);
-
-    if (data.effectData != null) {
-      let effect = EffectFactory.build(data.effectData);
-      effect.apply(comment);
-    }
-
-    return comment;
   }
 }
 
@@ -118,7 +32,7 @@ export class CommentEntity extends Entity implements Comment {
       readonly color: number,
       readonly text: string,
       coordinate: Phaser.Point,
-      private commentManager: CommentManager) {
+      private graphicsFactory: GraphicsFactory) {
     super(coordinate);
     this.display = null;
   }
@@ -129,7 +43,7 @@ export class CommentEntity extends Entity implements Comment {
     }
 
     let color = Phaser.Color.getWebRGB(this.color); // TODO test if works?
-    this.display = this.commentManager.makeText(this.text, this.size, color);
+    this.display = this.graphicsFactory.createText(this.text, this.size, color);
     this.display.anchor.setTo(0.5);
   }
 
