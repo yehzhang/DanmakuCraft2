@@ -15,13 +15,14 @@ export default class WorldUpdater implements Animated {
 
   constructor(
       private game: Phaser.Game,
-      player: Player,
+      trackee: Player,
+      private players: Player[],
       commentEntityManager: EntityManager<CommentEntity>,
       npcManager: EntityManager<NonPlayerCharacter>) {
     let commentEntityProjector = new EntityProjector<Player, CommentEntity>();
     let npcProjector = new EntityProjector<Player, NonPlayerCharacter>();
     this.entityRenderingTracker = EntityTracker
-        .newBuilder(player, PhysicalConstants.getRenderRadius(game.width, game.height))
+        .newBuilder(trackee, PhysicalConstants.getRenderRadius(game.width, game.height))
         .trackOnRegionChange(commentEntityManager, commentEntityProjector)
         .trackOnRegionChange(npcManager, npcProjector)
         .trackOnTick(npcManager, new NonPlayerCharacterTicker())
@@ -29,13 +30,13 @@ export default class WorldUpdater implements Animated {
 
     let backgroundColorManager = new BackgroundColorManager(game);
     this.backgroundColorTracker = EntityTracker
-        .newBuilder(player, PhysicalConstants.BACKGROUND_SAMPLING_RADIUS)
+        .newBuilder(trackee, PhysicalConstants.BACKGROUND_SAMPLING_RADIUS)
         .trackOnRegionChange(commentEntityManager, backgroundColorManager)
         .build();
 
     this.renderingTargets = [
-      new RenderingTarget(player, commentEntityProjector, 0),
-      new RenderingTarget(player, npcProjector, 1),
+      new RenderingTarget(trackee, commentEntityProjector, 0),
+      new RenderingTarget(trackee, npcProjector, 1),
     ];
 
     game.scale.onSizeChange.add(this.onGameResize, this);
@@ -44,6 +45,9 @@ export default class WorldUpdater implements Animated {
   tick(): void {
     this.entityRenderingTracker.tick();
     this.backgroundColorTracker.tick();
+    for (let player of this.players) {
+      player.tick();
+    }
   }
 
   getRenderingTargets() {
