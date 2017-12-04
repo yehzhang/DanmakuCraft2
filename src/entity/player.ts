@@ -3,8 +3,7 @@ import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import BuffFactory from '../buff/BuffFactory';
 
 export class TinyTelevision extends Player {
-  private static readonly WALK_ANIMATION_NAME = 'walk';
-
+  private walkingAnimation: Phaser.Animation;
   private moved: boolean;
 
   constructor(
@@ -16,6 +15,7 @@ export class TinyTelevision extends Player {
 
     this.buffManager.activate(buffFactory.makeInputControllerMover());
 
+    this.walkingAnimation = sprite.animations.add('', undefined, 12, true);
     this.moved = false;
   }
 
@@ -30,8 +30,6 @@ export class TinyTelevision extends Player {
         .toSprite();
     sprite.anchor.setTo(0.5);
 
-    sprite.animations.add(TinyTelevision.WALK_ANIMATION_NAME, undefined, 12, true);
-
     return sprite;
   }
 
@@ -44,10 +42,15 @@ export class TinyTelevision extends Player {
     super.tick();
 
     if (this.moved) {
-      this.sprite.animations.play(TinyTelevision.WALK_ANIMATION_NAME);
+      if (!this.walkingAnimation.isPlaying) {
+        this.walkingAnimation.play();
+        this.walkingAnimation.frame = 1;
+      }
       this.moved = false;
     } else {
-      this.sprite.animations.stop(TinyTelevision.WALK_ANIMATION_NAME, true);
+      if (this.walkingAnimation.isPlaying) {
+        this.walkingAnimation.stop(true);
+      }
     }
   }
 }
