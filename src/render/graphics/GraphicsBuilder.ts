@@ -11,7 +11,7 @@ export type InjectedDrawer = (graphics: InjectableGraphics) => void;
  *
  * @template I type of indices to frames of the sprite built.
  */
-export abstract class GraphicsBuilder<I> {
+export abstract class GraphicsBuilder<I extends number | string> {
   protected drawers: InjectedDrawer[];
   private initialFrameIndex: I | null;
 
