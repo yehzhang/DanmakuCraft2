@@ -84,15 +84,16 @@ class EntityTrackerBuilder<T extends AnimatedEntity, E extends SuperposedEntity>
     this.entityManagers = new Map();
   }
 
-  trackOnRegionChange<F extends E>(
-      entityManager: EntityManager<F>, listener: RegionChangeListener<T, F>) {
+  trackOnRegionChange<F extends E, G extends F>(
+      entityManager: EntityManager<G>, listener: RegionChangeListener<T, F>) {
     let binder = this.getBinder(entityManager);
     binder.addRegionChangeListener(listener);
 
     return this;
   }
 
-  trackOnTick<F extends E>(entityManager: EntityManager<F>, listener: TickListener<T, F>) {
+  trackOnTick<F extends E, G extends F>(
+      entityManager: EntityManager<G>, listener: TickListener<T, F>) {
     let binder = this.getBinder(entityManager);
     binder.addTickListener(listener);
 
