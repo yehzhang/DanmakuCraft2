@@ -1,5 +1,5 @@
 export enum EventType {
-  EFFECT_PLAYER_MOVE,
+  NONE,
   SETTINGS_CHANGE,
   COMMENT_NEW,
 }

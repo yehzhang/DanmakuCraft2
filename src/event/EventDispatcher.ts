@@ -1,7 +1,7 @@
 import Event, {EventType} from './Event';
 
 export default class EventDispatcher<T extends EventType> {
-  private listeners: Map<Event<T, any>, Array<(value: any) => void>>;
+  private listeners: Map<Event<T, any>, Listener[]>;
 
   constructor() {
     this.listeners = new Map();
@@ -9,17 +9,13 @@ export default class EventDispatcher<T extends EventType> {
 
   addEventListener<E extends Event<T, U>, U extends V, V>(
       event: E, listener: (value: V) => void, thisArg?: any) {
-    if (thisArg !== undefined) {
-      listener = listener.bind(thisArg);
-    }
-
     let listeners = this.listeners.get(event);
     if (listeners === undefined) {
       listeners = [];
       this.listeners.set(event, listeners);
     }
 
-    listeners.push(listener);
+    listeners.push(new Listener(listener, thisArg));
   }
 
   dispatchEvent<E extends Event<T, U>, U extends V, V>(event: E, value: V) {
@@ -29,7 +25,7 @@ export default class EventDispatcher<T extends EventType> {
     }
 
     for (let listener of listeners) {
-      listener(value);
+      listener.notify(value);
     }
   }
 
@@ -44,5 +40,39 @@ export default class EventDispatcher<T extends EventType> {
     }
 
     this.addEventListener(event, value => dispatcher.dispatchEvent(event, value));
+  }
+
+  /**
+   * Removes an event listener identified by {@param event}, {@param listener}, and
+   * {@param thisArg}.
+   */
+  removeEventListener<E extends Event<T, U>, U extends V, V>(
+      event: E, listener: (value: V) => void, thisArg?: any) {
+    let listeners = this.listeners.get(event);
+    if (listeners === undefined) {
+      return;
+    }
+
+    let i = 0;
+    for (let internalListener of listeners) {
+      if (internalListener.equals(listener, thisArg)) {
+        listeners.splice(i, 1);
+        break;
+      }
+      i++;
+    }
+  }
+}
+
+class Listener {
+  constructor(readonly callback: (value: any) => void, readonly context?: any) {
+  }
+
+  notify(value: any) {
+    this.callback.call(this.context, value);
+  }
+
+  equals(callback: (value: any) => void, context?: any) {
+    return callback === this.callback && context === this.context;
   }
 }
