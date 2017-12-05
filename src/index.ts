@@ -19,7 +19,7 @@ import 'phaser';
 import 'core-js/shim';
 
 import Universe from './Universe';
-import BiliBiliAdapter from './environment/bilibili/BilibiliAdapter';
+import BiliBiliAdapter from './environment/bilibiliPlayer/BilibiliAdapter';
 import TestingAdapter from './environment/testing';
 
 function main() {
