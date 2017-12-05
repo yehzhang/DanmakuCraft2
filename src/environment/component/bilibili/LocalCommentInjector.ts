@@ -1,8 +1,8 @@
 import CommentDataUtil from './CommentDataUtil';
-import {Parameters} from '../../BilibiliAdapter';
 import LocallyOriginatedCommentEffectManager from '../../../effect/LocallyOriginatedCommentEffectManager';
 import UniverseProxy from '../../interface/UniverseProxy';
 import {bindFirst} from '../../util';
+import Parameters from './Parameters';
 
 export default class LocalCommentInjector {
   private $textInput: JQuery<HTMLElement>;

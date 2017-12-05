@@ -7,6 +7,8 @@ import BilibiliContainerProvider from './component/bilibili/BilibiliContainerPro
 import BilibiliCommentProvider from './component/bilibili/BilibiliCommentProvider';
 import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
 import LocalCommentInjector from './component/bilibili/LocalCommentInjector';
+import EnvironmentVariables from './component/bilibili/EnvironmentVariables';
+import Parameters from './component/bilibili/Parameters';
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
   private universeProxy: UniverseProxy;
@@ -38,25 +40,4 @@ export default class BilibiliAdapter implements EnvironmentAdapter {
   getSettingsManager(): SettingsManager {
     return new LocalStorageSettingsManager();
   }
-}
-
-export class EnvironmentVariables {
-  static readonly aid: number = parseInt((window as any).aid, 10);
-  static readonly cid: number = parseInt((window as any).cid, 10);
-  static readonly uid: string = (window as any).uid;
-  static readonly isHttps: boolean = window.location.protocol === 'https://';
-  static readonly commentXmlUrl: string = EnvironmentVariables.buildUrl(
-      'http', `comment.bilibili.com/${EnvironmentVariables.cid}.xml`);
-  static readonly chatBroadcastUrl: string = EnvironmentVariables.buildUrl(
-      'ws', 'broadcast.chat.bilibili.com:4095/sub');
-
-  static buildUrl(protocolName: string, url: string) {
-    return `${protocolName}${this.isHttps ? 's' : ''}://${url}`;
-  }
-}
-
-export class Parameters {
-  static readonly ROOM_ID = 4145439; // TODO update to real one
-  static readonly AID = 2718860; // TODO update to real one
-  static readonly DEFAULT_FONT_SIZE = 25;
 }
