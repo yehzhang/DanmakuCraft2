@@ -1,5 +1,5 @@
-import {CommentData} from '../../entity/comment';
-import {EffectData} from '../../effect/LocallyOriginatedCommentEffectManager';
+import {CommentData} from '../../../entity/comment';
+import {EffectData} from '../../../effect/LocallyOriginatedCommentEffectManager';
 
 export default class CommentDataUtil {
   static readonly METADATA_DELIMITER = '/[';

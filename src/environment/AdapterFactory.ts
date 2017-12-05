@@ -1,6 +1,6 @@
-import BilibiliAdapter from './bilibiliPlayer/BilibiliAdapter';
-import BilibiliClientAdapter from './bilibiliPlayerClient/BilibiliClientAdapter';
-import TestingAdapter from './testing';
+import BilibiliAdapter from './BilibiliAdapter';
+import BilibiliClientAdapter from './BilibiliClientAdapter';
+import TestingAdapter from './TestingAdapter';
 
 export default class AdapterFactory {
   createAdapter() {

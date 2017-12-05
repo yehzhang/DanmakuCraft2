@@ -1,12 +1,12 @@
-import EnvironmentAdapter from '../interface/EnvironmentAdapter';
-import UniverseProxy from '../interface/UniverseProxy';
-import CommentProvider from '../interface/CommentProvider';
-import GameContainerProvider from '../interface/GameContainerProvider';
-import SettingsManager from '../interface/SettingsManager';
-import BilibiliContainerProvider from './BilibiliContainerProvider';
-import BilibiliCommentProvider from './BilibiliCommentProvider';
-import LocalStorageSettingsManager from './LocalStorageSettingsManager';
-import LocalCommentInjector from './LocalCommentInjector';
+import EnvironmentAdapter from './interface/EnvironmentAdapter';
+import UniverseProxy from './interface/UniverseProxy';
+import CommentProvider from './interface/CommentProvider';
+import GameContainerProvider from './interface/GameContainerProvider';
+import SettingsManager from './interface/SettingsManager';
+import BilibiliContainerProvider from './component/bilibili/BilibiliContainerProvider';
+import BilibiliCommentProvider from './component/bilibili/BilibiliCommentProvider';
+import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
+import LocalCommentInjector from './component/bilibili/LocalCommentInjector';
 
 export default class BilibiliAdapter implements EnvironmentAdapter {
   private universeProxy: UniverseProxy;

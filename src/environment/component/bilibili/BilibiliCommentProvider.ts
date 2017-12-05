@@ -1,11 +1,11 @@
-import CommentProvider from '../interface/CommentProvider';
-import {CommentData} from '../../entity/comment';
-import {EventType} from '../../event/Event';
-import EventDispatcher from '../../event/EventDispatcher';
-import {EnvironmentVariables, Parameters} from './BilibiliAdapter';
+import CommentProvider from '../../interface/CommentProvider';
+import {CommentData} from '../../../entity/comment';
+import {EventType} from '../../../event/Event';
+import EventDispatcher from '../../../event/EventDispatcher';
+import {EnvironmentVariables, Parameters} from '../../BilibiliAdapter';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import CommentDataUtil from './CommentDataUtil';
-import {webSocketManager} from '../util';
+import {webSocketManager} from '../../util';
 
 export default class BilibiliCommentProvider extends CommentProvider {
   private connected: boolean;

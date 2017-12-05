@@ -1,5 +1,5 @@
-import SettingsManager, {SettingsOption} from '../interface/SettingsManager';
-import {isLinux} from '../util';
+import SettingsManager, {SettingsOption} from '../../interface/SettingsManager';
+import {isLinux} from '../../util';
 
 export default class LocalStorageSettingsManager extends SettingsManager {
   // TODO implement listener
