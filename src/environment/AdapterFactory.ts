@@ -20,6 +20,6 @@ export default class AdapterFactory {
   }
 
   createBilibiliClientAdapter() {
-    return new BilibiliClientAdapter();
+    return new BilibiliClientAdapter(this);
   }
 }

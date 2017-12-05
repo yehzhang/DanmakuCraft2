@@ -3,10 +3,9 @@ import EnvironmentAdapter from './interface/EnvironmentAdapter';
 import SettingsManager, {SettingsOption} from './interface/SettingsManager';
 import CommentProvider from './interface/CommentProvider';
 import GameContainerProvider from './interface/GameContainerProvider';
-import UniverseProxy from './interface/UniverseProxy';
 
-export default class TestingAdapter implements EnvironmentAdapter {
-  setProxy(universeProxy: UniverseProxy): void {
+export default class TestingAdapter extends EnvironmentAdapter {
+  onProxySet(): void {
   }
 
   getSettingsManager(): SettingsManager {
