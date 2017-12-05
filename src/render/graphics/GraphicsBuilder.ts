@@ -1,6 +1,7 @@
 import Colors from '../Colors';
 import IdGenerator from '../../IdGenerator';
-import Graphics, {InjectableGraphics} from './Graphics';
+import Graphics from './Graphics';
+import InjectableGraphics from './InjectableGraphics';
 
 export type Drawer = (graphics: Graphics) => void;
 
