@@ -1,5 +1,5 @@
-import LocallyOriginatedCommentEffectManager from '../effect/LocallyOriginatedCommentEffectManager';
-import {Player} from '../entity/entity';
+import LocallyOriginatedCommentEffectManager from '../../effect/LocallyOriginatedCommentEffectManager';
+import {Player} from '../../entity/entity';
 
 export default interface UniverseProxy {
   /**

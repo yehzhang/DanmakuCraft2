@@ -1,6 +1,6 @@
 import TinyTelevisionBuilder from './TinyTelevisionBuilder';
 import IdGenerator from '../../IdGenerator';
-import SettingsManager from '../../environment/SettingsManager';
+import SettingsManager from '../../environment/interface/SettingsManager';
 
 export default class GraphicsFactory {
   private fontFamily: string;

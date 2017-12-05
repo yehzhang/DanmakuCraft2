@@ -1,6 +1,6 @@
-import EventDispatcher from '../event/EventDispatcher';
-import Event, {EventType} from '../event/Event';
-import {UuidGenerator} from '../IdGenerator';
+import EventDispatcher from '../../event/EventDispatcher';
+import Event, {EventType} from '../../event/Event';
+import {UuidGenerator} from '../../IdGenerator';
 
 export class SettingsOption<T> extends Event<EventType.SETTINGS_CHANGE, T> {
   readonly key: string;

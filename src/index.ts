@@ -19,8 +19,8 @@ import 'phaser';
 import 'core-js/shim';
 
 import Universe from './Universe';
-import BiliBiliAdapter from './environment/implementation/bilibili';
-import TestingAdapter from './environment/implementation/testing';
+import BiliBiliAdapter from './environment/bilibili/BilibiliAdapter';
+import TestingAdapter from './environment/testing';
 
 function main() {
   let adapter;

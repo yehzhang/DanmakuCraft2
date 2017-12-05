@@ -1,9 +1,9 @@
-import {CommentData} from '../../entity/comment';
-import EnvironmentAdapter from '../EnvironmentAdapter';
-import SettingsManager, {SettingsOption} from '../SettingsManager';
-import CommentProvider from '../CommentProvider';
-import GameContainerProvider from '../GameContainerProvider';
-import UniverseProxy from '../UniverseProxy';
+import {CommentData} from '../entity/comment';
+import EnvironmentAdapter from './interface/EnvironmentAdapter';
+import SettingsManager, {SettingsOption} from './interface/SettingsManager';
+import CommentProvider from './interface/CommentProvider';
+import GameContainerProvider from './interface/GameContainerProvider';
+import UniverseProxy from './interface/UniverseProxy';
 
 export default class TestingAdapter implements EnvironmentAdapter {
   setProxy(universeProxy: UniverseProxy): void {

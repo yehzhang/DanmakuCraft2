@@ -2,7 +2,7 @@ import EntityFactory from './EntityFactory';
 import EntityTracker from '../update/entityTracker/EntityTracker';
 import {CommentData, CommentEntity} from './comment';
 import EntityManager from './EntityManager';
-import CommentProvider from '../environment/CommentProvider';
+import CommentProvider from '../environment/interface/CommentProvider';
 
 /**
  * Loads comment entities to the world and provides helper functions to manipulate comments.

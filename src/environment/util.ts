@@ -9,8 +9,7 @@ class WebSocketManager {
   WebSocket: new (url: string) => WebSocket;
 
   constructor() {
-    let anyWindow: any = window;
-    this.WebSocket = anyWindow.WebSocket || anyWindow.MozWebSocket;
+    this.WebSocket = (window as any).WebSocket || (window as any).MozWebSocket;
   }
 
   build(url: string): WebSocket {
