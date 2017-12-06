@@ -1,6 +1,6 @@
 import TinyTelevisionBuilder from './TinyTelevisionBuilder';
 import IdGenerator from '../../IdGenerator';
-import SettingsManager from '../../environment/interface/SettingsManager';
+import SettingsManager, {SettingsOptions} from '../../environment/interface/SettingsManager';
 
 export default class GraphicsFactory {
   private fontFamily: string;
@@ -9,8 +9,8 @@ export default class GraphicsFactory {
       private game: Phaser.Game,
       private idGenerator: IdGenerator,
       settingsManager: SettingsManager) {
-    this.fontFamily = settingsManager.getSetting(SettingsManager.Options.FONT_FAMILY);
-    settingsManager.addEventListener(SettingsManager.Options.FONT_FAMILY, this.onFontChanged, this);
+    this.fontFamily = settingsManager.getSetting(SettingsOptions.FONT_FAMILY);
+    settingsManager.addEventListener(SettingsOptions.FONT_FAMILY, this.onFontChanged, this);
   }
 
   createText(text: string, size: number, color: string): Phaser.Text {

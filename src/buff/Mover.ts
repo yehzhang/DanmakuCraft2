@@ -1,7 +1,7 @@
 import Buff from './Buff';
 import {AnimatedEntity} from '../entity/entity';
 import Controller from '../controller/Controller';
-import {PhysicalConstants} from '../Universe';
+import PhysicalConstants from '../PhysicalConstants';
 
 export default class Mover extends Buff<AnimatedEntity> {
   constructor(private time: Phaser.Time, private controller: Controller) {
@@ -25,3 +25,5 @@ export default class Mover extends Buff<AnimatedEntity> {
     }
   }
 }
+
+// TODO extend Mover: reduce initial move speed

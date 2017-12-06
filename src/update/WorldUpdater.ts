@@ -3,7 +3,7 @@ import EntityProjector from './EntityProjector';
 import {CommentEntity} from '../entity/comment';
 import EntityManager from '../entity/EntityManager';
 import {NonPlayerCharacter, Player} from '../entity/entity';
-import {PhysicalConstants} from '../Universe';
+import PhysicalConstants from '../PhysicalConstants';
 import BackgroundColorManager from './BackgroundColorManager';
 import NonPlayerCharacterTicker from './NonPlayerCharacterTicker';
 import {Animated} from '../law';

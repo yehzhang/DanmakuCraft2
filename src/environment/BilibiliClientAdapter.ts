@@ -3,6 +3,8 @@ import SendButtonInjector from './component/official/SendButtonInjector';
 import OfficialCommentProvider from './component/official/OfficialCommentProvider';
 import EnvironmentAdapter from './interface/EnvironmentAdapter';
 import AdapterFactory from './AdapterFactory';
+import GameContainerProvider from './interface/GameContainerProvider';
+import SettingsManager from './interface/SettingsManager';
 
 export default class BilibiliClientAdapter extends EnvironmentAdapter {
   private bilibiliAdapter: BilibiliAdapter;
@@ -21,11 +23,11 @@ export default class BilibiliClientAdapter extends EnvironmentAdapter {
     return new OfficialCommentProvider();
   }
 
-  getGameContainerProvider() {
+  getGameContainerProvider(): GameContainerProvider {
     return this.bilibiliAdapter.getGameContainerProvider();
   }
 
-  getSettingsManager() {
+  getSettingsManager(): SettingsManager {
     return this.bilibiliAdapter.getSettingsManager();
   }
 }

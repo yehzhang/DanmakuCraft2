@@ -5,7 +5,7 @@ export function bindFirst($elem: JQuery<any>, event: string, selector: any) {
   bindings.unshift(bindings.pop());
 }
 
-class WebSocketManager {
+export class WebSocketManager {
   WebSocket: new (url: string) => WebSocket;
 
   constructor() {
@@ -16,8 +16,6 @@ class WebSocketManager {
     return new this.WebSocket(url);
   }
 }
-
-export const webSocketManager = new WebSocketManager();
 
 export function isLinux() {
   let ua = navigator.userAgent;

@@ -2,7 +2,7 @@ import {AnimatedEntity, SuperposedEntity} from '../../entity/entity';
 import {Animated} from '../../law';
 import EntityManager, {Region} from '../../entity/EntityManager';
 import RegionChangeListener from './RegionChangeListener';
-import {PhysicalConstants} from '../../Universe';
+import PhysicalConstants from '../../PhysicalConstants';
 import TickListener from './TickListener';
 
 /**
@@ -77,7 +77,7 @@ export default class EntityTracker<
   }
 }
 
-class EntityTrackerBuilder<T extends AnimatedEntity, E extends SuperposedEntity> {
+export class EntityTrackerBuilder<T extends AnimatedEntity, E extends SuperposedEntity> {
   private entityManagers: Map<EntityManager<E>, TrackingRecord<T, E>>;
 
   constructor(private trackee: T, private samplingRadius: number) {
@@ -117,7 +117,7 @@ class EntityTrackerBuilder<T extends AnimatedEntity, E extends SuperposedEntity>
   }
 }
 
-class TrackingRecord<T extends AnimatedEntity, E extends SuperposedEntity> {
+export class TrackingRecord<T extends AnimatedEntity, E extends SuperposedEntity> {
   regionChangeListeners: Array<RegionChangeListener<T, E>>;
   tickListeners: Array<TickListener<T, E>>;
   currentRegions: Set<Region<E>>;
@@ -130,10 +130,12 @@ class TrackingRecord<T extends AnimatedEntity, E extends SuperposedEntity> {
 
   addRegionChangeListener(listener: RegionChangeListener<T, E>) {
     this.regionChangeListeners.push(listener);
+    return this;
   }
 
   addTickListener(listener: TickListener<T, E>) {
     this.tickListeners.push(listener);
+    return this;
   }
 
   getCurrentRegions() {

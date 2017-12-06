@@ -5,6 +5,7 @@ import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettin
 import LocalCommentInjector from './component/bilibili/LocalCommentInjector';
 import EnvironmentVariables from './component/bilibili/EnvironmentVariables';
 import Parameters from './component/bilibili/Parameters';
+import {WebSocketManager} from './util';
 
 export default class BilibiliAdapter extends EnvironmentAdapter {
   private injector: LocalCommentInjector;
@@ -25,7 +26,8 @@ export default class BilibiliAdapter extends EnvironmentAdapter {
   }
 
   getCommentProvider() {
-    return new BilibiliCommentProvider();
+    let webSocketManager = new WebSocketManager();
+    return new BilibiliCommentProvider(webSocketManager);
   }
 
   getGameContainerProvider() {

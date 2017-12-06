@@ -6,7 +6,7 @@ import {
   toWorldCoordinate2d,
   toWorldCoordinateOffset2d
 } from '../law';
-import {PhysicalConstants} from '../Universe';
+import PhysicalConstants from '../PhysicalConstants';
 
 /**
  * An object that has a world coordinate.

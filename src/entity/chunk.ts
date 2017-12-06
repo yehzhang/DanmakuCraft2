@@ -1,5 +1,5 @@
 import {SuperposedEntity} from './entity';
-import {PhysicalConstants} from '../Universe';
+import PhysicalConstants from '../PhysicalConstants';
 import {toWorldCoordinate2d} from '../law';
 import EntityManager, {Region} from './EntityManager';
 

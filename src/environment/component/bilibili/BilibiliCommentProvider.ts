@@ -4,7 +4,7 @@ import {EventType} from '../../../event/Event';
 import EventDispatcher from '../../../event/EventDispatcher';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import CommentDataUtil from './CommentDataUtil';
-import {webSocketManager} from '../../util';
+import {WebSocketManager} from '../../util';
 import EnvironmentVariables from './EnvironmentVariables';
 import Parameters from './Parameters';
 
@@ -12,12 +12,13 @@ export default class BilibiliCommentProvider extends CommentProvider {
   private connected: boolean;
   private receiver: RemoteCommentReceiver;
 
-  constructor() {
+  constructor(webSocketManager: WebSocketManager) {
     super();
 
     this.connected = false;
 
-    this.receiver = new RemoteCommentReceiver(EnvironmentVariables.chatBroadcastUrl);
+    this.receiver = new RemoteCommentReceiver(
+        EnvironmentVariables.chatBroadcastUrl, webSocketManager);
     this.receiver.delegateEvent(CommentProvider.NEW_COMMENT, this);
   }
 
@@ -68,7 +69,7 @@ class RemoteCommentReceiver extends EventDispatcher<EventType.COMMENT_NEW> {
   private doRetry: boolean;
   private heartBeat: number | null;
 
-  constructor(private url: string) {
+  constructor(private url: string, private webSocketManager: WebSocketManager) {
     super();
 
     this.doRetry = true;
@@ -95,7 +96,7 @@ class RemoteCommentReceiver extends EventDispatcher<EventType.COMMENT_NEW> {
   }
 
   private startWebSocket() {
-    this.socket = webSocketManager.build(this.url);
+    this.socket = this.webSocketManager.build(this.url);
     this.socket.binaryType = 'arraybuffer';
 
     this.socket.onopen = () => {
