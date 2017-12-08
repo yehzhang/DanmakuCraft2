@@ -1,6 +1,3 @@
-/// <reference path="../node_modules/phaser/typescript/phaser.comments.d.ts"/>
-/// <reference path="./globals.d.ts"/>
-
 if (__DEBUG__) {
   console.log = ((log) => {
     return function fakeLog(message: string) {

@@ -1,5 +1,8 @@
 {
-  "extends": "tslint:recommended",
+  "extends": [
+    "tslint:recommended",
+    "tslint-no-unused-expression-chai"
+  ],
   "rulesDirectory": [],
   "rules": {
     "trailing-comma": false,
@@ -15,6 +18,7 @@
     "max-classes-per-file": [false],
     "interface-name": false,
     "no-reference": false,
+    "no-string-literal": false,
     "indent": [true, "spaces", 2],
     "prefer-const": false,
     "member-access": false,

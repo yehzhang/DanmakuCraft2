@@ -18,9 +18,8 @@ export default class EntityProjector<
   }
 
   protected onEnter(entityManager: EntityManager, trackee: T, regions: Array<Region<E>>): void {
-    let playerDisplayCoordinate = trackee.display().position;
     for (let region of regions) {
-      region.decohere(playerDisplayCoordinate);
+      region.decohere(new Phaser.Point());
 
       let display = region.measure();
       this.container.addChild(display);

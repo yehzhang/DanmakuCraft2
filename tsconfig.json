@@ -2,7 +2,8 @@
   "compilerOptions": {
     "lib": [
       "DOM",
-      "ES2015"
+      "ES2015",
+      "ES2016"
     ],
     "module": "commonjs",
     "target": "ES5",
@@ -10,13 +11,15 @@
     "declaration": false,
     "outDir": "./build",
     "allowJs": false,
-    "rootDir": "./src",
     "sourceMap": true,
     "inlineSources": false,
     "strict": true,
     "downlevelIteration": true
   },
   "include": [
-    "./src/index.ts"
+    "./src/index.ts",
+    "./src/globals.d.ts",
+    "./node_modules/phaser/typescript/phaser.comments.d.ts",
+    "./test/**/*.ts"
   ]
 }

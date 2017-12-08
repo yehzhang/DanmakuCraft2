@@ -15,12 +15,11 @@ export class ChunkEntityManager<E extends SuperposedEntity> implements EntityMan
    * @param chunksCount Number of chunks in a certain dimension.
    */
   constructor(chunksCount: number) {
-    // TODO support for updating render distance
     this.chunksCount = Math.floor(chunksCount);
     this.chunkSize = PhysicalConstants.WORLD_SIZE / this.chunksCount;
 
     if (this.chunksCount <= 0) {
-      throw new Error('Invalid chunks count');
+      throw new TypeError('Invalid chunks count');
     }
 
     this.chunks = ChunkEntityManager.makeChunks(this.chunksCount, this.chunkSize);
@@ -52,10 +51,10 @@ export class ChunkEntityManager<E extends SuperposedEntity> implements EntityMan
     }
   }
 
-  load(entity: E): void {
-    let coordinate = this.toChunkCoordinate(entity.getCoordinate());
-    let chunk = this.getChunk(coordinate.x, coordinate.y);
-    chunk.addEntity(entity);
+  private static validateRadius(radius: number) {
+    if (!(radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
+      throw new TypeError(`Invalid radius: '${radius}'`);
+    }
   }
 
   forEach(f: (value: Chunk<E>, index: number) => void, thisArg?: any) {
@@ -78,11 +77,10 @@ export class ChunkEntityManager<E extends SuperposedEntity> implements EntityMan
     return this.listChunksInBound(bound.left, bound.right, bound.top, bound.bottom);
   }
 
-  private static validateRadius(radius: number) {
-    // Maximum radius is WORLD_SIZE / 4 for the optimization in left outer join.
-    if (!(radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
-      throw new Error(`Invalid radius: '${radius}'`);
-    }
+  load(entity: E): void {
+    let coordinate = this.toChunkCoordinate(entity.getCoordinate());
+    let chunk = this.getChunk(coordinate.x, coordinate.y);
+    chunk.loadEntity(entity);
   }
 
   isInSameRegion(worldCoordinate: Phaser.Point, otherCoordinate: Phaser.Point): boolean {
@@ -134,19 +132,23 @@ export class ChunkEntityManager<E extends SuperposedEntity> implements EntityMan
    */
   private inflate(coordinate: Phaser.Point, radius: number): Phaser.Rectangle {
     let topLeft = this.toChunkCoordinate(coordinate.clone().subtract(radius, radius));
-    let bound = new Phaser.Rectangle(topLeft.x, topLeft.y, 0, 0);
+    let bounds = new Phaser.Rectangle(topLeft.x, topLeft.y, 0, 0);
 
     let bottomRight = this.toChunkCoordinate(coordinate.clone().add(radius, radius));
     if (topLeft.x > bottomRight.x) {
       bottomRight.x += this.chunksCount;
+    } else if (topLeft.x === bottomRight.x && !(radius * 2 < this.chunkSize)) {
+      bottomRight.x += this.chunksCount - 1;  // world-wide bounds
     }
     if (topLeft.y > bottomRight.y) {
       bottomRight.y += this.chunksCount;
+    } else if (topLeft.y === bottomRight.y && !(radius * 2 < this.chunkSize)) {
+      bottomRight.y += this.chunksCount - 1;  // world-wide bounds
     }
-    bound.right = bottomRight.x;
-    bound.bottom = bottomRight.y;
+    bounds.right = bottomRight.x;
+    bounds.bottom = bottomRight.y;
 
-    return bound;
+    return bounds;
   }
 
   private getChunk(x: number, y: number) {
@@ -165,9 +167,10 @@ export class Chunk<E extends SuperposedEntity> extends Region<E> {
     this.entities = [];
   }
 
-  addEntity(entity: E) {
-    // TODO test entity is not double added
-    // TODO test entity.coordinate >= 0
+  protected addEntity(entity: E) {
+    if (this.entities.includes(entity)) {
+      return;
+    }
     this.entities.push(entity);
   }
 

@@ -22,12 +22,6 @@ export interface Animated {
 }
 
 /**
- * An object that is displayable and updates over time.
- */
-export interface Phenomenal extends Existent, Animated {
-}
-
-/**
  * An object that has two states.
  * When at the displayable state, the object is displayable.
  * When at the non-displayable state, the object is non-displayable.
@@ -65,10 +59,14 @@ export interface Container<T> {
  * @param max maximum value of a coordinate, exclusive. Note that min is assumed zero.
  */
 export function toWorldCoordinate(coordinate: number, max: number): number {
+  if (max <= 0) {
+    throw new TypeError('Max is not a positive number');
+  }
+
   coordinate = ((coordinate % max) + max) % max;
 
   if (isNaN(coordinate) || !isFinite(coordinate)) {
-    throw new Error('Invalid coordinate');
+    throw new TypeError('Invalid coordinate');
   }
 
   return coordinate;
@@ -83,7 +81,6 @@ export function toWorldCoordinate2d(coordinate: Phaser.Point, max: number): Phas
   return new Phaser.Point(x, y);
 }
 
-// TODO test
 /**
  * Calculates the offset between two arbitrary coordinates. In real world it is equivalent to
  * {@param coordinate} - {@param other}.

@@ -39,17 +39,18 @@ export class CommentEntity extends Entity implements Comment {
 
   decohere(parentPosition: Phaser.Point): void {
     if (this.display != null) {
-      throw new Error('CommentEntity is decoherent');
+      throw new TypeError('CommentEntity is decoherent');
     }
 
     let color = Phaser.Color.getWebRGB(this.color); // TODO test if works?
     this.display = this.graphicsFactory.createText(this.text, this.size, color);
+    this.display.position = this.getPositionBy(parentPosition);
     this.display.anchor.setTo(0.5);
   }
 
   cohere(): void {
     if (this.display == null) {
-      throw new Error('CommentEntity is coherent');
+      throw new TypeError('CommentEntity is coherent');
     }
 
     this.display = null;
@@ -57,7 +58,7 @@ export class CommentEntity extends Entity implements Comment {
 
   measure(): Phaser.Text {
     if (this.display == null) {
-      throw new Error('CommentEntity is coherent');
+      throw new TypeError('CommentEntity is coherent');
     }
 
     return this.display;

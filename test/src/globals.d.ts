@@ -1,0 +1,1 @@
+declare function importPhaser(): void;

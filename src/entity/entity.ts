@@ -31,8 +31,7 @@ export abstract class Entity {
    * Returns this entity's position relative to {@param position} as if it is a coordinate.
    */
   protected getPositionBy(position: Phaser.Point): Phaser.Point {
-    return toWorldCoordinateOffset2d(this.worldCoordinate, position, PhysicalConstants.WORLD_SIZE)
-        .add(position.x, position.y);
+    return toWorldCoordinateOffset2d(this.worldCoordinate, position, PhysicalConstants.WORLD_SIZE);
   }
 }
 
@@ -63,6 +62,11 @@ export abstract class AnimatedEntity extends Entity implements Animated {
  * Usually it is a non-significant object.
  */
 export abstract class SuperposedEntity extends Entity implements Superposed {
+  /**
+   * Decoheres this entity relative to {@param parentPosition}, i.e., the position of display
+   * returned by {@link measure} should be the offset between {@link worldCoordinate} and
+   * {@param parentPosition}.
+   */
   abstract decohere(parentPosition: Phaser.Point): void;
 
   abstract cohere(): void;

@@ -61,10 +61,11 @@ typings/
 ## Local
 .DS_Store
 .idea
-/test.js
-/test.ts
-/dist
-/build
-/.rpt2_cache
+test.js
+test.ts
+dist/
+build/
+.rpt2_cache/
 index.html
-/references
+references/
+test-build/

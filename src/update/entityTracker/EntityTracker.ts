@@ -30,8 +30,8 @@ export default class EntityTracker<
   }
 
   private static validateSamplingRadius(radius: number) {
-    if (!(radius >= 0 || radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
-      throw new Error(`Invalid sampling radius: '${radius}'`);
+    if (!(radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE)) {
+      throw new TypeError(`Invalid sampling radius: '${radius}'`);
     }
   }
 
@@ -66,7 +66,7 @@ export default class EntityTracker<
     let trackingRecord = this.trackingRecords.get(entityManager);
 
     if (trackingRecord === undefined) {
-      throw new Error('EntityManager is not tracked');
+      throw new TypeError('EntityManager is not tracked');
     }
 
     return trackingRecord.getCurrentRegions() as Array<Region<F>>;
@@ -102,7 +102,7 @@ export class EntityTrackerBuilder<T extends AnimatedEntity, E extends Superposed
 
   build() {
     if (this.entityManagers.size === 0) {
-      throw new Error('No entity managers are tracked');
+      throw new TypeError('No entity managers are tracked');
     }
     return new EntityTracker(this.trackee, this.samplingRadius, this.entityManagers);
   }
@@ -118,11 +118,11 @@ export class EntityTrackerBuilder<T extends AnimatedEntity, E extends Superposed
 }
 
 export class TrackingRecord<T extends AnimatedEntity, E extends SuperposedEntity> {
-  regionChangeListeners: Array<RegionChangeListener<T, E>>;
-  tickListeners: Array<TickListener<T, E>>;
-  currentRegions: Set<Region<E>>;
+  private regionChangeListeners: Array<RegionChangeListener<T, E>>;
+  private tickListeners: Array<TickListener<T, E>>;
+  private currentRegions: Set<Region<E>>;
 
-  constructor(public entityManager: EntityManager<E>) {
+  constructor(private entityManager: EntityManager<E>) {
     this.regionChangeListeners = [];
     this.tickListeners = [];
     this.currentRegions = new Set();

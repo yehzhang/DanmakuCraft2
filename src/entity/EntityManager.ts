@@ -30,6 +30,8 @@ export default interface EntityManager<E extends SuperposedEntity = SuperposedEn
    * The distance between a region returned and {@param worldCoordinate} could be larger than
    * {@param radius}.
    *
+   * When {@param radius} is zero, an empty list is returned.
+   *
    * Note that the world is bicylinder, which means the aggregation of regions around a coordinate
    * within a certain radius looks like a rectangle, not a circle.
    */
@@ -49,49 +51,62 @@ export abstract class Region<E extends SuperposedEntity = SuperposedEntity>
     this.display = null;
   }
 
-  abstract addEntity(entity: E): void;
+  loadEntity(entity: E): void {
+    this.addEntity(entity);
 
-  abstract countEntities(): number;
-
-  abstract forEach(f: (value: E, index: number) => void, thisArg?: any): void;
+    if (this.display != null) {
+      this.decohereEntity(entity);
+    }
+  }
 
   /**
    * In addition to generating a display, also attaches to it all children's displays.
    */
   decohere(parentPosition: Phaser.Point): void {
     if (this.display != null) {
-      throw new Error('Region is decoherent');
+      throw new TypeError('Region is decoherent');
     }
 
-    let container = new PIXI.DisplayObjectContainer();
-    container.position = this.getPositionBy(parentPosition);
+    this.display = new PIXI.DisplayObjectContainer();
+    this.display.position = this.getPositionBy(parentPosition);
 
-    this.forEach(entity => {
-      entity.decohere(this.worldCoordinate);
-
-      let display = entity.measure();
-      container.addChild(display);
-    });
-
-    this.display = container;
+    this.forEach(this.decohereEntity, this);
   }
+
+  abstract countEntities(): number;
+
+  abstract forEach(f: (value: E, index: number) => void, thisArg?: any): void;
 
   cohere() {
     if (this.display == null) {
-      throw new Error('Region is coherent');
+      throw new TypeError('Region is coherent');
     }
 
-    this.display.removeChildren(0, this.display.children.length);
-    this.display = null;
-
     this.forEach(entity => entity.cohere());
+
+    this.display.children.forEach(child => child.parent = undefined as any);
+    this.display.children.length = 0;
+
+    this.display = null;
   }
 
   measure(): PIXI.DisplayObjectContainer {
     if (this.display == null) {
-      throw new Error('Chunk is not displayable');
+      throw new TypeError('Chunk is not displayable');
     }
 
     return this.display;
+  }
+
+  /**
+   * If {@param entity} exists in this region, it should not be added again.
+   */
+  protected abstract addEntity(entity: E): void;
+
+  private decohereEntity(entity: E) {
+    entity.decohere(this.worldCoordinate);
+
+    let display = entity.measure();
+    (this.display as PIXI.DisplayObjectContainer).addChild(display);
   }
 }
