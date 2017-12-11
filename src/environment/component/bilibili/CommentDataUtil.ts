@@ -1,5 +1,5 @@
-import {CommentData} from '../../../entity/comment';
-import {EffectData} from '../../../effect/LocallyOriginatedCommentEffectManager';
+import CommentData from '../../../comment/CommentData';
+import {BuffData} from '../../../entitySystem/system/buff/BuffFactory';
 
 export default class CommentDataUtil {
   static readonly METADATA_DELIMITER = '/[';
@@ -36,15 +36,15 @@ export default class CommentDataUtil {
     // Parse properties
     let positionX;
     let positionY;
-    let effectData;
+    let buffData;
     if (properties.length === 2) {
       [positionX, positionY] = properties;
-      effectData = null;
+      buffData = null;
     } else if (properties.length === 4) {
-      let effectType;
-      let effectParameter;
-      [positionX, positionY, effectType, effectParameter] = properties;
-      effectData = new EffectData(effectType, effectParameter);
+      let buffType;
+      let buffParameter;
+      [positionX, positionY, buffType, buffParameter] = properties;
+      buffData = new BuffData(buffType, buffParameter);
     } else {
       return null;
     }
@@ -60,25 +60,25 @@ export default class CommentDataUtil {
         commentText,
         positionX,
         positionY,
-        effectData);
+        buffData);
   }
 
   static buildInjectedCommentText(
-      text: string, commentCoordinate: Phaser.Point, effect?: EffectData) {
-    let metadata = this.generateCommentMetadata(text, commentCoordinate, effect);
+      text: string, commentCoordinate: Phaser.Point, buffData?: BuffData) {
+    let metadata = this.generateCommentMetadata(text, commentCoordinate, buffData);
     return text + this.METADATA_DELIMITER + metadata;
   }
 
   static generateCommentMetadata(
-      text: string, commentCoordinate: Phaser.Point, effect?: EffectData) {
+      text: string, commentCoordinate: Phaser.Point, buffData?: BuffData) {
     // All properties must be in [0, 0x8000)
     let properties = [
       commentCoordinate.x,
       commentCoordinate.y,
     ];
 
-    if (effect) {
-      properties.push(effect.type, effect.parameter);
+    if (buffData) {
+      properties.push(buffData.type, buffData.parameter);
     }
 
     let tag = this.mac(text, properties);

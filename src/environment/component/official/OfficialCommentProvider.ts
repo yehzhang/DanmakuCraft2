@@ -1,7 +1,7 @@
 import CommentProvider from '../../interface/CommentProvider';
-import {CommentData} from '../../../entity/comment';
+import CommentData from '../../../comment/CommentData';
 
-export default class OfficialCommentProvider extends CommentProvider {
+class OfficialCommentProvider extends CommentProvider {
   constructor() {
     super();
   }
@@ -16,3 +16,5 @@ export default class OfficialCommentProvider extends CommentProvider {
     });
   }
 }
+
+export default OfficialCommentProvider;

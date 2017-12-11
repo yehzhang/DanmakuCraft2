@@ -1,5 +1,5 @@
 import Colors from '../Colors';
-import IdGenerator from '../../IdGenerator';
+import IdGenerator from '../../util/IdGenerator';
 import Graphics from './Graphics';
 import InjectableGraphics from './InjectableGraphics';
 
@@ -63,7 +63,9 @@ export abstract class GraphicsBuilder<I extends number | string> {
 
   toSprite(): Phaser.Sprite {
     let spriteSheetKey = this.toSpriteSheet();
-    return this.game.make.sprite(0, 0, spriteSheetKey, this.initialFrameIndex);
+    let sprite = this.game.make.sprite(0, 0, spriteSheetKey, this.initialFrameIndex);
+    
+    return sprite;
   }
 
   toGraphics(): PIXI.Graphics {

@@ -1,8 +1,8 @@
-import {CommentData} from '../entity/comment';
 import EnvironmentAdapter from './interface/EnvironmentAdapter';
 import SettingsManager, {SettingsOption} from './interface/SettingsManager';
 import CommentProvider from './interface/CommentProvider';
 import GameContainerProvider from './interface/GameContainerProvider';
+import CommentData from '../comment/CommentData';
 
 export default class TestingAdapter extends EnvironmentAdapter {
   onProxySet(): void {

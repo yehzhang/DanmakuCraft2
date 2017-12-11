@@ -1,6 +1,6 @@
-import EventDispatcher from '../../event/EventDispatcher';
-import {CommentData} from '../../entity/comment';
-import Event, {EventType} from '../../event/Event';
+import EventDispatcher from '../../util/event/EventDispatcher';
+import Event, {EventType} from '../../util/event/Event';
+import CommentData from '../../comment/CommentData';
 
 /**
  * Provides all comments currently available, and dispatches a {@link NEW_COMMENT} event when a new

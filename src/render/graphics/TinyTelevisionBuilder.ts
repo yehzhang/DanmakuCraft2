@@ -2,7 +2,29 @@ import {GraphicsBuilder} from './GraphicsBuilder';
 import Colors from '../Colors';
 import Graphics from './Graphics';
 
-export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
+class TinyTelevisionBuilder extends GraphicsBuilder<number> {
+  getDrawer(index: number) {
+    switch (index) {
+      case 0:
+        return TinyTelevisionBuilder.drawFirstFrame;
+      case 1:
+        return TinyTelevisionBuilder.drawSecondFrame;
+      case 2:
+        return TinyTelevisionBuilder.drawThirdFrame;
+      default:
+        throw new TypeError(`Tiny television does not have frame '${index}'`);
+    }
+  }
+
+  build() {
+    let sprite = this.toSprite();
+    sprite.anchor.setTo(0.5);
+
+    let walkingAnimation = sprite.animations.add('', undefined, 12, true);
+
+    return new TinyTelevisionBuildingResult(sprite, walkingAnimation);
+  }
+
   static drawFirstFrame(graphics: Graphics) {
     // background
     graphics
@@ -17,7 +39,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .endFill()
 
         // outer square
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'none', 'bevel')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(2, 66)
         .lineTo(2, 18)
@@ -53,7 +74,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .curveTo(42, 57, 47, 45)
 
         // feet
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'round')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(12, 66)
         .lineTo(12, 67)
@@ -79,7 +99,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .endFill()
 
         // outer sqaure
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'square', 'round')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(4, 65)
         .lineTo(2, 19)
@@ -90,7 +109,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .lineTo(2, 64)
 
         // inner sqaure
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'none', 'bevel')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(11, 25)
         .lineTo(62, 26)
@@ -101,7 +119,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .lineTo(10, 26)
 
         // antennas
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'square', 'round')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(28, 17)
         .lineTo(14, 6)
@@ -118,7 +135,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .curveTo(44, 57, 45, 46)
 
         // feet
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'round')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(12, 64)
         .lineTo(12, 67)
@@ -144,7 +160,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .endFill()
 
         // outer square
-        // .lineStyle(4, border, 1, true, 'normal', 'square', 'round')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(4, 65)
         .lineTo(2, 19)
@@ -154,7 +169,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .lineTo(3, 64)
 
         // inner square
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'square', 'bevel')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(11, 26)
         .lineTo(61, 26)
@@ -169,7 +183,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .lineTo(53, 0)
 
         // face
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'square')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(27, 34)
         .lineTo(18, 40)
@@ -180,7 +193,6 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .curveTo(42, 56, 43, 44)
 
         // feet
-        // .lineStyle(4, Colors.BLACK_NUMBER, 1, true, 'normal', 'round')
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(11, 64)
         .lineTo(11, 67)
@@ -191,17 +203,11 @@ export default class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .moveTo(57, 66)
         .curveTo(56, 70, 52, 69);
   }
+}
 
-  getDrawer(index: number) {
-    switch (index) {
-      case 0:
-        return TinyTelevisionBuilder.drawFirstFrame;
-      case 1:
-        return TinyTelevisionBuilder.drawSecondFrame;
-      case 2:
-        return TinyTelevisionBuilder.drawThirdFrame;
-      default:
-        throw new TypeError(`Tiny television does not have frame '${index}'`);
-    }
+class TinyTelevisionBuildingResult {
+  constructor(readonly display: Phaser.Sprite, readonly walkingAnimation: Phaser.Animation) {
   }
 }
+
+export default TinyTelevisionBuilder;

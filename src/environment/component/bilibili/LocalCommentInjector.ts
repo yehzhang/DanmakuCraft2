@@ -1,13 +1,13 @@
 import CommentDataUtil from './CommentDataUtil';
-import LocallyOriginatedCommentEffectManager from '../../../effect/LocallyOriginatedCommentEffectManager';
 import UniverseProxy from '../../interface/UniverseProxy';
 import {bindFirst} from '../../util';
 import Parameters from './Parameters';
+import LocallyOriginatedCommentBuffContainer from '../../../comment/LocallyOriginatedCommentBuffContainer';
 
 export default class LocalCommentInjector {
   private $textInput: JQuery<HTMLElement>;
   private $sendButton: JQuery<HTMLElement>;
-  private effectManager: LocallyOriginatedCommentEffectManager;
+  private buffContainer: LocallyOriginatedCommentBuffContainer;
 
   constructor(private universeProxy: UniverseProxy) {
     this.$textInput = $('.bilibili-player-video-danmaku-input');
@@ -15,7 +15,7 @@ export default class LocalCommentInjector {
     this.$sendButton = $('.bilibili-player-video-btn-send');
     bindFirst(this.$sendButton, 'click', this.onClickSendButtonInitial.bind(this));
 
-    this.effectManager = universeProxy.getEffectManager();
+    this.buffContainer = universeProxy.getBuffContainer();
   }
 
   private static getSelectedFontSize() {
@@ -54,7 +54,7 @@ export default class LocalCommentInjector {
       return;
     }
 
-    this.effectManager.activateOne();
+    this.buffContainer.pop();
 
     // Update comment text in UI and let player check if the text is valid.
     this.$textInput.val(injectedCommentText);
@@ -69,15 +69,15 @@ export default class LocalCommentInjector {
   }
 
   private buildInjectedCommentText(text: string): string {
-    let effectData;
-    if (this.effectManager.hasEffect()) {
-      effectData = this.effectManager.peek();
+    let buffData;
+    if (this.buffContainer.hasBuff()) {
+      buffData = this.buffContainer.peek();
     }
 
     let player = this.universeProxy.getPlayer();
-    let playerCoordinate = player.getCoordinate();
+    let playerCoordinate = player.coordinates;
 
-    return CommentDataUtil.buildInjectedCommentText(text, playerCoordinate, effectData);
+    return CommentDataUtil.buildInjectedCommentText(text, playerCoordinate, buffData);
   }
 
   private isSendButtonDisabled() {

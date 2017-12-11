@@ -1,54 +1,55 @@
-import EntityTracker from './entityTracker/EntityTracker';
-import EntityProjector from './EntityProjector';
-import {CommentEntity} from '../entity/comment';
-import EntityManager from '../entity/EntityManager';
-import {NonPlayerCharacter, Player} from '../entity/entity';
+import EntityTracker from './EntityTracker';
+import EntityFinder from '../util/entityFinder/EntityFinder';
 import PhysicalConstants from '../PhysicalConstants';
-import BackgroundColorManager from './BackgroundColorManager';
-import NonPlayerCharacterTicker from './NonPlayerCharacterTicker';
-import {Animated} from '../law';
+import BackgroundColorSystem from '../entitySystem/system/regionChange/BackgroundColorSystem';
 import RenderingTarget from '../render/RenderTarget';
+import {CommentEntity, Player, UpdatingCommentEntity} from '../entitySystem/alias';
+import RegionRenderSystem from '../entitySystem/system/regionChange/RegionRenderSystem';
+import UpdateSystem from '../entitySystem/system/tick/UpdateSystem';
+import Animated from './Animated';
 
 export default class WorldUpdater implements Animated {
-  readonly entityRenderingTracker: EntityTracker<Player>;
-  readonly backgroundColorTracker: EntityTracker;
+  readonly foregroundTracker: EntityTracker;
+  readonly backgroundTracker: EntityTracker;
   private renderingTargets: RenderingTarget[];
 
   constructor(
       private game: Phaser.Game,
-      trackee: Player,
-      private players: Player[],
-      commentEntityManager: EntityManager<CommentEntity>,
-      npcManager: EntityManager<NonPlayerCharacter>) {
-    let commentEntityProjector = new EntityProjector<Player, CommentEntity>();
-    let npcProjector = new EntityProjector<Player, NonPlayerCharacter>();
-    this.entityRenderingTracker = EntityTracker
-        .newBuilder(trackee, PhysicalConstants.getRenderRadius(game.width, game.height))
-        .trackOnRegionChange(commentEntityManager, commentEntityProjector)
-        .trackOnRegionChange(npcManager, npcProjector)
-        .trackOnTick(npcManager, new NonPlayerCharacterTicker())
+      player: Player,
+      playersFinder: EntityFinder<Player>,
+      commentEntityFinder: EntityFinder<CommentEntity>,
+      updatingCommentEntityFinder: EntityFinder<UpdatingCommentEntity>) {
+    let observedDisplay = new PIXI.DisplayObjectContainer();
+    let foregroundRenderer = new RegionRenderSystem(observedDisplay);
+    let updateSystem = new UpdateSystem(game.time);
+    this.foregroundTracker = EntityTracker
+        .newBuilder(player, PhysicalConstants.getRenderRadius(game.width, game.height))
+        .trackOnRegionChange(commentEntityFinder, foregroundRenderer)
+        .trackOnRegionChange(updatingCommentEntityFinder, foregroundRenderer)
+        .trackOnTick(updatingCommentEntityFinder, updateSystem)
+        // .trackOnTick(playersFinder, new MoveObserverDisplaySystem())
+        // .trackOnTick(playersFinder, new PlayMovingAnimationSystem())
+
         .build();
 
-    let backgroundColorManager = new BackgroundColorManager(game);
-    this.backgroundColorTracker = EntityTracker
-        .newBuilder(trackee, PhysicalConstants.BACKGROUND_SAMPLING_RADIUS)
-        .trackOnRegionChange(commentEntityManager, backgroundColorManager)
+
+    let backgroundColorSystem = new BackgroundColorSystem(game);
+    this.backgroundTracker = EntityTracker
+        .newBuilder(player, PhysicalConstants.BACKGROUND_SAMPLING_RADIUS)
+        .trackOnRegionChange(commentEntityFinder, backgroundColorSystem)
+        .trackOnRegionChange(updatingCommentEntityFinder, backgroundColorSystem)
         .build();
 
     this.renderingTargets = [
-      new RenderingTarget(trackee, commentEntityProjector, 0),
-      new RenderingTarget(trackee, npcProjector, 1),
+      new RenderingTarget(player, observedDisplay, 0),
     ];
 
     game.scale.onSizeChange.add(this.onGameResize, this);
   }
 
   tick(): void {
-    this.entityRenderingTracker.tick();
-    this.backgroundColorTracker.tick();
-    for (let player of this.players) {
-      player.tick();
-    }
+    this.foregroundTracker.tick();
+    this.backgroundTracker.tick();
   }
 
   getRenderingTargets() {
@@ -57,6 +58,6 @@ export default class WorldUpdater implements Animated {
 
   private onGameResize() {
     let samplingRadius = PhysicalConstants.getRenderRadius(this.game.width, this.game.height);
-    this.entityRenderingTracker.updateSamplingRadius(samplingRadius);
+    this.foregroundTracker.updateSamplingRadius(samplingRadius);
   }
 }

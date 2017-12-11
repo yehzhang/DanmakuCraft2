@@ -1,9 +1,9 @@
-import Texts from './Texts';
-import Colors from './Colors';
-import EnvironmentAdapter from './environment/EnvironmentAdapter';
-import Universe, {PhysicalConstants, UniverseFactory} from './Universe';
-import SettingsManager from './environment/SettingsManager';
-import MainState from './MainState';
+import Texts from './render/Texts';
+import Colors from './render/Colors';
+import EnvironmentAdapter from './environment/interface/EnvironmentAdapter';
+import Universe, {UniverseFactory} from './Universe';
+import {SettingsOptions} from './environment/interface/SettingsManager';
+import PhysicalConstants from './PhysicalConstants';
 
 /**
  * Displays the opening and loads the universe
@@ -19,8 +19,6 @@ export default class BootState extends Phaser.State {
   private earthGroup: Phaser.Group;
   private borderGroup: Phaser.Group;
 
-  private universe: Universe;
-
   constructor(private adapter: EnvironmentAdapter, private makeUniverse: UniverseFactory) {
     super();
   }
@@ -32,24 +30,17 @@ export default class BootState extends Phaser.State {
   }
 
   private configureGame() {
-    this.game.stage.disableVisibilityChange = true;
+    // Pause on blur so that music stops playing and new comments blink on focus.
+    // this.game.stage.disableVisibilityChange = true;
 
     this.game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
-
-    // Make game less blurry
-    this.game.renderer.renderSession.roundPixels = true;
-    // TODO need this for more sharpness?
-    // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
-
-    // TODO size?
-    // this.game.world.resize(PhysicalConstants.WORLD_SIZE, PhysicalConstants.WORLD_SIZE);
   }
 
   private craftRenderGroups() {
     this.initialGameSize = this.getCurrentGameSize();
 
     let settingsManager = this.adapter.getSettingsManager();
-    let fontFamily = settingsManager.getSetting(SettingsManager.Options.FONT_FAMILY);
+    let fontFamily = settingsManager.getSetting(SettingsOptions.FONT_FAMILY);
 
     this.borderGroup = this.game.add.group();
 
@@ -125,34 +116,40 @@ export default class BootState extends Phaser.State {
   }
 
   private async runState(): Promise<void> {
+    let universe;
     if (__DEBUG__) {
-      await this.loadUniverse();
+      universe = await this.loadUniverse();
+
+      (window as any).universe = universe;
     } else {
-      await this.showOpeningAndLoadUniverse();
+      universe = await this.showOpeningAndLoadUniverse();
     }
 
-    this.game.state.start('MainState', false, false, this.universe);
+    this.game.state.add('MainState', universe);
+    this.game.state.start('MainState', false, false);
   }
 
-  private async loadUniverse() {
-    this.universe = this.makeUniverse(this.game, this.adapter);
+  private async loadUniverse(): Promise<Universe> {
+    let universe = this.makeUniverse(this.game, this.adapter);
 
-    let proxy = this.universe.getProxy();
+    let proxy = universe.getProxy();
     this.adapter.setProxy(proxy);
 
-    await this.universe.loadComments();
+    await universe.loadComments();
+
+    return universe;
   }
 
-  private async showOpeningAndLoadUniverse() {
-    let [error, , , ] = await Promise.all([
+  private async showOpeningAndLoadUniverse(): Promise<Universe> {
+    let [universe, , , ] = await Promise.all([
       this.loadUniverse().catch(reason => reason),
       this.showLoadingStatus(),
       this.approachUniverseBorder(),
       this.approachEarthFaraway(),
     ]);
 
-    if (error != null) {
-      throw error;
+    if (universe instanceof Error) {
+      throw universe;
     }
 
     await Promise.all([
@@ -164,6 +161,8 @@ export default class BootState extends Phaser.State {
       this.passThroughUniverseBorder(),
       this.approachEarth(),
     ]);
+
+    return universe;
   }
 
   private async showLoadingStatus(): Promise<void> {

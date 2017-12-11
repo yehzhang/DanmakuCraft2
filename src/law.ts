@@ -1,58 +1,4 @@
-/**
- * An object that is displayable.
- *
- * If there is no need to be always displayable, consider {@link Superposed}.
- */
-
-export interface Existent {
-  /**
-   * Returns the object's display.
-   */
-  display(): PIXI.DisplayObject;
-}
-
-/**
- * An object that updates over time.
- */
-export interface Animated {
-  /**
-   * Updates this object.
-   */
-  tick(): void;
-}
-
-/**
- * An object that has two states.
- * When at the displayable state, the object is displayable.
- * When at the non-displayable state, the object is non-displayable.
- *
- * This is an optimization that frees up resources taken by this object when appropriate.
- * Otherwise, consider {@link Existent}.
- */
-export interface Superposed {
-  /**
-   * Transitions to the displayable state. Generates a display that has a position relative to
-   * {@param parentPosition}.
-   */
-  decohere(parentPosition: Phaser.Point): void;
-
-  /**
-   * Transitions to the non-displayable state. Discards the display.
-   */
-  cohere(): void;
-
-  /**
-   * Returns the object's display if available.
-   */
-  measure(): PIXI.DisplayObject;
-}
-
-/**
- * A type that contains a list of items that can be mapped over.
- */
-export interface Container<T> {
-  forEach(f: (value: T, index: number) => void, thisArg?: any): void;
-}
+import Point from './util/Point';
 
 /**
  * Maps an arbitrary {@param coordinate} to a world coordinate.
@@ -78,7 +24,7 @@ export function toWorldCoordinate(coordinate: number, max: number): number {
 export function toWorldCoordinate2d(coordinate: Phaser.Point, max: number): Phaser.Point {
   let x = toWorldCoordinate(coordinate.x, max);
   let y = toWorldCoordinate(coordinate.y, max);
-  return new Phaser.Point(x, y);
+  return Point.of(x, y);
 }
 
 /**
@@ -113,5 +59,5 @@ export function toWorldCoordinateOffset2d(
     coordinate: Phaser.Point, other: Phaser.Point, max: number): Phaser.Point {
   let offsetX = toWorldCoordinateOffset(coordinate.x, other.x, max);
   let offsetY = toWorldCoordinateOffset(coordinate.y, other.y, max);
-  return new Phaser.Point(offsetX, offsetY);
+  return Point.of(offsetX, offsetY);
 }

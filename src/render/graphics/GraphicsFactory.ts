@@ -1,8 +1,9 @@
 import TinyTelevisionBuilder from './TinyTelevisionBuilder';
-import IdGenerator from '../../IdGenerator';
+import IdGenerator from '../../util/IdGenerator';
 import SettingsManager, {SettingsOptions} from '../../environment/interface/SettingsManager';
+import Comment from '../../entitySystem/component/Comment';
 
-export default class GraphicsFactory {
+class GraphicsFactory {
   private fontFamily: string;
 
   constructor(
@@ -11,6 +12,13 @@ export default class GraphicsFactory {
       settingsManager: SettingsManager) {
     this.fontFamily = settingsManager.getSetting(SettingsOptions.FONT_FAMILY);
     settingsManager.addEventListener(SettingsOptions.FONT_FAMILY, this.onFontChanged, this);
+  }
+
+  createTextFromComment(comment: Comment): Phaser.Text {
+    let color = Phaser.Color.getWebRGB(comment.color); // TODO test if works?
+    let text = this.createText(comment.text, comment.size, color);
+    text.anchor.setTo(0.5);
+    return text;
   }
 
   createText(text: string, size: number, color: string): Phaser.Text {
@@ -39,3 +47,5 @@ export default class GraphicsFactory {
     // No need to redraw previously-drawn comments.
   }
 }
+
+export default GraphicsFactory;

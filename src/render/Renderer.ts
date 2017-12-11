@@ -1,11 +1,11 @@
-import {Observer} from '../entity/entity';
-import {default as WorldUpdater} from '../update/WorldUpdater';
+import {Observer} from '../entitySystem/alias';
+import RenderingTarget from './RenderTarget';
 
 export default class Renderer {
   private container: PhaserDisplayObjectContainer;
   private renderingObservers: Set<Observer>;
 
-  constructor(private game: Phaser.Game, worldUpdater: WorldUpdater) {
+  constructor(private game: Phaser.Game, renderingTargets: RenderingTarget[]) {
     this.container = game.add.group();
 
     // Make game less blurry
@@ -17,24 +17,19 @@ export default class Renderer {
     // Allow camera to move out of the world.
     game.camera.bounds = null;
 
-    // Add rendering targets to stage.
-    let renderingTargets = worldUpdater.getRenderingTargets()
-        .sort((target, other) => target.zIndex - other.zIndex);
-
-    let uniqueZIndices = new Set(renderingTargets.map(target => target.zIndex));
-    if (uniqueZIndices.size !== renderingTargets.length) {
-      throw new TypeError('Render targets have duplicate zIndices');
-    }
-
-    let projectorGroup = new PhaserDisplayObjectContainer();
-    this.container.addChild(projectorGroup);
-
-    for (let renderingTarget of renderingTargets) {
-      this.container.addChild(renderingTarget.observer.display());
-      projectorGroup.addChild(renderingTarget.projector.display());
-    }
+    this.addRenderingTargetsToStage(renderingTargets);
 
     this.renderingObservers = new Set(renderingTargets.map(target => target.observer));
+  }
+
+  focusOn(observer: Observer) {
+    if (!this.renderingObservers.has(observer)) {
+      throw new Error('Cannot focus on a observer that is not a rendering target');
+    }
+
+    this.game.camera.follow(observer.display, Phaser.Camera.FOLLOW_LOCKON);
+
+    return this;
   }
 
   turnOn() {
@@ -50,14 +45,21 @@ export default class Renderer {
     return this;
   }
 
-  focusOn(observer: Observer) {
-    if (!this.renderingObservers.has(observer)) {
-      throw new Error('Cannot focus on a observer that is not a rendering target');
+  private addRenderingTargetsToStage(renderingTargets: RenderingTarget[]) {
+    renderingTargets = renderingTargets.sort((target, other) => target.zIndex - other.zIndex);
+
+    let uniqueZIndices = new Set(renderingTargets.map(target => target.zIndex));
+    if (uniqueZIndices.size !== renderingTargets.length) {
+      throw new TypeError('Render targets have duplicate zIndices');
     }
 
-    this.game.camera.follow(observer.display(), Phaser.Camera.FOLLOW_LOCKON);
+    let projectorGroup = new PhaserDisplayObjectContainer();
+    for (let renderingTarget of renderingTargets) {
+      this.container.addChild(renderingTarget.observer.display);
+      projectorGroup.addChild(renderingTarget.observerDisplay);
+    }
 
-    return this;
+    this.container.addChild(projectorGroup);
   }
 }
 

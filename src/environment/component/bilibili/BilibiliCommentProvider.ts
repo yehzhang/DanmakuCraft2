@@ -1,12 +1,12 @@
 import CommentProvider from '../../interface/CommentProvider';
-import {CommentData} from '../../../entity/comment';
-import {EventType} from '../../../event/Event';
-import EventDispatcher from '../../../event/EventDispatcher';
+import {EventType} from '../../../util/event/Event';
+import EventDispatcher from '../../../util/event/EventDispatcher';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import CommentDataUtil from './CommentDataUtil';
 import {WebSocketManager} from '../../util';
 import EnvironmentVariables from './EnvironmentVariables';
 import Parameters from './Parameters';
+import CommentData from '../../../comment/CommentData';
 
 export default class BilibiliCommentProvider extends CommentProvider {
   private connected: boolean;
@@ -82,7 +82,7 @@ class RemoteCommentReceiver extends EventDispatcher<EventType.COMMENT_NEW> {
     let d = new Uint8Array(arrayB.byteLength + arrayC.byteLength);
     d.set(arrayB, 0);
     d.set(arrayC, arrayB.byteLength);
-    return d.buffer;
+    return d.buffer as ArrayBuffer;
   }
 
   connect() {
@@ -235,7 +235,7 @@ class RemoteCommentReceiver extends EventDispatcher<EventType.COMMENT_NEW> {
       }
     });
 
-    return RemoteCommentReceiver.mergeBuffers(metadataView.buffer, dataArray.buffer);
+    return RemoteCommentReceiver.mergeBuffers(metadataView.buffer, dataArray.buffer as ArrayBuffer);
   }
 
   private parse(buffer: ArrayBuffer) {

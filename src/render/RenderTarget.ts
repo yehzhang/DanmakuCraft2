@@ -1,10 +1,9 @@
-import {Observer} from '../entity/entity';
-import EntityProjector from '../update/EntityProjector';
+import {Observer} from '../entitySystem/alias';
 
 export default class RenderingTarget {
   constructor(
       readonly observer: Observer,
-      readonly projector: EntityProjector,
+      readonly observerDisplay: PIXI.DisplayObject,
       readonly zIndex: number) {
   }
 }
