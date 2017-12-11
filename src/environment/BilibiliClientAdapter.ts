@@ -1,12 +1,12 @@
 import BilibiliAdapter from './BilibiliAdapter';
 import SendButtonInjector from './component/official/SendButtonInjector';
 import OfficialCommentProvider from './component/official/OfficialCommentProvider';
-import EnvironmentAdapter from './interface/EnvironmentAdapter';
 import AdapterFactory from './AdapterFactory';
 import GameContainerProvider from './interface/GameContainerProvider';
 import SettingsManager from './interface/SettingsManager';
+import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 
-export default class BilibiliClientAdapter extends EnvironmentAdapter {
+class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   private bilibiliAdapter: BilibiliAdapter;
   private sendButtonInjector: SendButtonInjector;
 
@@ -20,7 +20,7 @@ export default class BilibiliClientAdapter extends EnvironmentAdapter {
   }
 
   getCommentProvider() {
-    return new OfficialCommentProvider();
+    return new OfficialCommentProvider(new Phaser.Signal());
   }
 
   getGameContainerProvider(): GameContainerProvider {
@@ -31,3 +31,5 @@ export default class BilibiliClientAdapter extends EnvironmentAdapter {
     return this.bilibiliAdapter.getSettingsManager();
   }
 }
+
+export default BilibiliClientAdapter;

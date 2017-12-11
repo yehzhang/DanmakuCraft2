@@ -1,6 +1,4 @@
 import CommentProvider from '../../interface/CommentProvider';
-import {EventType} from '../../../util/event/Event';
-import EventDispatcher from '../../../util/event/EventDispatcher';
 import {TextDecoder, TextEncoder} from 'text-encoding-shim';
 import CommentDataUtil from './CommentDataUtil';
 import {WebSocketManager} from '../../util';
@@ -8,18 +6,16 @@ import EnvironmentVariables from './EnvironmentVariables';
 import Parameters from './Parameters';
 import CommentData from '../../../comment/CommentData';
 
-export default class BilibiliCommentProvider extends CommentProvider {
+class BilibiliCommentProvider implements CommentProvider {
   private connected: boolean;
   private receiver: RemoteCommentReceiver;
 
-  constructor(webSocketManager: WebSocketManager) {
-    super();
-
+  constructor(webSocketManager: WebSocketManager, readonly commentReceived: Phaser.Signal<CommentData>) {
     this.connected = false;
-
     this.receiver = new RemoteCommentReceiver(
-        EnvironmentVariables.chatBroadcastUrl, webSocketManager);
-    this.receiver.delegateEvent(CommentProvider.NEW_COMMENT, this);
+        EnvironmentVariables.chatBroadcastUrl,
+        webSocketManager,
+        commentReceived);
   }
 
   connect() {
@@ -57,7 +53,9 @@ export default class BilibiliCommentProvider extends CommentProvider {
   }
 }
 
-class RemoteCommentReceiver extends EventDispatcher<EventType.COMMENT_NEW> {
+export default BilibiliCommentProvider;
+
+class RemoteCommentReceiver {
   private static frameDefinitionEntries = [
     {name: 'Header Length', key: 'headerLen', size: 2, offset: 4, value: 16},
     {name: 'Protocol Version', key: 'ver', size: 2, offset: 6, value: 1},
@@ -69,9 +67,10 @@ class RemoteCommentReceiver extends EventDispatcher<EventType.COMMENT_NEW> {
   private doRetry: boolean;
   private heartBeat: number | null;
 
-  constructor(private url: string, private webSocketManager: WebSocketManager) {
-    super();
-
+  constructor(
+      private url: string,
+      private webSocketManager: WebSocketManager,
+      private commentReceived: Phaser.Signal<CommentData>) {
     this.doRetry = true;
     this.heartBeat = null;
   }
@@ -213,7 +212,7 @@ class RemoteCommentReceiver extends EventDispatcher<EventType.COMMENT_NEW> {
         let comment = CommentDataUtil.parseFromXmlStrings(attributes, text);
 
         if (comment != null) {
-          this.dispatchEvent(CommentProvider.NEW_COMMENT, comment);
+          this.commentReceived.dispatch(comment);
         }
       }
     }

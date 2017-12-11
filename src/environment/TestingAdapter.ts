@@ -1,19 +1,19 @@
-import EnvironmentAdapter from './interface/EnvironmentAdapter';
 import SettingsManager, {SettingsOption} from './interface/SettingsManager';
 import CommentProvider from './interface/CommentProvider';
 import GameContainerProvider from './interface/GameContainerProvider';
 import CommentData from '../comment/CommentData';
+import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 
-export default class TestingAdapter extends EnvironmentAdapter {
+class TestingAdapter extends BaseEnvironmentAdapter {
   onProxySet(): void {
   }
 
   getSettingsManager(): SettingsManager {
-    return new TestingSettingsManager();
+    return new TestingSettingsManager(new Phaser.Signal());
   }
 
   getCommentProvider(): CommentProvider {
-    return new TestingCommentProvider();
+    return new TestingCommentProvider(new Phaser.Signal());
   }
 
   getGameContainerProvider(): GameContainerProvider {
@@ -21,13 +21,18 @@ export default class TestingAdapter extends EnvironmentAdapter {
   }
 }
 
+export default TestingAdapter;
+
 class TestingContainerProvider implements GameContainerProvider {
   getContainerId(): string {
     return 'container';
   }
 }
 
-class TestingCommentProvider extends CommentProvider {
+class TestingCommentProvider implements CommentProvider {
+  constructor(readonly commentReceived: Phaser.Signal<CommentData>) {
+  }
+
   connect(): void {
   }
 
@@ -36,12 +41,10 @@ class TestingCommentProvider extends CommentProvider {
   }
 }
 
-class TestingSettingsManager extends SettingsManager {
+class TestingSettingsManager implements SettingsManager {
   private storage: { [key: string]: any };
 
-  constructor() {
-    super();
-
+  constructor(readonly fontFamilyChanged: Phaser.Signal<string>) {
     this.storage = {};
   }
 

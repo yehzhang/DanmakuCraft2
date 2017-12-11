@@ -1,16 +1,16 @@
 import CommentProvider from '../../interface/CommentProvider';
 import CommentData from '../../../comment/CommentData';
 
-class OfficialCommentProvider extends CommentProvider {
-  constructor() {
-    super();
+class OfficialCommentProvider implements CommentProvider {
+  constructor(readonly commentReceived: Phaser.Signal<CommentData>) {
+    // TODO commentReceived
   }
 
   connect(): void {
     throw new Error('Not implemented'); // TODO
   }
 
-  async getAllComments() {
+  async getAllComments(): Promise<CommentData[]> {
     return new Promise<CommentData[]>(resolve => {
       throw new Error('Not implemented'); // TODO
     });

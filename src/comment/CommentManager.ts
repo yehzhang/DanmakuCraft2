@@ -44,7 +44,7 @@ class CommentManager { // TODO test
   }
 
   listenTo(commentProvider: CommentProvider) {
-    commentProvider.addEventListener(CommentProvider.NEW_COMMENT, this.load, this);
+    commentProvider.commentReceived.add(this.load, this);
   }
 }
 

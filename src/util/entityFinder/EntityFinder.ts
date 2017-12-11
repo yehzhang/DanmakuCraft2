@@ -7,6 +7,16 @@ import {Region} from '../../entitySystem/alias';
  */
 interface EntityFinder<T extends Entity> extends Iterable<Region<T>> {
   /**
+   * Dispatches when a new entity is loaded.
+   */
+  readonly entityLoaded: Phaser.Signal<T>;
+
+  /**
+   * Dispatches when a loaded entity moves from one region to another.
+   */
+  readonly entityCrossedRegion: Phaser.Signal<T>;
+
+  /**
    * Loads many entities.
    */
   loadBatch(entities: Iterable<T>): void;

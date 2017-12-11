@@ -1,6 +1,6 @@
 import GameContainerProvider from '../../interface/GameContainerProvider';
 
-export default class BilibiliContainerProvider implements GameContainerProvider {
+class BilibiliContainerProvider implements GameContainerProvider {
   private static readonly CONTAINER_ID = 'danmaku-craft-container';
 
   getContainerId(): string {
@@ -13,3 +13,5 @@ export default class BilibiliContainerProvider implements GameContainerProvider 
     return BilibiliContainerProvider.CONTAINER_ID;
   }
 }
+
+export default BilibiliContainerProvider;

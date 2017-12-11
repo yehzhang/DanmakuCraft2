@@ -1,4 +1,3 @@
-import EnvironmentAdapter from './interface/EnvironmentAdapter';
 import BilibiliContainerProvider from './component/bilibili/BilibiliContainerProvider';
 import BilibiliCommentProvider from './component/bilibili/BilibiliCommentProvider';
 import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
@@ -6,8 +5,9 @@ import LocalCommentInjector from './component/bilibili/LocalCommentInjector';
 import EnvironmentVariables from './component/bilibili/EnvironmentVariables';
 import Parameters from './component/bilibili/Parameters';
 import {WebSocketManager} from './util';
+import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 
-export default class BilibiliAdapter extends EnvironmentAdapter {
+class BilibiliAdapter extends BaseEnvironmentAdapter {
   private injector: LocalCommentInjector;
 
   constructor() {
@@ -27,7 +27,7 @@ export default class BilibiliAdapter extends EnvironmentAdapter {
 
   getCommentProvider() {
     let webSocketManager = new WebSocketManager();
-    return new BilibiliCommentProvider(webSocketManager);
+    return new BilibiliCommentProvider(webSocketManager, new Phaser.Signal());
   }
 
   getGameContainerProvider() {
@@ -35,6 +35,8 @@ export default class BilibiliAdapter extends EnvironmentAdapter {
   }
 
   getSettingsManager() {
-    return new LocalStorageSettingsManager();
+    return new LocalStorageSettingsManager(new Phaser.Signal());
   }
 }
+
+export default BilibiliAdapter;

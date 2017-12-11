@@ -1,7 +1,7 @@
 import CommentData from '../../../comment/CommentData';
 import {BuffData} from '../../../entitySystem/system/buff/BuffFactory';
 
-export default class CommentDataUtil {
+class CommentDataUtil {
   static readonly METADATA_DELIMITER = '/[';
 
   static parseFromXmlStrings(attributes: string, text: string): CommentData | null {
@@ -126,3 +126,5 @@ export default class CommentDataUtil {
     return codes.map(code => code - (code < 0xb000 ? 0x4000 : 0x5000));
   }
 }
+
+export default CommentDataUtil;

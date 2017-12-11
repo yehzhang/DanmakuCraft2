@@ -11,7 +11,7 @@ class GraphicsFactory {
       private idGenerator: IdGenerator,
       settingsManager: SettingsManager) {
     this.fontFamily = settingsManager.getSetting(SettingsOptions.FONT_FAMILY);
-    settingsManager.addEventListener(SettingsOptions.FONT_FAMILY, this.onFontChanged, this);
+    settingsManager.fontFamilyChanged.add(this.onFontChanged, this);
   }
 
   createTextFromComment(comment: Comment): Phaser.Text {

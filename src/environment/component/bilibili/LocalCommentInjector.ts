@@ -4,7 +4,7 @@ import {bindFirst} from '../../util';
 import Parameters from './Parameters';
 import LocallyOriginatedCommentBuffContainer from '../../../comment/LocallyOriginatedCommentBuffContainer';
 
-export default class LocalCommentInjector {
+class LocalCommentInjector {
   private $textInput: JQuery<HTMLElement>;
   private $sendButton: JQuery<HTMLElement>;
   private buffContainer: LocallyOriginatedCommentBuffContainer;
@@ -84,3 +84,5 @@ export default class LocalCommentInjector {
     return this.$sendButton.hasClass('bpui-state-disabled');
   }
 }
+
+export default LocalCommentInjector;

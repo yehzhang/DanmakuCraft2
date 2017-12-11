@@ -6,19 +6,16 @@ import UniverseProxy from './UniverseProxy';
 /**
  * Declares every classes with which the game can communicate with the environment.
  */
-export default abstract class EnvironmentAdapter {
-  protected universeProxy: UniverseProxy;
+interface EnvironmentAdapter {
+  getGameContainerProvider(): GameContainerProvider;
 
-  abstract getGameContainerProvider(): GameContainerProvider;
+  getCommentProvider(): CommentProvider;
 
-  abstract getCommentProvider(): CommentProvider;
+  getSettingsManager(): SettingsManager;
 
-  abstract getSettingsManager(): SettingsManager;
+  setProxy(universeProxy: UniverseProxy): void;
 
-  setProxy(universeProxy: UniverseProxy) {
-    this.universeProxy = universeProxy;
-    this.onProxySet();
-  }
-
-  abstract onProxySet(): void;
+  onProxySet(): void;
 }
+
+export default EnvironmentAdapter;

@@ -1,12 +1,9 @@
-import EventDispatcher from '../../util/event/EventDispatcher';
-import Event, {EventType} from '../../util/event/Event';
 import {UuidGenerator} from '../../util/IdGenerator';
 
-export class SettingsOption<T> extends Event<EventType.SETTINGS_CHANGE, T> {
+export class SettingsOption<T> {
   readonly key: string;
 
   constructor() {
-    super();
     this.key = UuidGenerator.generateUniqueId();
   }
 }
@@ -17,11 +14,14 @@ export class SettingsOptions {
 }
 
 /**
- * Provides and manages settings, and dispatches a {@link EventType.SETTINGS_CHANGE} event when
- * settings is changed.
+ * Provides and stores settings, and dispatches a Phaser.Signal when settings is changed.
  */
-export default abstract class SettingsManager extends EventDispatcher<EventType.SETTINGS_CHANGE> {
-  abstract getSetting<T>(option: SettingsOption<T>): T;
+interface SettingsManager {
+  readonly fontFamilyChanged: Phaser.Signal<string>;
 
-  abstract setSetting<T>(option: SettingsOption<T>, value: T): void;
+  getSetting<T>(option: SettingsOption<T>): T;
+
+  setSetting<T>(option: SettingsOption<T>, value: T): void;
 }
+
+export default SettingsManager;

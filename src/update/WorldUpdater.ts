@@ -8,7 +8,7 @@ import RegionRenderSystem from '../entitySystem/system/regionChange/RegionRender
 import UpdateSystem from '../entitySystem/system/tick/UpdateSystem';
 import Animated from './Animated';
 
-export default class WorldUpdater implements Animated {
+class WorldUpdater implements Animated {
   readonly foregroundTracker: EntityTracker;
   readonly backgroundTracker: EntityTracker;
   private renderingTargets: RenderingTarget[];
@@ -61,3 +61,5 @@ export default class WorldUpdater implements Animated {
     this.foregroundTracker.updateSamplingRadius(samplingRadius);
   }
 }
+
+export default WorldUpdater;

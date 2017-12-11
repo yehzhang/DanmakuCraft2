@@ -1,7 +1,7 @@
 import SettingsManager, {SettingsOption} from '../../interface/SettingsManager';
 import {isLinux} from '../../util';
 
-export default class LocalStorageSettingsManager extends SettingsManager {
+class LocalStorageSettingsManager implements SettingsManager {
   // TODO implement listener
   private static readonly DEFAULT_SETTINGS = {
     fontFamily: (isLinux()
@@ -11,11 +11,9 @@ export default class LocalStorageSettingsManager extends SettingsManager {
 
   private settings: any;
 
-  constructor() {
-    super();
-
+  constructor(readonly fontFamilyChanged: Phaser.Signal<string>) {
     // TODO read settings from bilibili player
-    this.settings = Object.assign({}, LocalStorageSettingsManager.DEFAULT_SETTINGS, {});
+    this.settings = Object.assign({}, LocalStorageSettingsManager.DEFAULT_SETTINGS);
   }
 
   getSetting<T>(option: SettingsOption<T>): T {
@@ -26,3 +24,5 @@ export default class LocalStorageSettingsManager extends SettingsManager {
     throw new Error('Method not implemented.');
   }
 }
+
+export default LocalStorageSettingsManager;

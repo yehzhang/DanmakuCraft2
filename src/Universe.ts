@@ -11,7 +11,7 @@ import GraphicsFactory from './render/graphics/GraphicsFactory';
 import {UuidGenerator} from './util/IdGenerator';
 import CommentManager from './comment/CommentManager';
 import AdapterFactory from './environment/AdapterFactory';
-import {ChunkEntityFinder} from './util/entityFinder/ChunkFinder';
+import ChunkEntityFinder from './util/entityFinder/ChunkEntityFinder';
 import PhysicalConstants from './PhysicalConstants';
 import LocallyOriginatedCommentBuffContainer from './comment/LocallyOriginatedCommentBuffContainer';
 import {CommentEntity, Player, UpdatingCommentEntity} from './entitySystem/alias';
@@ -55,11 +55,18 @@ export default class Universe extends Phaser.State {
     this.entityFactory = new EntityFactoryImpl(game, this.graphicsFactory, this.buffFactory);
     this.player = this.entityFactory.createPlayer(Point.origin()); // TODO
 
-    this.commentEntityFinder =
-        new ChunkEntityFinder(PhysicalConstants.COMMENT_CHUNKS_COUNT, this.entityFactory);
-    this.updatingCommentEntityFinder =
-        new ChunkEntityFinder(PhysicalConstants.UPDATING_CHUNKS_COUNT, this.entityFactory);
-    this.playersFinder = new GlobalEntityFinder(this.entityFactory);
+    this.commentEntityFinder = new ChunkEntityFinder(
+        PhysicalConstants.COMMENT_CHUNKS_COUNT,
+        this.entityFactory,
+        new Phaser.Signal(),
+        new Phaser.Signal());
+    this.updatingCommentEntityFinder = new ChunkEntityFinder(
+        PhysicalConstants.UPDATING_CHUNKS_COUNT,
+        this.entityFactory,
+        new Phaser.Signal(),
+        new Phaser.Signal());
+    this.playersFinder =
+        new GlobalEntityFinder(this.entityFactory, new Phaser.Signal(), new Phaser.Signal());
     this.updater = new WorldUpdater(
         game,
         this.player,

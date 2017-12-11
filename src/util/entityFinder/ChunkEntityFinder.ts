@@ -11,11 +11,10 @@ type EntityType = StationaryEntity;
 /**
  * Implements {@link EntityFinder} with chunks.
  *
- * Note that only {@link SuperposedEntity} and {@link StationaryEntity} can be found here.
- * An entity must be stationary because this finder does not support moving it across containers.
- * In this case, consider using {@link GlobalEntityFinder}.
+ * Note that only {@link StationaryEntity}s can be loaded, because this finder does not support
+ * moving entities across containers. In this case, consider using {@link GlobalEntityFinder}.
  */
-export class ChunkEntityFinder<T extends EntityType> implements EntityFinder<T> {
+class ChunkEntityFinder<T extends EntityType> implements EntityFinder<T> {
   private chunkSize: number;
   private chunksCount: number;
   private chunks: Array<Array<Region<T>>>;
@@ -23,8 +22,14 @@ export class ChunkEntityFinder<T extends EntityType> implements EntityFinder<T> 
   /**
    * @param chunksCount Number of chunks in a certain dimension.
    * @param entityFactory Factory to create {@link Region}s.
+   * @param entityLoaded
+   * @param entityCrossedRegion
    */
-  constructor(chunksCount: number, entityFactory: EntityFactory) {
+  constructor(
+      chunksCount: number,
+      entityFactory: EntityFactory,
+      readonly entityLoaded: Phaser.Signal<T>,
+      readonly entityCrossedRegion: Phaser.Signal<T>) {
     this.chunksCount = Math.floor(chunksCount);
     this.chunkSize = PhysicalConstants.WORLD_SIZE / this.chunksCount;
 
@@ -62,6 +67,8 @@ export class ChunkEntityFinder<T extends EntityType> implements EntityFinder<T> 
     let coordinates = this.toChunkCoordinates(entity.coordinates);
     let chunk = this.getChunk(coordinates.x, coordinates.y);
     chunk.container.add(entity);
+
+    this.entityLoaded.dispatch(entity);
   }
 
   isInSameContainer(worldCoordinates: Point, otherCoordinates: Point): boolean {
@@ -160,3 +167,5 @@ export class ChunkEntityFinder<T extends EntityType> implements EntityFinder<T> 
     return this.chunks[y][x];
   }
 }
+
+export default ChunkEntityFinder;

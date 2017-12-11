@@ -8,7 +8,10 @@ import Point from '../Point';
 class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   private region: Region<T>;
 
-  constructor(entityFactory: EntityFactory) {
+  constructor(
+      entityFactory: EntityFactory,
+      readonly entityLoaded: Phaser.Signal<T>,
+      readonly entityCrossedRegion: Phaser.Signal<T>) {
     this.region = entityFactory.createRegion(Point.origin());
   }
 
@@ -20,6 +23,7 @@ class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
 
   load(entity: T) {
     this.region.container.add(entity);
+    this.entityLoaded.dispatch(entity);
   }
 
   /**
