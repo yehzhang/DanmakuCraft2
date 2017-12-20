@@ -1,4 +1,5 @@
 import Point from './util/Point';
+import PhysicalConstants from './PhysicalConstants';
 
 /**
  * Maps an arbitrary {@param coordinate} to a world coordinate.
@@ -21,9 +22,9 @@ export function toWorldCoordinate(coordinate: number, max: number): number {
 /**
  * 2-dimensional version of {@link toWorldCoordinate}.
  */
-export function toWorldCoordinate2d(coordinate: Phaser.Point, max: number): Phaser.Point {
-  let x = toWorldCoordinate(coordinate.x, max);
-  let y = toWorldCoordinate(coordinate.y, max);
+export function toWorldCoordinate2d(coordinates: Point, max: number): Point {
+  let x = toWorldCoordinate(coordinates.x, max);
+  let y = toWorldCoordinate(coordinates.y, max);
   return Point.of(x, y);
 }
 
@@ -55,9 +56,15 @@ export function toWorldCoordinateOffset(coordinate: number, other: number, max: 
 /**
  * 2-dimensional version of {@link toWorldCoordinateOffset}.
  */
-export function toWorldCoordinateOffset2d(
-    coordinate: Phaser.Point, other: Phaser.Point, max: number): Phaser.Point {
-  let offsetX = toWorldCoordinateOffset(coordinate.x, other.x, max);
-  let offsetY = toWorldCoordinateOffset(coordinate.y, other.y, max);
+export function toWorldCoordinateOffset2d(coordinates: Point, other: Point, max: number): Point {
+  let offsetX = toWorldCoordinateOffset(coordinates.x, other.x, max);
+  let offsetY = toWorldCoordinateOffset(coordinates.y, other.y, max);
   return Point.of(offsetX, offsetY);
+}
+
+export function validateRadius(radius: number) {
+  if (radius >= 0 && radius * 2 <= PhysicalConstants.WORLD_SIZE) {
+    return;
+  }
+  throw new TypeError(`Invalid world radius: '${radius}'`);
 }

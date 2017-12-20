@@ -2,6 +2,7 @@ import Colors from '../Colors';
 import IdGenerator from '../../util/IdGenerator';
 import Graphics from './Graphics';
 import InjectableGraphics from './InjectableGraphics';
+import Point from '../../util/Point';
 
 export type Drawer = (graphics: Graphics) => void;
 
@@ -35,10 +36,10 @@ export abstract class GraphicsBuilder<I extends number | string> {
   /**
    * Attach shadow to last drawer.
    */
-  withShadow(offset?: Phaser.Point, color: number = Colors.GREY_NUMBER): this {
+  withShadow(offset?: Point, color: number = Colors.GREY_NUMBER): this {
     this.decorateLastDrawer(drawer => graphics => {
       if (offset === undefined) {
-        offset = new Phaser.Point(2, 2);
+        offset = Point.of(2, 2);
       }
       graphics.addOffsetBy(offset.x, offset.y);
       graphics.fixFillColor(color).fixLineColor(color);

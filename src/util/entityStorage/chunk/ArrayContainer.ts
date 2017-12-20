@@ -1,4 +1,4 @@
-import Container from './Container';
+import Container from '../Container';
 
 /**
  * Implements {@link Container} with an array.

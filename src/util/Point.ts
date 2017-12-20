@@ -1,3 +1,5 @@
+import {Phaser} from '../../types/phaser';
+
 class Point extends Phaser.Point {
   static of(x: number, y: number) {
     return new this(x, y);

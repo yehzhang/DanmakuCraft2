@@ -4,7 +4,6 @@ import CommentData from '../comment/CommentData';
 import Comment from './component/Comment';
 import Entity, {EntityBuilder} from './Entity';
 import ImmutableCoordinates from './component/ImmutableCoordinates';
-import EntityContainer from './component/EntityContainer';
 import MaybeDisplay from './component/MaybeDisplay';
 import BuffFactory, {BuffData} from './system/buff/BuffFactory';
 import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
@@ -14,7 +13,8 @@ import Display from './component/Display';
 import MovingAnimation from './component/MovingAnimation';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import Point from '../util/Point';
-import ArrayContainer from '../util/entityFinder/ArrayContainer';
+import ArrayContainer from '../util/entityStorage/chunk/ArrayContainer';
+import ContainerHolder from './component/ContainerHolder';
 
 class EntityFactoryImpl implements EntityFactory {
   constructor(
@@ -25,19 +25,23 @@ class EntityFactoryImpl implements EntityFactory {
 
   private static createBaseCommentEntity<T extends CommentEntity>(
       data: CommentData, createDisplay: () => Phaser.Text): EntityBuilder<T, CommentEntity> {
-    let coordinates = new Phaser.Point(data.coordinateX, data.coordinateY);
+    let coordinates = Point.of(data.coordinateX, data.coordinateY);
     return Entity.newBuilder<CommentEntity>()
         .mix(new ImmutableCoordinates(coordinates))
         .mix(new Comment(data.size, data.color, data.text))
         .mix(new MaybeDisplay(createDisplay));
   }
 
-  createRegion<T extends Entity>(coordinates: Point) {
+  createRegion<T>(coordinates: Point, display?: PIXI.DisplayObjectContainer) {
     return Entity.newBuilder<Region<T>>()
         .mix(new ImmutableCoordinates(coordinates))
-        .mix(new EntityContainer(new ArrayContainer<T>()))
-        .mix(new MaybeDisplay(() => new PIXI.DisplayObjectContainer()))
+        .mix(new ContainerHolder(new ArrayContainer<T>()))
+        .mix(new MaybeDisplay(() => new PIXI.DisplayObjectContainer(), display))
         .build();
+  }
+
+  cloneRegionVisually<T>(region: Region<T>): Region<T> {
+    return this.createRegion<T>(region.coordinates, region.display);
   }
 
   createPlayer(coordinates: Point): Player {
@@ -63,7 +67,7 @@ class EntityFactoryImpl implements EntityFactory {
     return entity;
   }
 
-  createCommentEntity(data: CommentData) {
+  createCommentEntity(data: CommentData): CommentEntity {
     let entity: CommentEntity = EntityFactoryImpl
         .createBaseCommentEntity(data, () => this.graphicsFactory.createTextFromComment(entity))
         .build();

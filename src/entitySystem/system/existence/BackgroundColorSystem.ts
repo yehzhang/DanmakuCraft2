@@ -1,8 +1,7 @@
-import BaseRegionChangeSystem from './BaseRegionChangeSystem';
-import {CommentEntity, MovableEntity, Region} from '../../alias';
-import EntityFinder from '../../../util/entityFinder/EntityFinder';
+import {CommentEntity, Region} from '../../alias';
+import BaseExistenceSystem from './BaseExistenceSystem';
 
-class BackgroundColorSystem extends BaseRegionChangeSystem<MovableEntity, CommentEntity> {
+class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
   private colorTween: Phaser.Tween | null;
   private colorMixer: ColorMixer;
 
@@ -12,31 +11,21 @@ class BackgroundColorSystem extends BaseRegionChangeSystem<MovableEntity, Commen
     this.colorMixer = new ColorMixer();
   }
 
-  protected onEnter(
-      entityFinder: EntityFinder<CommentEntity>,
-      trackee: MovableEntity,
-      region: Region<CommentEntity>) {
+  enter(region: Region<CommentEntity>) {
     for (let entity of region.container) {
       let color = entity.color;
       this.colorMixer.add(color);
     }
   }
 
-  /**
-   * Does everything that this digester is intended for when {@param trackee} exits a
-   * {@param region} of {@param entityFinder}.
-   */
-  protected onExit(
-      entityFinder: EntityFinder<CommentEntity>,
-      trackee: MovableEntity,
-      region: Region<CommentEntity>) {
+  exit(region: Region<CommentEntity>) {
     for (let entity of region.container) {
       let color = entity.color;
       this.colorMixer.remove(color);
     }
   }
 
-  protected onUpdate(entityFinder: EntityFinder<CommentEntity>, trackee: MovableEntity) {
+  finish() {
     if (this.colorTween) {
       this.colorTween.stop();
     }

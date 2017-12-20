@@ -1,6 +1,5 @@
 import EnvironmentAdapter from './environment/interface/EnvironmentAdapter';
 import UniverseProxy from './environment/interface/UniverseProxy';
-import EntityFinder from './util/entityFinder/EntityFinder';
 import BootState from './BootState';
 import Notifier from './render/notification/Notifier';
 import WorldUpdater from './update/WorldUpdater';
@@ -9,28 +8,34 @@ import Colors from './render/Colors';
 import InputController from './controller/InputController';
 import GraphicsFactory from './render/graphics/GraphicsFactory';
 import {UuidGenerator} from './util/IdGenerator';
-import CommentManager from './comment/CommentManager';
+import CommentLoader from './comment/CommentLoader';
 import AdapterFactory from './environment/AdapterFactory';
-import ChunkEntityFinder from './util/entityFinder/ChunkEntityFinder';
 import PhysicalConstants from './PhysicalConstants';
 import LocallyOriginatedCommentBuffContainer from './comment/LocallyOriginatedCommentBuffContainer';
-import {CommentEntity, Player, UpdatingCommentEntity} from './entitySystem/alias';
+import {CommentEntity, Player, Region, UpdatingCommentEntity} from './entitySystem/alias';
 import BuffFactory from './entitySystem/system/buff/BuffFactory';
 import EntityFactory from './entitySystem/EntityFactory';
 import BuffFactoryImpl from './entitySystem/system/buff/BuffFactoryImpl';
 import EntityFactoryImpl from './entitySystem/EntityFactoryImpl';
 import Point from './util/Point';
-import GlobalEntityFinder from './util/entityFinder/GlobalEntityFinder';
+import RenderingTarget from './render/RenderTarget';
+import WorldUpdaterFactory from './update/WorldUpdaterFactory';
+import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
+import EntityStorage from './util/entityStorage/EntityStorage';
+import {Phaser} from '../types/phaser';
+import {PIXI} from '../types/pixi';
+import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
+import CollisionDetectionSystem from './entitySystem/system/existence/CollisionDetectionSystem';
 
 /**
  * Instantiates and connects components. Starts the game.
  */
-export default class Universe extends Phaser.State {
+class Universe extends Phaser.State {
   private inputController: InputController;
   private renderer: Renderer;
   private updater: WorldUpdater;
-  private commentManager: CommentManager;
-  private commentEntityFinder: EntityFinder<CommentEntity>;
+  private commentLoader: CommentLoader;
+  private commentsStorage: EntityStorage<CommentEntity, Region<CommentEntity>>;
   private notifier: Notifier;
   private buffManager: LocallyOriginatedCommentBuffContainer;
   private player: Player;
@@ -38,8 +43,10 @@ export default class Universe extends Phaser.State {
   private idGenerator: UuidGenerator;
   private entityFactory: EntityFactory;
   private graphicsFactory: GraphicsFactory;
-  private updatingCommentEntityFinder: ChunkEntityFinder<UpdatingCommentEntity>;
-  private playersFinder: GlobalEntityFinder<Player>;
+  private updatingCommentsStorage: EntityStorage<UpdatingCommentEntity, Region<UpdatingCommentEntity>>;
+  private playersStorage: EntityStorage<Player>;
+  private entityStorageFactory: EntityStorageFactory;
+  private collisionDetectionSystem: CollisionDetectionSystem;
 
   private constructor(game: Phaser.Game, private adapter: EnvironmentAdapter) {
     super();
@@ -53,29 +60,34 @@ export default class Universe extends Phaser.State {
     this.idGenerator = new UuidGenerator();
     this.graphicsFactory = new GraphicsFactory(game, this.idGenerator, settingsManager);
     this.entityFactory = new EntityFactoryImpl(game, this.graphicsFactory, this.buffFactory);
-    this.player = this.entityFactory.createPlayer(Point.origin()); // TODO
+    this.collisionDetectionSystem = new CollisionDetectionSystem(new Set());
 
-    this.commentEntityFinder = new ChunkEntityFinder(
-        PhysicalConstants.COMMENT_CHUNKS_COUNT,
-        this.entityFactory,
-        new Phaser.Signal(),
-        new Phaser.Signal());
-    this.updatingCommentEntityFinder = new ChunkEntityFinder(
-        PhysicalConstants.UPDATING_CHUNKS_COUNT,
-        this.entityFactory,
-        new Phaser.Signal(),
-        new Phaser.Signal());
-    this.playersFinder =
-        new GlobalEntityFinder(this.entityFactory, new Phaser.Signal(), new Phaser.Signal());
-    this.updater = new WorldUpdater(
-        game,
+    this.entityStorageFactory = new EntityStorageFactoryImpl(this.entityFactory);
+    this.commentsStorage =
+        this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.COMMENT_CHUNKS_COUNT);
+    this.updatingCommentsStorage =
+        this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.UPDATING_CHUNKS_COUNT);
+    // TODO optimize: tree storage?
+    this.playersStorage = this.entityStorageFactory.createGlobalEntityStorage();
+
+    this.player = this.entityFactory.createPlayer(Point.origin()); // TODO
+    this.playersStorage.getRegister().register(this.player);
+
+    let worldUpdaterFactory = new WorldUpdaterFactory(game);
+    let observedDisplay = new PIXI.DisplayObjectContainer();
+    this.updater = worldUpdaterFactory.createWorldUpdater(
         this.player,
-        this.playersFinder,
-        this.commentEntityFinder,
-        this.updatingCommentEntityFinder);
-    this.renderer = new Renderer(game, this.updater.getRenderingTargets()).turnOff();
-    this.commentManager = new CommentManager(
-        this.commentEntityFinder, this.updater.foregroundTracker, this.entityFactory);
+        observedDisplay,
+        this.collisionDetectionSystem,
+        this.playersStorage.getFinder(),
+        this.commentsStorage.getFinder(),
+        this.updatingCommentsStorage.getFinder());
+
+    let renderingTargets = [
+      new RenderingTarget(this.player, observedDisplay, 0),
+    ];
+    this.renderer = new Renderer(game, renderingTargets).turnOff();
+    this.commentLoader = new CommentLoader(this.commentsStorage.getRegister(), this.entityFactory);
   }
 
   static genesis(): void {
@@ -101,10 +113,10 @@ export default class Universe extends Phaser.State {
   async loadComments(): Promise<void> {
     let commentProvider = this.adapter.getCommentProvider();
     let commentsData = await commentProvider.getAllComments();
-    this.commentManager.loadBatch(commentsData);
+    this.commentLoader.loadBatch(commentsData);
 
     commentProvider.connect();
-    this.commentManager.listenTo(commentProvider);
+    this.commentLoader.listenTo(commentProvider);
   }
 
   preload() {
@@ -128,7 +140,11 @@ export default class Universe extends Phaser.State {
   }
 
   getProxy(): UniverseProxy {
-    return new Proxy(this.commentManager, this.graphicsFactory, this.notifier, this.buffManager);
+    return new Proxy(
+        this.collisionDetectionSystem,
+        this.graphicsFactory,
+        this.notifier,
+        this.buffManager);
   }
 }
 
@@ -136,9 +152,11 @@ let hasGenesis: boolean = false;
 
 export type UniverseFactory = (game: Phaser.Game, adapter: EnvironmentAdapter) => Universe;
 
+export default Universe;
+
 class Proxy implements UniverseProxy {
   constructor(
-      private commentManager: CommentManager,
+      private collisionDetectionSystem: CollisionDetectionSystem,
       private graphicsFactory: GraphicsFactory,
       private notifier: Notifier,
       private buffManager: LocallyOriginatedCommentBuffContainer) {
@@ -146,8 +164,7 @@ class Proxy implements UniverseProxy {
 
   requestForPlacingComment(text: string, size: number): boolean {
     let newComment = this.graphicsFactory.createText(text, size, Colors.WHITE);
-    if (this.commentManager.canPlaceCommentIn(newComment.textBounds)) {
-
+    if (!this.collisionDetectionSystem.collidesWith(newComment.getBounds())) {
       return true;
     }
 

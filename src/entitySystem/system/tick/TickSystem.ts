@@ -1,9 +1,7 @@
-import {MovableEntity, Region} from '../../alias';
-import Entity from '../../Entity';
-import EntityFinder from '../../../util/entityFinder/EntityFinder';
+import {Component} from '../../alias';
 
-interface TickSystem<T extends MovableEntity, U extends Entity> {
-  onTick(entityFinder: EntityFinder<U>, trackee: T, currentRegions: Iterable<Region<U>>): void;
+interface TickSystem<T = Component> {
+  tick(entity: T): void;
 }
 
 export default TickSystem;

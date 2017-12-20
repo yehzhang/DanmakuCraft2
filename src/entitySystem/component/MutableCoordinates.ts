@@ -1,9 +1,10 @@
 import Coordinates from './Coordinates';
 import {toWorldCoordinate2d} from '../../law';
 import PhysicalConstants from '../../PhysicalConstants';
+import Point from '../../util/Point';
 
 class MutableCoordinates extends Coordinates {
-  get coordinates(): Phaser.Point {
+  get coordinates(): Point {
     return this.point;
   }
 
