@@ -56,7 +56,7 @@ export abstract class GraphicsBuilder<I extends number | string> {
    * @return a key to generated sprite sheet.
    */
   toSpriteSheet(): string {
-    let graphics = new InjectableGraphics();
+    let graphics = this.createInjectableGraphics();
     let frameWidth = this.drawSpriteSheetMaxRect(graphics);
     let texture = graphics.generateTexture();
     return this.addTextureToCache(texture, frameWidth);
@@ -69,7 +69,7 @@ export abstract class GraphicsBuilder<I extends number | string> {
     return sprite;
   }
 
-  toGraphics(): PIXI.Graphics {
+  toGraphics(): Phaser.Graphics {
     throw new Error('Not Implemented');
   }
 
@@ -86,7 +86,7 @@ export abstract class GraphicsBuilder<I extends number | string> {
     this.drawers.push(drawer);
   }
 
-  private addTextureToCache(texture: PIXI.RenderTexture, frameWidth: number) {
+  private addTextureToCache(texture: PIXI.Texture, frameWidth: number) {
     let spriteSheetKey = this.idGenerator.generateUniqueId();
     this.game.cache.addSpriteSheet(
         spriteSheetKey,
@@ -104,7 +104,7 @@ export abstract class GraphicsBuilder<I extends number | string> {
   private drawSpriteSheetMaxRect(graphics: InjectableGraphics) {
     let frameDimensions = [];
     for (let drawer of this.drawers) {
-      let testingGraphics = new InjectableGraphics();
+      let testingGraphics = this.createInjectableGraphics();
 
       drawer(testingGraphics);
 
@@ -139,5 +139,9 @@ export abstract class GraphicsBuilder<I extends number | string> {
         .endFill();
 
     return frameWidth;
+  }
+
+  private createInjectableGraphics() {
+    return new InjectableGraphics(this.game.make.graphics());
   }
 }

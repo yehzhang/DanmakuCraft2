@@ -3,7 +3,6 @@ import {toWorldCoordinate2d, validateRadius} from '../../../law';
 import PhysicalConstants from '../../../PhysicalConstants';
 import {Region} from '../../../entitySystem/alias';
 import IterablesIterator from '../../iteration/IterablesIterator';
-import {Phaser} from '../../../../types/phaser';
 
 class Chunks<T> implements Iterable<Region<T>> {
   constructor(private chunks: Array<Array<Region<T>>>, private chunkSize: number) {

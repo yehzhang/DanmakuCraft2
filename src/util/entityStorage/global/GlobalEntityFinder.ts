@@ -1,6 +1,5 @@
 import EntityFinder, {EntityMovedEvent} from '../EntityFinder';
 import Point from '../../Point';
-import {Phaser} from '../../../../types/phaser';
 import {toWorldCoordinate2d, toWorldCoordinateOffset2d, validateRadius} from '../../../law';
 import PhysicalConstants from '../../../PhysicalConstants';
 import Entity from '../../../entitySystem/Entity';

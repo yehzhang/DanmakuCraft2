@@ -1,7 +1,6 @@
 import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
 import EntityFactory from '../../../entitySystem/EntityFactory';
-import {Phaser} from '../../../../types/phaser';
 import BaseEntityRegister from '../BaseEntityRegister';
 
 class ChunkEntityRegister<T extends StationaryEntity> extends BaseEntityRegister<T> {

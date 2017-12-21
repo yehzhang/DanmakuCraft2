@@ -1,5 +1,4 @@
 import Point from '../Point';
-import {Phaser} from '../../../types/phaser';
 
 /**
  * Stores entities and supports for querying entities within a certain area.

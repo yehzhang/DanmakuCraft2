@@ -1,5 +1,4 @@
 import BaseEntityRegister from '../BaseEntityRegister';
-import {Phaser} from '../../../../types/phaser';
 
 class GlobalEntityRegister<T> extends BaseEntityRegister<T> {
   constructor(private entities: T[], private entityRegistered: Phaser.Signal<T>) {

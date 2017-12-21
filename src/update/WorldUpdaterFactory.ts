@@ -9,8 +9,6 @@ import MovingAnimationSystem from '../entitySystem/system/tick/MovingAnimationSy
 import WorldUpdater from './WorldUpdater';
 import {CommentEntity, Player, Region, UpdatingCommentEntity} from '../entitySystem/alias';
 import EntityFinder from '../util/entityStorage/EntityFinder';
-import {Phaser} from '../../types/phaser';
-import {PIXI} from '../../types/pixi';
 import CollisionDetectionSystem from '../entitySystem/system/existence/CollisionDetectionSystem';
 
 class WorldUpdaterFactory {

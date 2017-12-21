@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const APP_DIR = path.resolve(__dirname, 'src');
-const PHASER_DIR = path.join(__dirname, '/node_modules/phaser');
+const PHASER_DIR = path.join(__dirname, '/node_modules/phaser-ce-type-updated');
 
 module.exports = env => {
   let isProduction = env && env.production;
@@ -36,7 +36,7 @@ module.exports = env => {
     module: {
       rules: [
         {
-          test: /\.tsx?$/,
+          test: /\.ts$/,
           use: 'ts-loader',
           exclude: /node_modules/,
         },
@@ -70,7 +70,7 @@ module.exports = env => {
       ],
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.js'],
+      extensions: ['.ts', '.js'],
       modules: [APP_DIR, 'node_modules'],
       alias: {
         constants: `${APP_DIR}/constants`,

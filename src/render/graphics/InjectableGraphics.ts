@@ -1,18 +1,12 @@
 import Graphics from './Graphics';
 
-export default class InjectableGraphics implements Graphics {
-  private offsetY: number;
-  private offsetX: number;
-  private graphics: PIXI.Graphics;
-  private fillColor: number | null;
-  private lineColor: number | null;
-
-  constructor() {
-    this.graphics = new PIXI.Graphics();
-    this.offsetX = 0;
-    this.offsetY = 0;
-    this.fillColor = null;
-    this.lineColor = null;
+class InjectableGraphics implements Graphics {
+  constructor(
+      private graphics: Phaser.Graphics,
+      private offsetY = 0,
+      private offsetX = 0,
+      private fillColor: number | null = null,
+      private lineColor: number | null = null) {
   }
 
   fixFillColor(fillColor: number) {
@@ -123,3 +117,5 @@ export default class InjectableGraphics implements Graphics {
     return this.graphics.getLocalBounds();
   }
 }
+
+export default InjectableGraphics;

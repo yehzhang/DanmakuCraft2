@@ -1,6 +1,5 @@
 import BaseExistenceSystem from './BaseExistenceSystem';
 import {Region, Renderable} from '../../alias';
-import {PIXI} from '../../../../types/pixi';
 
 class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer>
     extends BaseExistenceSystem<Region<Renderable<T>>> {

@@ -3,7 +3,6 @@ import Point from '../../Point';
 import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
 import {validateRadius} from '../../../law';
-import {Phaser} from '../../../../types/phaser';
 
 /**
  * Implements {@link EntityFinder} with chunks.

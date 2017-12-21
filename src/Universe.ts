@@ -22,8 +22,6 @@ import RenderingTarget from './render/RenderTarget';
 import WorldUpdaterFactory from './update/WorldUpdaterFactory';
 import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
 import EntityStorage from './util/entityStorage/EntityStorage';
-import {Phaser} from '../types/phaser';
-import {PIXI} from '../types/pixi';
 import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
 import CollisionDetectionSystem from './entitySystem/system/existence/CollisionDetectionSystem';
 
@@ -164,7 +162,7 @@ class Proxy implements UniverseProxy {
 
   requestForPlacingComment(text: string, size: number): boolean {
     let newComment = this.graphicsFactory.createText(text, size, Colors.WHITE);
-    if (!this.collisionDetectionSystem.collidesWith(newComment.getBounds())) {
+    if (!this.collisionDetectionSystem.collidesWith(newComment)) {
       return true;
     }
 
