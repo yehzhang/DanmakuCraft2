@@ -1,10 +1,10 @@
 function injectPhaser() {
   // noinspection JSUndeclaredVariable
-  PIXI = require('phaser/build/pixi');
+  PIXI = require('phaser-ce-type-updated/build/custom/pixi');
   // noinspection JSUndeclaredVariable
-  p2 = require('phaser/build/p2');
+  p2 = require('phaser-ce-type-updated/build/custom/p2');
   // noinspection JSUndeclaredVariable
-  Phaser = require('phaser');
+  Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 }
 
 function injectDom() {
@@ -28,3 +28,8 @@ function injectCanvas() {
 injectDom();
 injectCanvas();
 injectPhaser();
+
+require('core-js/shim');
+
+const chai = require('chai');
+chai.config.truncateThreshold = 0;

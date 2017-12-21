@@ -2,64 +2,68 @@ import {Component} from './alias';
 import Coordinates from './component/Coordinates';
 
 abstract class Entity extends Coordinates {
-  static newBuilder<T extends Entity = any>() {
-    return new EntityBuilder<T, {}>({});
+  static newBuilder<T extends Entity = any>(): EntityBuilder<T> {
+    return new EntityBuilder();
   }
 }
 
 export default Entity;
 
-export class EntityBuilder<T extends Entity, U extends Component> {
-  private entityPrototype: object;
-  private entityProperties: PropertyDescriptorMap & ThisType<T>;
+export class EntityBuilder<T extends Entity, U extends Component = {}> {
+  private static readonly ROOT_PROTOTYPE = Object.getPrototypeOf({});
 
-  constructor(entity: U) {
-    this.entityPrototype =
-        EntityBuilder.extendPrototypeFromComponent({}, Object.getPrototypeOf(entity));
-    this.entityProperties = Object.getOwnPropertyDescriptors(entity);
+  constructor(private propertiesChain: object[] = []) {
   }
 
-  private static checkIfObjectsIntersect(component: Component, object: object, other: object) {
-    for (let descriptorName in object) {
-      if (descriptorName in other) {
-        throw new TypeError(`Component '${component.constructor.name}' has a conflicting field name`);
+  private static checkIfPropertiesConflict(object: object, properties: object, other: object) {
+    for (let descriptorName in properties) {
+      if (other.hasOwnProperty(descriptorName) && descriptorName !== 'constructor') {
+        throw new TypeError(`Component '${object.constructor.name}' has a conflicting field '${descriptorName}'`);
       }
     }
   }
 
-  private static extendPrototypeFromComponent(prototype: object, componentPrototype: object) {
-    let extendedPrototype = Object.assign(prototype, componentPrototype);
+  private static deepGetOwnPropertyDescriptorsAndAssign(
+      propertiesChain: object[],
+      propertiesChainIndex: number,
+      object: object) {
+    if (object === this.ROOT_PROTOTYPE) {
+      return;
+    }
 
-    (extendedPrototype as any).constructor = null;
+    let properties = propertiesChain[propertiesChainIndex];
+    let newProperties = Object.getOwnPropertyDescriptors(object);
+    if (properties === undefined) {
+      propertiesChain.push(newProperties);
+    } else {
+      this.checkIfPropertiesConflict(object, properties, newProperties);
+      Object.assign(properties, newProperties);
+    }
 
-    return extendedPrototype;
+    this.deepGetOwnPropertyDescriptorsAndAssign(
+        propertiesChain,
+        propertiesChainIndex + 1,
+        Object.getPrototypeOf(object));
   }
 
-  mix<V extends Partial<T>>(component: V) {
-    this.mixAndCheckPrototypeOf(component);
-    this.mixAndCheckPropertiesOf(component);
+  /**
+   * {@param propertiesChain} must not be empty.
+   */
+  private static deepCreate(propertiesChain: object[]): any {
+    return propertiesChain.reduceRight((prototype, properties: any) => {
+      return Object.create(prototype, properties);
+    }, this.ROOT_PROTOTYPE);
+  }
 
-    return this as any as EntityBuilder<T, U & V>;
+  mix<V extends Partial<T>>(component: V): EntityBuilder<T, U & V> {
+    EntityBuilder.deepGetOwnPropertyDescriptorsAndAssign(this.propertiesChain, 0, component);
+    return this as any;
   }
 
   build(): U {
-    return Object.create(this.entityPrototype, this.entityProperties);
-  }
-
-  private mixAndCheckPropertiesOf(component: Component) {
-    let componentProperties = Object.getOwnPropertyDescriptors(component);
-
-    EntityBuilder.checkIfObjectsIntersect(component, componentProperties, this.entityProperties);
-
-    Object.assign(this.entityProperties, componentProperties);
-  }
-
-  private mixAndCheckPrototypeOf(component: Component) {
-    let componentPrototype = Object.getPrototypeOf(component);
-
-    EntityBuilder.checkIfObjectsIntersect(component, componentPrototype, this.entityPrototype);
-
-    this.entityPrototype =
-        EntityBuilder.extendPrototypeFromComponent(this.entityPrototype, componentPrototype);
+    if (this.propertiesChain.length === 0) {
+      throw new TypeError('No entity was mixed');
+    }
+    return EntityBuilder.deepCreate(this.propertiesChain);
   }
 }
