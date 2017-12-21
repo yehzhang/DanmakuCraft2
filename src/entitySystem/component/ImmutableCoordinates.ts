@@ -4,7 +4,7 @@ import Point from '../../util/Point';
 
 class ImmutableCoordinates extends Coordinates {
   get coordinates(): Point {
-    return this.coordinates.clone();
+    return this.point.clone();
   }
 
   __ImmutableCoordinates__() {

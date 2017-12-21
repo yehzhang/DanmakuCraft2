@@ -10,7 +10,8 @@ class BilibiliCommentProvider implements CommentProvider {
   private connected: boolean;
   private receiver: RemoteCommentReceiver;
 
-  constructor(webSocketManager: WebSocketManager, readonly commentReceived: Phaser.Signal<CommentData>) {
+  constructor(
+      webSocketManager: WebSocketManager, readonly commentReceived: Phaser.Signal<CommentData>) {
     this.connected = false;
     this.receiver = new RemoteCommentReceiver(
         EnvironmentVariables.chatBroadcastUrl,

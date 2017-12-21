@@ -64,9 +64,11 @@ export default class Renderer {
 }
 
 class PhaserDisplayObjectContainer extends PIXI.DisplayObjectContainer {
+  // noinspection JSUnusedGlobalSymbols
   update() {
   }
 
+  // noinspection JSUnusedGlobalSymbols
   postUpdate() {
   }
 }

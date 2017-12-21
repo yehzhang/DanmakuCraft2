@@ -1,5 +1,6 @@
 import CommentData from '../../../comment/CommentData';
 import {BuffData} from '../../../entitySystem/system/buff/BuffFactory';
+import Point from '../../../util/Point';
 
 class CommentDataUtil {
   static readonly METADATA_DELIMITER = '/[';
@@ -63,14 +64,12 @@ class CommentDataUtil {
         buffData);
   }
 
-  static buildInjectedCommentText(
-      text: string, commentCoordinate: Phaser.Point, buffData?: BuffData) {
+  static buildInjectedCommentText(text: string, commentCoordinate: Point, buffData?: BuffData) {
     let metadata = this.generateCommentMetadata(text, commentCoordinate, buffData);
     return text + this.METADATA_DELIMITER + metadata;
   }
 
-  static generateCommentMetadata(
-      text: string, commentCoordinate: Phaser.Point, buffData?: BuffData) {
+  static generateCommentMetadata(text: string, commentCoordinate: Point, buffData?: BuffData) {
     // All properties must be in [0, 0x8000)
     let properties = [
       commentCoordinate.x,

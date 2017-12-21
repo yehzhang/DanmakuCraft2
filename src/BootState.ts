@@ -4,12 +4,13 @@ import EnvironmentAdapter from './environment/interface/EnvironmentAdapter';
 import Universe, {UniverseFactory} from './Universe';
 import {SettingsOptions} from './environment/interface/SettingsManager';
 import PhysicalConstants from './PhysicalConstants';
+import Point from './util/Point';
 
 /**
  * Displays the opening and loads the universe
  */
 export default class BootState extends Phaser.State {
-  private initialGameSize: Phaser.Point;
+  private initialGameSize: Point;
   private titleGroup: Phaser.Group;
 
   private loadingStatusGroup: Phaser.Group;
@@ -112,7 +113,7 @@ export default class BootState extends Phaser.State {
   }
 
   private getCurrentGameSize() {
-    return new Phaser.Point(this.game.width, this.game.height);
+    return Point.of(this.game.width, this.game.height);
   }
 
   private async runState(): Promise<void> {
