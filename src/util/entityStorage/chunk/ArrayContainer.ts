@@ -5,10 +5,7 @@ import Container from '../Container';
  */
 
 class ArrayContainer<T> implements Container<T> {
-  private items: T[];
-
-  constructor() {
-    this.items = [];
+  constructor(private items: T[] = []) {
   }
 
   add(item: T) {
