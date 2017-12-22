@@ -1,5 +1,5 @@
 import EntityFinder, {EntityMovedEvent} from '../EntityFinder';
-import Point from '../../Point';
+import Point from '../../syntax/Point';
 import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
 import {validateRadius} from '../../../law';
@@ -12,7 +12,7 @@ import {validateRadius} from '../../../law';
  */
 class ChunkEntityFinder<T> implements EntityFinder<Region<T>> {
   constructor(
-      private chunks: Chunks<T>,
+      private chunks: Chunks<Region<T>>,
       readonly entityRegistered: Phaser.Signal<Region<T>>,
       readonly entityMoved: Phaser.Signal<EntityMovedEvent<Region<T>>>) {
   }

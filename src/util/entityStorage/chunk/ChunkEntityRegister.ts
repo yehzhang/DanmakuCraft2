@@ -5,13 +5,13 @@ import BaseEntityRegister from '../BaseEntityRegister';
 
 class ChunkEntityRegister<T extends StationaryEntity> extends BaseEntityRegister<T> {
   constructor(
-      private chunks: Chunks<T>,
+      private chunks: Chunks<Region<T>>,
       private entityRegistered: Phaser.Signal<Region<T>>,
       private entityFactory: EntityFactory) {
     super();
   }
 
-  register(entity: T, dispatchEvent?: boolean) {
+  register(entity: T, dispatchEvent = true) {
     let chunk = this.addEntityToChunk(entity);
     if (dispatchEvent) {
       this.dispatchEntityRegistered(entity, chunk);
