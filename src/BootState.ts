@@ -4,7 +4,7 @@ import EnvironmentAdapter from './environment/interface/EnvironmentAdapter';
 import Universe, {UniverseFactory} from './Universe';
 import {SettingsOptions} from './environment/interface/SettingsManager';
 import PhysicalConstants from './PhysicalConstants';
-import Point from './util/Point';
+import Point from './util/syntax/Point';
 
 /**
  * Displays the opening and loads the universe

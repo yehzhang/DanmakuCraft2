@@ -1,6 +1,6 @@
 import {CommentEntity, Player, Region, UpdatingCommentEntity} from './alias';
 import CommentData from '../comment/CommentData';
-import Point from '../util/Point';
+import Point from '../util/syntax/Point';
 import {BuffData} from './system/buff/BuffFactory';
 
 interface EntityFactory {

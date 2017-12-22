@@ -5,7 +5,7 @@ import ExistenceSystem from '../entitySystem/system/existence/ExistenceSystem';
 import TickSystem from '../entitySystem/system/tick/TickSystem';
 import EntityTrackerBuilder from './EntityTrackerBuilder';
 import {ApplyClause} from './entityTrackerBuilderWrapper';
-import Point from '../util/Point';
+import Point from '../util/syntax/Point';
 import {validateRadius} from '../law';
 
 /**

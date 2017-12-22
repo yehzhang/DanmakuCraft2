@@ -12,7 +12,7 @@ import Motion from './component/Motion';
 import Display from './component/Display';
 import MovingAnimation from './component/MovingAnimation';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
-import Point from '../util/Point';
+import Point from '../util/syntax/Point';
 import ArrayContainer from '../util/entityStorage/chunk/ArrayContainer';
 import ContainerHolder from './component/ContainerHolder';
 

@@ -1,5 +1,5 @@
 import EntityStorageFactory from './EntityStorageFactory';
-import Point from '../Point';
+import Point from '../syntax/Point';
 import EntityFactory from '../../entitySystem/EntityFactory';
 import {Region, StationaryEntity} from '../../entitySystem/alias';
 import EntityStorage from './EntityStorage';
@@ -23,10 +23,7 @@ class EntityStorageFactoryImpl implements EntityStorageFactory {
       throw new TypeError('Invalid chunks count');
     }
 
-    let chunkSize = PhysicalConstants.WORLD_SIZE / chunksCount;
-    let regions = this.createRegions<T>(chunksCount, chunkSize);
-    let chunks = new Chunks(regions, chunkSize);
-
+    let chunks = this.createChunks<T>(chunksCount);
     let entityRegistered = new Phaser.Signal<Region<T>>();
     let entityRegister = new ChunkEntityRegister<T>(chunks, entityRegistered, this.entityFactory);
 
@@ -45,10 +42,11 @@ class EntityStorageFactoryImpl implements EntityStorageFactory {
     return new EntityStorageImpl(entityRegister, entityFinder);
   }
 
-  private createRegions<T>(chunksCount: number, chunkSize: number): Array<Array<Region<T>>> {
+  createChunks<T>(chunksCount: number): Chunks<Region<T>> {
+    let chunkSize = PhysicalConstants.WORLD_SIZE / chunksCount;
+
     let chunks = [];
     let coordinates = Point.origin();
-
     for (let y = 0; y < chunksCount; y++) {
       coordinates.y = y * chunkSize;
       let chunksRow = [];
@@ -61,7 +59,7 @@ class EntityStorageFactoryImpl implements EntityStorageFactory {
       chunks.push(chunksRow);
     }
 
-    return chunks;
+    return new Chunks(chunks, chunkSize);
   }
 }
 

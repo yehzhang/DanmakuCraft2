@@ -2,7 +2,7 @@ import Colors from '../Colors';
 import IdGenerator from '../../util/IdGenerator';
 import Graphics from './Graphics';
 import InjectableGraphics from './InjectableGraphics';
-import Point from '../../util/Point';
+import Point from '../../util/syntax/Point';
 
 export type Drawer = (graphics: Graphics) => void;
 

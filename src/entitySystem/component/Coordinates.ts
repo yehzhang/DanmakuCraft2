@@ -1,6 +1,6 @@
 import {toWorldCoordinate2d, toWorldCoordinateOffset2d} from '../../law';
 import PhysicalConstants from '../../PhysicalConstants';
-import Point from '../../util/Point';
+import Point from '../../util/syntax/Point';
 
 abstract class Coordinates {
   protected point: Point;

@@ -1,6 +1,6 @@
 import CommentData from '../../../comment/CommentData';
 import {BuffData} from '../../../entitySystem/system/buff/BuffFactory';
-import Point from '../../../util/Point';
+import Point from '../../../util/syntax/Point';
 
 class CommentDataUtil {
   static readonly METADATA_DELIMITER = '/[';

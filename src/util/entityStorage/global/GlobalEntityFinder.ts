@@ -1,9 +1,9 @@
 import EntityFinder, {EntityMovedEvent} from '../EntityFinder';
-import Point from '../../Point';
+import Point from '../../syntax/Point';
 import {toWorldCoordinate2d, toWorldCoordinateOffset2d, validateRadius} from '../../../law';
 import PhysicalConstants from '../../../PhysicalConstants';
 import Entity from '../../../entitySystem/Entity';
-import Pair from '../../Pair';
+import Pair from '../../syntax/Pair';
 
 class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   constructor(

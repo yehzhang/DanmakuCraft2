@@ -17,7 +17,7 @@ import BuffFactory from './entitySystem/system/buff/BuffFactory';
 import EntityFactory from './entitySystem/EntityFactory';
 import BuffFactoryImpl from './entitySystem/system/buff/BuffFactoryImpl';
 import EntityFactoryImpl from './entitySystem/EntityFactoryImpl';
-import Point from './util/Point';
+import Point from './util/syntax/Point';
 import RenderingTarget from './render/RenderTarget';
 import WorldUpdaterFactory from './update/WorldUpdaterFactory';
 import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';

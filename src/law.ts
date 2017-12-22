@@ -1,4 +1,4 @@
-import Point from './util/Point';
+import Point from './util/syntax/Point';
 import PhysicalConstants from './PhysicalConstants';
 
 /**

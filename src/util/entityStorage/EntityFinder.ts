@@ -1,4 +1,4 @@
-import Point from '../Point';
+import Point from '../syntax/Point';
 
 /**
  * Stores entities and supports for querying entities within a certain area.
