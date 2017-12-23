@@ -5,6 +5,7 @@ import Universe, {UniverseFactory} from './Universe';
 import {SettingsOptions} from './environment/interface/SettingsManager';
 import PhysicalConstants from './PhysicalConstants';
 import Point from './util/syntax/Point';
+import CommentData from './comment/CommentData';
 
 /**
  * Displays the opening and loads the universe
@@ -31,8 +32,14 @@ export default class BootState extends Phaser.State {
   }
 
   private configureGame() {
-    // Pause on blur so that music stops playing and new comments blink on focus.
-    // this.game.stage.disableVisibilityChange = true;
+    // Do not pause on blur.
+    this.game.stage.disableVisibilityChange = true;
+
+    // Make game less blurry
+    // No need to turn on when anti-aliasing is turned off.
+    // game.renderer.renderSession.roundPixels = true;
+    // TODO need this for more sharpness?
+    // Phaser.Canvas.setImageRenderingCrisp(game.canvas);
 
     this.game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
   }
@@ -121,7 +128,10 @@ export default class BootState extends Phaser.State {
     if (__DEBUG__) {
       universe = await this.loadUniverse();
 
-      (window as any).universe = universe;
+      Object.assign(window, {
+        universe,
+        CommentData
+      });
     } else {
       universe = await this.showOpeningAndLoadUniverse();
     }

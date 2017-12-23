@@ -18,7 +18,6 @@ import EntityFactory from './entitySystem/EntityFactory';
 import BuffFactoryImpl from './entitySystem/system/buff/BuffFactoryImpl';
 import EntityFactoryImpl from './entitySystem/EntityFactoryImpl';
 import Point from './util/syntax/Point';
-import RenderingTarget from './render/RenderTarget';
 import WorldUpdaterFactory from './update/WorldUpdaterFactory';
 import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
 import EntityStorage from './util/entityStorage/EntityStorage';
@@ -50,15 +49,21 @@ class Universe extends Phaser.State {
     super();
 
     this.notifier = new Notifier();
+
     this.buffManager = new LocallyOriginatedCommentBuffContainer(1);
 
-    let settingsManager = adapter.getSettingsManager();
     this.inputController = new InputController(game).ignoreInput();
+
     this.buffFactory = new BuffFactoryImpl(game, this.inputController);
+
     this.idGenerator = new UuidGenerator();
+
+    let settingsManager = adapter.getSettingsManager();
     this.graphicsFactory = new GraphicsFactory(game, this.idGenerator, settingsManager);
+
     this.entityFactory = new EntityFactoryImpl(game, this.graphicsFactory, this.buffFactory);
-    this.collisionDetectionSystem = new CollisionDetectionSystem(new Set());
+
+    this.collisionDetectionSystem = new CollisionDetectionSystem();
 
     this.entityStorageFactory = new EntityStorageFactoryImpl(this.entityFactory);
     this.commentsStorage =
@@ -71,20 +76,17 @@ class Universe extends Phaser.State {
     this.player = this.entityFactory.createPlayer(Point.origin()); // TODO
     this.playersStorage.getRegister().register(this.player);
 
+    this.renderer = new Renderer(game, this.player.display).turnOff();
+
     let worldUpdaterFactory = new WorldUpdaterFactory(game);
-    let observedDisplay = new PIXI.DisplayObjectContainer();
     this.updater = worldUpdaterFactory.createWorldUpdater(
         this.player,
-        observedDisplay,
+        this.renderer.getObservedDisplay(),
         this.collisionDetectionSystem,
         this.playersStorage.getFinder(),
         this.commentsStorage.getFinder(),
         this.updatingCommentsStorage.getFinder());
 
-    let renderingTargets = [
-      new RenderingTarget(this.player, observedDisplay, 0),
-    ];
-    this.renderer = new Renderer(game, renderingTargets).turnOff();
     this.commentLoader = new CommentLoader(this.commentsStorage.getRegister(), this.entityFactory);
   }
 
@@ -128,7 +130,7 @@ class Universe extends Phaser.State {
       this.game.add.tileSprite(0, 0, 1920, 1920, 'background');
     }
 
-    this.renderer.turnOn().focusOn(this.player);
+    this.renderer.turnOn().focus();
 
     this.inputController.receiveInput();
   }

@@ -12,4 +12,3 @@ interface ExistenceSystem<T extends Component> {
 }
 
 export default ExistenceSystem;
-

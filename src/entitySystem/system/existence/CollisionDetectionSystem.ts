@@ -3,7 +3,7 @@ import {Region, Renderable} from '../../alias';
 
 class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer>
     extends BaseExistenceSystem<Region<Renderable<T>>> {
-  constructor(private currentRegions: Set<Region<Renderable<T>>>) {
+  constructor(private currentRegions: Set<Region<Renderable<T>>> = new Set()) {
     super();
   }
 

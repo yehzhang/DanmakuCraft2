@@ -1,10 +1,8 @@
 class MaybeDisplay<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
   private displayInternal?: T;
-  private createDisplayInternal: (entity: any) => T;
 
-  constructor(createDisplay: (entity: any) => T, display?: T) {
+  constructor(private createDisplay: (entity: any) => T, display?: T) {
     this.displayInternal = display;
-    this.createDisplayInternal = createDisplay;
   }
 
   get display(): T {
@@ -30,7 +28,7 @@ class MaybeDisplay<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
     if (this.displayInternal !== undefined) {
       throw new TypeError('Display is already acquired');
     }
-    this.displayInternal = this.createDisplayInternal(this);
+    this.displayInternal = this.createDisplay(this);
   }
 }
 

@@ -1,69 +1,47 @@
-import {Observer} from '../entitySystem/alias';
-import RenderingTarget from './RenderTarget';
-
-export default class Renderer {
-  private container: PhaserDisplayObjectContainer;
-  private renderingObservers: Set<Observer>;
-
-  constructor(private game: Phaser.Game, renderingTargets: RenderingTarget[]) {
-    this.container = game.add.group();
-
-    // Make game less blurry
-    // No need to turn on when anti-aliasing is turned off.
-    // game.renderer.renderSession.roundPixels = true;
-    // TODO need this for more sharpness?
-    // Phaser.Canvas.setImageRenderingCrisp(game.canvas);
-
-    // Allow camera to move out of the world.
-    game.camera.bounds = null;
-
-    this.addRenderingTargetsToStage(renderingTargets);
-
-    this.renderingObservers = new Set(renderingTargets.map(target => target.observer));
+class Renderer {
+  constructor(
+      private game: Phaser.Game,
+      private observerDisplay: Phaser.Sprite,
+      private observedDisplay: PIXI.DisplayObjectContainer = new PhaserDisplayObjectContainer(),
+      private stage: Phaser.Group = game.add.group()) {
+    stage.add(observerDisplay);
+    stage.add(observedDisplay);
   }
 
-  focusOn(observer: Observer) {
-    if (!this.renderingObservers.has(observer)) {
-      throw new Error('Cannot focus on a observer that is not a rendering target');
-    }
+  focus() {
+    this.game.camera.follow(this.observerDisplay, Phaser.Camera.FOLLOW_LOCKON);
 
-    this.game.camera.follow(observer.display, Phaser.Camera.FOLLOW_LOCKON);
+    // Allow camera to move out of the world.
+    this.game.camera.bounds = null;
 
     return this;
   }
 
   turnOn() {
-    this.game.world.bringToTop(this.container);
+    this.game.world.bringToTop(this.stage);
 
-    this.container.visible = true;
+    this.stage.visible = true;
 
     return this;
   }
 
   turnOff() {
-    this.container.visible = false;
+    this.stage.visible = false;
     return this;
   }
 
-  private addRenderingTargetsToStage(renderingTargets: RenderingTarget[]) {
-    renderingTargets = renderingTargets.sort((target, other) => target.zIndex - other.zIndex);
-
-    let uniqueZIndices = new Set(renderingTargets.map(target => target.zIndex));
-    if (uniqueZIndices.size !== renderingTargets.length) {
-      throw new TypeError('Render targets have duplicate zIndices');
-    }
-
-    let projectorGroup = new PhaserDisplayObjectContainer();
-    for (let renderingTarget of renderingTargets) {
-      this.container.addChild(renderingTarget.observer.display);
-      projectorGroup.addChild(renderingTarget.observerDisplay);
-    }
-
-    this.container.addChild(projectorGroup);
+  getObservedDisplay() {
+    return this.observedDisplay;
   }
 }
 
+export default Renderer;
+
 class PhaserDisplayObjectContainer extends PIXI.DisplayObjectContainer {
+  // noinspection JSUnusedGlobalSymbols
+  preUpdate() {
+  }
+
   // noinspection JSUnusedGlobalSymbols
   update() {
   }
