@@ -56,8 +56,6 @@ class CommentDataUtil {
     return new CommentData(
         Number(size),
         Number(color),
-        Number(sendTime),
-        parseInt(userId, 16),
         commentText,
         positionX,
         positionY,

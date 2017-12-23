@@ -1,17 +1,17 @@
 import {instance, mock, verify} from 'ts-mockito';
-import EntityManager, {Region} from '../../../../src/entity/EntityManager';
-import {ChunkEntityManager} from '../../../../src/entity/chunk';
+import EntityFinder, {Region} from '../../../src/util/entityStorage/EntityFinder';
+import ChunkEntityFinder from '../../../src/util/entityStorage/chunk/ChunkEntityFinder';
 import RegionChangeListener from '../../../../src/update/entityTracker/RegionChangeListener';
-import {AnimatedEntity} from '../../../../src/entity/entity';
+import AnimatedEntity from '../../../../src/entity/Updatable';
 
 describe('RegionChangeListener', () => {
   let mockRegionChangeListener: RegionChangeListener;
-  let mockEntityManager: EntityManager;
+  let mockEntityFinder: EntityFinder;
   let mockTrackee: AnimatedEntity;
 
   beforeEach(() => {
     mockRegionChangeListener = mock(RegionChangeListener);
-    mockEntityManager = mock(ChunkEntityManager);
+    mockEntityFinder = mock(ChunkEntityFinder);
     mockTrackee = mock(AnimatedEntity);
   });
 
@@ -21,16 +21,16 @@ describe('RegionChangeListener', () => {
 
     RegionChangeListener.prototype.update.call(
         instance(mockRegionChangeListener),
-        mockEntityManager,
+        mockEntityFinder,
         mockTrackee,
         enteringRegions,
         exitingRegions);
 
-    verify(mockRegionChangeListener['onEnter'](mockEntityManager, mockTrackee, enteringRegions))
+    verify(mockRegionChangeListener['enter'](mockEntityFinder, mockTrackee, enteringRegions))
         .once();
-    verify(mockRegionChangeListener['onExit'](mockEntityManager, mockTrackee, exitingRegions))
+    verify(mockRegionChangeListener['exit'](mockEntityFinder, mockTrackee, exitingRegions))
         .once();
-    verify(mockRegionChangeListener['onUpdate'](mockEntityManager, mockTrackee)).once();
+    verify(mockRegionChangeListener['onUpdate'](mockEntityFinder, mockTrackee)).once();
   });
 
   it('calls stub methods correct number of times when regions are unchanged', () => {
@@ -39,16 +39,16 @@ describe('RegionChangeListener', () => {
 
     RegionChangeListener.prototype.update.call(
         instance(mockRegionChangeListener),
-        mockEntityManager,
+        mockEntityFinder,
         mockTrackee,
         enteringRegions,
         exitingRegions);
 
-    verify(mockRegionChangeListener['onEnter'](mockEntityManager, mockTrackee, enteringRegions))
+    verify(mockRegionChangeListener['enter'](mockEntityFinder, mockTrackee, enteringRegions))
         .never();
-    verify(mockRegionChangeListener['onExit'](mockEntityManager, mockTrackee, exitingRegions))
+    verify(mockRegionChangeListener['exit'](mockEntityFinder, mockTrackee, exitingRegions))
         .never();
-    verify(mockRegionChangeListener['onUpdate'](mockEntityManager, mockTrackee)).never();
+    verify(mockRegionChangeListener['onUpdate'](mockEntityFinder, mockTrackee)).never();
   });
 
   it('calls stub methods correct number of times when entering regions', () => {
@@ -57,16 +57,16 @@ describe('RegionChangeListener', () => {
 
     RegionChangeListener.prototype.update.call(
         instance(mockRegionChangeListener),
-        mockEntityManager,
+        mockEntityFinder,
         mockTrackee,
         enteringRegions,
         exitingRegions);
 
-    verify(mockRegionChangeListener['onEnter'](mockEntityManager, mockTrackee, enteringRegions))
+    verify(mockRegionChangeListener['enter'](mockEntityFinder, mockTrackee, enteringRegions))
         .once();
-    verify(mockRegionChangeListener['onExit'](mockEntityManager, mockTrackee, exitingRegions))
+    verify(mockRegionChangeListener['exit'](mockEntityFinder, mockTrackee, exitingRegions))
         .never();
-    verify(mockRegionChangeListener['onUpdate'](mockEntityManager, mockTrackee)).once();
+    verify(mockRegionChangeListener['onUpdate'](mockEntityFinder, mockTrackee)).once();
   });
 
   it('calls stub methods correct number of times when exiting regions', () => {
@@ -75,15 +75,15 @@ describe('RegionChangeListener', () => {
 
     RegionChangeListener.prototype.update.call(
         instance(mockRegionChangeListener),
-        mockEntityManager,
+        mockEntityFinder,
         mockTrackee,
         enteringRegions,
         exitingRegions);
 
-    verify(mockRegionChangeListener['onEnter'](mockEntityManager, mockTrackee, enteringRegions))
+    verify(mockRegionChangeListener['enter'](mockEntityFinder, mockTrackee, enteringRegions))
         .never();
-    verify(mockRegionChangeListener['onExit'](mockEntityManager, mockTrackee, exitingRegions))
+    verify(mockRegionChangeListener['exit'](mockEntityFinder, mockTrackee, exitingRegions))
         .once();
-    verify(mockRegionChangeListener['onUpdate'](mockEntityManager, mockTrackee)).once();
+    verify(mockRegionChangeListener['onUpdate'](mockEntityFinder, mockTrackee)).once();
   });
 });

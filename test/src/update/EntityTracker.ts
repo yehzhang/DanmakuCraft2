@@ -1,54 +1,51 @@
-import EntityTracker, {TrackingRecord} from '../../../../src/update/entityTracker/EntityTracker';
 import {anything, deepEqual, instance, mock, resetCalls, verify, when} from 'ts-mockito';
-import {Player} from '../../../../src/entity/entity';
-import PhysicalConstants from '../../../../src/PhysicalConstants';
-import EntityManager, {Region} from '../../../../src/entity/EntityManager';
-import {ChunkEntityManager} from '../../../../src/entity/chunk';
-import RegionChangeListener from '../../../../src/update/entityTracker/RegionChangeListener';
-import TickListener from '../../../../src/update/entityTracker/TickListener';
-import NonPlayerCharacterTicker from '../../../../src/update/NonPlayerCharacterTicker';
+import PhysicalConstants from '../../../src/PhysicalConstants';
+import EntityFinder, {Region} from '../../../src/util/entityStorage/EntityFinder';
+import ChunkEntityFinder from '../../../src/util/entityStorage/chunk/ChunkEntityFinder';
 import {expect} from 'chai';
-import {Point} from '../../util';
+import {Point} from '../../../src/util/Point';
+import {Player} from '../../../src/entitySystem/alias';
+import EntityTracker from '../../../src/update/EntityTracker';
 
 let mockTrackee: Player;
-let mockEntityManager: EntityManager;
+let mockEntityFinder: EntityFinder;
 let mockRegionChangeListener: RegionChangeListener;
 let mockTickListener: TickListener;
 let trackee: Player;
-let entityManager: EntityManager;
+let entityFinder: EntityFinder;
 let regionChangeListener: RegionChangeListener;
 let tickListener: TickListener;
 
 beforeEach(() => {
   mockTrackee = mock(Player);
-  mockEntityManager = mock(ChunkEntityManager);
+  mockEntityFinder = mock(ChunkEntityFinder);
   mockRegionChangeListener = mock(RegionChangeListener);
   mockTickListener = mock(NonPlayerCharacterTicker);
   trackee = instance(mockTrackee);
-  entityManager = instance(mockEntityManager);
+  entityFinder = instance(mockEntityFinder);
   regionChangeListener = instance(mockRegionChangeListener);
   tickListener = instance(mockTickListener);
 });
 
 describe('EntityTrackerBuilder', () => {
   it('properly builds', () => {
-    let mockEntityManager2 = mock(ChunkEntityManager);
-    let entityManager2 = instance(mockEntityManager2);
+    let mockEntityFinder2 = mock(ChunkEntityFinder);
+    let entityFinder2 = instance(mockEntityFinder2);
     let actualEntityTracker = EntityTracker.newBuilder(trackee, 1)
-        .trackOnRegionChange(entityManager, regionChangeListener)
-        .trackOnRegionChange(entityManager2, regionChangeListener)
-        .trackOnRegionChange(entityManager, regionChangeListener)
-        .trackOnTick(entityManager2, tickListener)
-        .trackOnTick(entityManager, tickListener)
-        .trackOnTick(entityManager2, tickListener)
+        .trackOnRegionChange(entityFinder, regionChangeListener)
+        .trackOnRegionChange(entityFinder2, regionChangeListener)
+        .trackOnRegionChange(entityFinder, regionChangeListener)
+        .trackOnTick(entityFinder2, tickListener)
+        .trackOnTick(entityFinder, tickListener)
+        .trackOnTick(entityFinder2, tickListener)
         .build();
 
     let trackingRecords = new Map()
-        .set(entityManager, new TrackingRecord(entityManager)
+        .set(entityFinder, new TrackingRecord(entityFinder)
             .addRegionChangeListener(regionChangeListener)
             .addRegionChangeListener(regionChangeListener)
             .addTickListener(tickListener))
-        .set(entityManager2, new TrackingRecord(entityManager2)
+        .set(entityFinder2, new TrackingRecord(entityFinder2)
             .addRegionChangeListener(regionChangeListener)
             .addTickListener(tickListener)
             .addTickListener(tickListener));
@@ -60,11 +57,11 @@ describe('EntityTrackerBuilder', () => {
 
 
 describe('TrackingRecord', () => {
-  let initialPosition: Phaser.Point;
+  let initialPosition: Point;
 
   beforeEach(() => {
     initialPosition = Point.origin();
-    when(mockEntityManager.listAround(initialPosition, 1)).thenReturn([]);
+    when(mockEntityFinder.listAround(initialPosition, 1)).thenReturn([]);
   });
 
   function createRegions(count: number) {
@@ -76,16 +73,16 @@ describe('TrackingRecord', () => {
   }
 
   it('updates correct number of times', () => {
-    new TrackingRecord(entityManager).addRegionChangeListener(regionChangeListener)
+    new TrackingRecord(entityFinder).addRegionChangeListener(regionChangeListener)
         .update(trackee, initialPosition, 1);
     verify(mockRegionChangeListener.update(anything(), anything(), anything(), anything())).once();
   });
 
   it('updates with correct regions', () => {
-    let trackingRecord = new TrackingRecord(entityManager)
+    let trackingRecord = new TrackingRecord(entityFinder)
         .addRegionChangeListener(regionChangeListener);
     let regions = createRegions(10);
-    when(mockEntityManager.listAround(initialPosition, 1))
+    when(mockEntityFinder.listAround(initialPosition, 1))
         .thenReturn(regions.slice(0, 5))
         .thenReturn(regions.slice(2, 7))
         .thenReturn(regions.slice(7, 10))
@@ -99,27 +96,27 @@ describe('TrackingRecord', () => {
     trackingRecord.update(trackee, initialPosition, 1);
 
     let firstCall = mockRegionChangeListener.update(
-        entityManager,
+        entityFinder,
         trackee,
         deepEqual(regions.slice(0, 5)),
         deepEqual([]));
     let secondCall = mockRegionChangeListener.update(
-        entityManager,
+        entityFinder,
         trackee,
         deepEqual(regions.slice(5, 7)),
         deepEqual(regions.slice(0, 2)));
     let thirdCall = mockRegionChangeListener.update(
-        entityManager,
+        entityFinder,
         trackee,
         deepEqual(regions.slice(7, 10)),
         deepEqual(regions.slice(2, 7)));
     let fourthCall = mockRegionChangeListener.update(
-        entityManager,
+        entityFinder,
         trackee,
         deepEqual([]),
         deepEqual(regions.slice(7, 10)));
     let fifthAndSixthCall = mockRegionChangeListener.update(
-        entityManager,
+        entityFinder,
         trackee,
         deepEqual([]),
         deepEqual([]));
@@ -131,25 +128,25 @@ describe('TrackingRecord', () => {
   });
 
   it('updates all listeners', () => {
-    new TrackingRecord(entityManager).addRegionChangeListener(regionChangeListener)
+    new TrackingRecord(entityFinder).addRegionChangeListener(regionChangeListener)
         .addRegionChangeListener(regionChangeListener)
         .update(trackee, initialPosition, 1);
     verify(mockRegionChangeListener.update(anything(), anything(), anything(), anything())).twice();
   });
 
   it('ticks correct number of times', () => {
-    new TrackingRecord(entityManager).addTickListener(tickListener).tick(trackee);
-    verify(mockTickListener.onTick(anything(), anything())).once();
+    new TrackingRecord(entityFinder).addTickListener(tickListener).tick(trackee);
+    verify(mockTickListener.tick(anything(), anything())).once();
   });
 
   it('ticks with correct regions', () => {
-    let trackingRecord = new TrackingRecord(entityManager).addTickListener(tickListener);
+    let trackingRecord = new TrackingRecord(entityFinder).addTickListener(tickListener);
     trackingRecord.tick(trackee);
-    verify(mockTickListener.onTick(trackee, deepEqual([]))).once();
+    verify(mockTickListener.tick(trackee, deepEqual([]))).once();
     resetCalls(mockTickListener);
 
     let regions = createRegions(10);
-    when(mockEntityManager.listAround(initialPosition, 1))
+    when(mockEntityFinder.listAround(initialPosition, 1))
         .thenReturn(regions.slice(0, 5))
         .thenReturn(regions.slice(2, 7))
         .thenReturn(regions.slice(7, 10))
@@ -165,10 +162,10 @@ describe('TrackingRecord', () => {
     trackingRecord.tick(trackee);
     trackingRecord.tick(trackee);
 
-    let firstCall = mockTickListener.onTick(trackee, deepEqual(regions.slice(0, 5)));
-    let secondCall = mockTickListener.onTick(trackee, deepEqual(regions.slice(2, 7)));
-    let thirdCall = mockTickListener.onTick(trackee, deepEqual(regions.slice(7, 10)));
-    let fourthAndFifthCall = mockTickListener.onTick(trackee, deepEqual([]));
+    let firstCall = mockTickListener.tick(trackee, deepEqual(regions.slice(0, 5)));
+    let secondCall = mockTickListener.tick(trackee, deepEqual(regions.slice(2, 7)));
+    let thirdCall = mockTickListener.tick(trackee, deepEqual(regions.slice(7, 10)));
+    let fourthAndFifthCall = mockTickListener.tick(trackee, deepEqual([]));
     verify(firstCall).calledBefore(secondCall);
     verify(secondCall).calledBefore(thirdCall);
     verify(thirdCall).calledBefore(fourthAndFifthCall);
@@ -176,10 +173,10 @@ describe('TrackingRecord', () => {
   });
 
   it('ticks all listeners', () => {
-    new TrackingRecord(entityManager).addTickListener(tickListener)
+    new TrackingRecord(entityFinder).addTickListener(tickListener)
         .addTickListener(tickListener)
         .tick(trackee);
-    verify(mockTickListener.onTick(anything(), anything())).twice();
+    verify(mockTickListener.tick(anything(), anything())).twice();
   });
 });
 
