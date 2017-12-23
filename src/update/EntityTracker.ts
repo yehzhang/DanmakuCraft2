@@ -1,4 +1,4 @@
-import EntityFinder from '../util/entityStorage/EntityFinder';
+import EntityFinder, {EntityExistenceUpdatedEvent} from '../util/entityStorage/EntityFinder';
 import {Component} from '../entitySystem/alias';
 import Entity from '../entitySystem/Entity';
 import ExistenceSystem from '../entitySystem/system/existence/ExistenceSystem';
@@ -19,7 +19,8 @@ class EntityTracker {
   constructor(
       private trackee: Entity,
       private samplingRadius: number,
-      private trackingRecords: OneEntityFinderToManySystemsRecord[]) {
+      private trackingRecords: OneEntityFinderToManySystemsRecord[],
+      private existenceSystemsFinisher: ExistenceSystemsFinisher) {
     this.currentCoordinate = trackee.coordinates.clone();
     validateRadius(samplingRadius);
   }
@@ -46,23 +47,19 @@ class EntityTracker {
       trackingRecord.tick();
     }
 
-    let nextCoordinate = this.trackee.coordinates;
+    let nextCoordinates = this.trackee.coordinates;
     let trackingRecords =
-        this.trackingRecords.filter(trackingRecord => trackingRecord.shouldUpdate(nextCoordinate));
+        this.trackingRecords.filter(trackingRecord => trackingRecord.shouldUpdate(nextCoordinates));
     this.updateTrackingRecords(trackingRecords);
 
-    this.currentCoordinate = nextCoordinate.clone();
+    this.currentCoordinate = nextCoordinates.clone();
   }
 
   private updateTrackingRecords(trackingRecords: OneEntityFinderToManySystemsRecord[]) {
-    let stateChangedSystems = [];
     for (let trackingRecord of trackingRecords) {
-      let systems = trackingRecord.update(this.currentCoordinate, this.samplingRadius);
-      stateChangedSystems.push(...systems);
+      trackingRecord.update(this.currentCoordinate, this.samplingRadius);
     }
-    for (let system of new Set(stateChangedSystems)) {
-      system.finish();
-    }
+    this.existenceSystemsFinisher.finishSystems();
   }
 }
 
@@ -71,10 +68,12 @@ export default EntityTracker;
 export class EntityFinderRecord<T> {
   constructor(
       private entityFinder: EntityFinder<T>,
-      private currentAnchorEntity: T | null,
-      public enteringEntities: T[],
-      public exitingEntities: T[],
-      public currentEntities: Set<T>) {
+      private currentAnchorEntity: T | null = null,
+      public enteringEntities: T[] = [],
+      public exitingEntities: T[] = [],
+      public currentEntities: Set<T> = new Set(),
+      private isCurrentEntitiesOutdated = false) {
+    entityFinder.entityExistenceUpdated.add(this.onEntityUpdated, this);
   }
 
   private static leftOuterJoin<T>(set: Iterable<T>, other: Set<T>): T[] {
@@ -88,6 +87,10 @@ export class EntityFinderRecord<T> {
   }
 
   shouldUpdate(nextCoordinates: Point) {
+    if (this.isCurrentEntitiesOutdated) {
+      return true;
+    }
+
     let nextAnchorEntity = this.entityFinder.findClosetEntityTo(nextCoordinates);
     return this.currentAnchorEntity !== nextAnchorEntity;
   }
@@ -100,6 +103,21 @@ export class EntityFinderRecord<T> {
     this.currentEntities = nextEntities;
 
     this.currentAnchorEntity = this.entityFinder.findClosetEntityTo(nextCoordinates);
+    this.isCurrentEntitiesOutdated = false;
+  }
+
+  private onEntityUpdated(entityUpdatedEvent: EntityExistenceUpdatedEvent<T>) {
+    if (entityUpdatedEvent.registeredEntity) {
+      // Theoretically there is a way to check if the entity is within the tracking bounds?
+      this.isCurrentEntitiesOutdated = true;
+      return;
+    }
+    if (entityUpdatedEvent.removedEntity) {
+      if (this.currentEntities.has(entityUpdatedEvent.removedEntity)) {
+        this.isCurrentEntitiesOutdated = true;
+        return;
+      }
+    }
   }
 }
 
@@ -107,8 +125,8 @@ export class OneEntityFinderToManySystemsRecord<T = Component> {
   constructor(
       private entityFinderRecord: EntityFinderRecord<T>,
       private existenceSystems: Array<ExistenceSystem<T>>,
-      private tickSystems: Array<TickSystem<T>>) {
-    // TODO impl entityMoved
+      private tickSystems: Array<TickSystem<T>>,
+      private existenceSystemsFinisher: ExistenceSystemsFinisher) {
   }
 
   shouldUpdate(nextCoordinates: Point) {
@@ -119,22 +137,17 @@ export class OneEntityFinderToManySystemsRecord<T = Component> {
     this.entityFinderRecord.update(nextCoordinates, samplingRadius);
 
     for (let entity of this.entityFinderRecord.enteringEntities) {
-      for (let system of this.existenceSystems) {
-        system.enter(entity);
-      }
+      this.enterSystems(entity);
     }
 
     for (let entity of this.entityFinderRecord.exitingEntities) {
-      for (let systemIndex = this.existenceSystems.length - 1; systemIndex >= 0; systemIndex--) {
-        this.existenceSystems[systemIndex].exit(entity);
-      }
+      this.exitSystems(entity);
     }
 
     if (this.entityFinderRecord.enteringEntities.length > 0
         || this.entityFinderRecord.exitingEntities.length > 0) {
-      return this.existenceSystems;
+      this.registerToFinishEnteredOrExitedSystems();
     }
-    return [];
   }
 
   tick() {
@@ -145,13 +158,37 @@ export class OneEntityFinderToManySystemsRecord<T = Component> {
     }
   }
 
-  onEntityRegistered(entity: T) {
-    if (this.entityFinderRecord.currentEntities.has(entity)) {
-      return;
-    }
+  private enterSystems(entity: T) {
     for (let system of this.existenceSystems) {
       system.enter(entity);
+    }
+  }
+
+  private exitSystems(entity: T) {
+    for (let systemIndex = this.existenceSystems.length - 1; systemIndex >= 0; systemIndex--) {
+      this.existenceSystems[systemIndex].exit(entity);
+    }
+  }
+
+  private registerToFinishEnteredOrExitedSystems() {
+    for (let system of this.existenceSystems) {
+      this.existenceSystemsFinisher.register(system);
+    }
+  }
+}
+
+export class ExistenceSystemsFinisher {
+  constructor(private systems: Set<ExistenceSystem<any>> = new Set()) {
+  }
+
+  register(system: ExistenceSystem<any>) {
+    this.systems.add(system);
+  }
+
+  finishSystems() {
+    for (let system of this.systems) {
       system.finish();
     }
+    this.systems.clear();
   }
 }

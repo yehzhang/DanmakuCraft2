@@ -2,34 +2,29 @@ import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
 import EntityFactory from '../../../entitySystem/EntityFactory';
 import BaseEntityRegister from '../BaseEntityRegister';
+import {EntityExistenceUpdatedEvent} from '../EntityFinder';
 
 class ChunkEntityRegister<T extends StationaryEntity> extends BaseEntityRegister<T> {
   constructor(
       private chunks: Chunks<Region<T>>,
-      private entityRegistered: Phaser.Signal<Region<T>>,
+      private entityRegistered: Phaser.Signal<EntityExistenceUpdatedEvent<Region<T>>>,
       private entityFactory: EntityFactory) {
     super();
   }
 
   register(entity: T, dispatchEvent = true) {
-    let chunk = this.addEntityToChunk(entity);
-    if (dispatchEvent) {
-      this.dispatchEntityRegistered(entity, chunk);
-    }
-  }
-
-  private addEntityToChunk(entity: T): Region<T> {
     let chunk = this.chunks.getChunkByCoordinates(entity.coordinates);
-    chunk.container.add(entity);
 
-    return chunk;
-  }
+    if (dispatchEvent) {
+      let newChunk = this.entityFactory.cloneRegion(chunk);
+      newChunk.container.add(entity);
 
-  private dispatchEntityRegistered(entity: T, chunk: Region<T>) {
-    let enteringChunk = this.entityFactory.cloneRegionVisually(chunk);
-    enteringChunk.container.add(entity);
+      this.chunks.replaceChunkByCoordinates(entity.coordinates, newChunk);
 
-    this.entityRegistered.dispatch(enteringChunk);
+      this.entityRegistered.dispatch(new EntityExistenceUpdatedEvent(newChunk, chunk));
+    } else {
+      chunk.container.add(entity);
+    }
   }
 }
 

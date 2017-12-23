@@ -5,14 +5,12 @@ import Point from '../syntax/Point';
  */
 interface EntityFinder<T> extends Iterable<T> {
   /**
-   * Dispatches when a new entity is registered.
+   * Dispatches when:
+   * 1. An entity is registered.
+   * 2. An entity is removed.
+   * 3. An entity's coordinates is changed.
    */
-  readonly entityRegistered: Phaser.Signal<T>;
-
-  /**
-   * Dispatches when a loaded entity moves from one region to another.
-   */
-  readonly entityMoved: Phaser.Signal<EntityMovedEvent<T>>;
+  readonly entityExistenceUpdated: Phaser.Signal<EntityExistenceUpdatedEvent<T>>;
 
   /**
    * Returns an array of entities around {@param coordinates} within {@param radius}.
@@ -31,7 +29,16 @@ interface EntityFinder<T> extends Iterable<T> {
 
 export default EntityFinder;
 
-export class EntityMovedEvent<T> {
-  constructor(readonly previousEntity: T, readonly nextEntity: T) {
+export class EntityExistenceUpdatedEvent<T> {
+  readonly registeredEntity: T | null;
+  readonly removedEntity: T | null;
+
+  constructor(registeredEntity: T, removedEntity: null);
+  constructor(registeredEntity: null, removedEntity: T);
+  // noinspection TsLint
+  constructor(registeredEntity: T, removedEntity: T);
+  constructor(registeredEntity: any, removedEntity: any) {
+    this.registeredEntity = registeredEntity;
+    this.removedEntity = removedEntity;
   }
 }

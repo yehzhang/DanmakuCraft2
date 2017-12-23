@@ -2,7 +2,7 @@ import Entity from '../entitySystem/Entity';
 import EntityFinder from '../util/entityStorage/EntityFinder';
 import {Component} from '../entitySystem/alias';
 import EntityTracker, {
-  EntityFinderRecord,
+  EntityFinderRecord, ExistenceSystemsFinisher,
   OneEntityFinderToManySystemsRecord
 } from './EntityTracker';
 import ExistenceSystem from '../entitySystem/system/existence/ExistenceSystem';
@@ -12,7 +12,8 @@ export class EntityTrackerBuilder {
   constructor(
       private trackee: Entity,
       private samplingRadius: number,
-      private entityFinders: Map<EntityFinder<Component>, OneEntityFinderToManySystemsRecordBuilder<Component>>) {
+      private entityFinders: Map<EntityFinder<Component>, OneEntityFinderToManySystemsRecordBuilder<Component>>,
+      private existenceSystemsFinisher: ExistenceSystemsFinisher = new ExistenceSystemsFinisher()) {
   }
 
   applyExistenceSystem<T, U extends T>(system: ExistenceSystem<T>, entityFinder: EntityFinder<U>) {
@@ -31,7 +32,11 @@ export class EntityTrackerBuilder {
     }
 
     let trackingRecords = Array.from(this.entityFinders.values()).map(builder => builder.build());
-    return new EntityTracker(this.trackee, this.samplingRadius, trackingRecords);
+    return new EntityTracker(
+        this.trackee,
+        this.samplingRadius,
+        trackingRecords,
+        this.existenceSystemsFinisher);
   }
 
   private getTrackingRecordBuilder<T>(
@@ -39,7 +44,8 @@ export class EntityTrackerBuilder {
     let trackingRecordBuilder =
         this.entityFinders.get(entityFinder) as OneEntityFinderToManySystemsRecordBuilder<T>;
     if (trackingRecordBuilder === undefined) {
-      trackingRecordBuilder = new OneEntityFinderToManySystemsRecordBuilder(entityFinder, [], []);
+      trackingRecordBuilder = new OneEntityFinderToManySystemsRecordBuilder(
+          entityFinder, this.existenceSystemsFinisher);
       this.entityFinders.set(entityFinder, trackingRecordBuilder);
     }
 
@@ -52,8 +58,9 @@ export default EntityTrackerBuilder;
 class OneEntityFinderToManySystemsRecordBuilder<T> {
   constructor(
       private entityFinder: EntityFinder<T>,
-      private existenceSystems: Array<ExistenceSystem<T>>,
-      private tickSystems: Array<TickSystem<T>>) {
+      private existenceSystemsFinisher: ExistenceSystemsFinisher,
+      private existenceSystems: Array<ExistenceSystem<T>> = [],
+      private tickSystems: Array<TickSystem<T>> = []) {
   }
 
   addExistenceSystem(system: ExistenceSystem<T>) {
@@ -67,14 +74,11 @@ class OneEntityFinderToManySystemsRecordBuilder<T> {
   }
 
   build() {
-    let entityFinderRecord = new EntityFinderRecord(this.entityFinder, null, [], [], new Set());
-    let record = new OneEntityFinderToManySystemsRecord(
+    let entityFinderRecord = new EntityFinderRecord<T>(this.entityFinder, null);
+    return new OneEntityFinderToManySystemsRecord(
         entityFinderRecord,
         this.existenceSystems,
-        this.tickSystems);
-
-    this.entityFinder.entityMoved.add(record.onEntityRegistered, this);
-
-    return record;
+        this.tickSystems,
+        this.existenceSystemsFinisher);
   }
 }

@@ -28,6 +28,11 @@ class Chunks<T> implements Iterable<T> {
     return this.getChunkByInteriorChunkCoordinates(chunkCoordinates.x, chunkCoordinates.y);
   }
 
+  replaceChunkByCoordinates(coordinates: Point, chunk: T) {
+    let chunkCoordinates = this.toInteriorChunkCoordinates(coordinates);
+    this.setChunkByInteriorChunkCoordinates(chunkCoordinates.x, chunkCoordinates.y, chunk);
+  }
+
   [Symbol.iterator](): Iterator<T> {
     return IterablesIterator.of(this.chunks);
   }
@@ -72,6 +77,13 @@ class Chunks<T> implements Iterable<T> {
 
   private getChunkByInteriorChunkCoordinates(chunkCoordinateX: number, chunkCoordinateY: number) {
     return this.chunks[chunkCoordinateY][chunkCoordinateX];
+  }
+
+  private setChunkByInteriorChunkCoordinates(
+      chunkCoordinateX: number,
+      chunkCoordinateY: number,
+      chunk: T) {
+    this.chunks[chunkCoordinateY][chunkCoordinateX] = chunk;
   }
 
   /**

@@ -1,4 +1,4 @@
-import EntityFinder, {EntityMovedEvent} from '../EntityFinder';
+import EntityFinder, {EntityExistenceUpdatedEvent} from '../EntityFinder';
 import Point from '../../syntax/Point';
 import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
@@ -13,8 +13,7 @@ import {validateRadius} from '../../../law';
 class ChunkEntityFinder<T> implements EntityFinder<Region<T>> {
   constructor(
       private chunks: Chunks<Region<T>>,
-      readonly entityRegistered: Phaser.Signal<Region<T>>,
-      readonly entityMoved: Phaser.Signal<EntityMovedEvent<Region<T>>>) {
+      readonly entityExistenceUpdated: Phaser.Signal<EntityExistenceUpdatedEvent<Region<T>>>) {
   }
 
   private static inflate(coordinates: Point, radius: number): Phaser.Rectangle {

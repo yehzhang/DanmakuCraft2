@@ -32,16 +32,22 @@ class EntityFactoryImpl implements EntityFactory {
         .mix(new MaybeDisplay(createDisplay));
   }
 
-  createRegion<T>(coordinates: Point, display?: PIXI.DisplayObjectContainer) {
+  createRegion<T>(coordinates: Point) {
     return Entity.newBuilder<Region<T>>()
         .mix(new ImmutableCoordinates(coordinates))
         .mix(new ContainerHolder(new ArrayContainer<T>()))
-        .mix(new MaybeDisplay(() => new PIXI.DisplayObjectContainer(), display))
+        .mix(new MaybeDisplay(() => new PIXI.DisplayObjectContainer()))
         .build();
   }
 
-  cloneRegionVisually<T>(region: Region<T>): Region<T> {
-    return this.createRegion<T>(region.coordinates, region.display);
+  cloneRegion<T>(region: Region<T>): Region<T> {
+    let newRegion = this.createRegion<T>(region.coordinates);
+
+    for (let entity of region.container) {
+      newRegion.container.add(entity);
+    }
+
+    return newRegion;
   }
 
   createPlayer(coordinates: Point): Player {

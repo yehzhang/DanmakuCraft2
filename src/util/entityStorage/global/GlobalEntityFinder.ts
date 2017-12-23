@@ -1,4 +1,4 @@
-import EntityFinder, {EntityMovedEvent} from '../EntityFinder';
+import EntityFinder, {EntityExistenceUpdatedEvent} from '../EntityFinder';
 import Point from '../../syntax/Point';
 import {toWorldCoordinate2d, toWorldCoordinateOffset2d, validateRadius} from '../../../law';
 import PhysicalConstants from '../../../PhysicalConstants';
@@ -8,8 +8,7 @@ import Pair from '../../syntax/Pair';
 class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   constructor(
       private entities: T[],
-      readonly entityRegistered: Phaser.Signal<T>,
-      readonly entityMoved: Phaser.Signal<EntityMovedEvent<T>>) {
+      readonly entityExistenceUpdated: Phaser.Signal<EntityExistenceUpdatedEvent<T>>) {
   }
 
   findClosetEntityTo(coordinates: Point): T | null {

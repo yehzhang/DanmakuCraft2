@@ -12,10 +12,7 @@ interface EntityFactory {
 
   createRegion<T>(coordinates: Point, display?: PIXI.DisplayObjectContainer): Region<T>;
 
-  /**
-   * Creates a new region that has the same coordinates and display as {@param region}.
-   */
-  cloneRegionVisually<T>(region: Region<T>): Region<T>;
+  cloneRegion<T>(region: Region<T>): Region<T>;
 }
 
 export default EntityFactory;
