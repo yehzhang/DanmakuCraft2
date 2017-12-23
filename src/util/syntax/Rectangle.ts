@@ -3,7 +3,7 @@ class Rectangle extends Phaser.Rectangle {
     return new this(x, y, width, height);
   }
 
-  static none() {
+  static empty() {
     return new this(0, 0, 0, 0);
   }
 }
