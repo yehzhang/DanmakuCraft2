@@ -1,27 +1,40 @@
 import {CommentEntity, Region} from '../../alias';
 import BaseExistenceSystem from './BaseExistenceSystem';
+import Point from '../../../util/syntax/Point';
+import Colors from '../../../render/Colors';
+import PhysicalConstants from '../../../PhysicalConstants';
+import Collections = require('typescript-collections');
 
 class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
-  private colorTween: Phaser.Tween | null;
-  private colorMixer: ColorMixer;
+  private baseColor: Phaser.RGBColor;
 
-  constructor(private game: Phaser.Game) {
+  constructor(
+      private game: Phaser.Game,
+      baseColor: number = Colors.BACKGROUND_NUMBER,
+      private colorTween: Phaser.Tween | null = null,
+      private colorMixer: ColorMixer = new ColorMixer()) {
     super();
-    this.colorTween = null;
-    this.colorMixer = new ColorMixer();
+    this.baseColor = Phaser.Color.getRGB(baseColor);
+  }
+
+  private static blendColors(rgb: Phaser.RGBColor, other: Phaser.RGBColor): number {
+    let r = Phaser.Color.blendMultiply(rgb.r, other.r);
+    let g = Phaser.Color.blendMultiply(rgb.g, other.g);
+    let b = Phaser.Color.blendMultiply(rgb.b, other.b);
+
+    return Phaser.Color.getColor(r, g, b);
   }
 
   enter(region: Region<CommentEntity>) {
+    // TODO enforce lightning of spawn points
     for (let entity of region.container) {
-      let color = entity.color;
-      this.colorMixer.add(color);
+      this.colorMixer.add(entity.color);
     }
   }
 
   exit(region: Region<CommentEntity>) {
     for (let entity of region.container) {
-      let color = entity.color;
-      this.colorMixer.remove(color);
+      this.colorMixer.remove(entity.color);
     }
   }
 
@@ -30,8 +43,11 @@ class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
       this.colorTween.stop();
     }
 
-    let backgroundColor = this.colorMixer.getMixedColor();
-    this.colorTween = this.buildBackgroundColorTween(backgroundColor);
+    let hsl = this.colorMixer.getMixedColor();
+    let colorMask = Phaser.Color.HSLtoRGB(hsl.h, hsl.s, hsl.l);
+    let color = BackgroundColorSystem.blendColors(colorMask, this.baseColor);
+
+    this.colorTween = this.buildBackgroundColorTween(color);
     this.colorTween.start();
   }
 
@@ -42,62 +58,80 @@ class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
     let colorTween = this.game.add.tween(currColorObj).to(targetColorObj);
 
     colorTween.onUpdateCallback(() => {
-      let currColor = Phaser.Color.getColor(currColorObj.r, currColorObj.g, currColorObj.b);
-      this.game.stage.backgroundColor = currColor;
+      this.game.stage.backgroundColor =
+          Phaser.Color.getColor(currColorObj.r, currColorObj.g, currColorObj.b);
     });
 
     return colorTween;
   }
 }
 
-class ColorMixer {
-  private counter: Map<number, number>;
-  private count: number;
+export default BackgroundColorSystem;
 
-  constructor() {
-    this.counter = new Map();
-    this.count = 0;
+/**
+ * Produces a color between black and white based on mixed colors.
+ */
+export class ColorMixer {
+  constructor(
+      private maxMixedSaturation = 0.5,
+      private colorsCountToReachMaxSaturation = PhysicalConstants.COLORS_COUNT_TO_REACH_MAX_SATURATION,
+      private colorsCountPadding = 1,
+      private colorsCountToReachMaxLightness = PhysicalConstants.COLORS_COUNT_TO_REACH_MAX_LIGHTNESS,
+      private rgbsCounter: Collections.Bag<number> = new Collections.Bag()) {
   }
 
-  add(color: number) {
-    let colorCount = this.counter.get(color) || 0;
-    this.counter.set(color, colorCount + 1);
-
-    this.count++;
+  private static getRatio(value: number, max: number) {
+    return Math.min(value, max) / max;
   }
 
-  remove(color: number) {
-    let colorCount = this.counter.get(color);
+  add(rgb: number, nCopies?: number) {
+    this.rgbsCounter.add(rgb, nCopies);
+  }
 
-    if (colorCount === undefined) {
-      console.error(`Color does not exists: ${color}`);
-      return;
+  remove(rgb: number, nCopies?: number) {
+    this.rgbsCounter.remove(rgb, nCopies);
+  }
+
+  getMixedColor(): HSL {
+    let mixingRgbs = this.rgbsCounter.toSet().toArray();
+    let colorsCount = mixingRgbs.map(color => this.rgbsCounter.count(color))
+        .reduce((colorCount, other) => colorCount + other, 0);
+
+    // Set hue and saturation.
+    let hueCoordinates = Point.origin();
+    let tempHueCoordinates = Point.origin();
+    for (let rgb of mixingRgbs) {
+      let rgbObject = Phaser.Color.getRGB(rgb);
+      let hslObject = Phaser.Color.RGBtoHSL(rgbObject.r, rgbObject.g, rgbObject.b);
+      tempHueCoordinates.setToPolar(hslObject.h * Phaser.Math.PI2, hslObject.s);
+
+      let colorCount = this.rgbsCounter.count(rgb);
+      tempHueCoordinates.multiply(colorCount, colorCount);
+
+      hueCoordinates.add(tempHueCoordinates.x, tempHueCoordinates.y);
+    }
+    if (colorsCount > 0) {
+      hueCoordinates.divide(colorsCount, colorsCount);
     }
 
-    colorCount--;
-    if (colorCount === 0) {
-      this.counter.delete(color);
-    } else {
-      this.counter.set(color, colorCount);
-    }
+    let radius = hueCoordinates.getMagnitude();
+    let colorsRatioForSaturation =
+        ColorMixer.getRatio(colorsCount, this.colorsCountToReachMaxSaturation);
+    let saturation = Math.min(radius * colorsRatioForSaturation, this.maxMixedSaturation);
 
-    this.count--;
-  }
+    let hue = Phaser.Math.angleBetween(0, 0, hueCoordinates.x, hueCoordinates.y)
+        / Phaser.Math.PI2;
 
-  getMixedColor(): number {
-    let mostFrequentColor = 0;
-    let mostFrequentCount = 0;
-    this.counter.forEach((count, color) => {
-      if (count > mostFrequentColor) {
-        mostFrequentColor = color;
-        mostFrequentCount = count;
-      }
-    });
+    // Set lightness.
+    let colorsRatioForLightness = ColorMixer.getRatio(
+        colorsCount + this.colorsCountPadding, this.colorsCountToReachMaxLightness);
+    let lightness = Phaser.Easing.Exponential.Out(colorsRatioForLightness);
 
-    return 0xffffff; // TODO
-
-    // return Phaser.Color.getColor(color.r, color.g, color.b);
+    return new HSL(hue, saturation, lightness);
   }
 }
 
-export default BackgroundColorSystem;
+export class HSL {
+  constructor(public h: number, public s: number, public l: number) {
+  }
+}

@@ -69,7 +69,7 @@ class Universe extends Phaser.State {
     this.commentsStorage =
         this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.COMMENT_CHUNKS_COUNT);
     this.updatingCommentsStorage =
-        this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.UPDATING_CHUNKS_COUNT);
+        this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.UPDATING_COMMENT_CHUNKS_COUNT);
     // TODO optimize: tree storage?
     this.playersStorage = this.entityStorageFactory.createGlobalEntityStorage();
 

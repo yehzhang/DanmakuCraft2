@@ -102,7 +102,7 @@ export default class BootState extends Phaser.State {
     this.earthGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
     this.earthGroup.visible = false;
     let earthGraphics = this.game.add.graphics(0, 0, this.earthGroup);
-    earthGraphics.beginFill(Colors.SNOW_NUMBER);
+    earthGraphics.beginFill(Colors.BACKGROUND_NUMBER);
     earthGraphics.drawRect(-5, -5, 10, 10);
     earthGraphics.endFill();
 
@@ -398,10 +398,10 @@ export default class BootState extends Phaser.State {
 
     return new Promise<void>(resolve => {
       earthScaleTween.onStart.addOnce(() => {
-        this.game.camera.fade(Colors.SNOW_NUMBER, 2500);
+        this.game.camera.fade(Colors.BACKGROUND_NUMBER, 2500);
 
         this.game.camera.onFadeComplete.addOnce(() => {
-          this.game.stage.backgroundColor = Colors.SNOW;
+          this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
 
           earthScaleTween.stop();
 
