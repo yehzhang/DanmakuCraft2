@@ -6,7 +6,7 @@ interface ExistenceSystem<T extends Component> {
   exit(component: T): void;
 
   /**
-   * Called once if {@link enter} or {@link exit} is called during a tick.
+   * Called once per tick if {@link enter} or {@link exit} is called.
    */
   finish(): void;
 }

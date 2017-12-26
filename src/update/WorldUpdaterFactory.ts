@@ -37,7 +37,7 @@ class WorldUpdaterFactory {
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
         .toLiftedEntities().of(commentsFinder).and(updatingCommentsFinder)
 
-        .applyExistenceSystem(new ContainerRenderSystem(observedDisplay))
+        .applyExistenceSystem(new ContainerRenderSystem(player.display, observedDisplay))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
 
         .applyExistenceSystem(collisionDetectionSystem)

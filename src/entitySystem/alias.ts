@@ -15,9 +15,8 @@ export type Component = {};
 export type StationaryEntity = Entity & ImmutableCoordinates;
 export type MovableEntity = Entity & MutableCoordinates & Motion;
 
-export type ExistentEntity<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer> =
-    Entity & Display<T>;
-export type SuperposedEntity<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer> =
+export type ExistentEntity<T extends PIXI.DisplayObject = PIXI.DisplayObject> = Entity & Display<T>;
+export type SuperposedEntity<T extends PIXI.DisplayObject = PIXI.DisplayObject> =
     Entity & MaybeDisplay<T>;
 export type Renderable<T extends PIXI.DisplayObject = PIXI.DisplayObject> =
     Display<T> | MaybeDisplay<T>;

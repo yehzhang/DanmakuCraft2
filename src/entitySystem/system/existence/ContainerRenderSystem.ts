@@ -1,8 +1,10 @@
 import {Region, RenderableEntity} from '../../alias';
 import BaseExistenceSystem from './BaseExistenceSystem';
+import Point from '../../../util/syntax/Point';
 
 class ContainerRenderSystem extends BaseExistenceSystem<Region<RenderableEntity>> {
-  constructor(private parentDisplay: PIXI.DisplayObjectContainer) {
+  constructor(
+      private parentDisplay: PIXI.DisplayObject, private container: PIXI.DisplayObjectContainer) {
     super();
   }
 
@@ -12,11 +14,13 @@ class ContainerRenderSystem extends BaseExistenceSystem<Region<RenderableEntity>
       entity.display.position = entity.asOffsetTo(region.coordinates);
     }
 
-    this.parentDisplay.addChild(region.display);
+    this.container.addChild(region.display);
+    region.display.position =
+        Point.add(region.asOffsetTo(this.parentDisplay.position), this.parentDisplay.position);
   }
 
   exit(region: Region<RenderableEntity>) {
-    this.parentDisplay.removeChild(region.display);
+    this.container.removeChild(region.display);
     region.display.removeChildren();
   }
 

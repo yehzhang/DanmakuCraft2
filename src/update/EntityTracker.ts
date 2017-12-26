@@ -136,12 +136,12 @@ export class OneEntityFinderToManySystemsRecord<T = Component> {
   update(nextCoordinates: Point, samplingRadius: number) {
     this.entityFinderRecord.update(nextCoordinates, samplingRadius);
 
-    for (let entity of this.entityFinderRecord.enteringEntities) {
-      this.enterSystems(entity);
-    }
-
     for (let entity of this.entityFinderRecord.exitingEntities) {
       this.exitSystems(entity);
+    }
+
+    for (let entity of this.entityFinderRecord.enteringEntities) {
+      this.enterSystems(entity);
     }
 
     if (this.entityFinderRecord.enteringEntities.length > 0
