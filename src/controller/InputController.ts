@@ -1,7 +1,9 @@
 import Controller from './Controller';
 
-export default class InputController implements Controller {
-  private keys: { [keyName: string]: Phaser.Key };
+type ValidInputKeyNames = 'up' | 'down' | 'left' | 'right' | 'w' | 's' | 'a' | 'd';
+
+class InputController implements Controller {
+  private keys: { [keyName in ValidInputKeyNames]: Phaser.Key };
 
   constructor(game: Phaser.Game) {
     this.keys = game.input.keyboard.addKeys({
@@ -13,15 +15,10 @@ export default class InputController implements Controller {
       s: Phaser.KeyCode.S,
       a: Phaser.KeyCode.A,
       d: Phaser.KeyCode.D,
-      h: Phaser.KeyCode.H,
-      j: Phaser.KeyCode.J,
-      k: Phaser.KeyCode.K,
-      l: Phaser.KeyCode.L,
     });
 
     // TODO support for pointer
     // this.game.input.
-
   }
 
   get moveLeft() {
@@ -41,19 +38,19 @@ export default class InputController implements Controller {
   }
 
   get left() {
-    return this.keys.left.isDown || this.keys.a.isDown || this.keys.h.isDown;
+    return this.keys.left.isDown || this.keys.a.isDown;
   }
 
   get right() {
-    return this.keys.right.isDown || this.keys.d.isDown || this.keys.l.isDown;
+    return this.keys.right.isDown || this.keys.d.isDown;
   }
 
   get up() {
-    return this.keys.up.isDown || this.keys.w.isDown || this.keys.k.isDown;
+    return this.keys.up.isDown || this.keys.w.isDown;
   }
 
   get down() {
-    return this.keys.down.isDown || this.keys.s.isDown || this.keys.j.isDown;
+    return this.keys.down.isDown || this.keys.s.isDown;
   }
 
   receiveInput() {
@@ -67,8 +64,10 @@ export default class InputController implements Controller {
   }
 
   private turnInput(enabled: boolean) {
-    for (let keyName of Object.keys(this.keys)) {
-      this.keys[keyName].enabled = enabled;
+    for (let key of Object.values(this.keys)) {
+      key.enabled = enabled;
     }
   }
 }
+
+export default InputController;
