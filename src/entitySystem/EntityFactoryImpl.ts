@@ -80,7 +80,7 @@ class EntityFactoryImpl implements EntityFactory {
     return entity;
   }
 
-  createAnimatedCommentEntity(data: CommentData, buffData: BuffData): UpdatingCommentEntity {
+  createUpdatingCommentEntity(data: CommentData, buffData: BuffData): UpdatingCommentEntity {
     let entity: UpdatingCommentEntity =
         EntityFactoryImpl.createBaseCommentEntity<any>(
             data, () => this.graphicsFactory.createTextFromComment(entity))

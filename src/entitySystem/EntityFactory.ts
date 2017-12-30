@@ -8,7 +8,7 @@ interface EntityFactory {
 
   createCommentEntity(data: CommentData): CommentEntity;
 
-  createAnimatedCommentEntity(data: CommentData, buffData: BuffData): UpdatingCommentEntity;
+  createUpdatingCommentEntity(data: CommentData, buffData: BuffData): UpdatingCommentEntity;
 
   createRegion<T>(coordinates: Point, display?: PIXI.DisplayObjectContainer): Region<T>;
 

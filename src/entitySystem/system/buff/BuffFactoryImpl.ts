@@ -1,11 +1,15 @@
-import Chromatic from './Chromatic';
+import Chromatic, {BouncingColorTransition} from './Chromatic';
 import BuffFactory, {BuffData, BuffType} from './BuffFactory';
 import Ethereal from './Ethereal';
 import Controller from '../../../controller/Controller';
 import Moving from './Moving';
+import DataGeneratorFactory from '../../../util/dataGenerator/DataGeneratorFactory';
 
 class BuffFactoryImpl implements BuffFactory {
-  constructor(private game: Phaser.Game, private controller: Controller) {
+  constructor(
+      private game: Phaser.Game,
+      private controller: Controller,
+      private dataGeneratorFactory: DataGeneratorFactory) {
   }
 
   create(buffData: BuffData) {
@@ -32,7 +36,10 @@ class BuffFactoryImpl implements BuffFactory {
   }
 
   createChromatic() {
-    return new Chromatic();
+    return new Chromatic(
+        new BouncingColorTransition(this.dataGeneratorFactory.getColorTransitionSpeedGenerator()),
+        new BouncingColorTransition(this.dataGeneratorFactory.getColorTransitionSpeedGenerator()),
+        new BouncingColorTransition(this.dataGeneratorFactory.getColorTransitionSpeedGenerator()));
   }
 }
 

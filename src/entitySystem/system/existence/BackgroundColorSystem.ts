@@ -3,7 +3,7 @@ import BaseExistenceSystem from './BaseExistenceSystem';
 import Point from '../../../util/syntax/Point';
 import Colors from '../../../render/Colors';
 import PhysicalConstants from '../../../PhysicalConstants';
-import Collections = require('typescript-collections');
+import {Bag} from 'typescript-collections';
 
 class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
   private baseColor: Phaser.RGBColor;
@@ -77,7 +77,7 @@ export class ColorMixer {
       private colorsCountToReachMaxSaturation = PhysicalConstants.COLORS_COUNT_TO_REACH_MAX_SATURATION,
       private colorsCountPadding = 1,
       private colorsCountToReachMaxLightness = PhysicalConstants.COLORS_COUNT_TO_REACH_MAX_LIGHTNESS,
-      private rgbsCounter: Collections.Bag<number> = new Collections.Bag()) {
+      private rgbsCounter: Bag<number> = new Bag()) {
   }
 
   private static getRatio(value: number, max: number) {

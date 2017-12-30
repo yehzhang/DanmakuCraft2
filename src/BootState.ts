@@ -6,6 +6,7 @@ import {SettingsOptions} from './environment/interface/SettingsManager';
 import PhysicalConstants from './PhysicalConstants';
 import Point from './util/syntax/Point';
 import CommentData from './comment/CommentData';
+import {BuffData} from './entitySystem/system/buff/BuffFactory';
 
 /**
  * Displays the opening and loads the universe
@@ -128,9 +129,11 @@ export default class BootState extends Phaser.State {
     if (__DEBUG__) {
       universe = await this.loadUniverse();
 
+      // TODO any idea how to expose all modules while debugging?
       Object.assign(window, {
         universe,
-        CommentData
+        CommentData,
+        BuffData,
       });
     } else {
       universe = await this.showOpeningAndLoadUniverse();

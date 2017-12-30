@@ -1,21 +1,20 @@
 import {BuffData, BuffType} from '../entitySystem/system/buff/BuffFactory';
 import Buff from '../entitySystem/system/buff/Buff';
-import {Component} from '../entitySystem/alias';
 
 class LocallyOriginatedCommentBuffContainer {
-  private inactiveBuffs: Array<Buff<Component>>;
+  private inactiveBuffs: Buff[];
 
-  constructor(private maxActivatedBuffsCount: number) {
+  constructor(private maxActivatedBuffsCount = 1) {
     this.inactiveBuffs = [];
   }
 
-  private static toBuffData(buff: Buff<Component>) {
+  private static toBuffData(buff: Buff) {
     let buffName = buff.constructor.name.toUpperCase();
     let buffType = (BuffType as any)[buffName];
     return new BuffData(buffType, 0);
   }
 
-  add(buff: Buff<Component>) {
+  add(buff: Buff) {
     this.inactiveBuffs.push(buff);
     if (this.inactiveBuffs.length > this.maxActivatedBuffsCount) {
       this.inactiveBuffs.shift();

@@ -23,6 +23,8 @@ import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryI
 import EntityStorage from './util/entityStorage/EntityStorage';
 import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
 import CollisionDetectionSystem from './entitySystem/system/existence/CollisionDetectionSystem';
+import DataGeneratorFactoryImpl from './util/dataGenerator/DataGeneratorFactoryImpl';
+import DataGeneratorFactory from './util/dataGenerator/DataGeneratorFactory';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -44,17 +46,20 @@ class Universe extends Phaser.State {
   private playersStorage: EntityStorage<Player>;
   private entityStorageFactory: EntityStorageFactory;
   private collisionDetectionSystem: CollisionDetectionSystem;
+  private dataGeneratorFactory: DataGeneratorFactory;
 
   private constructor(game: Phaser.Game, private adapter: EnvironmentAdapter) {
     super();
 
     this.notifier = new Notifier();
 
-    this.buffManager = new LocallyOriginatedCommentBuffContainer(1);
+    this.buffManager = new LocallyOriginatedCommentBuffContainer();
 
     this.inputController = new InputController(game).ignoreInput();
 
-    this.buffFactory = new BuffFactoryImpl(game, this.inputController);
+    this.dataGeneratorFactory = new DataGeneratorFactoryImpl();
+
+    this.buffFactory = new BuffFactoryImpl(game, this.inputController, this.dataGeneratorFactory);
 
     this.idGenerator = new UuidGenerator();
 
@@ -87,7 +92,10 @@ class Universe extends Phaser.State {
         this.commentsStorage.getFinder(),
         this.updatingCommentsStorage.getFinder());
 
-    this.commentLoader = new CommentLoader(this.commentsStorage.getRegister(), this.entityFactory);
+    this.commentLoader = new CommentLoader(
+        this.commentsStorage.getRegister(),
+        this.updatingCommentsStorage.getRegister(),
+        this.entityFactory);
   }
 
   static genesis(): void {
@@ -116,7 +124,7 @@ class Universe extends Phaser.State {
     this.commentLoader.loadBatch(commentsData);
 
     commentProvider.connect();
-    this.commentLoader.listenTo(commentProvider);
+    commentProvider.commentReceived.add(this.commentLoader.load, this.commentLoader);
   }
 
   preload() {

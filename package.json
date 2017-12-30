@@ -24,6 +24,7 @@
   "homepage": "https://github.com/yehzhang/DanmakuCraft-2#readme",
   "devDependencies": {
     "@types/chai": "^4.0.8",
+    "@types/gaussian": "^1.1.1",
     "@types/jquery": "^3.2.16",
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.47",
@@ -32,6 +33,7 @@
     "chai": "^4.1.2",
     "core-js": "^2.5.1",
     "expose-loader": "^0.7.3",
+    "gaussian": "^1.1.0",
     "jquery": "^3.2.1",
     "jsdom": "^11.5.1",
     "mocha": "^4.0.1",
