@@ -43,16 +43,16 @@ class EntityTracker {
   }
 
   tick() {
-    for (let trackingRecord of this.trackingRecords) {
-      trackingRecord.tick();
-    }
-
     let nextCoordinates = this.trackee.coordinates;
     let trackingRecords =
         this.trackingRecords.filter(trackingRecord => trackingRecord.shouldUpdate(nextCoordinates));
     this.updateTrackingRecords(trackingRecords);
 
     this.currentCoordinate = nextCoordinates.clone();
+
+    for (let trackingRecord of this.trackingRecords) {
+      trackingRecord.tick();
+    }
   }
 
   private updateTrackingRecords(trackingRecords: OneEntityFinderToManySystemsRecord[]) {

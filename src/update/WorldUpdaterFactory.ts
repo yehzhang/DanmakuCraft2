@@ -23,16 +23,6 @@ class WorldUpdaterFactory {
       commentsFinder: EntityFinder<Region<CommentEntity>>,
       updatingCommentsFinder: EntityFinder<Region<UpdatingCommentEntity>>) {
     let foregroundTracker = EntityTracker.newBuilder(player, this.getRenderRadius())
-        .applyTickSystem(new UpdateSystem(this.game.time))
-        .toEntities().of(playersFinder)
-        .toLiftedEntities().of(updatingCommentsFinder)
-
-        .applyTickSystem(new DisplayMoveSystem())
-        .toEntities().of(playersFinder)
-
-        .applyTickSystem(new MovingAnimationSystem())
-        .toEntities().of(playersFinder)
-
         .applyExistenceSystem(new SuperposedEntityRenderSystem())
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
         .toLiftedEntities().of(commentsFinder).and(updatingCommentsFinder)
@@ -42,6 +32,16 @@ class WorldUpdaterFactory {
 
         .applyExistenceSystem(collisionDetectionSystem)
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
+
+        .applyTickSystem(new UpdateSystem(this.game.time))
+        .toEntities().of(playersFinder)
+        .toLiftedEntities().of(updatingCommentsFinder)
+
+        .applyTickSystem(new DisplayMoveSystem())
+        .toEntities().of(playersFinder)
+
+        .applyTickSystem(new MovingAnimationSystem())
+        .toEntities().of(playersFinder)
 
         .build();
 
