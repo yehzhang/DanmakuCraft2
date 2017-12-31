@@ -10,9 +10,10 @@ class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
 
   constructor(
       private game: Phaser.Game,
+      private transitionDuration: number = PhysicalConstants.BACKGROUND_TRANSITION_DURATION_MS,
+      private colorMixer: ColorMixer = new ColorMixer(),
       baseColor: number = Colors.BACKGROUND_NUMBER,
-      private colorTween: Phaser.Tween | null = null,
-      private colorMixer: ColorMixer = new ColorMixer()) {
+      private colorTween: Phaser.Tween | null = null) {
     super();
     this.baseColor = Phaser.Color.getRGB(baseColor);
   }
@@ -55,7 +56,7 @@ class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
     // Tweens the color in RGB.
     let currColorObj = Phaser.Color.getRGB(this.game.stage.backgroundColor);
     let targetColorObj = Phaser.Color.getRGB(targetColor);
-    let colorTween = this.game.add.tween(currColorObj).to(targetColorObj);
+    let colorTween = this.game.add.tween(currColorObj).to(targetColorObj, this.transitionDuration);
 
     colorTween.onUpdateCallback(() => {
       this.game.stage.backgroundColor =
@@ -74,9 +75,9 @@ export default BackgroundColorSystem;
 export class ColorMixer {
   constructor(
       private maxMixedSaturation = 0.5,
-      private colorsCountToReachMaxSaturation = PhysicalConstants.COLORS_COUNT_TO_REACH_MAX_SATURATION,
+      private colorsCountToReachMaxSaturation = PhysicalConstants.BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION,
       private colorsCountPadding = 1,
-      private colorsCountToReachMaxLightness = PhysicalConstants.COLORS_COUNT_TO_REACH_MAX_LIGHTNESS,
+      private colorsCountToReachMaxLightness = PhysicalConstants.BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS,
       private rgbsCounter: Bag<number> = new Bag()) {
   }
 
