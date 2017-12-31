@@ -1,15 +1,16 @@
-import SettingsManager, {SettingsOption} from './interface/SettingsManager';
+import SettingsManager from './interface/SettingsManager';
 import CommentProvider from './interface/CommentProvider';
 import GameContainerProvider from './interface/GameContainerProvider';
 import CommentData from '../comment/CommentData';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
+import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
 
 class TestingAdapter extends BaseEnvironmentAdapter {
   onProxySet(): void {
   }
 
   getSettingsManager(): SettingsManager {
-    return new TestingSettingsManager(new Phaser.Signal());
+    return new LocalStorageSettingsManager();
   }
 
   getCommentProvider(): CommentProvider {
@@ -38,21 +39,5 @@ class TestingCommentProvider implements CommentProvider {
 
   async getAllComments(): Promise<CommentData[]> {
     return new Promise<CommentData[]>(resolve => resolve([]));
-  }
-}
-
-class TestingSettingsManager implements SettingsManager {
-  private storage: { [key: string]: any };
-
-  constructor(readonly fontFamilyChanged: Phaser.Signal<string>) {
-    this.storage = {};
-  }
-
-  getSetting<T>(option: SettingsOption<T>): T {
-    return this.storage[option.key];
-  }
-
-  setSetting<T>(option: SettingsOption<T>, value: T): void {
-    this.storage[option.key] = value;
   }
 }

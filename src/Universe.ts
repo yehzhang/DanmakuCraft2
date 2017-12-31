@@ -25,6 +25,7 @@ import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
 import CollisionDetectionSystem from './entitySystem/system/existence/CollisionDetectionSystem';
 import DataGeneratorFactoryImpl from './util/dataGenerator/DataGeneratorFactoryImpl';
 import DataGeneratorFactory from './util/dataGenerator/DataGeneratorFactory';
+import {SettingsOptions} from './environment/interface/SettingsManager';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -64,7 +65,11 @@ class Universe extends Phaser.State {
     this.idGenerator = new UuidGenerator();
 
     let settingsManager = adapter.getSettingsManager();
-    this.graphicsFactory = new GraphicsFactory(game, this.idGenerator, settingsManager);
+    this.graphicsFactory = new GraphicsFactory(
+        game,
+        this.idGenerator,
+        settingsManager.getSetting(SettingsOptions.FONT_FAMILY),
+        settingsManager.getSetting(SettingsOptions.TEXT_SHADOW));
 
     this.entityFactory = new EntityFactoryImpl(game, this.graphicsFactory, this.buffFactory);
 

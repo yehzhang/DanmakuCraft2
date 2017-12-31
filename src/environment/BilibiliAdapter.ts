@@ -35,7 +35,7 @@ class BilibiliAdapter extends BaseEnvironmentAdapter {
   }
 
   getSettingsManager() {
-    return new LocalStorageSettingsManager(new Phaser.Signal());
+    return new LocalStorageSettingsManager();
   }
 }
 
