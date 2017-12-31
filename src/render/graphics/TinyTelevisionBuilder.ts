@@ -205,9 +205,9 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
   }
 }
 
-class TinyTelevisionBuildingResult {
+export default TinyTelevisionBuilder;
+
+export class TinyTelevisionBuildingResult {
   constructor(readonly display: Phaser.Sprite, readonly walkingAnimation: Phaser.Animation) {
   }
 }
-
-export default TinyTelevisionBuilder;

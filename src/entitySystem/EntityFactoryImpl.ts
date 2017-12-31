@@ -55,11 +55,7 @@ class EntityFactoryImpl implements EntityFactory {
   }
 
   createTinyTelevision(coordinates: Point): TinyTelevision {
-    let builtDisplay = this.graphicsFactory.newTinyTelevisionBuilder()
-        .pushFrame(0).withShadow()
-        .pushFrame(1).withShadow()
-        .pushFrame(2).withShadow()
-        .build();
+    let builtDisplay = this.graphicsFactory.createTinyTelevision();
     let entity = Entity.newBuilder()
         .mix(new MutableCoordinates(coordinates))
         .mix(new Motion(1, 0))
