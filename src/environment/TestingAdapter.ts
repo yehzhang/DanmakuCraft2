@@ -3,14 +3,14 @@ import CommentProvider from './interface/CommentProvider';
 import GameContainerProvider from './interface/GameContainerProvider';
 import CommentData from '../comment/CommentData';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
-import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
+import BaseSettingsManager from './component/BaseSettingsManager';
 
 class TestingAdapter extends BaseEnvironmentAdapter {
   onProxySet(): void {
   }
 
   getSettingsManager(): SettingsManager {
-    return new LocalStorageSettingsManager();
+    return new TestingSettingsManager();
   }
 
   getCommentProvider(): CommentProvider {
@@ -34,10 +34,15 @@ class TestingCommentProvider implements CommentProvider {
   constructor(readonly commentReceived: Phaser.Signal<CommentData>) {
   }
 
-  connect(): void {
+  connect() {
   }
 
   async getAllComments(): Promise<CommentData[]> {
     return new Promise<CommentData[]>(resolve => resolve([]));
+  }
+}
+
+class TestingSettingsManager extends BaseSettingsManager {
+  protected loadSettings() {
   }
 }
