@@ -2,7 +2,8 @@ import EntityFinder, {EntityExistenceUpdatedEvent} from '../EntityFinder';
 import Point from '../../syntax/Point';
 import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
-import {validateRadius} from '../../../law';
+import {validateRadius} from '../../../law/space';
+import Iterator from '../../syntax/Iterator';
 
 /**
  * Implements {@link EntityFinder} with chunks.
@@ -31,12 +32,12 @@ class ChunkEntityFinder<T> implements EntityFinder<Region<T>> {
     return this.chunks.listChunksInBounds(bounds);
   }
 
-  findClosetEntityTo(coordinates: Point) {
+  findClosestEntityTo(coordinates: Point) {
     return this.chunks.getChunkByCoordinates(coordinates);
   }
 
   [Symbol.iterator]() {
-    return this.chunks[Symbol.iterator]();
+    return Iterator.of(this.chunks);
   }
 }
 

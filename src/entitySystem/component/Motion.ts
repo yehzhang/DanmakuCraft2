@@ -1,12 +1,11 @@
 import Point from '../../util/syntax/Point';
 
 class Motion {
-  public movedThisTick: boolean;
-  public movedDistanceThisTick: Point;
-
-  constructor(public moveSpeedBoostRatio: number, public damping: number) {
-    this.movedThisTick = false;
-    this.movedDistanceThisTick = Point.origin();
+  constructor(
+      public moveSpeedBoostRatio: number = 1,
+      public damping: number = 0,
+      public movedThisTick: boolean = false,
+      public movedDistanceThisTick: Point = Point.origin()) {
   }
 }
 

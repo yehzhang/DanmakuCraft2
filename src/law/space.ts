@@ -1,5 +1,5 @@
-import Point from './util/syntax/Point';
-import PhysicalConstants from './PhysicalConstants';
+import Point from '../util/syntax/Point';
+import PhysicalConstants from '../PhysicalConstants';
 
 /**
  * Maps an arbitrary {@param coordinate} to a world coordinate.

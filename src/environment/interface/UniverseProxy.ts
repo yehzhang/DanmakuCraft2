@@ -1,5 +1,5 @@
 import {Player} from '../../entitySystem/alias';
-import LocallyOriginatedCommentBuffContainer from '../../comment/LocallyOriginatedCommentBuffContainer';
+import BuffDataContainer from '../../comment/BuffDataContainer';
 
 export default interface UniverseProxy {
   /**
@@ -11,5 +11,5 @@ export default interface UniverseProxy {
 
   getPlayer(): Player;
 
-  getBuffContainer(): LocallyOriginatedCommentBuffContainer;
+  getBuffDataContainer(): BuffDataContainer;
 }

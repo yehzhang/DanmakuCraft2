@@ -1,10 +1,9 @@
-import BaseExistenceSystem from './BaseExistenceSystem';
+import ExistenceSystem from './ExistenceSystem';
 import {Region, Renderable} from '../../alias';
 
 class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer>
-    extends BaseExistenceSystem<Region<Renderable<T>>> {
+    implements ExistenceSystem<Region<Renderable<T>>> {
   constructor(private currentRegions: Set<Region<Renderable<T>>> = new Set()) {
-    super();
   }
 
   enter(region: Region<Renderable<T>>) {
@@ -20,7 +19,7 @@ class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.Disp
 
   collidesWith(display: PIXI.DisplayObjectContainer) {
     let bounds = display.getBounds();
-    return this.collidesIf(entity => entity.display.getBounds().intersects(bounds, 0));
+    return this.collidesIf(entity => entity.display.getBounds().intersects(bounds));
   }
 
   collidesIf(callback: (entity: Renderable<T>) => boolean) {

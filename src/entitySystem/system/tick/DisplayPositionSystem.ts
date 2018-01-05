@@ -1,15 +1,16 @@
 import Display from '../../component/Display';
 import Motion from '../../component/Motion';
-import BaseTickSystem from './BaseTickSystem';
+import TickSystem from './TickSystem';
 
-class DisplayMoveSystem extends BaseTickSystem<Display & Motion> {
-  tick(entity: Display & Motion): void {
+class DisplayMoveSystem implements TickSystem<Display & Motion> {
+  update(entity: Display & Motion): void {
     if (!entity.movedThisTick) {
       return;
     }
+    entity.display.position.add(entity.movedDistanceThisTick.x, entity.movedDistanceThisTick.y);
+  }
 
-    entity.display.position.x += entity.movedDistanceThisTick.x;
-    entity.display.position.y += entity.movedDistanceThisTick.y;
+  tick() {
   }
 }
 

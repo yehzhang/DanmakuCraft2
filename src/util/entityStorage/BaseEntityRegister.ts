@@ -1,11 +1,15 @@
 import EntityRegister from './EntityRegister';
 
 abstract class BaseEntityRegister<T> implements EntityRegister<T> {
-  abstract register(entity: T, dispatchEvent?: boolean): void;
+  abstract count(): number;
 
-  registerBatch(entities: Iterable<T>, dispatchEvent = true): void {
+  abstract deregister(entity: T, silent?: boolean): void;
+
+  abstract register(entity: T, silent?: boolean): void;
+
+  registerBatch(entities: Iterable<T>, silent?: boolean): void {
     for (let entity of entities) {
-      this.register(entity, dispatchEvent);
+      this.register(entity, silent);
     }
   }
 }

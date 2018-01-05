@@ -16,7 +16,13 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   onProxySet() {
-    this.sendButtonInjector = new SendButtonInjector(this.universeProxy);
+    let $textInput = $('.bilibili-player-video-danmaku-input');
+    let $sendButton = $('.bilibili-player-video-btn-send');
+    this.sendButtonInjector = new SendButtonInjector(
+        this.universeProxy,
+        $textInput,
+        $sendButton,
+        this.universeProxy.getBuffDataContainer());
   }
 
   getCommentProvider() {

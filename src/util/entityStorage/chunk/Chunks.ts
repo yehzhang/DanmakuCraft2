@@ -1,10 +1,10 @@
 import Point from '../../syntax/Point';
-import {toWorldCoordinate, toWorldCoordinate2d, validateRadius} from '../../../law';
+import {toWorldCoordinate, toWorldCoordinate2d, validateRadius} from '../../../law/space';
 import PhysicalConstants from '../../../PhysicalConstants';
 import IterablesIterator from '../../iteration/IterablesIterator';
 
 class Chunks<T> implements Iterable<T> {
-  constructor(private chunks: T[][], private chunkSize: number) {
+  constructor(private chunks: T[][], readonly chunkSize: number) {
     if (chunkSize <= 0) {
       throw new TypeError('Invalid chunk size');
     }

@@ -34,7 +34,7 @@ class EntityStorageFactoryImpl implements EntityStorageFactory {
   }
 
   createGlobalEntityStorage<T extends Entity>(): EntityStorage<T> {
-    let entities: T[] = [];
+    let entities: Set<T> = new Set();
     let entityUpdated = new Phaser.Signal<EntityExistenceUpdatedEvent<T>>();
     let entityRegister = new GlobalEntityRegister(entities, entityUpdated);
 

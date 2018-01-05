@@ -1,9 +1,9 @@
 import MovingAnimation from '../../component/MovingAnimation';
 import Motion from '../../component/Motion';
-import BaseTickSystem from './BaseTickSystem';
+import TickSystem from './TickSystem';
 
-class MovingAnimationSystem extends BaseTickSystem<Motion & MovingAnimation> {
-  tick(entity: Motion & MovingAnimation): void {
+class MovingAnimationSystem implements TickSystem<Motion & MovingAnimation> {
+  update(entity: Motion & MovingAnimation) {
     if (entity.movedThisTick) {
       if (!entity.movingAnimation.isPlaying) {
         entity.movingAnimation.play();
@@ -15,6 +15,9 @@ class MovingAnimationSystem extends BaseTickSystem<Motion & MovingAnimation> {
         entity.movingAnimation.stop(true);
       }
     }
+  }
+
+  tick() {
   }
 }
 

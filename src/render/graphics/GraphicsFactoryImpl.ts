@@ -1,16 +1,20 @@
 import TinyTelevisionBuilder from './TinyTelevisionBuilder';
-import IdGenerator from '../../util/IdGenerator';
 import {TextShadowStyle} from '../../environment/interface/SettingsManager';
 import Comment from '../../entitySystem/component/Comment';
 import Colors from '../Colors';
-import GraphicsFactory from './GraphicsFactory';
+import GraphicsFactory, {NotifierView, PlayerView} from './GraphicsFactory';
+import ChestBuilder from './ChestBuilder';
+import SpeechBubbleBuilder from './SpeechBubbleBuilder';
+import Point from '../../util/syntax/Point';
 
 class GraphicsFactoryImpl implements GraphicsFactory {
   constructor(
       private game: Phaser.Game,
-      private idGenerator: IdGenerator,
+      private idGenerator: Phaser.RandomDataGenerator,
       private fontFamily: string,
-      private textShadowStyle: TextShadowStyle) {
+      private textShadowStyle: TextShadowStyle,
+      private tinyTelevisionSpriteSheet: string | null = null,
+      private chestSpriteSheet: string | null = null) {
   }
 
   createTextFromComment(comment: Comment) {
@@ -20,18 +24,25 @@ class GraphicsFactoryImpl implements GraphicsFactory {
     return text;
   }
 
-  createText(text: string, size: number, color: string) {
+  createText(
+      text: string,
+      size: number,
+      color: string,
+      fontFamily: string = this.fontFamily,
+      textShadowStyle: TextShadowStyle = this.textShadowStyle,
+      maxLines: number = 0) {
     let textDisplay = this.game.make.text(
         0,
         0,
         text,
         {
-          font: this.fontFamily,
+          font: fontFamily,
           fontSize: size,
           fill: color,
+          maxLines
         });
 
-    switch (this.textShadowStyle) {
+    switch (textShadowStyle) {
       case TextShadowStyle.GLOW:
       case TextShadowStyle.OUTLINE:
         textDisplay.setShadow(0, 0, Colors.BLACK, 2);
@@ -46,6 +57,7 @@ class GraphicsFactoryImpl implements GraphicsFactory {
         textDisplay.setShadow(1, 1, Colors.DARK_GREY, 1.5);
         textDisplay.strokeThickness = 1.25;
         break;
+      case TextShadowStyle.NONE:
       default:
         break;
     }
@@ -54,11 +66,63 @@ class GraphicsFactoryImpl implements GraphicsFactory {
   }
 
   createTinyTelevision() {
+    if (this.tinyTelevisionSpriteSheet == null) {
+      this.tinyTelevisionSpriteSheet = this.createTinyTelevisionSpriteSheet();
+    }
+    let sprite = this.createSprite(this.tinyTelevisionSpriteSheet);
+
+    let walkingAnimation = sprite.animations.add('', undefined, 12, true);
+
+    return new PlayerView(sprite, walkingAnimation);
+  }
+
+  createChest() {
+    if (this.chestSpriteSheet == null) {
+      this.chestSpriteSheet = this.createChestSpriteSheet();
+    }
+    return this.createSprite(this.chestSpriteSheet);
+  }
+
+  createSpeechBubble() {
+    let speechBubble = new SpeechBubbleBuilder(this.game, this.idGenerator)
+        .pushFrame(0).withScale(1.7).withShadow()
+        .toGraphics();
+
+    const TEXT_BOUNDS_WIDTH = 165;
+    let textField = this.createText('', 18, Colors.BLACK, undefined, TextShadowStyle.NONE, 4)
+        .setTextBounds(0, 0, TEXT_BOUNDS_WIDTH, 120);
+    textField.fontWeight = 'bold';
+    textField.wordWrap = true;
+    textField.boundsAlignH = 'center';
+    textField.boundsAlignV = 'middle';
+
+    speechBubble.addChild(textField);
+    textField.position = Point.of(0, 10);
+
+    return new NotifierView(speechBubble, textField, TEXT_BOUNDS_WIDTH);
+  }
+
+  private createTinyTelevisionSpriteSheet() {
     return new TinyTelevisionBuilder(this.game, this.idGenerator)
         .pushFrame(0).withShadow()
         .pushFrame(1).withShadow()
         .pushFrame(2).withShadow()
-        .build();
+        .toSpriteSheet();
+  }
+
+  private createChestSpriteSheet() {
+    return new ChestBuilder(this.game, this.idGenerator)
+        .pushFrame(0).withShadow()
+        .pushFrame(1).withShadow()
+        .toSpriteSheet();
+  }
+
+  private createSprite(spriteSheet: string, initialFrameIndex: number | string = 0) {
+    let sprite = this.game.make.sprite(0, 0, spriteSheet, initialFrameIndex);
+
+    sprite.anchor.setTo(0.5);
+
+    return sprite;
   }
 }
 

@@ -5,8 +5,6 @@ import Universe, {UniverseFactory} from './Universe';
 import {SettingsOptions} from './environment/interface/SettingsManager';
 import PhysicalConstants from './PhysicalConstants';
 import Point from './util/syntax/Point';
-import CommentData from './comment/CommentData';
-import {BuffData} from './entitySystem/system/buff/BuffFactory';
 
 /**
  * Displays the opening and loads the universe
@@ -26,6 +24,7 @@ export default class BootState extends Phaser.State {
     super();
   }
 
+  // noinspection JSUnusedGlobalSymbols
   create() {
     this.configureGame();
     this.craftRenderGroups();
@@ -36,11 +35,10 @@ export default class BootState extends Phaser.State {
     // Do not pause on blur.
     this.game.stage.disableVisibilityChange = true;
 
-    // Make game less blurry
-    // No need to turn on when anti-aliasing is turned off.
-    // game.renderer.renderSession.roundPixels = true;
-    // TODO need this for more sharpness?
-    // Phaser.Canvas.setImageRenderingCrisp(game.canvas);
+    // Make tiny television less blurry
+    this.game.renderer.renderSession.roundPixels = true;
+    // Too ugly when zoomed if turned on
+    // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 
     this.game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
   }
@@ -128,13 +126,6 @@ export default class BootState extends Phaser.State {
     let universe;
     if (__DEBUG__) {
       universe = await this.loadUniverse();
-
-      // TODO any idea how to expose all modules while debugging?
-      Object.assign(window, {
-        universe,
-        CommentData,
-        BuffData,
-      });
     } else {
       universe = await this.showOpeningAndLoadUniverse();
     }

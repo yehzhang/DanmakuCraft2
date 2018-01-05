@@ -8,6 +8,7 @@ export class SettingsOptions {
 }
 
 export enum TextShadowStyle {
+  NONE,
   GLOW,
   OUTLINE,
   DROP,

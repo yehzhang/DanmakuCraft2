@@ -1,4 +1,4 @@
-import {toWorldCoordinate2d, toWorldCoordinateOffset2d} from '../../law';
+import {toWorldCoordinate2d, toWorldCoordinateOffset2d} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
 import Point from '../../util/syntax/Point';
 

@@ -1,30 +1,21 @@
 import Chromatic, {BouncingColorTransition} from './Chromatic';
-import BuffFactory, {BuffData, BuffType} from './BuffFactory';
+import BuffFactory from './BuffFactory';
 import Ethereal from './Ethereal';
 import Controller from '../../../controller/Controller';
 import Moving from './Moving';
-import DataGeneratorFactory from '../../../util/dataGenerator/DataGeneratorFactory';
+import Hasty from './Hasty';
+import LawFactory from '../../../law/LawFactory';
 
 class BuffFactoryImpl implements BuffFactory {
   constructor(
       private game: Phaser.Game,
       private controller: Controller,
-      private dataGeneratorFactory: DataGeneratorFactory) {
+      private lawFactory: LawFactory,
+      private etherealInstance: Ethereal = new Ethereal()) {
   }
 
-  create(buffData: BuffData) {
-    switch (buffData.type) {
-      case BuffType.ETHEREAL:
-        return this.createEthereal();
-      case BuffType.CHROMATIC:
-        return this.createChromatic();
-      default:
-        throw new TypeError(`Invalid buff type: ${buffData.type}`);
-    }
-  }
-
-  createEthereal(): Ethereal {
-    return Ethereal.getInstance();
+  createEthereal() {
+    return this.etherealInstance;
   }
 
   createInputControllerMover() {
@@ -37,9 +28,13 @@ class BuffFactoryImpl implements BuffFactory {
 
   createChromatic() {
     return new Chromatic(
-        new BouncingColorTransition(this.dataGeneratorFactory.getColorTransitionSpeedGenerator()),
-        new BouncingColorTransition(this.dataGeneratorFactory.getColorTransitionSpeedGenerator()),
-        new BouncingColorTransition(this.dataGeneratorFactory.getColorTransitionSpeedGenerator()));
+        new BouncingColorTransition(this.lawFactory.createColorTransitionLaw()),
+        new BouncingColorTransition(this.lawFactory.createColorTransitionLaw()),
+        new BouncingColorTransition(this.lawFactory.createColorTransitionLaw()));
+  }
+
+  createHasty() {
+    return new Hasty();
   }
 }
 

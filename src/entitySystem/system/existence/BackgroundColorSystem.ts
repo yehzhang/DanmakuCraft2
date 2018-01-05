@@ -1,11 +1,12 @@
 import {CommentEntity, Region} from '../../alias';
-import BaseExistenceSystem from './BaseExistenceSystem';
+import ExistenceSystem from './ExistenceSystem';
 import Point from '../../../util/syntax/Point';
 import Colors from '../../../render/Colors';
 import PhysicalConstants from '../../../PhysicalConstants';
 import {Bag} from 'typescript-collections';
+import Polar from '../../../util/math/Polar';
 
-class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
+class BackgroundColorSystem implements ExistenceSystem<Region<CommentEntity>> {
   private baseColor: Phaser.RGBColor;
 
   constructor(
@@ -14,7 +15,6 @@ class BackgroundColorSystem extends BaseExistenceSystem<Region<CommentEntity>> {
       private colorMixer: ColorMixer = new ColorMixer(),
       baseColor: number = Colors.BACKGROUND_NUMBER,
       private colorTween: Phaser.Tween | null = null) {
-    super();
     this.baseColor = Phaser.Color.getRGB(baseColor);
   }
 
@@ -74,10 +74,12 @@ export default BackgroundColorSystem;
  */
 export class ColorMixer {
   constructor(
-      private maxMixedSaturation = 0.5,
-      private colorsCountToReachMaxSaturation = PhysicalConstants.BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION,
-      private colorsCountPadding = 1,
-      private colorsCountToReachMaxLightness = PhysicalConstants.BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS,
+      private maxMixedSaturation: number = 0.5,
+      private colorsCountToReachMaxSaturation: number =
+          PhysicalConstants.BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION,
+      private colorsCountPadding: number = 2,
+      private colorsCountToReachMaxLightness: number =
+          PhysicalConstants.BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS,
       private rgbsCounter: Bag<number> = new Bag()) {
   }
 
@@ -115,13 +117,12 @@ export class ColorMixer {
       hueCoordinates.divide(colorsCount, colorsCount);
     }
 
-    let radius = hueCoordinates.getMagnitude();
+    let [azimuth, radius] = Polar.from(hueCoordinates);
     let colorsRatioForSaturation =
         ColorMixer.getRatio(colorsCount, this.colorsCountToReachMaxSaturation);
     let saturation = Math.min(radius * colorsRatioForSaturation, this.maxMixedSaturation);
 
-    let hue = Phaser.Math.angleBetween(0, 0, hueCoordinates.x, hueCoordinates.y)
-        / Phaser.Math.PI2;
+    let hue = azimuth / Phaser.Math.PI2;
 
     // Set lightness.
     let colorsRatioForLightness = ColorMixer.getRatio(

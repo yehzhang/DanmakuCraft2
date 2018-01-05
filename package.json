@@ -28,7 +28,6 @@
     "@types/jquery": "^3.2.16",
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.47",
-    "@types/uuid": "^3.4.3",
     "canvas": "^1.6.9",
     "chai": "^4.1.2",
     "core-js": "^2.5.1",
@@ -38,6 +37,7 @@
     "jsdom": "^11.5.1",
     "mocha": "^4.0.1",
     "phaser-ce-type-updated": "^2.9.6",
+    "sequency": "^0.18.0",
     "source-map-support": "^0.5.0",
     "text-encoding-shim": "^1.0.0",
     "ts-loader": "^3.1.1",
@@ -47,7 +47,6 @@
     "tslint-no-unused-expression-chai": "0.0.3",
     "typescript": "^2.6.1",
     "typescript-collections": "^1.2.5",
-    "uuid": "^3.1.0",
     "webpack": "^3.8.1",
     "webpack-merge": "^4.1.1"
   }

@@ -1,13 +1,15 @@
 import {Updatable} from '../../alias';
-import BaseTickSystem from './BaseTickSystem';
+import TickSystem from './TickSystem';
 
-class UpdateSystem extends BaseTickSystem<Updatable> {
+class UpdateSystem implements TickSystem<Updatable> {
   constructor(private time: Phaser.Time) {
-    super();
   }
 
-  tick(entity: Updatable) {
+  update(entity: Updatable, time: Phaser.Time) {
     entity.tick(entity, this.time);
+  }
+
+  tick(time: Phaser.Time) {
   }
 }
 

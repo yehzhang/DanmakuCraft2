@@ -1,15 +1,13 @@
+import {ExistentEntity} from '../entitySystem/alias';
+
 class Renderer {
   constructor(
       private game: Phaser.Game,
-      private observerDisplay: Phaser.Sprite,
-      private observedDisplay: PIXI.DisplayObjectContainer = new PhaserDisplayObjectContainer(),
       private stage: Phaser.Group = game.add.group()) {
-    stage.add(observerDisplay);
-    stage.add(observedDisplay);
   }
 
-  focus() {
-    this.game.camera.follow(this.observerDisplay, Phaser.Camera.FOLLOW_LOCKON);
+  focus(entity: ExistentEntity<Phaser.Sprite>) {
+    this.game.camera.follow(entity.display, Phaser.Camera.FOLLOW_LOCKON);
 
     // Allow camera to move out of the world.
     this.game.camera.bounds = null;
@@ -30,23 +28,9 @@ class Renderer {
     return this;
   }
 
-  getObservedDisplay() {
-    return this.observedDisplay;
+  getStage() {
+    return this.stage;
   }
 }
 
 export default Renderer;
-
-class PhaserDisplayObjectContainer extends PIXI.DisplayObjectContainer {
-  // noinspection JSUnusedGlobalSymbols
-  preUpdate() {
-  }
-
-  // noinspection JSUnusedGlobalSymbols
-  update() {
-  }
-
-  // noinspection JSUnusedGlobalSymbols
-  postUpdate() {
-  }
-}

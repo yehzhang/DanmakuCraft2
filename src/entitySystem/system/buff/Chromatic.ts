@@ -1,6 +1,6 @@
 import PermanentlyUpdatingBuff from './PermanentlyUpdatingBuff';
 import {UpdatingCommentEntity} from '../../alias';
-import DataGenerator from '../../../util/dataGenerator/DataGenerator';
+import ColorTransitionLaw from '../../../law/ColorTransitionLaw';
 
 /**
  * Makes a {@link CommentEntity} constantly change its color.
@@ -14,9 +14,9 @@ class Chromatic extends PermanentlyUpdatingBuff<UpdatingCommentEntity> {
   }
 
   tick(commentEntity: UpdatingCommentEntity, time: Phaser.Time) {
-    this.redTransition.tick();
-    this.greenTransition.tick();
-    this.blueTransition.tick();
+    this.redTransition.tick(time);
+    this.greenTransition.tick(time);
+    this.blueTransition.tick(time);
 
     let color = Phaser.Color.RGBtoString(
         this.redTransition.getValue(),
@@ -25,12 +25,15 @@ class Chromatic extends PermanentlyUpdatingBuff<UpdatingCommentEntity> {
 
     commentEntity.display.addColor(color, 0);
   }
+
+  protected set(entity: UpdatingCommentEntity) {
+  }
 }
 
 export default Chromatic;
 
 export interface ColorTransition {
-  tick(): void;
+  tick(time: Phaser.Time): void;
 
   getValue(): number;
 }
@@ -40,28 +43,38 @@ export class BouncingColorTransition implements ColorTransition {
   private static readonly MIN_VALUE = 64;
 
   constructor(
-      private speedGenerator: DataGenerator,
-      private velocity: number = speedGenerator.next() * [1, -1][Math.random() < 0.5 ? 1 : 0],
-      private value: number = BouncingColorTransition.getRandomValue()) {
+      private law: ColorTransitionLaw,
+      private value: number = BouncingColorTransition.getRandomValue(),
+      private velocity: number = law.speedStrategy.next() * [1, -1][Number(Math.random() < 0.5)],
+      private pauseInterval: number = 0) {
   }
 
   private static getRandomValue() {
-    return Phaser.Math.random(this.MIN_VALUE, this.MAX_VALUE);
+    return Phaser.Math.between(this.MIN_VALUE, this.MAX_VALUE);
   }
 
   getValue() {
     return Math.round(this.value);
   }
 
-  tick() {
+  tick(time: Phaser.Time) {
+    this.pauseInterval -= time.physicsElapsed;
+    if (this.pauseInterval > 0) {
+      return;
+    }
+
     this.value += this.velocity;
 
     if (this.value > BouncingColorTransition.MAX_VALUE) {
       this.value = BouncingColorTransition.MAX_VALUE;
-      this.velocity = -this.speedGenerator.next();
+      this.velocity = -this.law.speedStrategy.next();
     } else if (this.value < BouncingColorTransition.MIN_VALUE) {
       this.value = BouncingColorTransition.MIN_VALUE;
-      this.velocity = this.speedGenerator.next();
+      this.velocity = this.law.speedStrategy.next();
+    }
+
+    if (this.law.pauseStrategy.next()) {
+      this.pauseInterval = this.law.pauseIntervalStrategy.next();
     }
   }
 }

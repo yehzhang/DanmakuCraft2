@@ -1,7 +1,7 @@
 import {SuperposedEntity} from '../../alias';
-import BaseExistenceSystem from './BaseExistenceSystem';
+import ExistenceSystem from './ExistenceSystem';
 
-class SuperposedEntityRenderSystem extends BaseExistenceSystem<SuperposedEntity> {
+class SuperposedEntityRenderSystem implements ExistenceSystem<SuperposedEntity> {
   enter(entity: SuperposedEntity) {
     entity.acquireDisplay();
   }

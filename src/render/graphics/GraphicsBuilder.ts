@@ -1,8 +1,8 @@
 import Colors from '../Colors';
-import IdGenerator from '../../util/IdGenerator';
 import Graphics from './Graphics';
 import InjectableGraphics from './InjectableGraphics';
 import Point from '../../util/syntax/Point';
+import {asSequence} from 'sequency';
 
 export type Drawer = (graphics: Graphics) => void;
 
@@ -13,22 +13,16 @@ export type InjectedDrawer = (graphics: InjectableGraphics) => void;
  *
  * @template I type of indices to frames of the sprite built.
  */
-export abstract class GraphicsBuilder<I extends number | string> {
-  protected drawers: InjectedDrawer[];
-  private initialFrameIndex: I | null;
-
-  constructor(private game: Phaser.Game, private idGenerator: IdGenerator) {
-    this.drawers = [];
-    this.initialFrameIndex = null;
+abstract class GraphicsBuilder<I extends number | string> {
+  constructor(
+      private game: Phaser.Game,
+      private idGenerator: Phaser.RandomDataGenerator,
+      protected drawers: InjectedDrawer[] = []) {
   }
 
   pushFrame(index: I) {
     let drawer = this.getDrawer(index);
     this.drawers.push(drawer);
-
-    if (this.initialFrameIndex == null) {
-      this.initialFrameIndex = index;
-    }
 
     return this;
   }
@@ -36,18 +30,25 @@ export abstract class GraphicsBuilder<I extends number | string> {
   /**
    * Attach shadow to last drawer.
    */
-  withShadow(offset?: Point, color: number = Colors.GREY_NUMBER): this {
+  // TODO shadow should be no darker than the background
+  withShadow(offset: Point = Point.of(2, 2), color: number = Colors.GREY_NUMBER): this {
     this.decorateLastDrawer(drawer => graphics => {
-      if (offset === undefined) {
-        offset = Point.of(2, 2);
-      }
       graphics.addOffsetBy(offset.x, offset.y);
       graphics.fixFillColor(color).fixLineColor(color);
       drawer(graphics);
-
       graphics.addOffsetBy(-offset.x, -offset.y);
       graphics.clearFillColor().clearLineColor();
+
       drawer(graphics);
+    });
+    return this;
+  }
+
+  withScale(scale: number): this {
+    this.decorateLastDrawer(drawer => graphics => {
+      graphics.multiplyScaleBy(scale);
+      drawer(graphics);
+      graphics.multiplyScaleBy(1 / scale);
     });
     return this;
   }
@@ -62,15 +63,10 @@ export abstract class GraphicsBuilder<I extends number | string> {
     return this.addTextureToCache(texture, frameWidth);
   }
 
-  toSprite(): Phaser.Sprite {
-    let spriteSheetKey = this.toSpriteSheet();
-    let sprite = this.game.make.sprite(0, 0, spriteSheetKey, this.initialFrameIndex);
-    
-    return sprite;
-  }
-
   toGraphics(): Phaser.Graphics {
-    throw new Error('Not Implemented');
+    let graphics = this.createInjectableGraphics();
+    this.drawSpriteSheetMaxRect(graphics);
+    return graphics.getGraphics();
   }
 
   protected abstract getDrawer(index: I): Drawer;
@@ -87,7 +83,7 @@ export abstract class GraphicsBuilder<I extends number | string> {
   }
 
   private addTextureToCache(texture: PIXI.Texture, frameWidth: number) {
-    let spriteSheetKey = this.idGenerator.generateUniqueId();
+    let spriteSheetKey = this.idGenerator.uuid();
     this.game.cache.addSpriteSheet(
         spriteSheetKey,
         null,
@@ -102,29 +98,22 @@ export abstract class GraphicsBuilder<I extends number | string> {
    * @return width of a frame
    */
   private drawSpriteSheetMaxRect(graphics: InjectableGraphics) {
-    let frameDimensions = [];
-    for (let drawer of this.drawers) {
-      let testingGraphics = this.createInjectableGraphics();
+    let frameWidth = asSequence(this.drawers)
+        .map(drawer => {
+          let testingGraphics = this.createInjectableGraphics();
+          drawer(testingGraphics);
 
-      drawer(testingGraphics);
+          return testingGraphics.getLocalBounds().width;
+        })
+        .max();
 
-      let bounds = testingGraphics.getLocalBounds().clone();
-      frameDimensions.push(bounds);
+    if (frameWidth == null) {
+      throw new TypeError('No drawers were provided');
     }
-    let frameWidth = Math.max(...frameDimensions.map(dimension => dimension.width));
 
-    let frameDimensionsIndex = 0;
     for (let drawer of this.drawers) {
-      let frameDimension = frameDimensions[frameDimensionsIndex];
-      let leftMargin = frameDimension.x;
-      let topMargin = frameDimension.y;
-      graphics.addOffsetBy(-leftMargin, -topMargin);
       drawer(graphics);
-      graphics.addOffsetBy(leftMargin, topMargin);
-
       graphics.addOffsetBy(frameWidth, 0);
-
-      frameDimensionsIndex++;
     }
 
     // Right padding
@@ -145,3 +134,5 @@ export abstract class GraphicsBuilder<I extends number | string> {
     return new InjectableGraphics(this.game.make.graphics());
   }
 }
+
+export default GraphicsBuilder;

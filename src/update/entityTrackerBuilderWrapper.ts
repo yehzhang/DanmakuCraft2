@@ -3,8 +3,7 @@ import EntityFinder from '../util/entityStorage/EntityFinder';
 import TickSystem from '../entitySystem/system/tick/TickSystem';
 import EntityTrackerBuilder from './EntityTrackerBuilder';
 import {Region} from '../entitySystem/alias';
-import BaseExistenceSystem from '../entitySystem/system/existence/BaseExistenceSystem';
-import BaseTickSystem from '../entitySystem/system/tick/BaseTickSystem';
+import Entity from '../entitySystem/Entity';
 
 export class ApplyClause {
   constructor(protected builder: EntityTrackerBuilder) {
@@ -51,7 +50,7 @@ export class OfClause<T, U> {
       private systemApplierManager: SystemApplierManager<T, U>) {
   }
 
-  of<V extends T>(entityFinder: EntityFinder<V>): ApplyOrToOrOfOrBuildClause<T, U> {
+  of<V extends T & Entity>(entityFinder: EntityFinder<V>): ApplyOrToOrOfOrBuildClause<T, U> {
     this.systemApplierManager.get().addToBuilder(this.builder, entityFinder);
     return new ApplyOrToOrOfOrBuildClause(this.builder, this.systemApplierManager);
   }
@@ -71,7 +70,7 @@ export class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
     return this.createToClause(this.systemApplierManager.getOriginal()).toEntities();
   }
 
-  and<V extends T>(entityFinder: EntityFinder<V>) {
+  and<V extends T & Entity>(entityFinder: EntityFinder<V>) {
     this.systemApplierManager.get().addToBuilder(this.builder, entityFinder);
     return this;
   }
@@ -82,7 +81,8 @@ export class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
 }
 
 interface SystemApplier<T> {
-  addToBuilder(builder: EntityTrackerBuilder, entityFinder: EntityFinder<T>): void;
+  addToBuilder<U extends T & Entity>(
+      builder: EntityTrackerBuilder, entityFinder: EntityFinder<U>): void;
 
   lifted(): SystemApplier<Region<T>>;
 }
@@ -91,7 +91,7 @@ class ExistenceSystemApplier<T> implements SystemApplier<T> {
   constructor(private system: ExistenceSystem<T>) {
   }
 
-  addToBuilder(builder: EntityTrackerBuilder, entityFinder: EntityFinder<T>) {
+  addToBuilder<U extends T & Entity>(builder: EntityTrackerBuilder, entityFinder: EntityFinder<U>) {
     builder.applyExistenceSystem(this.system, entityFinder);
   }
 
@@ -100,9 +100,8 @@ class ExistenceSystemApplier<T> implements SystemApplier<T> {
   }
 }
 
-class LiftExistenceSystemSystem<T> extends BaseExistenceSystem<Region<T>> {
+class LiftExistenceSystemSystem<T> implements ExistenceSystem<Region<T>> {
   constructor(private system: ExistenceSystem<T>) {
-    super();
   }
 
   enter(region: Region<T>) {
@@ -126,7 +125,7 @@ class TickSystemApplier<T> implements SystemApplier<T> {
   constructor(private system: TickSystem<T>) {
   }
 
-  addToBuilder(builder: EntityTrackerBuilder, entityFinder: EntityFinder<T>) {
+  addToBuilder<U extends T & Entity>(builder: EntityTrackerBuilder, entityFinder: EntityFinder<U>) {
     builder.applyTickSystem(this.system, entityFinder);
   }
 
@@ -135,15 +134,18 @@ class TickSystemApplier<T> implements SystemApplier<T> {
   }
 }
 
-class LiftTickSystemSystem<T> extends BaseTickSystem<Region<T>> {
+class LiftTickSystemSystem<T> implements TickSystem<Region<T>> {
   constructor(private system: TickSystem<T>) {
-    super();
   }
 
-  tick(region: Region<T>) {
+  update(region: Region<T>, time: Phaser.Time): void {
     for (let entity of region.container) {
-      this.system.tick(entity);
+      this.system.update(entity, time);
     }
+  }
+
+  tick(time: Phaser.Time) {
+    this.system.tick(time);
   }
 }
 

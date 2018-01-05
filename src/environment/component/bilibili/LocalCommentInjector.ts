@@ -2,12 +2,12 @@ import CommentDataUtil from './CommentDataUtil';
 import UniverseProxy from '../../interface/UniverseProxy';
 import {bindFirst} from '../../util';
 import Parameters from './Parameters';
-import LocallyOriginatedCommentBuffContainer from '../../../comment/LocallyOriginatedCommentBuffContainer';
+import BuffDataContainer from '../../../comment/BuffDataContainer';
 
 class LocalCommentInjector {
   private $textInput: JQuery<HTMLElement>;
   private $sendButton: JQuery<HTMLElement>;
-  private buffContainer: LocallyOriginatedCommentBuffContainer;
+  private buffDataContainer: BuffDataContainer;
 
   constructor(private universeProxy: UniverseProxy) {
     this.$textInput = $('.bilibili-player-video-danmaku-input');
@@ -15,7 +15,7 @@ class LocalCommentInjector {
     this.$sendButton = $('.bilibili-player-video-btn-send');
     bindFirst(this.$sendButton, 'click', this.onClickSendButtonInitial.bind(this));
 
-    this.buffContainer = universeProxy.getBuffContainer();
+    this.buffDataContainer = universeProxy.getBuffDataContainer();
   }
 
   private static getSelectedFontSize() {
@@ -54,8 +54,6 @@ class LocalCommentInjector {
       return;
     }
 
-    this.buffContainer.pop();
-
     // Update comment text in UI and let player check if the text is valid.
     this.$textInput.val(injectedCommentText);
     this.$textInput.trigger('input');
@@ -66,12 +64,14 @@ class LocalCommentInjector {
       // button, but not comment changes.
       this.$textInput.val(commentText);
     }
+
+    this.buffDataContainer.pop();
   }
 
   private buildInjectedCommentText(text: string): string {
     let buffData;
-    if (this.buffContainer.hasBuff()) {
-      buffData = this.buffContainer.peek();
+    if (this.buffDataContainer.hasBuff()) {
+      buffData = this.buffDataContainer.peek();
     }
 
     let player = this.universeProxy.getPlayer();

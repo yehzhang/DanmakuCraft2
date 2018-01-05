@@ -11,6 +11,10 @@ export default interface Graphics {
 
   drawPolygon(paths: Phaser.Polygon | number[]): this;
 
+  drawRect(x: number, y: number, width: number, height: number): this;
+
+  drawRoundedRect(x: number, y: number, width: number, height: number, radius: number): this;
+
   curveTo(cpX: number, cpY: number, toX: number, toY: number): this;
 
   bezierCurveTo(

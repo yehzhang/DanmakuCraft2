@@ -1,5 +1,5 @@
 import CommentData from '../../../comment/CommentData';
-import {BuffData} from '../../../entitySystem/system/buff/BuffFactory';
+import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffFactory';
 import Point from '../../../util/syntax/Point';
 
 class CommentDataUtil {
@@ -37,15 +37,16 @@ class CommentDataUtil {
     // Parse properties
     let positionX;
     let positionY;
-    let buffData;
+    let buffData = null;
     if (properties.length === 2) {
       [positionX, positionY] = properties;
-      buffData = null;
     } else if (properties.length === 4) {
       let buffType;
       let buffParameter;
       [positionX, positionY, buffType, buffParameter] = properties;
-      buffData = new BuffData(buffType, buffParameter);
+      if (BuffType[buffType] != null) {
+        buffData = new BuffData(buffType, buffParameter);
+      }
     } else {
       return null;
     }

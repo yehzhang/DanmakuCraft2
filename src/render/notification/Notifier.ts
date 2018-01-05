@@ -3,20 +3,10 @@ import MessageProvider from './MessageProvider';
 /**
  * Creates a message bubble in UI.
  */
-class Notifier {
-  notifyFrom(provider: MessageProvider) {
-    let message = provider.getMessage();
-    if (!message) {
-      return;
-    }
+interface Notifier {
+  sendFrom(provider: MessageProvider, force?: boolean): void;
 
-    this.notify(message);
-  }
-
-  notify(message: string) {
-    // TODO
-    throw new Error('Not implemented');
-  }
+  send(message: string, force?: boolean): void;
 }
 
 export default Notifier;

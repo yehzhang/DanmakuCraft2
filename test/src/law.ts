@@ -1,4 +1,4 @@
-import {toWorldCoordinate, toWorldCoordinateOffset} from '../../src/law';
+import {toWorldCoordinate, toWorldCoordinateOffset} from '../../src/law/space';
 import {expect} from 'chai';
 
 describe('toWorldCoordinate', () => {

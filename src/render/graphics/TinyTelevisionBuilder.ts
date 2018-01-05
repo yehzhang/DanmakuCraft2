@@ -1,9 +1,9 @@
-import {GraphicsBuilder} from './GraphicsBuilder';
+import GraphicsBuilder from './GraphicsBuilder';
 import Colors from '../Colors';
 import Graphics from './Graphics';
 
 class TinyTelevisionBuilder extends GraphicsBuilder<number> {
-  getDrawer(index: number) {
+  protected getDrawer(index: number) {
     switch (index) {
       case 0:
         return TinyTelevisionBuilder.drawFirstFrame;
@@ -14,15 +14,6 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
       default:
         throw new TypeError(`Tiny television does not have frame '${index}'`);
     }
-  }
-
-  build() {
-    let sprite = this.toSprite();
-    sprite.anchor.setTo(0.5);
-
-    let walkingAnimation = sprite.animations.add('', undefined, 12, true);
-
-    return new TinyTelevisionBuildingResult(sprite, walkingAnimation);
   }
 
   static drawFirstFrame(graphics: Graphics) {
@@ -206,8 +197,3 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
 }
 
 export default TinyTelevisionBuilder;
-
-export class TinyTelevisionBuildingResult {
-  constructor(readonly display: Phaser.Sprite, readonly walkingAnimation: Phaser.Animation) {
-  }
-}

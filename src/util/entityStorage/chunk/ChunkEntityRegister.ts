@@ -12,19 +12,29 @@ class ChunkEntityRegister<T extends StationaryEntity> extends BaseEntityRegister
     super();
   }
 
-  register(entity: T, dispatchEvent = true) {
+  register(entity: T, silent?: boolean) {
     let chunk = this.chunks.getChunkByCoordinates(entity.coordinates);
 
-    if (dispatchEvent) {
+    if (silent) {
+      chunk.container.add(entity);
+    } else {
       let newChunk = this.entityFactory.cloneRegion(chunk);
       newChunk.container.add(entity);
 
       this.chunks.replaceChunkByCoordinates(entity.coordinates, newChunk);
 
       this.entityRegistered.dispatch(new EntityExistenceUpdatedEvent(newChunk, chunk));
-    } else {
-      chunk.container.add(entity);
     }
+  }
+
+  deregister(entity: T, silent?: boolean) {
+    // TODO
+    throw new Error('Not implemented');
+  }
+
+  count(): number {
+    // TODO
+    throw new Error('Not implemented');
   }
 }
 

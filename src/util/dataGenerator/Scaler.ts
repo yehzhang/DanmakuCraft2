@@ -1,12 +1,15 @@
 import DataTransformer from './DataTransformer';
 
-class DataScaler implements DataTransformer {
+class Scaler implements DataTransformer {
   constructor(private offset: number, private base: number, private scale: number) {
   }
 
-  static between(min: number, max: number) {
-    this.validateMinMax(min, max);
-    return new DataScaler(0, min, max - min);
+  static to(min: number, max: number) {
+    return this.map(0, 1, min, max);
+  }
+
+  static from(min: number, max: number) {
+    return this.map(min, max, 0, 1);
   }
 
   static map(fromMin: number, fromMax: number, toMin: number, toMax: number) {
@@ -14,7 +17,7 @@ class DataScaler implements DataTransformer {
     this.validateMinMax(toMin, toMax);
 
     let scale = (toMax - toMin) / (fromMax - fromMin);
-    return new DataScaler(fromMin, toMin, scale);
+    return new Scaler(fromMin, toMin, scale);
   }
 
   private static validateMinMax(min: number, max: number) {
@@ -28,4 +31,4 @@ class DataScaler implements DataTransformer {
   }
 }
 
-export default DataScaler;
+export default Scaler;

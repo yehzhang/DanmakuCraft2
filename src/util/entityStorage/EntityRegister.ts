@@ -2,12 +2,16 @@ interface EntityRegister<T> {
   /**
    * Loads a single entity.
    */
-  register(entity: T, dispatchEvent?: boolean): void;
+  register(entity: T, silent?: boolean): void;
 
   /**
    * Loads an array of entities.
    */
-  registerBatch(entities: Iterable<T>, dispatchEvent?: boolean): void;
+  registerBatch(entities: Iterable<T>, silent?: boolean): void;
+
+  deregister(entity: T, silent?: boolean): void;
+
+  count(): number;
 }
 
 export default EntityRegister;

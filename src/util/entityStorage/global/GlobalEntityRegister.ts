@@ -3,16 +3,34 @@ import {EntityExistenceUpdatedEvent} from '../EntityFinder';
 
 class GlobalEntityRegister<T> extends BaseEntityRegister<T> {
   constructor(
-      private entities: T[],
+      private entities: Set<T>,
       private entityRegistered: Phaser.Signal<EntityExistenceUpdatedEvent<T>>) {
     super();
   }
 
-  register(entity: T, dispatchEvent?: boolean): void {
-    this.entities.push(entity);
-    if (dispatchEvent) {
-      this.entityRegistered.dispatch(new EntityExistenceUpdatedEvent<T>(entity, null));
+  register(entity: T, silent?: boolean) {
+    this.entities.add(entity);
+
+    if (silent) {
+      return;
     }
+    this.entityRegistered.dispatch(new EntityExistenceUpdatedEvent<T>(entity, null));
+  }
+
+  deregister(entity: T, silent?: boolean) {
+    let isEntityDeleted = this.entities.delete(entity);
+
+    if (!isEntityDeleted) {
+      return;
+    }
+    if (silent) {
+      return;
+    }
+    this.entityRegistered.dispatch(new EntityExistenceUpdatedEvent<T>(null, entity));
+  }
+
+  count() {
+    return this.entities.size;
   }
 }
 

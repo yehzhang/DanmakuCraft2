@@ -7,13 +7,11 @@ abstract class BaseUpdatingBuff<T extends Component> implements UpdatingBuff<T> 
     entity.addBuff(this);
   }
 
-  tick(component: T, time: Phaser.Time) {
-  }
+  abstract tick(component: T, time: Phaser.Time): void;
 
   abstract isExpired(): boolean;
 
-  protected set(entity: T) {
-  }
+  protected abstract set(entity: T): void;
 }
 
 export default BaseUpdatingBuff;

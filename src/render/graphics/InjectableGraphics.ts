@@ -6,7 +6,8 @@ class InjectableGraphics implements Graphics {
       private offsetY = 0,
       private offsetX = 0,
       private fillColor: number | null = null,
-      private lineColor: number | null = null) {
+      private lineColor: number | null = null,
+      private scale: number = 1) {
   }
 
   fixFillColor(fillColor: number) {
@@ -40,7 +41,7 @@ class InjectableGraphics implements Graphics {
   }
 
   beginFill(color?: number, alpha?: number) {
-    if (this.fillColor !== null) {
+    if (this.fillColor != null) {
       color = this.fillColor;
     }
 
@@ -54,12 +55,12 @@ class InjectableGraphics implements Graphics {
   }
 
   moveTo(x: number, y: number) {
-    this.graphics.moveTo(x + this.offsetX, y + this.offsetY);
+    this.graphics.moveTo(x * this.scale + this.offsetX, y * this.scale + this.offsetY);
     return this;
   }
 
   lineTo(x: number, y: number) {
-    this.graphics.lineTo(x + this.offsetX, y + this.offsetY);
+    this.graphics.lineTo(x * this.scale + this.offsetX, y * this.scale + this.offsetY);
     return this;
   }
 
@@ -69,6 +70,7 @@ class InjectableGraphics implements Graphics {
     }
 
     this.graphics.lineStyle(lineWidth, color, alpha);
+
     return this;
   }
 
@@ -78,27 +80,45 @@ class InjectableGraphics implements Graphics {
     }
 
     for (let i = 0; i < paths.length; i += 2) {
-      paths[i] += this.offsetX;
-      paths[i + 1] += this.offsetY;
+      paths[i] = paths[i] * this.scale + this.offsetX;
+      paths[i + 1] = paths[i + 1] * this.scale + this.offsetY;
     }
     this.graphics.drawPolygon(paths);
 
     return this;
   }
 
+  drawRect(x: number, y: number, width: number, height: number) {
+    this.graphics.drawRect(
+        x * this.scale + this.offsetX,
+        y * this.scale + this.offsetY,
+        width * this.scale,
+        height * this.scale);
+    return this;
+  }
+
+  drawRoundedRect(x: number, y: number, width: number, height: number, radius: number) {
+    this.graphics.drawRoundedRect(
+        x * this.scale + this.offsetX,
+        y * this.scale + this.offsetY,
+        width * this.scale,
+        height * this.scale,
+        radius * this.scale);
+    return this;
+  }
+
   curveTo(cpX: number, cpY: number, toX: number, toY: number) {
-    // TODO it this correct?
     return this.bezierCurveTo(cpX, cpY, cpX, cpY, toX, toY);
   }
 
   bezierCurveTo(cpX: number, cpY: number, cpX2: number, cpY2: number, toX: number, toY: number) {
     this.graphics.bezierCurveTo(
-        cpX + this.offsetX,
-        cpY + this.offsetY,
-        cpX2 + this.offsetX,
-        cpY2 + this.offsetY,
-        toX + this.offsetX,
-        toY + this.offsetY);
+        cpX * this.scale + this.offsetX,
+        cpY * this.scale + this.offsetY,
+        cpX2 * this.scale + this.offsetX,
+        cpY2 * this.scale + this.offsetY,
+        toX * this.scale + this.offsetX,
+        toY * this.scale + this.offsetY);
     return this;
   }
 
@@ -115,6 +135,15 @@ class InjectableGraphics implements Graphics {
 
   getLocalBounds() {
     return this.graphics.getLocalBounds();
+  }
+
+  getGraphics() {
+    return this.graphics;
+  }
+
+  multiplyScaleBy(scale: number) {
+    this.scale *= scale;
+    return this;
   }
 }
 

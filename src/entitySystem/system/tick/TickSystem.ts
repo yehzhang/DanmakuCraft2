@@ -1,7 +1,12 @@
 import {Component} from '../../alias';
 
 interface TickSystem<T = Component> {
-  tick(entity: T): void;
+  update(entity: T, time: Phaser.Time): void;
+
+  /**
+   * Called once per tick.
+   */
+  tick(time: Phaser.Time): void;
 }
 
 export default TickSystem;

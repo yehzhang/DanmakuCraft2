@@ -1,7 +1,7 @@
 import Moving from './Moving';
 import Chromatic from './Chromatic';
 import Ethereal from './Ethereal';
-import Buff from './Buff';
+import Hasty from './Hasty';
 
 export enum BuffType {
   ETHEREAL = 0,  // nothing
@@ -15,7 +15,10 @@ export enum BuffType {
 }
 
 export class BuffData {
-  constructor(public readonly type: number, public readonly parameter: number) {
+  constructor(readonly type: BuffType, readonly parameter: number = 0) {
+    if (BuffType[type] == null) {
+      throw new TypeError(`Invalid buff type '${type}'`);
+    }
   }
 
   toString() {
@@ -24,8 +27,6 @@ export class BuffData {
 }
 
 interface BuffFactory {
-  create(data: BuffData): Buff;
-
   createEthereal(): Ethereal;
 
   createInputControllerMover(): Moving;
@@ -33,6 +34,8 @@ interface BuffFactory {
   createWorldWanderingMover(): Moving;
 
   createChromatic(): Chromatic;
+
+  createHasty(): Hasty;
 }
 
 export default BuffFactory;

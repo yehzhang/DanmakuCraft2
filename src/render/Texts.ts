@@ -1,4 +1,4 @@
-export default class Texts {
+class Texts {
   private static TEXTS: { [textName: string]: string } = {
     'boot.anyInput': '按任意键开始游戏',
     'boot.done': '加载完毕',
@@ -8,6 +8,12 @@ export default class Texts {
 
     'main.tutorial.move': '按 W、S、A、D 移动',
     'main.tutorial.comment': '按回车键开始输入弹幕，再次按下发送弹幕',
+
+    'main.buff.description.ethereal': '我捡到了……一团空气',
+    'main.buff.description.chromatic': '下一条弹幕一定会很绚丽',
+    'main.buff.description.hasty': '现在我健步如飞了！',
+
+    'main.comment.insert.collision': '这里塞不下更多弹幕了哟',
   };
 
   static forName(name: string): string {
@@ -20,3 +26,5 @@ export default class Texts {
     return text;
   }
 }
+
+export default Texts;

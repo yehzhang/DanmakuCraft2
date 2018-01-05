@@ -24,7 +24,7 @@ interface EntityFinder<T> extends Iterable<T> {
    */
   listAround(coordinates: Point, radius: number): Iterable<T>;
 
-  findClosetEntityTo(coordinates: Point): T | null;
+  findClosestEntityTo(coordinates: Point): T | null;
 }
 
 export default EntityFinder;

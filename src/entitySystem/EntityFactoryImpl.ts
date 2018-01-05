@@ -1,11 +1,11 @@
 import EntityFactory from './EntityFactory';
-import {CommentEntity, Player, Region, TinyTelevision, UpdatingCommentEntity} from './alias';
+import {CommentEntity, Region, UpdatingCommentEntity} from './alias';
 import CommentData from '../comment/CommentData';
 import Comment from './component/Comment';
 import Entity, {EntityBuilder} from './Entity';
 import ImmutableCoordinates from './component/ImmutableCoordinates';
 import MaybeDisplay from './component/MaybeDisplay';
-import BuffFactory, {BuffData} from './system/buff/BuffFactory';
+import BuffFactory from './system/buff/BuffFactory';
 import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
 import MutableCoordinates from './component/MutableCoordinates';
 import Motion from './component/Motion';
@@ -15,6 +15,7 @@ import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import Point from '../util/syntax/Point';
 import ArrayContainer from '../util/entityStorage/chunk/ArrayContainer';
 import ContainerHolder from './component/ContainerHolder';
+import Chest from './component/Chest';
 
 class EntityFactoryImpl implements EntityFactory {
   constructor(
@@ -40,7 +41,7 @@ class EntityFactoryImpl implements EntityFactory {
         .build();
   }
 
-  cloneRegion<T>(region: Region<T>): Region<T> {
+  cloneRegion<T>(region: Region<T>) {
     let newRegion = this.createRegion<T>(region.coordinates);
 
     for (let entity of region.container) {
@@ -50,17 +51,17 @@ class EntityFactoryImpl implements EntityFactory {
     return newRegion;
   }
 
-  createPlayer(coordinates: Point): Player {
+  createPlayer(coordinates: Point) {
     return this.createTinyTelevision(coordinates);
   }
 
-  createTinyTelevision(coordinates: Point): TinyTelevision {
-    let builtDisplay = this.graphicsFactory.createTinyTelevision();
+  createTinyTelevision(coordinates: Point) {
+    let view = this.graphicsFactory.createTinyTelevision();
     let entity = Entity.newBuilder()
         .mix(new MutableCoordinates(coordinates))
-        .mix(new Motion(1, 0))
-        .mix(new Display(builtDisplay.display))
-        .mix(new MovingAnimation(builtDisplay.walkingAnimation))
+        .mix(new Motion())
+        .mix(new Display(view.display))
+        .mix(new MovingAnimation(view.walkingAnimation))
         .mix(new UpdatingBuffCarrier())
         .build();
 
@@ -69,23 +70,28 @@ class EntityFactoryImpl implements EntityFactory {
     return entity;
   }
 
-  createCommentEntity(data: CommentData): CommentEntity {
+  createCommentEntity(data: CommentData) {
     let entity: CommentEntity = EntityFactoryImpl
         .createBaseCommentEntity(data, () => this.graphicsFactory.createTextFromComment(entity))
         .build();
     return entity;
   }
 
-  createUpdatingCommentEntity(data: CommentData, buffData: BuffData): UpdatingCommentEntity {
+  createUpdatingCommentEntity(data: CommentData) {
     let entity: UpdatingCommentEntity =
         EntityFactoryImpl.createBaseCommentEntity<any>(
             data, () => this.graphicsFactory.createTextFromComment(entity))
             .mix(new UpdatingBuffCarrier<UpdatingCommentEntity>())
             .build();
-
-    this.buffFactory.create(buffData).apply(entity);
-
     return entity;
+  }
+
+  createChest(coordinates: Point) {
+    return Entity.newBuilder()
+        .mix(new ImmutableCoordinates(coordinates))
+        .mix(new Display(this.graphicsFactory.createChest()))
+        .mix(new Chest())
+        .build();
   }
 }
 

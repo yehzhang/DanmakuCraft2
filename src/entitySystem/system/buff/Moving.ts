@@ -8,6 +8,9 @@ class Moving extends PermanentlyUpdatingBuff<MovableEntity> {
     super();
   }
 
+  protected set(entity: MovableEntity) {
+  }
+
   tick(entity: MovableEntity, time: Phaser.Time) {
     let moveDistance = Math.round(PhysicalConstants.PLAYER_MOVE_DISTANCE_PER_SECOND
         * time.physicsElapsed

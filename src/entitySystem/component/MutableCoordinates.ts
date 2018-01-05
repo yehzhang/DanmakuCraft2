@@ -1,5 +1,5 @@
 import Coordinates from './Coordinates';
-import {toWorldCoordinate2d} from '../../law';
+import {toWorldCoordinate2d} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
 import Point from '../../util/syntax/Point';
 
