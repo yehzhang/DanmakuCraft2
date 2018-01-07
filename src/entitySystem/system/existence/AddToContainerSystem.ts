@@ -1,6 +1,7 @@
 import ExistenceSystem from './ExistenceSystem';
 import {Renderable, RenderableEntity} from '../../alias';
 import Point from '../../../util/syntax/Point';
+import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
 
 class AddToContainerSystem implements ExistenceSystem<RenderableEntity> {
   constructor(

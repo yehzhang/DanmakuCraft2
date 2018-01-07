@@ -1,5 +1,6 @@
 import ExistenceSystem from './ExistenceSystem';
 import {Region, Renderable} from '../../alias';
+import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
 
 class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer>
     implements ExistenceSystem<Region<Renderable<T>>> {

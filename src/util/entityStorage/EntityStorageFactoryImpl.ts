@@ -12,6 +12,7 @@ import GlobalEntityRegister from './global/GlobalEntityRegister';
 import GlobalEntityFinder from './global/GlobalEntityFinder';
 import Entity from '../../entitySystem/Entity';
 import {EntityExistenceUpdatedEvent} from './EntityFinder';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class EntityStorageFactoryImpl implements EntityStorageFactory {
   constructor(private entityFactory: EntityFactory) {

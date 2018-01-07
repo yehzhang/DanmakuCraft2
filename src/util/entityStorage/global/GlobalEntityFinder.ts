@@ -4,6 +4,7 @@ import Entity from '../../../entitySystem/Entity';
 import Distance from '../../math/Distance';
 import {asSequence} from 'sequency';
 import Iterator from '../../syntax/Iterator';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   constructor(

@@ -5,6 +5,7 @@ import Controller from '../../../controller/Controller';
 import Moving from './Moving';
 import Hasty from './Hasty';
 import LawFactory from '../../../law/LawFactory';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class BuffFactoryImpl implements BuffFactory {
   constructor(

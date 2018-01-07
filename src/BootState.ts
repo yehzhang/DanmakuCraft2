@@ -5,6 +5,7 @@ import Universe, {UniverseFactory} from './Universe';
 import {SettingsOptions} from './environment/interface/SettingsManager';
 import PhysicalConstants from './PhysicalConstants';
 import Point from './util/syntax/Point';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 /**
  * Displays the opening and loads the universe

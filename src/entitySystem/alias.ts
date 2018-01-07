@@ -9,6 +9,7 @@ import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
 import MovingAnimation from './component/MovingAnimation';
 import ContainerHolder from './component/ContainerHolder';
 import Chest from './component/Chest';
+import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
 
 // noinspection TsLint
 export type Component = {};

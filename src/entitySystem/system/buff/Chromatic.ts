@@ -1,6 +1,7 @@
 import PermanentlyUpdatingBuff from './PermanentlyUpdatingBuff';
 import {UpdatingCommentEntity} from '../../alias';
 import ColorTransitionLaw from '../../../law/ColorTransitionLaw';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 /**
  * Makes a {@link CommentEntity} constantly change its color.

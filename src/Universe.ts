@@ -44,6 +44,7 @@ import AddToContainerSystem from './entitySystem/system/existence/AddToContainer
 import Debug from './util/Debug';
 import UniverseProxyImpl from './UniverseProxyImpl';
 import NotifierFactoryImpl from './render/notification/NotifierFactoryImpl';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 /**
  * Instantiates and connects components. Starts the game.

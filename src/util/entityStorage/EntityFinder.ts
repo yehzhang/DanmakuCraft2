@@ -1,4 +1,5 @@
 import Point from '../syntax/Point';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 /**
  * Stores entities and supports for querying entities within a certain area.

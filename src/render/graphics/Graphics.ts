@@ -1,3 +1,5 @@
+import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
+
 export default interface Graphics {
   beginFill(color?: number, alpha?: number): this;
 

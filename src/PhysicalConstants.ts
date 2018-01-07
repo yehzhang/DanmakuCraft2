@@ -1,3 +1,5 @@
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
+
 export default class PhysicalConstants {
   public static readonly WORLD_SIZE = 40000;
 

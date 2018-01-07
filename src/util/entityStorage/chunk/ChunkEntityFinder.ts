@@ -4,6 +4,7 @@ import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
 import {validateRadius} from '../../../law/space';
 import Iterator from '../../syntax/Iterator';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 /**
  * Implements {@link EntityFinder} with chunks.

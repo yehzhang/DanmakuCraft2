@@ -5,6 +5,7 @@ import {WebSocketManager} from '../../util';
 import EnvironmentVariables from './EnvironmentVariables';
 import Parameters from './Parameters';
 import CommentData from '../../../comment/CommentData';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class BilibiliCommentProvider implements CommentProvider {
   private connected: boolean;

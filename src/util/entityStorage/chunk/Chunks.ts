@@ -2,6 +2,7 @@ import Point from '../../syntax/Point';
 import {toWorldCoordinate, toWorldCoordinate2d, validateRadius} from '../../../law/space';
 import PhysicalConstants from '../../../PhysicalConstants';
 import IterablesIterator from '../../iteration/IterablesIterator';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class Chunks<T> implements Iterable<T> {
   constructor(private chunks: T[][], readonly chunkSize: number) {

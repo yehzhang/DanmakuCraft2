@@ -2,6 +2,7 @@ import {MovableEntity} from '../../alias';
 import PermanentlyUpdatingBuff from './PermanentlyUpdatingBuff';
 import Controller from '../../../controller/Controller';
 import PhysicalConstants from '../../../PhysicalConstants';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class Moving extends PermanentlyUpdatingBuff<MovableEntity> {
   constructor(private controller: Controller) {

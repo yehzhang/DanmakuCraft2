@@ -1,4 +1,5 @@
 import {ExistentEntity} from '../entitySystem/alias';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class Renderer {
   constructor(

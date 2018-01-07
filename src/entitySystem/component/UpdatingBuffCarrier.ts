@@ -1,6 +1,7 @@
 import {Component} from '../alias';
 import UpdatingBuff from '../system/buff/UpdatingBuff';
 import Buff from '../system/buff/Buff';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 /**
  * @template T type of the entity that carries buffs.

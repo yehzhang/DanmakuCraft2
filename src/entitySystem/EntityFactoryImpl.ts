@@ -16,6 +16,7 @@ import Point from '../util/syntax/Point';
 import ArrayContainer from '../util/entityStorage/chunk/ArrayContainer';
 import ContainerHolder from './component/ContainerHolder';
 import Chest from './component/Chest';
+import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
 
 class EntityFactoryImpl implements EntityFactory {
   constructor(

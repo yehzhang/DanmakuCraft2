@@ -3,6 +3,8 @@ import Graphics from './Graphics';
 import InjectableGraphics from './InjectableGraphics';
 import Point from '../../util/syntax/Point';
 import {asSequence} from 'sequency';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
+import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
 
 export type Drawer = (graphics: Graphics) => void;
 

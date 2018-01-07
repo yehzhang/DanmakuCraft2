@@ -1,5 +1,6 @@
 import {Component, Updatable} from '../../alias';
 import BaseUpdatingBuff from './BaseUpdatingBuff';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 abstract class TimedBuff<T extends Component> extends BaseUpdatingBuff<T> {
   static readonly MAX_LIFETIME = Infinity;

@@ -1,4 +1,5 @@
 import Graphics from './Graphics';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class InjectableGraphics implements Graphics {
   constructor(

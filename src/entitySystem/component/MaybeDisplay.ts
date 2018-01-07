@@ -1,3 +1,5 @@
+import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
+
 class MaybeDisplay<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
   private displayInternal?: T;
 

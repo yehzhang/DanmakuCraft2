@@ -1,5 +1,6 @@
 import BaseNotifier from './BaseNotifier';
 import {NotifierView} from '../graphics/GraphicsFactory';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class PoppingNotifier extends BaseNotifier {
   private static readonly BUBBLE_DISPLAY_DURATION = 5 * Phaser.Timer.SECOND;

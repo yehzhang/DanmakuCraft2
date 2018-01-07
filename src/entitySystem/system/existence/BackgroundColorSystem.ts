@@ -5,6 +5,7 @@ import Colors from '../../../render/Colors';
 import PhysicalConstants from '../../../PhysicalConstants';
 import {Bag} from 'typescript-collections';
 import Polar from '../../../util/math/Polar';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class BackgroundColorSystem implements ExistenceSystem<Region<CommentEntity>> {
   private baseColor: Phaser.RGBColor;

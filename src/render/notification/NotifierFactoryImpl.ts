@@ -2,6 +2,7 @@ import NotifierFactory from './NotifierFactory';
 import PoppingNotifier from './PoppingNotifier';
 import GraphicsFactory from '../graphics/GraphicsFactory';
 import Point from '../../util/syntax/Point';
+import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
 
 class NotifierFactoryImpl implements NotifierFactory {
   constructor(private game: Phaser.Game, private graphicsFactory: GraphicsFactory) {

@@ -3,6 +3,7 @@ import Chunks from './Chunks';
 import EntityFactory from '../../../entitySystem/EntityFactory';
 import BaseEntityRegister from '../BaseEntityRegister';
 import {EntityExistenceUpdatedEvent} from '../EntityFinder';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class ChunkEntityRegister<T extends StationaryEntity> extends BaseEntityRegister<T> {
   constructor(

@@ -1,5 +1,6 @@
 import {Updatable} from '../../alias';
 import TickSystem from './TickSystem';
+import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class UpdateSystem implements TickSystem<Updatable> {
   constructor(private time: Phaser.Time) {
