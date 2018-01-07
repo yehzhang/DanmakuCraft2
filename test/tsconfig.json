@@ -2,7 +2,6 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "target": "es6",
-    "outDir": "../test-build",
     "strict": false,
     "inlineSources": true,
     "noImplicitAny": true,

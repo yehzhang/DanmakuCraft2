@@ -23,8 +23,6 @@ interface EntityFinder<T> extends Iterable<T> {
    * within a certain radius looks like a rectangle, not a circle.
    */
   listAround(coordinates: Point, radius: number): Iterable<T>;
-
-  findClosestEntityTo(coordinates: Point): T | null;
 }
 
 export default EntityFinder;

@@ -5,10 +5,9 @@ import TickSystem from '../entitySystem/system/tick/TickSystem';
 import EntityTrackerBuilder from './EntityTrackerBuilder';
 import {ApplyClause} from './entityTrackerBuilderWrapper';
 import Point from '../util/syntax/Point';
-import {validateRadius} from '../law/space';
 import DynamicProvider from '../util/DynamicProvider';
-import {asSequence} from 'sequency';
 import Distance from '../util/math/Distance';
+import {asSequence} from 'sequency';
 
 /**
  * Tracks an animated entity and triggers callbacks whenever the entity moves from one region to
@@ -16,39 +15,57 @@ import Distance from '../util/math/Distance';
  * The entity must be animated because otherwise it never updates, and thus requires no tracking.
  */
 class EntityTracker {
-  private currentCoordinate: Point;
-
   constructor(
       private trackee: Entity,
       private samplingRadius: DynamicProvider<number>,
-      private trackingRecords: OneEntityFinderToManySystemsRecord[],
-      private existenceSystemsFinisher: ExistenceSystemsFinisher) {
-    this.currentCoordinate = trackee.coordinates.clone();
-    validateRadius(samplingRadius.getValue());
+      private systemTickers: Array<SystemTicker<Entity>>,
+      private entityFinderRecords: Array<EntityFinderRecord<Entity>>,
+      private updateRelations: Array<UpdateRelation<Entity, Entity>>,
+      private distanceChecker: DistanceChecker,
+      private currentCoordinate: Point = trackee.coordinates.clone()) {
   }
 
   static newBuilder(trackee: Entity, samplingRadius: DynamicProvider<number>) {
-    let builder = new EntityTrackerBuilder(trackee, samplingRadius, new Map());
+    let builder = new EntityTrackerBuilder(trackee, samplingRadius);
     return new ApplyClause(builder);
   }
 
   tick(time: Phaser.Time) {
     let nextCoordinates = this.trackee.coordinates;
     let samplingRadius = this.samplingRadius.getValue();
-    let sequence = asSequence(this.trackingRecords);
+    let updatedRecords = this.getEntityFinderRecordsToUpdate(nextCoordinates, samplingRadius)
+        .onEach(record => record.update(nextCoordinates, samplingRadius))
+        .toArray();
+
+    for (let relation of this.updateRelations) {
+      relation.forwardTick(time);
+    }
+    asSequence(this.updateRelations).reverse().forEach(relation => relation.backwardTick(time));
+    for (let ticker of this.systemTickers) {
+      ticker.finishingTick(time);
+    }
+
+    for (let record of updatedRecords) {
+      record.commitUpdate();
+    }
+    this.samplingRadius.commitUpdate();
+    if (updatedRecords.length === this.entityFinderRecords.length) {
+      this.currentCoordinate.copyFrom(nextCoordinates);
+    }
+  }
+
+  private getEntityFinderRecordsToUpdate(nextCoordinates: Point, samplingRadius: number) {
+    let records = asSequence(this.entityFinderRecords);
+
+    if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinate)) {
+      return records;
+    }
+
     if (this.samplingRadius.hasUpdate()) {
-      this.samplingRadius.commitUpdate();
-    } else {
-      sequence = sequence.filter(record => record.shouldUpdate(nextCoordinates, samplingRadius));
+      return records;
     }
-    sequence.forEach(record => record.update(this.currentCoordinate, samplingRadius));
-    this.existenceSystemsFinisher.finishSystems();
 
-    this.currentCoordinate = nextCoordinates.clone();
-
-    for (let trackingRecord of this.trackingRecords) {
-      trackingRecord.tick(time);
-    }
+    return records.filter(record => record.shouldUpdate(nextCoordinates, samplingRadius));
   }
 }
 
@@ -57,11 +74,12 @@ export default EntityTracker;
 export class EntityFinderRecord<T extends Entity> {
   constructor(
       private entityFinder: EntityFinder<T>,
-      private currentAnchorEntity: T | null = null,
+      private distanceChecker: DistanceChecker,
+      public currentEntities: Set<T> = new Set(),
       public enteringEntities: T[] = [],
       public exitingEntities: T[] = [],
-      public currentEntities: Set<T> = new Set(),
-      private isCurrentEntitiesOutdated = false) {
+      private shouldUpdateEntities: boolean = true,
+      private hasUpdatedEntities: boolean = false) {
     entityFinder.entityExistenceUpdated.add(this.onEntityUpdated, this);
   }
 
@@ -76,121 +94,150 @@ export class EntityFinderRecord<T extends Entity> {
   }
 
   shouldUpdate(nextCoordinates: Point, samplingRadius: number) {
-    if (this.isCurrentEntitiesOutdated) {
-      return true;
-    }
-
-    let nextAnchorEntity = this.entityFinder.findClosestEntityTo(nextCoordinates);
-    if (this.currentAnchorEntity !== nextAnchorEntity) {
-      return true;
-    }
-
-    if (nextAnchorEntity != null) {
-      let distance = new Distance(samplingRadius);
-      if (!distance.isClose(nextAnchorEntity.coordinates, nextCoordinates)) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.shouldUpdateEntities;
   }
 
   update(nextCoordinates: Point, samplingRadius: number) {
-    let nextRegionArray =
-        this.entityFinder.listAround(nextCoordinates, samplingRadius);
-    let nextEntities = new Set(nextRegionArray);
+    let nextEntities = new Set(this.entityFinder.listAround(nextCoordinates, samplingRadius));
     this.enteringEntities = EntityFinderRecord.leftOuterJoin(nextEntities, this.currentEntities);
     this.exitingEntities = EntityFinderRecord.leftOuterJoin(this.currentEntities, nextEntities);
     this.currentEntities = nextEntities;
 
-    this.currentAnchorEntity = this.entityFinder.findClosestEntityTo(nextCoordinates);
-    this.isCurrentEntitiesOutdated = false;
+    this.shouldUpdateEntities = false;
+    this.hasUpdatedEntities = this.enteringEntities.length > 0 || this.exitingEntities.length > 0;
+  }
+
+  hasUpdate() {
+    return this.hasUpdatedEntities;
+  }
+
+  commitUpdate() {
+    this.enteringEntities.length = 0;
+    this.exitingEntities.length = 0;
+    this.hasUpdatedEntities = false;
   }
 
   private onEntityUpdated(entityUpdatedEvent: EntityExistenceUpdatedEvent<T>) {
+    this.shouldUpdateEntities = this.shouldRecordUpdate(entityUpdatedEvent);
+  }
+
+  private shouldRecordUpdate(entityUpdatedEvent: EntityExistenceUpdatedEvent<T>) {
     if (entityUpdatedEvent.registeredEntity) {
-      // TODO check if the entity is within the sampling radius? But chunk finder returns chunks
-      // out of the radius
-      this.isCurrentEntitiesOutdated = true;
-      return;
+      if (this.distanceChecker.isInEnteringRadius(entityUpdatedEvent.registeredEntity)) {
+        return true;
+      }
     }
     if (entityUpdatedEvent.removedEntity) {
       if (this.currentEntities.has(entityUpdatedEvent.removedEntity)) {
-        this.isCurrentEntitiesOutdated = true;
-        return;
+        return true;
       }
     }
+    return false;
   }
 }
 
-export class OneEntityFinderToManySystemsRecord<T extends Entity = Entity> {
+export class DistanceChecker {
+  private enteringDistance: Distance;
+
   constructor(
-      private entityFinderRecord: EntityFinderRecord<T>,
-      private existenceSystems: Array<ExistenceSystem<T>>,
-      private tickSystems: Array<TickSystem<T>>,
-      private existenceSystemsFinisher: ExistenceSystemsFinisher) {
+      private trackee: Entity,
+      readonly samplingRadius: DynamicProvider<number>,
+      private updatingRadius: number,
+      readonly updatingDistance: Distance = new Distance(updatingRadius)) {
+    this.updateDistance();
   }
 
-  shouldUpdate(nextCoordinates: Point, samplingRadius: number) {
-    return this.entityFinderRecord.shouldUpdate(nextCoordinates, samplingRadius);
+  isInEnteringRadius(entity: Entity) {
+    if (this.samplingRadius.hasUpdate()) {
+      this.updateDistance();
+    }
+    return this.isInDistance(this.enteringDistance, entity);
   }
 
-  update(nextCoordinates: Point, samplingRadius: number) {
-    this.entityFinderRecord.update(nextCoordinates, samplingRadius);
-
-    for (let entity of this.entityFinderRecord.exitingEntities) {
-      this.exitSystems(entity);
-    }
-
-    for (let entity of this.entityFinderRecord.enteringEntities) {
-      this.enterSystems(entity);
-    }
-
-    if (this.entityFinderRecord.enteringEntities.length > 0
-        || this.entityFinderRecord.exitingEntities.length > 0) {
-      this.registerToFinishEnteredOrExitedSystems();
-    }
+  isInUpdatingRadius(entity: Entity) {
+    return this.isInDistance(this.updatingDistance, entity);
   }
 
-  tick(time: Phaser.Time) {
-    for (let entity of this.entityFinderRecord.currentEntities) {
-      for (let system of this.tickSystems) {
-        system.update(entity, time);
-      }
-    }
+  private updateDistance() {
+    this.enteringDistance = new Distance(this.samplingRadius.getValue() + this.updatingRadius);
   }
 
-  private enterSystems(entity: T) {
-    for (let system of this.existenceSystems) {
-      system.enter(entity);
-    }
+  private isInDistance(distance: Distance, entity: Entity) {
+    return distance.isClose(this.trackee.coordinates, entity.coordinates);
+  }
+}
+
+export interface SystemTicker<T> {
+  forwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>, time: Phaser.Time): void;
+
+  backwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>, time: Phaser.Time): void;
+
+  finishingTick(time: Phaser.Time): void;
+}
+
+export class TickSystemTicker<T> implements SystemTicker<T> {
+  constructor(private system: TickSystem<T>) {
   }
 
-  private exitSystems(entity: T) {
-    for (let systemIndex = this.existenceSystems.length - 1; systemIndex >= 0; systemIndex--) {
-      this.existenceSystems[systemIndex].exit(entity);
+  forwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>, time: Phaser.Time) {
+    for (let entity of record.currentEntities) {
+      this.system.update(entity, time);
     }
   }
 
-  private registerToFinishEnteredOrExitedSystems() {
-    for (let system of this.existenceSystems) {
-      this.existenceSystemsFinisher.register(system);
+  backwardUpdate() {
+  }
+
+  finishingTick(time: Phaser.Time) {
+    this.system.tick(time);
+  }
+}
+
+export class ExistenceSystemTicker<T> implements SystemTicker<T> {
+  constructor(private system: ExistenceSystem<T>, private hasUpdate: boolean = false) {
+  }
+
+  forwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>) {
+    if (!record.hasUpdate()) {
+      return;
+    }
+
+    for (let entity of record.enteringEntities) {
+      this.system.enter(entity);
+    }
+
+    this.hasUpdate = true;
+  }
+
+  backwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>) {
+    if (!record.hasUpdate()) {
+      return;
+    }
+
+    for (let entity of record.exitingEntities) {
+      this.system.exit(entity);
+    }
+
+    this.hasUpdate = true;
+  }
+
+  finishingTick() {
+    if (this.hasUpdate) {
+      this.system.finish();
+      this.hasUpdate = false;
     }
   }
 }
 
-export class ExistenceSystemsFinisher {
-  constructor(private systems: Set<ExistenceSystem<any>> = new Set()) {
+export class UpdateRelation<T, U extends T & Entity> {
+  constructor(private ticker: SystemTicker<T>, private record: EntityFinderRecord<U>) {
   }
 
-  register(system: ExistenceSystem<any>) {
-    this.systems.add(system);
+  forwardTick(time: Phaser.Time) {
+    this.ticker.forwardUpdate(this.record, time);
   }
 
-  finishSystems() {
-    for (let system of this.systems) {
-      system.finish();
-    }
-    this.systems.clear();
+  backwardTick(time: Phaser.Time) {
+    this.ticker.backwardUpdate(this.record, time);
   }
 }

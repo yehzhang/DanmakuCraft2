@@ -64,27 +64,38 @@ describe('EntityBuilder', () => {
       }
     }
 
-    let actual = entityBuilder.mix(new A()).mix(new C()).build();
+    let actual: any = entityBuilder.mix(new A()).mix(new C()).build();
+    let actualObject = {
+      b: actual.b,
+      a: actual.a,
+      e: actual.e,
+      __proto__: {
+        constructor: actual.__proto__.constructor,
+        c: actual.__proto__.c,
+        f: actual.__proto__.f,
+        __proto__: {
+          constructor: actual.__proto__.__proto__.constructor,
+          d: actual.__proto__.__proto__.d,
+          __proto__: actual.__proto__.__proto__.__proto__,
+        }
+      }
+    };
 
-    class Mixed {
-      b = false;
-      a = 1;
-      e = [];
-    }
-
-    Object.assign(Mixed.prototype, {
-      constructor: C,
-      c: A.prototype.c,
-      f: C.prototype.f,
+    expect(actualObject).to.deep.equal({
+      b: false,
+      a: 1,
+      e: [],
+      __proto__: {
+        constructor: C.prototype.constructor,
+        c: A.prototype.c,
+        f: C.prototype.f,
+        __proto__: {
+          constructor: B.prototype.constructor,
+          d: B.prototype.d,
+          __proto__: Object.getPrototypeOf({}),
+        }
+      }
     });
-    Object.setPrototypeOf(Mixed.prototype, {
-      constructor: B,
-      d: B.prototype.d,
-    });
-
-    let expected = new Mixed();
-
-    expect(actual).to.deep.equal(expected);
   });
 
   it('mixes getters and setters', () => {
@@ -114,19 +125,22 @@ describe('EntityBuilder', () => {
 
     let actual = entityBuilder.mix(new A()).mix(new B()).mix(new C()).build();
 
-    class Mixed {
+    class Expected {
       a = 1;
       b = [];
     }
 
-    Mixed.prototype.constructor = C;
-    Mixed.prototype = Object.create(Mixed.prototype, {
+    let basePrototype = Object.assign({
+      constructor: A.prototype.constructor,
+    }, Expected.prototype);
+    let expectedPrototype = Object.create(basePrototype, {
       c: Object.getOwnPropertyDescriptor(A.prototype, 'c'),
       d: Object.getOwnPropertyDescriptor(B.prototype, 'd'),
       e: Object.getOwnPropertyDescriptor(C.prototype, 'e'),
     } as any);
+    Object.assign(Expected.prototype, expectedPrototype);
 
-    let expected = new Mixed();
+    let expected = new Expected();
 
     expect(actual).to.deep.equal(expected);
   });

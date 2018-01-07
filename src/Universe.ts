@@ -194,7 +194,8 @@ class Universe extends Phaser.State {
     let renderRadius = new DynamicProvider(this.getRenderRadius());
     this.game.scale.onSizeChange.add(() => renderRadius.update(this.getRenderRadius()));
 
-    let chestLaw = this.lawFactory.createChestLaw(this.player, renderRadius);
+    let chestLaw =
+        this.lawFactory.createChestLaw(this.player, renderRadius, __DEBUG__ ? 1 : undefined);
     this.chestSystem = new ChestSystem(
         new ChestOpener(
             this.game,
@@ -218,6 +219,7 @@ class Universe extends Phaser.State {
     let chestsFinder = this.chestsStorage.getFinder();
     let playersFinder = this.playersStorage.getFinder();
 
+    // TODO split render related systems to another tracker called in State.render()?
     this.foregroundTracker = EntityTracker.newBuilder(this.player, renderRadius)
 
         .applyExistenceSystem(new SuperposedEntityRenderSystem())

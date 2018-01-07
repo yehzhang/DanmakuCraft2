@@ -32,10 +32,6 @@ class ChunkEntityFinder<T> implements EntityFinder<Region<T>> {
     return this.chunks.listChunksInBounds(bounds);
   }
 
-  findClosestEntityTo(coordinates: Point) {
-    return this.chunks.getChunkByCoordinates(coordinates);
-  }
-
   [Symbol.iterator]() {
     return Iterator.of(this.chunks);
   }

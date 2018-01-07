@@ -11,12 +11,11 @@ class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
       readonly entityExistenceUpdated: Phaser.Signal<EntityExistenceUpdatedEvent<T>>) {
   }
 
-  findClosestEntityTo(coordinates: Point): T | null {
-    return asSequence(this.entities)
-        .minBy(entity => Distance.roughlyOf(entity.coordinates, coordinates));
-  }
-
   listAround(coordinates: Point, radius: number): Iterable<T> {
+    if (radius === 0) {
+      return [];
+    }
+
     let distance = new Distance(radius);
     return asSequence(this.entities)
         .filter(entity => distance.isClose(entity.coordinates, coordinates))

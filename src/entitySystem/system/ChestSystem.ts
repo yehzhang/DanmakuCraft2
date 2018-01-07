@@ -1,5 +1,5 @@
 import TickSystem from './tick/TickSystem';
-import {ChestEntity, Renderable} from '../alias';
+import {ChestEntity} from '../alias';
 import ExistenceSystem from './existence/ExistenceSystem';
 import BuffDataApplier from './buff/BuffDataApplier';
 import ChestLaw from '../../law/ChestLaw';
@@ -8,6 +8,8 @@ import BuffDescription from './buff/BuffDescription';
 import EntityFactory from '../EntityFactory';
 import Point from '../../util/syntax/Point';
 import EntityRegister from '../../util/entityStorage/EntityRegister';
+import Distance from '../../util/math/Distance';
+import Entity from '../Entity';
 
 class ChestSystem implements TickSystem<ChestEntity>, ExistenceSystem<ChestEntity> {
   constructor(
@@ -17,7 +19,9 @@ class ChestSystem implements TickSystem<ChestEntity>, ExistenceSystem<ChestEntit
   }
 
   update(chest: ChestEntity) {
-    this.chestOpener.execute(chest);
+    if (this.chestOpener.execute(chest)) {
+      this.chestSpawner.scheduleNextSpawning();
+    }
   }
 
   tick(time: Phaser.Time) {
@@ -43,25 +47,30 @@ export class ChestOpener {
 
   constructor(
       private game: Phaser.Game,
-      private trackee: Renderable<PIXI.DisplayObjectContainer>,
+      private trackee: Entity,
       private buffDataApplier: BuffDataApplier,
       private law: ChestLaw,
       private notifier: Notifier,
-      private buffDescription: BuffDescription) {
+      private buffDescription: BuffDescription,
+      private chestTouchableDistance: Distance = new Distance(40)) {
   }
 
   execute(chest: ChestEntity) {
     if (chest.isOpen) {
-      return;
+      return false;
     }
+
     if (!this.doesTrackeeTryToOpen(chest)) {
-      return;
+      return false;
     }
+
     let ignored = this.open(chest);
+
+    return true;
   }
 
   private doesTrackeeTryToOpen(chest: ChestEntity) {
-    return this.trackee.display.getBounds().inflate(-30, -30).intersects(chest.display.getBounds());
+    return this.chestTouchableDistance.isClose(this.trackee.coordinates, chest.coordinates);
   }
 
   private async open(chest: ChestEntity) {
@@ -117,21 +126,29 @@ export class ChestSpawner {
       private chestsRegister: EntityRegister<ChestEntity>,
       private entityFactory: EntityFactory,
       private law: ChestLaw,
-      private spawnInterval: number = law.spawnIntervalStrategy.next()) {
+      private hasSchedule: boolean = false,
+      private spawnInterval: number = 0) {
   }
 
   spawnIfAppropriate(time: Phaser.Time) {
-    if (this.chestsRegister.count() >= this.law.maxChestsCount) {
-      return;
-    }
+    if (this.hasSchedule) {
+      this.spawnInterval -= time.physicsElapsed;
+      if (this.spawnInterval > 0) {
+        return;
+      }
 
-    this.spawnInterval -= time.physicsElapsed;
-    if (this.spawnInterval > 0) {
-      return;
+      this.hasSchedule = false;
+    } else {
+      if (this.chestsRegister.count() > 0) {
+        return;
+      }
     }
-    this.spawnInterval = this.law.spawnIntervalStrategy.next();
-
     this.spawnAt(this.law.spawnLocationStrategy.next());
+  }
+
+  scheduleNextSpawning() {
+    this.spawnInterval = this.law.spawnIntervalStrategy.next();
+    this.hasSchedule = true;
   }
 
   private spawnAt(coordinates: Point) {

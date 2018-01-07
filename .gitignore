@@ -67,4 +67,4 @@ dist/
 build/
 .rpt2_cache/
 references/
-test-build/
+public/bgm/

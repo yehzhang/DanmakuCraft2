@@ -10,6 +10,9 @@ export default class PhysicalConstants {
   public static readonly MAXIMUM_COMMENT_WIDTH_OUTSIDE_CHUNK =
       PhysicalConstants.MAXIMUM_COMMENT_WIDTH / 2;
 
+  public static readonly ENTITY_TRACKER_UPDATE_RADIUS =
+      PhysicalConstants.WORLD_SIZE / PhysicalConstants.COMMENT_CHUNKS_COUNT;
+
   public static readonly PLAYER_MOVE_DISTANCE_PER_SECOND = 216;
 
   public static readonly COMMENT_BLINK_DURATION_MS = 150;
@@ -18,7 +21,6 @@ export default class PhysicalConstants {
   public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION = 20;
   public static readonly BACKGROUND_TRANSITION_DURATION_MS = 3 * Phaser.Timer.SECOND;
 
-  public static readonly MAX_CHESTS_COUNT = 2;
   public static readonly CHEST_SPAWN_INTERVAL = 120;
 
   public static readonly HASTY_BOOST_RATIO = 1.4;

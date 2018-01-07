@@ -23,12 +23,12 @@ class Distance {
   }
 
   private static squaredOf(coordinates: Point, other: Point) {
-    let offset = toWorldCoordinateOffset2d(coordinates, other, PhysicalConstants.WORLD_SIZE);
-    return offset.dot(offset);
+    return toWorldCoordinateOffset2d(coordinates, other, PhysicalConstants.WORLD_SIZE)
+        .getMagnitudeSq();
   }
 
   isClose(coordinates: Point, other: Point) {
-    return Distance.squaredOf(coordinates, other) < this.maxDistanceSquared;
+    return Distance.squaredOf(coordinates, other) <= this.maxDistanceSquared;
   }
 }
 

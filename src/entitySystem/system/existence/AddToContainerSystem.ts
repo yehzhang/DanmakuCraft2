@@ -4,7 +4,7 @@ import Point from '../../../util/syntax/Point';
 
 class AddToContainerSystem implements ExistenceSystem<RenderableEntity> {
   constructor(
-      private anchor: RenderableEntity,
+      private anchor: RenderableEntity, // TODO refactor to set position system?
       parentContainer: Phaser.Group,
       private container: PIXI.DisplayObjectContainer = new BridgingContainer()) {
     parentContainer.addChild(container);

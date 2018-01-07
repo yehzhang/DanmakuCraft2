@@ -36,7 +36,9 @@ class LawFactoryImpl implements LawFactory {
     let spawnLocationStrategy = Chain.total(this.baseGenerator)
         .pipe(Scaler.to(0, Phaser.Math.PI2))
         .pipe(Const.of(azimuth => {
-          let radius = renderRadius.getValue() + 100;
+          // Must be in render radius. Otherwise, chest may not be entered, and thus not exited and
+          // demolished. Minus one for miserable floating point number arithmetic.
+          let radius = renderRadius.getValue() - 1;
           let offset = Point.origin().setToPolar(azimuth, radius);
           return Phaser.Point.add(trackee.coordinates, offset);
         }))

@@ -7,7 +7,7 @@ class DisplayMoveSystem implements TickSystem<Display & Motion> {
     if (!entity.movedThisTick) {
       return;
     }
-    entity.display.position.add(entity.movedDistanceThisTick.x, entity.movedDistanceThisTick.y);
+    entity.display.position.add(entity.movedOffsetThisTick.x, entity.movedOffsetThisTick.y);
   }
 
   tick() {
