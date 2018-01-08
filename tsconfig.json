@@ -6,19 +6,14 @@
       "es2016",
       "es2017"
     ],
+    "baseUrl": "./packages",
     "module": "commonjs",
-    "target": "es5",
     "moduleResolution": "node",
     "declaration": false,
-    "outDir": "./build",
     "allowJs": false,
     "sourceMap": true,
     "inlineSources": false,
     "strict": true,
     "downlevelIteration": true
-  },
-  "include": [
-    "./node_modules/phaser-ce-type-updated/typescript/phaser.d.ts",
-    "./src/**/*"
-  ]
+  }
 }

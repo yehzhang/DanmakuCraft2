@@ -1,2 +1,0 @@
---require ./test/tshook.js
---require ts-node/register
