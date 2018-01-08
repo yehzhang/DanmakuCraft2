@@ -42,8 +42,12 @@ import MovingAnimationSystem from './entitySystem/system/tick/MovingAnimationSys
 import BuffDescription from './entitySystem/system/buff/BuffDescription';
 import AddToContainerSystem from './entitySystem/system/existence/AddToContainerSystem';
 import Debug from './util/Debug';
-import UniverseProxyImpl from './UniverseProxyImpl';
+import UniverseProxyImpl from './environment/component/gameWorld/UniverseProxyImpl';
 import NotifierFactoryImpl from './render/notification/NotifierFactoryImpl';
+import TickCallbackRegister from './update/TickCallbackRegister';
+import DisplayPositionSystem from './entitySystem/system/existence/DisplayPositionSystem';
+import CommentLoaderImpl from './comment/CommentLoaderImpl';
+import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentPlacingPolicyImpl';
 import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 /**
@@ -72,6 +76,10 @@ class Universe extends Phaser.State {
   public foregroundTracker: EntityTracker;
   public backgroundTracker: EntityTracker;
   public chestSystem: ChestSystem;
+  public tickCallbackRegister: TickCallbackRegister;
+  public commentPreviewStorage: EntityStorage<UpdatingCommentEntity>;
+  public proxy: UniverseProxy;
+  public previewCommentLoader: CommentLoader;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     super();
@@ -83,6 +91,8 @@ class Universe extends Phaser.State {
     this.lawFactory = new LawFactoryImpl();
 
     this.buffDescription = new BuffDescription();
+
+    this.tickCallbackRegister = new TickCallbackRegister();
 
     this.buffFactory = new BuffFactoryImpl(game, this.inputController, this.lawFactory);
 
@@ -102,9 +112,9 @@ class Universe extends Phaser.State {
         this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.COMMENT_CHUNKS_COUNT);
     this.updatingCommentsStorage =
         this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.UPDATING_COMMENT_CHUNKS_COUNT);
-    // TODO optimize: tree storage?
     this.playersStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.chestsStorage = this.entityStorageFactory.createGlobalEntityStorage();
+    this.commentPreviewStorage = this.entityStorageFactory.createGlobalEntityStorage();
 
     this.player = this.entityFactory.createPlayer(Point.origin()); // TODO where to spawn?
     this.playersStorage.getRegister().register(this.player);
@@ -117,14 +127,28 @@ class Universe extends Phaser.State {
     this.buffDataApplier =
         new BuffDataApplier(this.player, this.buffDataContainer, this.buffFactory);
 
-    this.commentLoader = new CommentLoader(
+    this.commentLoader = new CommentLoaderImpl(
         game,
         this.commentsStorage.getRegister(),
         this.updatingCommentsStorage.getRegister(),
         this.entityFactory,
         this.buffDataApplier);
+    this.previewCommentLoader = new CommentLoaderImpl(
+        game,
+        this.commentPreviewStorage.getRegister(),
+        this.commentPreviewStorage.getRegister(),
+        this.entityFactory,
+        this.buffDataApplier);
 
     this.setupUpdatingRules();
+
+    this.proxy = new UniverseProxyImpl(new CommentPlacingPolicyImpl(
+        this.collisionDetectionSystem,
+        this.previewCommentLoader,
+        this.notifier,
+        this.buffDataContainer,
+        this.player,
+        this.tickCallbackRegister));
   }
 
   static genesis(): void {
@@ -166,12 +190,13 @@ class Universe extends Phaser.State {
   update() {
     this.foregroundTracker.tick(this.game.time);
     this.backgroundTracker.tick(this.game.time);
+    this.tickCallbackRegister.tick();
   }
 
   async loadComments(): Promise<void> {
     let commentProvider = this.adapter.getCommentProvider();
     let commentsData = await commentProvider.getAllComments();
-    this.commentLoader.loadBatch(commentsData);
+    this.commentLoader.loadBatch(commentsData, true);
 
     commentProvider.connect();
     commentProvider.commentReceived.add(this.commentLoader.load, this.commentLoader);
@@ -184,11 +209,7 @@ class Universe extends Phaser.State {
   }
 
   getProxy(): UniverseProxy {
-    return new UniverseProxyImpl(
-        this.collisionDetectionSystem,
-        this.graphicsFactory,
-        this.notifier,
-        this.buffDataContainer);
+    return this.proxy;
   }
 
   private setupUpdatingRules() {
@@ -219,25 +240,33 @@ class Universe extends Phaser.State {
     let updatingCommentsFinder = this.updatingCommentsStorage.getFinder();
     let chestsFinder = this.chestsStorage.getFinder();
     let playersFinder = this.playersStorage.getFinder();
+    let commentPreviewFinder = this.commentPreviewStorage.getFinder();
 
     // TODO split render related systems to another tracker called in State.render()?
     this.foregroundTracker = EntityTracker.newBuilder(this.player, renderRadius)
 
         .applyExistenceSystem(new SuperposedEntityRenderSystem())
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder)
+        .toEntities().of(commentsFinder).and(updatingCommentsFinder).and(commentPreviewFinder)
         .toLiftedEntities().of(commentsFinder).and(updatingCommentsFinder)
 
         .applyExistenceSystem(new RegionRenderSystem())
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
 
-        .applyExistenceSystem(new AddToContainerSystem(this.player, stage))
+        .applyExistenceSystem(new AddToContainerSystem(stage))
         .toEntities().of(chestsFinder)
 
-        .applyExistenceSystem(new AddToContainerSystem(this.player, stage, this.game.make.group()))
+        .applyExistenceSystem(new AddToContainerSystem(stage, this.game.make.group()))
         .toEntities().of(playersFinder)
 
-        .applyExistenceSystem(new AddToContainerSystem(this.player, stage))
+        .applyExistenceSystem(new AddToContainerSystem(stage))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
+
+        .applyExistenceSystem(new DisplayPositionSystem(this.player))
+        .toEntities().of(chestsFinder).and(playersFinder).and(commentsFinder)
+        .and(updatingCommentsFinder)
+
+        .applyExistenceSystem(new AddToContainerSystem(this.player.display))
+        .toEntities().of(commentPreviewFinder)
 
         .applyExistenceSystem(this.collisionDetectionSystem)
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
@@ -245,7 +274,7 @@ class Universe extends Phaser.State {
         .applyExistenceSystem(this.chestSystem).toEntities().of(chestsFinder)
 
         .applyTickSystem(new UpdateSystem(this.game.time))
-        .toEntities().of(playersFinder)
+        .toEntities().of(playersFinder).and(commentPreviewFinder)
         .toLiftedEntities().of(updatingCommentsFinder)
 
         .applyTickSystem(new DisplayMoveSystem()).toEntities().of(playersFinder)

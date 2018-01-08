@@ -9,6 +9,7 @@ import PhysicalConstants from '../PhysicalConstants';
 import {toWorldCoordinateOffset2d} from '../law/space';
 import {asSequence} from 'sequency';
 import Distance from './math/Distance';
+import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -90,7 +91,7 @@ class Debug {
         .forEach(comment => this.debugInfo.text(
             'Comment',
             comment.coordinates,
-            comment.hasOwnProperty('updatingBuffs') ? 'updating' : ''));
+            UpdatingBuffCarrier.isTypeOf(comment) ? 'updating' : ''));
   }
 
   private getNotificationMessage() {
@@ -108,7 +109,7 @@ class Debug {
       color: number,
       buffData: BuffData | null) {
     return this.universe.commentLoader.load(
-        new CommentData(25, color, text, coordinates.x, coordinates.y, buffData));
+        new CommentData(25, color, text, coordinates, buffData));
   }
 }
 

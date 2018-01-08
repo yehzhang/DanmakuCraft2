@@ -22,7 +22,7 @@ class BilibiliAdapter extends BaseEnvironmentAdapter {
   }
 
   onProxySet() {
-    this.injector = new LocalCommentInjector(this.universeProxy);
+    this.injector = new LocalCommentInjector(this.universeProxy.getCommentPlacingPolicy());
   }
 
   getCommentProvider() {

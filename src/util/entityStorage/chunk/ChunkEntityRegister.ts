@@ -37,6 +37,11 @@ class ChunkEntityRegister<T extends StationaryEntity> extends BaseEntityRegister
     // TODO
     throw new Error('Not implemented');
   }
+
+  [Symbol.iterator](): Iterator<T> {
+    // TODO
+    throw new Error('Not implemented');
+  }
 }
 
 export default ChunkEntityRegister;

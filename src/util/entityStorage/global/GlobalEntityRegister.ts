@@ -1,5 +1,6 @@
 import BaseEntityRegister from '../BaseEntityRegister';
 import {EntityExistenceUpdatedEvent} from '../EntityFinder';
+import Iterator from '../../syntax/Iterator';
 
 class GlobalEntityRegister<T> extends BaseEntityRegister<T> {
   constructor(
@@ -21,6 +22,7 @@ class GlobalEntityRegister<T> extends BaseEntityRegister<T> {
     let isEntityDeleted = this.entities.delete(entity);
 
     if (!isEntityDeleted) {
+      console.error('Entity is not registered', entity);
       return;
     }
     if (silent) {
@@ -31,6 +33,10 @@ class GlobalEntityRegister<T> extends BaseEntityRegister<T> {
 
   count() {
     return this.entities.size;
+  }
+
+  [Symbol.iterator](): Iterator<T> {
+    return Iterator.of(this.entities);
   }
 }
 

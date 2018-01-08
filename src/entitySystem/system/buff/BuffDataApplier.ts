@@ -14,12 +14,11 @@ class BuffDataApplier {
       case BuffType.HASTY:
         this.buffFactory.createHasty().apply(this.player);
         break;
-      case BuffType.ETHEREAL:
-        this.buffFactory.createEthereal().apply();
-        break;
       case BuffType.CHROMATIC:
         this.buffDataContainer.add(data);
         break;
+      case BuffType.NONE:
+        return;
       default:
         throw new TypeError(`Invalid buff data: ${data}`);
     }
@@ -31,6 +30,8 @@ class BuffDataApplier {
       case BuffType.CHROMATIC:
         buff = this.buffFactory.createChromatic();
         break;
+      case BuffType.NONE:
+        return;
       default:
         throw new TypeError(`Invalid buff data: ${data}`);
     }

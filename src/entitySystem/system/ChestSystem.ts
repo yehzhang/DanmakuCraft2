@@ -10,6 +10,7 @@ import Point from '../../util/syntax/Point';
 import EntityRegister from '../../util/entityStorage/EntityRegister';
 import Distance from '../../util/math/Distance';
 import Entity from '../Entity';
+import {asSequence} from 'sequency';
 
 class ChestSystem implements TickSystem<ChestEntity>, ExistenceSystem<ChestEntity> {
   constructor(
@@ -139,7 +140,7 @@ export class ChestSpawner {
 
       this.hasSchedule = false;
     } else {
-      if (this.chestsRegister.count() > 0) {
+      if (asSequence(this.chestsRegister).any(chest => !chest.isOpen)) {
         return;
       }
     }

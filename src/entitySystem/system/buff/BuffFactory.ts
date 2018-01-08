@@ -1,10 +1,9 @@
 import Moving from './Moving';
 import Chromatic from './Chromatic';
-import Ethereal from './Ethereal';
 import Hasty from './Hasty';
 
 export enum BuffType {
-  ETHEREAL = 0,  // nothing
+  NONE = 0,
   CHROMATIC = 1,  // colorful comment
   SHAPELY = 2,  // simple geometry
   GRAPHICAL = 3,  // bitmap image
@@ -27,8 +26,6 @@ export class BuffData {
 }
 
 interface BuffFactory {
-  createEthereal(): Ethereal;
-
   createInputControllerMover(): Moving;
 
   createWorldWanderingMover(): Moving;

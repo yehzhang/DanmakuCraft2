@@ -27,9 +27,8 @@ class EntityFactoryImpl implements EntityFactory {
 
   private static createBaseCommentEntity<T extends CommentEntity>(
       data: CommentData, createDisplay: () => Phaser.Text): EntityBuilder<T, CommentEntity> {
-    let coordinates = Point.of(data.coordinateX, data.coordinateY);
     return Entity.newBuilder<CommentEntity>()
-        .mix(new ImmutableCoordinates(coordinates))
+        .mix(new ImmutableCoordinates(data.coordinates))
         .mix(new Comment(data.size, data.color, data.text))
         .mix(new MaybeDisplay(createDisplay));
   }

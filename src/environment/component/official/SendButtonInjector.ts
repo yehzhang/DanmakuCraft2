@@ -1,13 +1,11 @@
 import UniverseProxy from '../../interface/UniverseProxy';
-import BuffDataContainer from '../../../comment/BuffDataContainer';
 import {bindFirst} from '../../util';
 
 class SendButtonInjector {
   constructor(
       private universeProxy: UniverseProxy,
       private $textInput: JQuery<HTMLElement>,
-      private $sendButton: JQuery<HTMLElement>,
-      private buffDataContainer: BuffDataContainer) {
+      private $sendButton: JQuery<HTMLElement>) {
     bindFirst($sendButton, 'click', (event: Event) => this.onClickSendButtonInitial(event));
   }
 

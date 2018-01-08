@@ -1,4 +1,4 @@
-interface EntityRegister<T> {
+interface EntityRegister<T> extends Iterable<T> {
   /**
    * Loads a single entity.
    */

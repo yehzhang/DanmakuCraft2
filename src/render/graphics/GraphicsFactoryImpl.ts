@@ -70,6 +70,7 @@ class GraphicsFactoryImpl implements GraphicsFactory {
       this.tinyTelevisionSpriteSheet = this.createTinyTelevisionSpriteSheet();
     }
     let sprite = this.createSprite(this.tinyTelevisionSpriteSheet);
+    sprite.anchor.setTo(0.5, 0.7);
 
     let walkingAnimation = sprite.animations.add('', undefined, 12, true);
 

@@ -1,21 +1,14 @@
-import CommentDataUtil from './CommentDataUtil';
-import UniverseProxy from '../../interface/UniverseProxy';
 import {bindFirst} from '../../util';
 import Parameters from './Parameters';
-import BuffDataContainer from '../../../comment/BuffDataContainer';
+import Colors from '../../../render/Colors';
+import CommentPlacingPolicy from '../../interface/CommentPlacingPolicy';
 
 class LocalCommentInjector {
-  private $textInput: JQuery<HTMLElement>;
-  private $sendButton: JQuery<HTMLElement>;
-  private buffDataContainer: BuffDataContainer;
-
-  constructor(private universeProxy: UniverseProxy) {
-    this.$textInput = $('.bilibili-player-video-danmaku-input');
-
-    this.$sendButton = $('.bilibili-player-video-btn-send');
+  constructor(
+      private commentPlacingPolicy: CommentPlacingPolicy,
+      private $textInput: JQuery<HTMLElement> = $('.bilibili-player-video-danmaku-input'),
+      private $sendButton: JQuery<HTMLElement> = $('.bilibili-player-video-btn-send')) {
     bindFirst(this.$sendButton, 'click', this.onClickSendButtonInitial.bind(this));
-
-    this.buffDataContainer = universeProxy.getBuffDataContainer();
   }
 
   private static getSelectedFontSize() {
@@ -47,37 +40,13 @@ class LocalCommentInjector {
     }
 
     let commentText = commentValue.toString();
-    let injectedCommentText = this.buildInjectedCommentText(commentText);
     let commentSize = LocalCommentInjector.getSelectedFontSize();
-    if (!this.universeProxy.requestForPlacingComment(injectedCommentText, commentSize)) {
+    let commentColor = Colors.WHITE_NUMBER; // TODO
+    let commentData = this.commentPlacingPolicy.requestFor(commentText, commentSize, commentColor);
+    if (commentData == null) {
       event.stopImmediatePropagation();
       return;
     }
-
-    // Update comment text in UI and let player check if the text is valid.
-    this.$textInput.val(injectedCommentText);
-    this.$textInput.trigger('input');
-
-    // If the text is invalid, the button would be disabled.
-    if (this.isSendButtonDisabled()) {
-      // Restore the comment text and let through the event, so that user would see the disabled
-      // button, but not comment changes.
-      this.$textInput.val(commentText);
-    }
-
-    this.buffDataContainer.pop();
-  }
-
-  private buildInjectedCommentText(text: string): string {
-    let buffData;
-    if (this.buffDataContainer.hasBuff()) {
-      buffData = this.buffDataContainer.peek();
-    }
-
-    let player = this.universeProxy.getPlayer();
-    let playerCoordinate = player.coordinates;
-
-    return CommentDataUtil.buildInjectedCommentText(text, playerCoordinate, buffData);
   }
 
   private isSendButtonDisabled() {

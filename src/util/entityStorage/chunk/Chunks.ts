@@ -1,7 +1,8 @@
 import Point from '../../syntax/Point';
 import {toWorldCoordinate, toWorldCoordinate2d, validateRadius} from '../../../law/space';
 import PhysicalConstants from '../../../PhysicalConstants';
-import IterablesIterator from '../../iteration/IterablesIterator';
+import {asSequence} from 'sequency';
+import Iterator from '../../syntax/Iterator';
 import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class Chunks<T> implements Iterable<T> {
@@ -35,7 +36,7 @@ class Chunks<T> implements Iterable<T> {
   }
 
   [Symbol.iterator](): Iterator<T> {
-    return IterablesIterator.of(this.chunks);
+    return Iterator.of(asSequence(this.chunks).flatten().asIterable());
   }
 
   listChunksInBounds(bounds: Phaser.Rectangle): T[] {

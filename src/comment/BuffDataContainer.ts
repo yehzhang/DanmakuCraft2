@@ -23,12 +23,14 @@ class BuffDataContainer {
     }
   }
 
-  peek() {
-    if (!this.hasBuff()) {
-      throw new Error('No buff data available');
+  peek(defaultData: BuffData): BuffData {
+    if (this.hasBuff()) {
+      return this.buffDatas[0];
     }
-
-    return this.buffDatas[0];
+    if (defaultData) {
+      return defaultData;
+    }
+    throw new Error('No buff data available');
   }
 }
 

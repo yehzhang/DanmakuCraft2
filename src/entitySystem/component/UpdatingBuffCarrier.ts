@@ -13,6 +13,10 @@ class UpdatingBuffCarrier<T extends Component> {
     this.updatingBuffs = [];
   }
 
+  static isTypeOf(component: Component): component is UpdatingBuffCarrier<Component> {
+    return component.hasOwnProperty('updatingBuffs');
+  }
+
   /**
    * It is not safe to call this method directly.
    * Call {@link Buff.apply} instead.

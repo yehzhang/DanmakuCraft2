@@ -1,5 +1,6 @@
 import ExistenceSystem from './ExistenceSystem';
 import {Region, Renderable} from '../../alias';
+import {asSequence} from 'sequency';
 import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
 
 class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer>
@@ -20,18 +21,18 @@ class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.Disp
 
   collidesWith(display: PIXI.DisplayObjectContainer) {
     let bounds = display.getBounds();
-    return this.collidesIf(entity => entity.display.getBounds().intersects(bounds));
+    return this.collidesIf(entity => {
+      if (entity.display === display) {
+        return false;
+      }
+      return entity.display.getBounds().intersects(bounds);
+    });
   }
 
   collidesIf(callback: (entity: Renderable<T>) => boolean) {
-    for (let region of this.currentRegions) {
-      for (let entity of region.container) {
-        if (callback(entity)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return asSequence(this.currentRegions)
+        .flatMap(region => asSequence(region.container))
+        .any(callback);
   }
 }
 

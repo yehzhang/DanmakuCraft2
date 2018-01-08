@@ -58,8 +58,7 @@ class CommentDataUtil {
         Number(size),
         Number(color),
         commentText,
-        positionX,
-        positionY,
+        Point.of(positionX, positionY),
         buffData);
   }
 

@@ -12,6 +12,8 @@ abstract class BaseEntityRegister<T> implements EntityRegister<T> {
       this.register(entity, silent);
     }
   }
+
+  abstract [Symbol.iterator](): Iterator<T>;
 }
 
 export default BaseEntityRegister;

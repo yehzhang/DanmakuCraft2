@@ -12,17 +12,17 @@ class PoppingNotifier extends BaseNotifier {
       private view: NotifierView,
       private messageCondition: ConditionalVariable = new ConditionalVariable(),
       private sleepCondition: ConditionalVariable = new ConditionalVariable(),
-      private messagesQueue: string[] = []) {
+      private messageQueue: string[] = []) {
     super();
     this.messageListener = this.createMessageListener();
   }
 
   send(message: string, force?: boolean) {
     if (force) {
-      this.messagesQueue.unshift(message);
+      this.messageQueue.unshift(message);
       this.sleepCondition.notify();
     } else {
-      this.messagesQueue.push(message);
+      this.messageQueue.push(message);
     }
     this.messageCondition.notify();
   }
@@ -64,8 +64,8 @@ class PoppingNotifier extends BaseNotifier {
   private async createMessageListener() {
     // noinspection InfiniteLoopJS
     while (true) {
-      while (this.messagesQueue.length > 0) {
-        let message = this.messagesQueue.shift() as string;
+      while (this.messageQueue.length > 0) {
+        let message = this.messageQueue.shift() as string;
         await this.showBubble(message);
         await this.sleepBubble();
         await this.hideBubble();
