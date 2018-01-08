@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "postinstall": "npm run bootstrap",
+    "postinstall": "npm run bootstrap && cd ./packages/danmakucraft2-server/assets/js/ && ln -s ../../../danmakucraft2-client/build build && cd ../../../..",
     "bootstrap": "lerna bootstrap"
   },
   "devDependencies": {

@@ -6,11 +6,17 @@ const common = require('./webpack.common.js');
 console.error('Bundle in staging mode.');
 
 module.exports = merge(common, {
-  devtool: 'eval-cheap-module-source-map',
+  devtool: 'source-map',
   plugins: [
     new webpack.DefinePlugin({
       __DEBUG__: JSON.stringify(true),
       __DEV__: JSON.stringify(false),
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      output: {
+        comments: false,
+      },
+      sourceMap: true,
     }),
   ],
   output: {
