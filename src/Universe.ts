@@ -142,13 +142,15 @@ class Universe extends Phaser.State {
 
     this.setupUpdatingRules();
 
-    this.proxy = new UniverseProxyImpl(new CommentPlacingPolicyImpl(
-        this.collisionDetectionSystem,
-        this.previewCommentLoader,
-        this.notifier,
-        this.buffDataContainer,
-        this.player,
-        this.tickCallbackRegister));
+    this.proxy = new UniverseProxyImpl(
+        new CommentPlacingPolicyImpl(
+            this.collisionDetectionSystem,
+            this.previewCommentLoader,
+            this.notifier,
+            this.buffDataContainer,
+            this.player,
+            this.tickCallbackRegister),
+        this.notifier);
   }
 
   static genesis(): void {
@@ -188,9 +190,9 @@ class Universe extends Phaser.State {
   }
 
   update() {
+    this.tickCallbackRegister.tick();
     this.foregroundTracker.tick(this.game.time);
     this.backgroundTracker.tick(this.game.time);
-    this.tickCallbackRegister.tick();
   }
 
   async loadComments(): Promise<void> {

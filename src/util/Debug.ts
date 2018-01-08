@@ -10,6 +10,7 @@ import {toWorldCoordinateOffset2d} from '../law/space';
 import {asSequence} from 'sequency';
 import Distance from './math/Distance';
 import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
+import {NotificationPriority} from '../render/notification/Notifier';
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -71,7 +72,7 @@ class Debug {
   }
 
   get shout() {
-    this.universe.notifier.send(this.getNotificationMessage(), true);
+    this.universe.notifier.send(this.getNotificationMessage(), NotificationPriority.SKIP);
     return this.universe.notifier;
   }
 

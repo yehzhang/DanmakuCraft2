@@ -2,7 +2,7 @@ import CommentProvider from '../../interface/CommentProvider';
 import CommentData from '../../../comment/CommentData';
 
 class OfficialCommentProvider implements CommentProvider {
-  constructor(readonly commentReceived: Phaser.Signal<CommentData>) {
+  constructor(readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal()) {
     // TODO commentReceived
   }
 

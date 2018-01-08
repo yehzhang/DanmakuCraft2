@@ -2,14 +2,13 @@
   "name": "danmakucraft2",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/bundle.js",
   "scripts": {
     "build": "npm run build:prod",
     "build:dev": "webpack --watch --config webpack.dev.js",
-    "build:prod": "webpack --config webpack.prod.js",
+    "build:prod": "webpack --watch --config webpack.prod.js",
     "prepublish": "npm test && npm run build",
-    "pretest": "npm run build:test",
-    "test": "mocha"
+    "test": "mocha './test/src/**/*.ts'"
   },
   "repository": {
     "type": "git",

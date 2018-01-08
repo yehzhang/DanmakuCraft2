@@ -1,28 +1,38 @@
 import BaseNotifier from './BaseNotifier';
 import {NotifierView} from '../graphics/GraphicsFactory';
+import ConditionalVariable from '../../util/async/ConditionalVariable';
+import {NotificationPriority} from './Notifier';
 import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 class PoppingNotifier extends BaseNotifier {
   private static readonly BUBBLE_DISPLAY_DURATION = 5 * Phaser.Timer.SECOND;
   private static readonly SPEECH_BOX_POP_HEIGHT = 10;
-  private messageListener: Promise<void>;
 
   constructor(
       private game: Phaser.Game,
       private view: NotifierView,
       private messageCondition: ConditionalVariable = new ConditionalVariable(),
-      private sleepCondition: ConditionalVariable = new ConditionalVariable(),
-      private messageQueue: string[] = []) {
+      private skipPauseCondition: ConditionalVariable = new ConditionalVariable(),
+      private notificationQueue: Notification[] = []) {
     super();
-    this.messageListener = this.createMessageListener();
+    let ignored = this.createMessageListener();
   }
 
-  send(message: string, force?: boolean) {
-    if (force) {
-      this.messageQueue.unshift(message);
-      this.sleepCondition.notify();
+  send(message: string, priority: NotificationPriority = NotificationPriority.NORMAL) {
+    let notification = new Notification(message, priority);
+    if (priority === NotificationPriority.OVERRIDE) {
+      if (this.notificationQueue.length > 0
+          && this.notificationQueue[0].priority === NotificationPriority.OVERRIDE) {
+        this.notificationQueue[0] = notification;
+      } else {
+        this.notificationQueue.unshift(notification);
+      }
+      this.skipPauseCondition.notify();
+    } else if (priority === NotificationPriority.SKIP) {
+      this.notificationQueue.unshift(notification);
+      this.skipPauseCondition.notify();
     } else {
-      this.messageQueue.push(message);
+      this.notificationQueue.push(notification);
     }
     this.messageCondition.notify();
   }
@@ -64,22 +74,22 @@ class PoppingNotifier extends BaseNotifier {
   private async createMessageListener() {
     // noinspection InfiniteLoopJS
     while (true) {
-      while (this.messageQueue.length > 0) {
-        let message = this.messageQueue.shift() as string;
-        await this.showBubble(message);
-        await this.sleepBubble();
+      while (this.notificationQueue.length > 0) {
+        let notification = this.notificationQueue.shift() as Notification;
+        await this.showBubble(notification.message);
+        await this.pause();
         await this.hideBubble();
       }
       await this.messageCondition.wait();
     }
   }
 
-  private async sleepBubble(duration: number = PoppingNotifier.BUBBLE_DISPLAY_DURATION) {
+  private async pause(duration: number = PoppingNotifier.BUBBLE_DISPLAY_DURATION) {
     let sleepEvent = this.game.time.events.add(duration, () => {
-      this.sleepCondition.notify();
+      this.skipPauseCondition.notify();
     });
 
-    await this.sleepCondition.wait();
+    await this.skipPauseCondition.wait();
 
     this.game.time.events.remove(sleepEvent);
   }
@@ -109,14 +119,7 @@ class PoppingNotifier extends BaseNotifier {
 
 export default PoppingNotifier;
 
-class ConditionalVariable {
-  constructor(public notify: () => void = () => {
-  }) {
-  }
-
-  async wait() {
-    return new Promise(resolve => {
-      this.notify = resolve;
-    });
+class Notification {
+  constructor(readonly message: string, readonly priority: NotificationPriority) {
   }
 }

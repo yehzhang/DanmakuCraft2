@@ -1,4 +1,3 @@
-import BilibiliAdapter from './BilibiliAdapter';
 import BilibiliClientAdapter from './BilibiliClientAdapter';
 import TestingAdapter from './TestingAdapter';
 
@@ -7,19 +6,14 @@ export default class AdapterFactory {
     if (__DEBUG__) {
       return this.createTestingAdapter();
     }
-
-    return this.createBilibiliAdapter();
+    return this.createBilibiliClientAdapter();
   }
 
   createTestingAdapter() {
     return new TestingAdapter();
   }
 
-  createBilibiliAdapter() {
-    return new BilibiliAdapter();
-  }
-
   createBilibiliClientAdapter() {
-    return new BilibiliClientAdapter(this);
+    return new BilibiliClientAdapter();
   }
 }

@@ -1,36 +1,43 @@
-import BilibiliAdapter from './BilibiliAdapter';
-import SendButtonInjector from './component/official/SendButtonInjector';
-import OfficialCommentProvider from './component/official/OfficialCommentProvider';
-import AdapterFactory from './AdapterFactory';
+import OfficialCommentProvider from './component/officialWebsite/OfficialCommentProvider';
 import GameContainerProvider from './interface/GameContainerProvider';
 import SettingsManager from './interface/SettingsManager';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
+import TextInputCommentProvider from './component/bilibili/TextInputCommentProvider';
+import EnvironmentVariables from './component/bilibili/EnvironmentVariables';
+import Parameters from './component/bilibili/Parameters';
+import BilibiliContainerProvider from './component/bilibili/BilibiliContainerProvider';
+import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
+import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
-  private bilibiliAdapter: BilibiliAdapter;
-  private sendButtonInjector: SendButtonInjector;
-
-  constructor(adapterFactory: AdapterFactory) {
+  constructor() {
     super();
-    this.bilibiliAdapter = adapterFactory.createBilibiliAdapter();
+    if (!BilibiliClientAdapter.canRunOnThisWebPage()) {
+      throw new Error('Script cannot run on this page');
+    }
+  }
+
+  private static canRunOnThisWebPage() {
+    return EnvironmentVariables.aid === Parameters.AID;
   }
 
   onProxySet() {
-    let $textInput = $('.bilibili-player-video-danmaku-input');
-    let $sendButton = $('.bilibili-player-video-btn-send');
-    this.sendButtonInjector = new SendButtonInjector(this.universeProxy, $textInput, $sendButton);
+    let commentSender = new CommentSenderImpl();
+    let commentProvider = new TextInputCommentProvider(this.universeProxy.getCommentPlacingPolicy());
+    commentProvider.commentReceived.add(commentData => commentSender.send(commentData));
+    commentProvider.connect();
   }
 
   getCommentProvider() {
-    return new OfficialCommentProvider(new Phaser.Signal());
+    return new OfficialCommentProvider();
   }
 
   getGameContainerProvider(): GameContainerProvider {
-    return this.bilibiliAdapter.getGameContainerProvider();
+    return new BilibiliContainerProvider();
   }
 
   getSettingsManager(): SettingsManager {
-    return this.bilibiliAdapter.getSettingsManager();
+    return new LocalStorageSettingsManager();
   }
 }
 

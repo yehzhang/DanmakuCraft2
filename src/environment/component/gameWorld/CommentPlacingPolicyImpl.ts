@@ -3,10 +3,11 @@ import CommentData from '../../../comment/CommentData';
 import CollisionDetectionSystem from '../../../entitySystem/system/existence/CollisionDetectionSystem';
 import BuffDataContainer from '../../../comment/BuffDataContainer';
 import CommentLoader from '../../../comment/CommentLoader';
-import Notifier from '../../../render/notification/Notifier';
+import Notifier, {NotificationPriority} from '../../../render/notification/Notifier';
 import TickCallbackRegister from '../../../update/TickCallbackRegister';
 import {CommentEntity, Player} from '../../../entitySystem/alias';
 import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffFactory';
+import Texts from '../../../render/Texts';
 
 class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   constructor(
@@ -38,13 +39,18 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
       return commentData;
     }
 
+    this.notifier.send(
+        Texts.forName('main.comment.insert.collision'), NotificationPriority.OVERRIDE);
+
     this.clearCommentPreview();
 
     return null;
   }
 
   commitRequest() {
-    this.buffDataContainer.pop();
+    if (this.buffDataContainer.hasBuff()) {
+      this.buffDataContainer.pop();
+    }
     this.clearCommentPreview();
   }
 

@@ -3,7 +3,7 @@ import {ChestEntity} from '../alias';
 import ExistenceSystem from './existence/ExistenceSystem';
 import BuffDataApplier from './buff/BuffDataApplier';
 import ChestLaw from '../../law/ChestLaw';
-import Notifier from '../../render/notification/Notifier';
+import Notifier, {NotificationPriority} from '../../render/notification/Notifier';
 import BuffDescription from './buff/BuffDescription';
 import EntityFactory from '../EntityFactory';
 import Point from '../../util/syntax/Point';
@@ -82,7 +82,7 @@ export class ChestOpener {
     let buffData = this.law.buffStrategy.next();
     this.buffDataApplier.activate(buffData);
 
-    this.notifier.send(this.buffDescription.for(buffData), true);
+    this.notifier.send(this.buffDescription.for(buffData), NotificationPriority.SKIP);
   }
 
   private async playChestShakingAnimation(chest: ChestEntity) {

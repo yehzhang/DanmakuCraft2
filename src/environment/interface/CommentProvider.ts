@@ -1,9 +1,5 @@
 import CommentData from '../../comment/CommentData';
 
-/**
- * Provides all comments currently available, and dispatches a {@link NEW_COMMENT} event when a new
- * comment is available.
- */
 interface CommentProvider {
   readonly commentReceived: Phaser.Signal<CommentData>;
 
