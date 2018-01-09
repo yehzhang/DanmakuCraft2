@@ -1,6 +1,6 @@
 import {Phaser} from './util/alias/phaser';
 
-export default class PhysicalConstants {
+class PhysicalConstants {
   public static readonly WORLD_SIZE = 40000;
 
   public static readonly BACKGROUND_SAMPLING_RADIUS = PhysicalConstants.WORLD_SIZE / 10;
@@ -28,3 +28,5 @@ export default class PhysicalConstants {
     return Math.ceil(renderRadius * 1.1);
   }
 }
+
+export default PhysicalConstants;

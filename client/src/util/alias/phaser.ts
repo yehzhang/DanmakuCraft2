@@ -1,15 +1,18 @@
 let global = Function('return this')();
 
 export import p2 = require('phaser-ce-type-updated/build/custom/p2');
+export import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
+export import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
+
 global.p2 = p2;
 
-export import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
+
 global.PIXI = PIXI;
 
 global.__WEBPACK__ = false;
 
 if (!__WEBPACK__) {
-  function injectDomIfNecessary() {
+  let injectDomIfNecessary = () => {
     if ('window' in global) {
       return;
     }
@@ -22,9 +25,9 @@ if (!__WEBPACK__) {
       document: dom.window.document,
       HTMLElement: dom.window.HTMLElement,
     });
-  }
+  };
 
-  function injectCanvasIfNecessary() {
+  let injectCanvasIfNecessary = () => {
     if ('Image' in global) {
       return;
     }
@@ -34,10 +37,9 @@ if (!__WEBPACK__) {
     const Canvas = require('canvas');
 
     global.Image = Canvas.Image;
-  }
+  };
 
   injectDomIfNecessary();
   injectCanvasIfNecessary();
 }
 
-export import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');

@@ -14,7 +14,6 @@ module.exports = merge(common, {
       __DEV__: JSON.stringify(false),
     }),
     new webpack.optimize.UglifyJsPlugin({
-      ecma: 5,
       parallel: true,
       toplevel: true,
       output: {

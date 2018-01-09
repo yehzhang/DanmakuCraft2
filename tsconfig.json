@@ -7,7 +7,7 @@
       "es2017"
     ],
     "module": "commonjs",
-    "target": "es2015",
+    "target": "es5",
     "moduleResolution": "node",
     "outDir": "build",
     "declaration": false,
