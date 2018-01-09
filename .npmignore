@@ -1,7 +1,7 @@
-src/
+client/src/
 build/
 references/
 .idea/
-public/index.dev.html
+client/resources/index.dev.html
 .rpt2_cache/
 test/

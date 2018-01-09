@@ -5,12 +5,10 @@ dist/
 build/
 .rpt2_cache/
 references/
-client/public/bgm/
+client/resources/bgm/
 server/package.json
-server/node_modules/
 
-server/assets/static/build
-
+server/assets/static/build/
 
 ## Node.gitignore
 # Logs
