@@ -6,7 +6,6 @@
       "es2016",
       "es2017"
     ],
-    "baseUrl": "./packages",
     "module": "commonjs",
     "target": "es2015",
     "moduleResolution": "node",
@@ -17,5 +16,10 @@
     "inlineSources": false,
     "strict": true,
     "downlevelIteration": true
-  }
+  },
+  "include": [
+    "node_modules/phaser-ce-type-updated/typescript/phaser.d.ts",
+    "client/src/**/*",
+    "server/scripts/**/*.ts"
+  ]
 }
