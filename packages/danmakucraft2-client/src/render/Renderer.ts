@@ -17,10 +17,7 @@ class Renderer {
   }
 
   turnOn() {
-    this.game.world.bringToTop(this.stage);
-
     this.stage.visible = true;
-
     return this;
   }
 

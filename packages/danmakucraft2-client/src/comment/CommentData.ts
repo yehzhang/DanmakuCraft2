@@ -1,4 +1,4 @@
-import {BuffData} from '../entitySystem/system/buff/BuffFactory';
+import {BuffData} from '../entitySystem/system/buff/BuffData';
 import Point from '../util/syntax/Point';
 
 class CommentData {

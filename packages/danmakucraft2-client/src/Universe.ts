@@ -21,33 +21,19 @@ import Point from './util/syntax/Point';
 import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
 import EntityStorage from './util/entityStorage/EntityStorage';
 import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
-import CollisionDetectionSystem from './entitySystem/system/existence/CollisionDetectionSystem';
 import {SettingsOptions} from './environment/interface/SettingsManager';
 import GraphicsFactoryImpl from './render/graphics/GraphicsFactoryImpl';
 import LawFactoryImpl from './law/LawFactoryImpl';
 import LawFactory from './law/LawFactory';
 import BuffDataApplier from './entitySystem/system/buff/BuffDataApplier';
-import DynamicProvider from './util/DynamicProvider';
-import DisplayMoveSystem from './entitySystem/system/tick/DisplayPositionSystem';
-import SuperposedEntityRenderSystem from './entitySystem/system/existence/SuperposedEntityRenderSystem';
-import ChestSystem, {
-  ChestDemolisher, ChestOpener,
-  ChestSpawner
-} from './entitySystem/system/ChestSystem';
-import EntityTracker from './update/EntityTracker';
-import UpdateSystem from './entitySystem/system/tick/UpdateSystem';
-import RegionRenderSystem from './entitySystem/system/existence/RegionRenderSystem';
-import BackgroundColorSystem from './entitySystem/system/existence/BackgroundColorSystem';
-import MovingAnimationSystem from './entitySystem/system/tick/MovingAnimationSystem';
 import BuffDescription from './entitySystem/system/buff/BuffDescription';
-import AddToContainerSystem from './entitySystem/system/existence/AddToContainerSystem';
 import Debug from './util/Debug';
 import UniverseProxyImpl from './environment/component/gameWorld/UniverseProxyImpl';
 import NotifierFactoryImpl from './render/notification/NotifierFactoryImpl';
 import TickCallbackRegister from './update/TickCallbackRegister';
-import DisplayPositionSystem from './entitySystem/system/existence/DisplayPositionSystem';
 import CommentLoaderImpl from './comment/CommentLoaderImpl';
 import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentPlacingPolicyImpl';
+import Updater from './update/Updater';
 import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 
 /**
@@ -68,18 +54,15 @@ class Universe extends Phaser.State {
   public updatingCommentsStorage: EntityStorage<UpdatingCommentEntity, Region<UpdatingCommentEntity>>;
   public playersStorage: EntityStorage<Player>;
   public entityStorageFactory: EntityStorageFactory;
-  public collisionDetectionSystem: CollisionDetectionSystem;
   public chestsStorage: EntityStorage<ChestEntity>;
   public lawFactory: LawFactory;
   public buffDataApplier: BuffDataApplier;
   public buffDescription: BuffDescription;
-  public foregroundTracker: EntityTracker;
-  public backgroundTracker: EntityTracker;
-  public chestSystem: ChestSystem;
   public tickCallbackRegister: TickCallbackRegister;
   public commentPreviewStorage: EntityStorage<UpdatingCommentEntity>;
   public proxy: UniverseProxy;
   public previewCommentLoader: CommentLoader;
+  public updater: Updater;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     super();
@@ -140,16 +123,16 @@ class Universe extends Phaser.State {
         this.entityFactory,
         this.buffDataApplier);
 
-    this.setupUpdatingRules();
+    this.updater = Updater.on(this);
 
     this.proxy = new UniverseProxyImpl(
         new CommentPlacingPolicyImpl(
-            this.collisionDetectionSystem,
+            this.updater.collisionDetectionSystem,
             this.previewCommentLoader,
             this.notifier,
             this.buffDataContainer,
             this.player,
-            this.tickCallbackRegister),
+            this.updater.tickCallbackRegister),
         this.notifier);
   }
 
@@ -172,27 +155,36 @@ class Universe extends Phaser.State {
   private static makeUniverse(game: Phaser.Game, adapter: EnvironmentAdapter) {
     let universe = new Universe(game, adapter);
 
-    if (__DEBUG__) {
+    if (__STAGE__) {
       Debug.set(universe);
     }
 
     return universe;
   }
 
-  create() {
+  preload() {
     if (__DEV__) {
-      this.game.add.tileSprite(0, 0, 1920, 1920, 'background');
+      this.game.load.image('background', 'debug-grid-1920x1920.png');
     }
+  }
 
+  create() {
     this.renderer.turnOn().focus(this.player);
 
     this.inputController.receiveInput();
+
+    if (__DEV__) {
+      let sprite = this.game.add.tileSprite(0, 0, 1920, 1920, 'background');
+      this.game.world.sendToBack(sprite);
+    }
   }
 
   update() {
-    this.tickCallbackRegister.tick();
-    this.foregroundTracker.tick(this.game.time);
-    this.backgroundTracker.tick(this.game.time);
+    this.updater.update();
+  }
+
+  render() {
+    this.updater.render();
   }
 
   async loadComments(): Promise<void> {
@@ -204,100 +196,8 @@ class Universe extends Phaser.State {
     commentProvider.commentReceived.add(this.commentLoader.load, this.commentLoader);
   }
 
-  preload() {
-    if (__DEV__) {
-      this.game.load.image('background', 'debug-grid-1920x1920.png');
-    }
-  }
-
   getProxy(): UniverseProxy {
     return this.proxy;
-  }
-
-  private setupUpdatingRules() {
-    let renderRadius = new DynamicProvider(this.getRenderRadius());
-    this.game.scale.onSizeChange.add(() => renderRadius.update(this.getRenderRadius()));
-
-    let chestLaw =
-        this.lawFactory.createChestLaw(this.player, renderRadius, __DEV__ ? 1 : undefined);
-    this.chestSystem = new ChestSystem(
-        new ChestOpener(
-            this.game,
-            this.player,
-            this.buffDataApplier,
-            chestLaw,
-            this.notifier,
-            this.buffDescription),
-        new ChestSpawner(
-            this.chestsStorage.getRegister(),
-            this.entityFactory,
-            chestLaw),
-        new ChestDemolisher(this.chestsStorage.getRegister()));
-
-    this.collisionDetectionSystem = new CollisionDetectionSystem();
-
-    let stage = this.renderer.getStage();
-
-    let commentsFinder = this.commentsStorage.getFinder();
-    let updatingCommentsFinder = this.updatingCommentsStorage.getFinder();
-    let chestsFinder = this.chestsStorage.getFinder();
-    let playersFinder = this.playersStorage.getFinder();
-    let commentPreviewFinder = this.commentPreviewStorage.getFinder();
-
-    // TODO split render related systems to another tracker called in State.render()?
-    this.foregroundTracker = EntityTracker.newBuilder(this.player, renderRadius)
-
-        .applyExistenceSystem(new SuperposedEntityRenderSystem())
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder).and(commentPreviewFinder)
-        .toLiftedEntities().of(commentsFinder).and(updatingCommentsFinder)
-
-        .applyExistenceSystem(new RegionRenderSystem())
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder)
-
-        .applyExistenceSystem(new AddToContainerSystem(stage))
-        .toEntities().of(chestsFinder)
-
-        .applyExistenceSystem(new AddToContainerSystem(stage, this.game.make.group()))
-        .toEntities().of(playersFinder)
-
-        .applyExistenceSystem(new AddToContainerSystem(stage))
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder)
-
-        .applyExistenceSystem(new DisplayPositionSystem(this.player))
-        .toEntities().of(chestsFinder).and(playersFinder).and(commentsFinder)
-        .and(updatingCommentsFinder)
-
-        .applyExistenceSystem(new AddToContainerSystem(this.player.display))
-        .toEntities().of(commentPreviewFinder)
-
-        .applyExistenceSystem(this.collisionDetectionSystem)
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder)
-
-        .applyExistenceSystem(this.chestSystem).toEntities().of(chestsFinder)
-
-        .applyTickSystem(new UpdateSystem(this.game.time))
-        .toEntities().of(playersFinder).and(commentPreviewFinder)
-        .toLiftedEntities().of(updatingCommentsFinder)
-
-        .applyTickSystem(new DisplayMoveSystem()).toEntities().of(playersFinder)
-
-        .applyTickSystem(new MovingAnimationSystem()).toEntities().of(playersFinder)
-
-        .applyTickSystem(this.chestSystem).toEntities().of(chestsFinder)
-
-        .build();
-
-    this.backgroundTracker = EntityTracker
-        .newBuilder(this.player, new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS))
-
-        .applyExistenceSystem(new BackgroundColorSystem(this.game))
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder)
-
-        .build();
-  }
-
-  private getRenderRadius() {
-    return PhysicalConstants.getRenderRadius(this.game.width, this.game.height);
   }
 }
 

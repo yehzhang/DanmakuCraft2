@@ -5,7 +5,7 @@ import Const from '../util/dataGenerator/Const';
 import Weighted from '../util/dataGenerator/Weighted';
 import Chain from '../util/dataGenerator/Chain';
 import * as gaussian from 'gaussian';
-import {BuffData, BuffType} from '../entitySystem/system/buff/BuffFactory';
+import {BuffData, BuffType} from '../entitySystem/system/buff/BuffData';
 import ChestLaw from './ChestLaw';
 import Point from '../util/syntax/Point';
 import SimpleDataGenerator from '../util/dataGenerator/SimpleDataGenerator';

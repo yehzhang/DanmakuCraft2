@@ -1,7 +1,7 @@
 import Universe from '../Universe';
 import Colors from '../render/Colors';
 import CommentData from '../comment/CommentData';
-import {BuffData, BuffType} from '../entitySystem/system/buff/BuffFactory';
+import {BuffData, BuffType} from '../entitySystem/system/buff/BuffData';
 import ChestBuilder from '../render/graphics/ChestBuilder';
 import SpeechBubbleBuilder from '../render/graphics/SpeechBubbleBuilder';
 import Point from './syntax/Point';
@@ -11,6 +11,9 @@ import {asSequence} from 'sequency';
 import Distance from './math/Distance';
 import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
 import {NotificationPriority} from '../render/notification/Notifier';
+import CommentDataUtil from '../../../danmakucraft2-server/scripts/CommentDataUtil';
+import ConfigProvider from '../environment/config/ConfigProvider';
+import Updater from '../update/Updater';
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -18,10 +21,16 @@ class Debug {
 
   constructor(
       private universe: Universe,
+      public showInfo: boolean = true,
       private notificationShowCounts: number = 0,
       private debugInfo: DebugInfo = new DebugInfo(universe)) {
     universe.render = inject(this.render.bind(this), universe.render.bind(universe));
-    universe.player.moveSpeedBoostRatio = 10;
+
+    if (__DEV__) {
+      universe.player.moveSpeedBoostRatio = 10;
+    } else if (__STAGE__) {
+      universe.player.moveSpeedBoostRatio = 2;
+    }
   }
 
   get comment() {
@@ -37,7 +46,7 @@ class Debug {
   }
 
   get chest() {
-    return this.universe.chestSystem['chestSpawner']['spawnAt'](
+    return this.universe.updater.chestSystem['chestSpawner']['spawnAt'](
         this.universe.player.coordinates.clone().add(0, -100));
   }
 
@@ -49,6 +58,26 @@ class Debug {
   get shout() {
     this.universe.notifier.send(this.getNotificationMessage(), NotificationPriority.SKIP);
     return this.universe.notifier;
+  }
+
+  get fill() {
+    let config = ConfigProvider.get();
+    return new Promise<Document>((resolve, reject) => $.ajax({
+      type: 'GET',
+      url: config.baseUrl + config.defaultBatchCommentsPath,
+      dataType: 'xml',
+      success: resolve,
+      error: reject,
+    }))
+        .then(document => {
+          let commentsData = CommentDataUtil.parseFromDocument(document);
+          return this.universe.commentLoader.loadBatch(commentsData);
+        });
+  }
+
+  get hideInfo() {
+    this.showInfo = false;
+    return true;
   }
 
   static set(universe: Universe) {
@@ -77,6 +106,10 @@ class Debug {
   }
 
   private render() {
+    if (!this.showInfo) {
+      return;
+    }
+
     this.debugInfo.start();
 
     asSequence(this.universe.chestsStorage.getFinder())
@@ -176,7 +209,7 @@ class DebugInfo {
     this.currentY = 0;
 
     this.text('Player', this.universe.player.coordinates, '', true);
-    this.text(`Render radius: ${this.universe['getRenderRadius']()}`);
+    this.text(`Render radius: ${Updater['getRenderRadius'](this.universe.game)}`);
 
     return this;
   }

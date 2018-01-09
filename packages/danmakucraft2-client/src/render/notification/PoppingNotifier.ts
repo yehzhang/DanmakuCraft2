@@ -27,14 +27,14 @@ class PoppingNotifier extends BaseNotifier {
       } else {
         this.notificationQueue.unshift(notification);
       }
-      this.skipPauseCondition.notify();
+      this.skipPauseCondition.notifyAll();
     } else if (priority === NotificationPriority.SKIP) {
       this.notificationQueue.unshift(notification);
-      this.skipPauseCondition.notify();
+      this.skipPauseCondition.notifyAll();
     } else {
       this.notificationQueue.push(notification);
     }
-    this.messageCondition.notify();
+    this.messageCondition.notifyAll();
   }
 
   private async hideBubble() {
@@ -86,7 +86,7 @@ class PoppingNotifier extends BaseNotifier {
 
   private async pause(duration: number = PoppingNotifier.BUBBLE_DISPLAY_DURATION) {
     let sleepEvent = this.game.time.events.add(duration, () => {
-      this.skipPauseCondition.notify();
+      this.skipPauseCondition.notifyAll();
     });
 
     await this.skipPauseCondition.wait();

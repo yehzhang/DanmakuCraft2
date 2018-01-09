@@ -6,18 +6,18 @@ const common = require('./webpack.common.js');
 console.error('Bundle in production mode.');
 
 module.exports = merge(common, {
-  devtool: 'source-map',
   plugins: [
     new webpack.DefinePlugin({
-      __DEBUG__: JSON.stringify(false),
+      __STAGE__: JSON.stringify(false),
       __DEV__: JSON.stringify(false),
     }),
     new webpack.optimize.UglifyJsPlugin({
       ecma: 5,
+      parallel: true,
+      toplevel: true,
       output: {
         comments: false,
       },
-      sourceMap: true,
     }),
   ],
   output: {

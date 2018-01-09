@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es2017",
+    "outDir": null
+  },
+  "include": [
+    "../danmakucraft2-client/node_modules/phaser-ce-type-updated/typescript/phaser.d.ts",
+    "scripts/**/*.ts"
+  ]
+}

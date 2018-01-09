@@ -4,7 +4,7 @@ import EntityFactory from '../entitySystem/EntityFactory';
 import BuffDataApplier from '../entitySystem/system/buff/BuffDataApplier';
 import {CommentEntity, UpdatingCommentEntity} from '../entitySystem/alias';
 import CommentData from './CommentData';
-import {BuffData} from '../entitySystem/system/buff/BuffFactory';
+import {BuffData} from '../entitySystem/system/buff/BuffData';
 import {asSequence} from 'sequency';
 import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
 

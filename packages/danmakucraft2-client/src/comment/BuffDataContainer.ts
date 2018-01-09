@@ -1,4 +1,4 @@
-import {BuffData} from '../entitySystem/system/buff/BuffFactory';
+import {BuffData} from '../entitySystem/system/buff/BuffData';
 
 class BuffDataContainer {
   constructor(private maxBuffDatasCount = 1, private buffDatas: BuffData[] = []) {

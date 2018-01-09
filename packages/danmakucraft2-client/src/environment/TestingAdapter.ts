@@ -24,14 +24,14 @@ class TestingAdapter extends BaseEnvironmentAdapter {
 
 export default TestingAdapter;
 
-class TestingContainerProvider implements GameContainerProvider {
+export class TestingContainerProvider implements GameContainerProvider {
   getContainerId(): string {
     return 'container';
   }
 }
 
-class TestingCommentProvider implements CommentProvider {
-  constructor(readonly commentReceived: Phaser.Signal<CommentData>) {
+export class TestingCommentProvider implements CommentProvider {
+  constructor(readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal()) {
   }
 
   connect() {
@@ -42,7 +42,7 @@ class TestingCommentProvider implements CommentProvider {
   }
 }
 
-class TestingSettingsManager extends BaseSettingsManager {
+export class TestingSettingsManager extends BaseSettingsManager {
   protected loadSettings() {
   }
 }

@@ -1,14 +1,14 @@
 class ConditionalVariable {
   constructor(
       private currentPromise: Promise<void> | null = null,
-      public notify: () => void = () => {
+      public notifyAll: () => void = () => {
       }) {
   }
 
   async wait() {
     if (this.currentPromise == null) {
       this.currentPromise = new Promise(resolve => {
-        this.notify = resolve;
+        this.notifyAll = resolve;
       })
           .then(resolve => {
             this.currentPromise = null;

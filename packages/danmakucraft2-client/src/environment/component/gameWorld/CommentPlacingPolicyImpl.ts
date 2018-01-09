@@ -6,7 +6,7 @@ import CommentLoader from '../../../comment/CommentLoader';
 import Notifier, {NotificationPriority} from '../../../render/notification/Notifier';
 import TickCallbackRegister from '../../../update/TickCallbackRegister';
 import {CommentEntity, Player} from '../../../entitySystem/alias';
-import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffFactory';
+import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffData';
 import Texts from '../../../render/Texts';
 
 class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
@@ -17,25 +17,32 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
       private buffDataContainer: BuffDataContainer,
       private player: Player,
       private tickCallbackRegister: TickCallbackRegister,
+      private isProcessingRequest: boolean = false,
+      private shouldClearPreview: boolean = false,
       private previewDisplay?: CommentEntity) {
   }
 
   async requestFor(text: string, size: number, color: number) {
+    if (this.isProcessingRequest) {
+      throw new TypeError('Cannot process more than one request at the same time');
+    }
+
     this.clearCommentPreview();
 
     let commentData = this.buildCommentData(text, size, color);
     let comment = this.previewDisplay = this.commentLoader.load(commentData, false, false);
 
-    let canPlaceComment = await this.tickCallbackRegister.for(() => {
-      comment.display.alpha = 0.8;
+    this.isProcessingRequest = true;
+    await this.tickCallbackRegister.forDisplay(() => comment.display.alpha = 0.8);
+    let hasCollision = await this.tickCallbackRegister.forDisplayPosition(
+        () => this.collisionDetectionSystem.collidesWith(comment.display));
+    this.isProcessingRequest = false;
 
-      if (this.collisionDetectionSystem.collidesWith(comment.display)) {
-        return false;
+    if (!hasCollision) {
+      if (this.shouldClearPreview) {
+        this.clearCommentPreview();
+        this.shouldClearPreview = false;
       }
-      return true;
-    });
-
-    if (canPlaceComment) {
       return commentData;
     }
 
@@ -59,6 +66,11 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   }
 
   private clearCommentPreview() {
+    if (this.isProcessingRequest) {
+      this.shouldClearPreview = true;
+      return;
+    }
+
     if (this.previewDisplay === undefined) {
       return;
     }

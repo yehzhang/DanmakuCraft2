@@ -10,7 +10,7 @@ import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
 /**
  * Displays the opening and loads the universe
  */
-export default class BootState extends Phaser.State {
+class BootState extends Phaser.State {
   private initialGameSize: Point;
   private titleGroup: Phaser.Group;
 
@@ -28,7 +28,6 @@ export default class BootState extends Phaser.State {
   // noinspection JSUnusedGlobalSymbols
   create() {
     this.configureGame();
-    this.craftRenderGroups();
     this.runState().catch(reason => this.showFailedLoadingStatus(reason));
   }
 
@@ -109,6 +108,14 @@ export default class BootState extends Phaser.State {
     this.game.scale.onSizeChange.add(this.onGameResize, this);
   }
 
+  private destroyRenderGroups() {
+     this.titleGroup.destroy();
+     this.loadingStatusGroup.destroy();
+     this.waitForAnyInputGroup.destroy();
+     this.earthGroup.destroy();
+     this.borderGroup.destroy();
+  }
+
   private onGameResize() {
     let gameSize = this.getCurrentGameSize();
 
@@ -125,7 +132,7 @@ export default class BootState extends Phaser.State {
 
   private async runState(): Promise<void> {
     let universe;
-    if (__DEBUG__) {
+    if (__DEV__) {
       universe = await this.loadUniverse();
     } else {
       universe = await this.showOpeningAndLoadUniverse();
@@ -147,6 +154,8 @@ export default class BootState extends Phaser.State {
   }
 
   private async showOpeningAndLoadUniverse(): Promise<Universe> {
+    this.craftRenderGroups();
+
     let [universe, , , ] = await Promise.all([
       this.loadUniverse().catch(reason => reason),
       this.showLoadingStatus(),
@@ -167,6 +176,8 @@ export default class BootState extends Phaser.State {
       this.passThroughUniverseBorder(),
       this.approachEarth(),
     ]);
+
+    this.destroyRenderGroups();
 
     return universe;
   }
@@ -391,18 +402,18 @@ export default class BootState extends Phaser.State {
             Phaser.Easing.Quartic.In,
             true);
 
+
     return new Promise<void>(resolve => {
-      earthScaleTween.onStart.addOnce(() => {
-        this.game.camera.fade(Colors.BACKGROUND_NUMBER, 2500);
+      earthScaleTween.onStart.addOnce(() => this.game.camera.fade(Colors.BACKGROUND_NUMBER, 2500));
+      this.game.camera.onFadeComplete.addOnce(() => {
+        this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
 
-        this.game.camera.onFadeComplete.addOnce(() => {
-          this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
+        earthScaleTween.stop();
 
-          earthScaleTween.stop();
-
-          resolve();
-        });
+        resolve();
       });
     });
   }
 }
+
+export default BootState;

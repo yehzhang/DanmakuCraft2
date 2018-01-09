@@ -9,12 +9,17 @@ module.exports = merge(common, {
   devtool: 'source-map',
   plugins: [
     new webpack.DefinePlugin({
-      __DEBUG__: JSON.stringify(true),
+      __STAGE__: JSON.stringify(true),
       __DEV__: JSON.stringify(false),
     }),
     new webpack.optimize.UglifyJsPlugin({
+      parallel: true,
+      mangle: false,
+      compress: false,
       output: {
+        beautify: true,
         comments: false,
+        indent_level: 2,
       },
       sourceMap: true,
     }),

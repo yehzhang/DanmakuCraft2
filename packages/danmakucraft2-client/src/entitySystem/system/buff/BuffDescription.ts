@@ -1,4 +1,4 @@
-import {BuffData, BuffType} from './BuffFactory';
+import {BuffData, BuffType} from './BuffData';
 import Texts from '../../../render/Texts';
 
 class BuffDescription {

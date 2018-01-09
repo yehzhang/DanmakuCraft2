@@ -10,7 +10,7 @@ module.exports = merge.smart(common, {
   devtool: 'eval-cheap-module-source-map',
   plugins: [
     new webpack.DefinePlugin({
-      __DEBUG__: JSON.stringify(true),
+      __STAGE__: JSON.stringify(true),
       __DEV__: JSON.stringify(true),
     }),
   ],

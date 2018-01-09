@@ -13,9 +13,12 @@ class TextInputCommentProvider implements CommentProvider {
       readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal(),
       private textInput: JQuery<HTMLElement> = $('.bilibili-player-video-danmaku-input'),
       private sendButton: JQuery<HTMLElement> = $('.bilibili-player-video-btn-send'),
+      private isRequestingForInput: boolean = false,
+      private shouldRequestForInput: boolean = false,
       private isSendingComment: boolean = false,
+      private isRequesting: boolean = false,
+      private requestCondition: ConditionalVariable = new ConditionalVariable(),
       private canSendCondition: ConditionalVariable = new ConditionalVariable(),
-      private cannotSendCondition: ConditionalVariable = new ConditionalVariable(),
       private canSendComment: boolean = false) {
   }
 
@@ -42,55 +45,79 @@ class TextInputCommentProvider implements CommentProvider {
     throw new TypeError('This operation is not supported');
   }
 
-  private onTextInput() {
-    let ignored = this.requestForPlacingComment();
+  private async onTextInput() {
+    if (this.isRequestingForInput) {
+      this.shouldRequestForInput = true;
+      return;
+    }
+    this.isRequestingForInput = true;
+
+    do {
+      this.shouldRequestForInput = false;
+      await this.requestForPlacingComment();
+    } while (this.shouldRequestForInput);
+
+    this.isRequestingForInput = false;
   }
 
   private async requestForPlacingComment(): Promise<CommentData | null> {
-    if (this.isSendButtonDisabled()) {
-      return null;
+    while (this.isRequesting) {
+      await this.requestCondition.wait();
     }
 
     let textInputValue = this.textInput.val();
     if (!textInputValue) {
+      this.commentPlacingPolicy.cancelRequest();
+      // Ok to not notify only if notify all below
       return null;
     }
 
-    return this.commentPlacingPolicy.requestFor(
+    this.isRequesting = true;
+    let commentData = await this.commentPlacingPolicy.requestFor(
         textInputValue.toString(),
         TextInputCommentProvider.getSelectedFontSize(),
         TextInputCommentProvider.getSelectedFontColor());
+    this.isRequesting = false;
+
+    this.requestCondition.notifyAll();
+
+    return commentData;
   }
 
   private async onSendButtonClickedInitial(event: Event) {
+    if (this.isSendButtonDisabled()) {
+      return null;
+    }
+
     if (this.isSendingComment) {
       return;
     }
 
     this.listenForCancellation(event);
 
-    await this.sendCommentIfAppropriate();
+    await this.sendCommentIfPermitted();
 
     this.isSendingComment = false;
   }
 
-  private async sendCommentIfAppropriate() {
+  private async sendCommentIfPermitted() {
     let commentData = await this.requestForPlacingComment();
     if (commentData == null) {
       return;
     }
 
-    await Promise.race([this.canSendCondition.wait(), this.cannotSendCondition.wait()]);
+    await this.canSendCondition.wait();
     if (!this.canSendComment) {
+      // As long as text input is retained, there is no need to cancel request.
       return;
     }
 
     this.commentReceived.dispatch(commentData);
   }
 
-  private async onSendButtonClickedFinal() {
+  private onSendButtonClickedFinal() {
     this.canSendComment = true;
-    this.canSendCondition.notify();
+    this.canSendCondition.notifyAll();
   }
 
   private isSendButtonDisabled() {
@@ -102,7 +129,7 @@ class TextInputCommentProvider implements CommentProvider {
       return () => {
         // TODO test if stopImmediatePropagation is really called or something else
         this.canSendComment = false;
-        this.cannotSendCondition.notify();
+        this.canSendCondition.notifyAll();
 
         stopImmediatePropagation();
       };

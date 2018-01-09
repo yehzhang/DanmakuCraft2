@@ -8,6 +8,7 @@ import Parameters from './component/bilibili/Parameters';
 import BilibiliContainerProvider from './component/bilibili/BilibiliContainerProvider';
 import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
 import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
+import {TestingCommentProvider} from './TestingAdapter';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   constructor() {
@@ -18,6 +19,9 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   private static canRunOnThisWebPage() {
+    if (__STAGE__) {
+      return true;
+    }
     return EnvironmentVariables.aid === Parameters.AID;
   }
 
@@ -29,6 +33,10 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   getCommentProvider() {
+    if (__STAGE__) {
+      // TODO remove
+      return new TestingCommentProvider();
+    }
     return new OfficialCommentProvider();
   }
 
