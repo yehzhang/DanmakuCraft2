@@ -1,3 +1,5 @@
+import {Phaser} from '../alias/phaser';
+
 class Rectangle extends Phaser.Rectangle {
   static of(x: number, y: number, width: number, height: number) {
     return new this(x, y, width, height);

@@ -1,6 +1,6 @@
-import Scaler from '../../../src/util/dataGenerator/Scaler';
+import Scaler from '../../../client/src/util/dataGenerator/Scaler';
 import {expect} from 'chai';
-import Weighted from '../../../src/util/dataGenerator/Weighted';
+import Weighted from '../../../client/src/util/dataGenerator/Weighted';
 
 const epsilon = 0.000001;
 

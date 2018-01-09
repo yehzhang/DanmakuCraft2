@@ -1,6 +1,7 @@
-import {ColorMixer} from '../../../src/entitySystem/system/existence/BackgroundColorSystem';
 import {expect} from 'chai';
-import Colors from '../../../src/render/Colors';
+import {ColorMixer} from '../../../client/src/entitySystem/system/existence/BackgroundColorSystem';
+import Colors from '../../../client/src/render/Colors';
+import {Phaser} from '../../../client/src/util/alias/phaser';
 
 describe('ColorMixer', () => {
   let colorMixer: ColorMixer;

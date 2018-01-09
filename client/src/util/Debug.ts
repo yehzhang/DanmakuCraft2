@@ -13,7 +13,7 @@ import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
 import {NotificationPriority} from '../render/notification/Notifier';
 import ConfigProvider from '../environment/config/ConfigProvider';
 import Updater from '../update/Updater';
-import CommentDataUtil from '../../../server/scripts/CommentDataUtil';
+import CommentDataUtil from '../../../scripts/CommentDataUtil';
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';

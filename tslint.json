@@ -23,7 +23,8 @@
     "prefer-const": false,
     "member-access": false,
     "quotemark": [true, "single"],
-    "semicolon": [true, "always", "ignore-bound-class-methods"]
+    "semicolon": [true, "always", "ignore-bound-class-methods"],
+    "max-line-length": [true, {"ignorePattern": "^import \\w+ from"}]
   },
   "jsRules": {
   }

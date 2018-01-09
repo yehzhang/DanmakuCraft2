@@ -1,9 +1,10 @@
-import EntityFinder from '../../../src/util/entityStorage/EntityFinder';
-import Entity from '../../../src/entitySystem/Entity';
+import EntityFinder from '../../../client/src/util/entityStorage/EntityFinder';
+import Entity from '../../../client/src/entitySystem/Entity';
 import {instance, mock, when} from 'ts-mockito';
-import GlobalEntityFinder from '../../../src/util/entityStorage/global/GlobalEntityFinder';
-import Point from '../../../src/util/syntax/Point';
+import GlobalEntityFinder from '../../../client/src/util/entityStorage/global/GlobalEntityFinder';
+import Point from '../../../client/src/util/syntax/Point';
 import {expect} from 'chai';
+import {Phaser} from '../../../client/src/util/alias/phaser';
 
 describe('EntityFinder', () => {
   let mockEntities: Entity[];

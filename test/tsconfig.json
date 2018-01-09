@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "target": "es6",
     "strict": false,
@@ -11,6 +11,6 @@
     "strictFunctionTypes": true
   },
   "include": [
-    "./src/**/*.ts"
+    "./client/**/*.ts"
   ]
 }

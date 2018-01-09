@@ -1,7 +1,7 @@
 import {instance, mock} from 'ts-mockito';
-import Container from '../../../src/util/entityStorage/Container';
-import Entity from '../../../src/entitySystem/Entity';
-import ArrayContainer from '../../../src/util/entityStorage/chunk/ArrayContainer';
+import Container from '../../../client/src/util/entityStorage/Container';
+import Entity from '../../../client/src/entitySystem/Entity';
+import ArrayContainer from '../../../client/src/util/entityStorage/chunk/ArrayContainer';
 import {expect} from 'chai';
 
 describe('ArrayContainer', () => {

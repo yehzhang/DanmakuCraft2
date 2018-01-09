@@ -1,17 +1,18 @@
-import EntityTrackerBuilder from '../../../src/update/EntityTrackerBuilder';
+import EntityTrackerBuilder from '../../../client/src/update/EntityTrackerBuilder';
 import {instance, mock, when} from 'ts-mockito';
-import Entity from '../../../src/entitySystem/Entity';
-import DynamicProvider from '../../../src/util/DynamicProvider';
-import UpdateSystem from '../../../src/entitySystem/system/tick/UpdateSystem';
-import SuperposedEntityRenderSystem from '../../../src/entitySystem/system/existence/SuperposedEntityRenderSystem';
-import TickSystem from '../../../src/entitySystem/system/tick/TickSystem';
-import ExistenceSystem from '../../../src/entitySystem/system/existence/ExistenceSystem';
-import EntityFinder from '../../../src/util/entityStorage/EntityFinder';
-import ChunkEntityFinder from '../../../src/util/entityStorage/chunk/ChunkEntityFinder';
+import Entity from '../../../client/src/entitySystem/Entity';
+import DynamicProvider from '../../../client/src/util/DynamicProvider';
+import UpdateSystem from '../../../client/src/entitySystem/system/tick/UpdateSystem';
+import SuperposedEntityRenderSystem from '../../../client/src/entitySystem/system/existence/SuperposedEntityRenderSystem';
+import TickSystem from '../../../client/src/entitySystem/system/tick/TickSystem';
+import ExistenceSystem from '../../../client/src/entitySystem/system/existence/ExistenceSystem';
+import EntityFinder from '../../../client/src/util/entityStorage/EntityFinder';
+import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
 import {expect} from 'chai';
-import {UpdateRelation} from '../../../src/update/EntityTracker';
+import {UpdateRelation} from '../../../client/src/update/EntityTracker';
 import {asSequence} from 'sequency';
-import Point from '../../../src/util/syntax/Point';
+import Point from '../../../client/src/util/syntax/Point';
+import {Phaser} from '../../../client/src/util/alias/phaser';
 
 describe('EntityTrackerBuilder', () => {
   let builder: EntityTrackerBuilder;

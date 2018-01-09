@@ -1,7 +1,7 @@
 import {readFile} from 'fs';
 import {parseString} from 'xml2js';
 import CommentDataUtil from './CommentDataUtil';
-import CommentData from '../../client/src/comment/CommentData';
+import CommentData from '../client/src/comment/CommentData';
 
 async function asPromise<T>(
   callback: (callback: (err: any, data: T) => void) => void): Promise<T> {

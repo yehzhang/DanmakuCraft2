@@ -1,15 +1,17 @@
 import {anything, deepEqual, instance, mock, verify, when} from 'ts-mockito';
-import EntityTracker, {
-  DistanceChecker, EntityFinderRecord, SystemTicker, TickSystemTicker,
-  UpdateRelation
-} from '../../../src/update/EntityTracker';
-import Entity from '../../../src/entitySystem/Entity';
-import DynamicProvider from '../../../src/util/DynamicProvider';
-import Distance from '../../../src/util/math/Distance';
 import {expect} from 'chai';
-import Point from '../../../src/util/syntax/Point';
-import EntityFinder, {EntityExistenceUpdatedEvent} from '../../../src/util/entityStorage/EntityFinder';
-import ChunkEntityFinder from '../../../src/util/entityStorage/chunk/ChunkEntityFinder';
+import Point from '../../../client/src/util/syntax/Point';
+import Entity from '../../../client/src/entitySystem/Entity';
+import DynamicProvider from '../../../client/src/util/DynamicProvider';
+import {
+  DistanceChecker,
+  EntityFinderRecord, default as EntityTracker, SystemTicker,
+  UpdateRelation, TickSystemTicker
+} from '../../../client/src/update/EntityTracker';
+import Distance from '../../../client/src/util/math/Distance';
+import {Phaser} from '../../../client/src/util/alias/phaser';
+import EntityFinder, {EntityExistenceUpdatedEvent} from '../../../client/src/util/entityStorage/EntityFinder';
+import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
 
 const NEXT_SAMPLING_RADIUS = 10;
 const NEXT_COORDINATES = Point.of(100, 100);

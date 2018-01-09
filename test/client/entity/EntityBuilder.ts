@@ -1,5 +1,5 @@
-import {EntityBuilder} from '../../../src/entitySystem/Entity';
 import {expect} from 'chai';
+import {EntityBuilder} from '../../../client/src/entitySystem/Entity';
 
 describe('EntityBuilder', () => {
   let entityBuilder: EntityBuilder<any>;

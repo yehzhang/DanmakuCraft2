@@ -1,8 +1,8 @@
-import PhysicalConstants from '../../../src/PhysicalConstants';
+import PhysicalConstants from '../../../client/src/PhysicalConstants';
 import {expect} from 'chai';
-import Chunks from '../../../src/util/entityStorage/chunk/Chunks';
-import Point from '../../../src/util/syntax/Point';
-import Rectangle from '../../../src/util/syntax/Rectangle';
+import Chunks from '../../../client/src/util/entityStorage/chunk/Chunks';
+import Point from '../../../client/src/util/syntax/Point';
+import Rectangle from '../../../client/src/util/syntax/Rectangle';
 
 describe('Chunks', () => {
   let chunks: Chunks<object>;

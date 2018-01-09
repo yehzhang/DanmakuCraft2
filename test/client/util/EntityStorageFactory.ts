@@ -1,11 +1,11 @@
-import EntityStorageFactoryImpl from '../../../src/util/entityStorage/EntityStorageFactoryImpl';
+import EntityStorageFactoryImpl from '../../../client/src/util/entityStorage/EntityStorageFactoryImpl';
 import {anything, instance, mock, when} from 'ts-mockito';
-import EntityFactory from '../../../src/entitySystem/EntityFactory';
-import EntityFactoryImpl from '../../../src/entitySystem/EntityFactoryImpl';
-import Point from '../../../src/util/syntax/Point';
-import ChunkEntityFinder from '../../../src/util/entityStorage/chunk/ChunkEntityFinder';
+import EntityFactory from '../../../client/src/entitySystem/EntityFactory';
+import EntityFactoryImpl from '../../../client/src/entitySystem/EntityFactoryImpl';
+import Point from '../../../client/src/util/syntax/Point';
+import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
 import {expect} from 'chai';
-import PhysicalConstants from '../../../src/PhysicalConstants';
+import PhysicalConstants from '../../../client/src/PhysicalConstants';
 
 describe('EntityStorageFactoryImpl', () => {
   let factory: EntityStorageFactoryImpl;

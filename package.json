@@ -4,16 +4,16 @@
   "description": "",
   "main": "dist/bundle.js",
   "scripts": {
-    "postinstall": "npm run link:server",
-    "link:server": "cd server && ln -s ../node_modules node_modules || ln -s ../package.json package.json || cd assets/static/ && ln -s ../../../client/build build || cd ../../..",
-    "build:client:dev": "webpack --watch --config client/webpack.dev.js",
-    "build:client:stage": "webpack --watch --config client/webpack.stage.js",
-    "build:client:prod": "webpack --config client/webpack.prod.js",
-    "prepublishOnly": "npm test && npm run build:client:prod",
-    "test:client": "mocha './client/test/src/**/*.ts'",
-    "test": "npm run test:client",
-    "debug:server": "node debug server/app.js",
-    "start:server": "node server/app.js"
+    "postinstall": "npm run server:link",
+    "server:link": "cd server && ln -s ../node_modules node_modules || ln -s ../package.json package.json || cd assets/static/ && ln -s ../../../client/build build || cd ../../..",
+    "client:build:dev": "webpack --watch --config client/webpack.dev.js",
+    "client:build:stage": "webpack --watch --config client/webpack.stage.js",
+    "client:build:prod": "webpack --config client/webpack.prod.js",
+    "prepublishOnly": "npm test && npm run client:build:prod",
+    "client:test": "mocha test/client/**/*.ts",
+    "test": "npm run client:test",
+    "server:debug": "node debug server/app.js",
+    "server:start": "node server/app.js"
   },
   "repository": {
     "type": "git",

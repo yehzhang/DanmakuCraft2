@@ -20,6 +20,6 @@
   "include": [
     "node_modules/phaser-ce-type-updated/typescript/phaser.d.ts",
     "client/src/**/*",
-    "server/scripts/**/*.ts"
+    "scripts/**/*.ts"
   ]
 }

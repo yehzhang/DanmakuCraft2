@@ -1,4 +1,5 @@
 import Point from '../syntax/Point';
+import {Phaser} from '../alias/phaser';
 
 abstract class Polar {
   /**
