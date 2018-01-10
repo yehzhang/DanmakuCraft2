@@ -64,7 +64,7 @@ class Updater {
 
         .applyExistenceSystem(new SuperposedEntityRenderSystem())
         .toEntities().of(commentsFinder).and(updatingCommentsFinder).and(commentPreviewFinder)
-        .toLiftedEntities().of(commentsFinder).and(updatingCommentsFinder)
+        .toChildren().of(commentsFinder).and(updatingCommentsFinder)
 
         .applyExistenceSystem(new RegionRenderSystem())
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
@@ -95,7 +95,7 @@ class Updater {
 
         .applyTickSystem(new UpdateSystem(universe.game.time))
         .toEntities().of(playersFinder).and(commentPreviewFinder)
-        .toLiftedEntities().of(updatingCommentsFinder)
+        .toChildren().of(updatingCommentsFinder)
 
         .applyTickSystem(new DisplayMoveSystem()).toEntities().of(playersFinder)
 

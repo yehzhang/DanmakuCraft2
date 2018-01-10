@@ -31,7 +31,7 @@ export class ToClause<T, U> {
       private systemApplierManager: SystemApplierManager<T, U>) {
   }
 
-  toLiftedEntities(): OfClause<Region<T>, U> {
+  toChildren(): OfClause<Region<T>, U> {
     return this.createOfClause(this.systemApplierManager.lifted());
   }
 
@@ -62,8 +62,8 @@ export class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
     super(builder);
   }
 
-  toLiftedEntities() {
-    return this.createToClause(this.systemApplierManager.getOriginal()).toLiftedEntities();
+  toChildren() {
+    return this.createToClause(this.systemApplierManager.getOriginal()).toChildren();
   }
 
   toEntities() {
