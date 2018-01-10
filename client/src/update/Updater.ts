@@ -17,6 +17,7 @@ import DisplayMoveSystem from '../entitySystem/system/tick/DisplayPositionSystem
 import SuperposedEntityRenderSystem from '../entitySystem/system/existence/SuperposedEntityRenderSystem';
 import DisplayPositionSystem from '../entitySystem/system/existence/DisplayPositionSystem';
 import {Phaser} from '../util/alias/phaser';
+import CacheAsBitmapSystem from '../entitySystem/system/existence/CacheAsBitmapSystem';
 
 class Updater {
   constructor(
@@ -67,6 +68,9 @@ class Updater {
 
         .applyExistenceSystem(new RegionRenderSystem())
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
+
+        .applyExistenceSystem(new CacheAsBitmapSystem())
+        .toEntities().of(commentsFinder).and(chestsFinder).and(playersFinder)
 
         .applyExistenceSystem(new AddToContainerSystem(stage))
         .toEntities().of(chestsFinder)
