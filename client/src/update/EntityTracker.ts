@@ -37,10 +37,10 @@ class EntityTracker {
         .onEach(record => record.update(nextCoordinates, samplingRadius))
         .toArray();
 
+    asSequence(this.updateRelations).reverse().forEach(relation => relation.backwardTick(time));
     for (let relation of this.updateRelations) {
       relation.forwardTick(time);
     }
-    asSequence(this.updateRelations).reverse().forEach(relation => relation.backwardTick(time));
     for (let ticker of this.systemTickers) {
       ticker.finishingTick(time);
     }
@@ -117,11 +117,11 @@ export class EntityFinderRecord<T extends Entity> {
     this.hasUpdatedEntities = false;
   }
 
-  private onEntityUpdated(entityUpdatedEvent: ExistenceUpdatedEvent<T>) {
+  private onEntityUpdated(existenceUpdated: ExistenceUpdatedEvent<T>) {
     if (this.shouldUpdateEntities) {
       return;
     }
-    this.shouldUpdateEntities = this.shouldRecordUpdate(entityUpdatedEvent);
+    this.shouldUpdateEntities = this.shouldRecordUpdate(existenceUpdated);
   }
 
   private shouldRecordUpdate(existenceUpdated: ExistenceUpdatedEvent<T>) {

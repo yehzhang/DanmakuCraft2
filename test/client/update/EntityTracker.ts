@@ -118,13 +118,13 @@ describe('EntityTracker', () => {
   it('should update tickers in order', () => {
     entityTracker.tick(time);
 
-    verify(mockUpdateRelations[0].forwardTick(time))
-        .calledBefore(mockUpdateRelations[1].forwardTick(time));
-    verify(mockUpdateRelations[1].forwardTick(time))
-        .calledBefore(mockUpdateRelations[1].backwardTick(time));
     verify(mockUpdateRelations[1].backwardTick(time))
         .calledBefore(mockUpdateRelations[0].backwardTick(time));
     verify(mockUpdateRelations[0].backwardTick(time))
+        .calledBefore(mockUpdateRelations[0].forwardTick(time));
+    verify(mockUpdateRelations[0].forwardTick(time))
+        .calledBefore(mockUpdateRelations[1].forwardTick(time));
+    verify(mockUpdateRelations[1].forwardTick(time))
         .calledBefore(mockSystemTickers[0].finishingTick(time));
     verify(mockSystemTickers[0].finishingTick(time))
         .calledBefore(mockSystemTickers[1].finishingTick(time));
