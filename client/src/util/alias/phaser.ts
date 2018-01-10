@@ -1,16 +1,13 @@
 let global = Function('return this')();
 
 export import p2 = require('phaser-ce-type-updated/build/custom/p2');
-export import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
-export import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
-
 global.p2 = p2;
 
 
+export import PIXI = require('phaser-ce-type-updated/build/custom/pixi');
 global.PIXI = PIXI;
 
 global.__WEBPACK__ = false;
-
 if (!__WEBPACK__) {
   let injectDomIfNecessary = () => {
     if ('window' in global) {
@@ -43,3 +40,4 @@ if (!__WEBPACK__) {
   injectCanvasIfNecessary();
 }
 
+export import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
