@@ -20,11 +20,10 @@ class BackgroundColorSystem implements ExistenceSystem<Region<CommentEntity>> {
   }
 
   private static blendColors(rgb: Phaser.RGBColor, other: Phaser.RGBColor): number {
-    let r = Phaser.Color.blendMultiply(rgb.r, other.r);
-    let g = Phaser.Color.blendMultiply(rgb.g, other.g);
-    let b = Phaser.Color.blendMultiply(rgb.b, other.b);
-
-    return Phaser.Color.getColor(r, g, b);
+    return Phaser.Color.getColor(
+        Phaser.Color.blendMultiply(rgb.r, other.r),
+        Phaser.Color.blendMultiply(rgb.g, other.g),
+        Phaser.Color.blendMultiply(rgb.b, other.b));
   }
 
   enter(region: Region<CommentEntity>) {
@@ -128,7 +127,7 @@ export class ColorMixer {
     // Set lightness.
     let colorsRatioForLightness = ColorMixer.getRatio(
         colorsCount + this.colorsCountPadding, this.colorsCountToReachMaxLightness);
-    let lightness = Phaser.Easing.Exponential.Out(colorsRatioForLightness);
+    let lightness = Phaser.Easing.Quadratic.Out(colorsRatioForLightness);
 
     return new HSL(hue, saturation, lightness);
   }

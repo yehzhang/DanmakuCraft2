@@ -25,6 +25,7 @@ class InputInterceptor {
         return;
       }
 
+      // TODO check if text input focused first. if true, intercept phaser instead of not phaser
       if (this.isTextInputFocused()) {
         let inputValue = this.textInput.val();
         if (inputValue && inputValue.toString()) {

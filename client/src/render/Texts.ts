@@ -4,7 +4,7 @@ class Texts {
     'boot.done': '加载完毕',
     'boot.error': '加载失败，请刷新页面',
     'boot.loading': '加载中',
-    'boot.title': '弹幕世界',
+    'boot.title': '弹幕世界2',
 
     'main.tutorial.move': '按 W、S、A、D 移动',
     'main.tutorial.comment': '按回车键开始输入弹幕，再次按下发送弹幕',

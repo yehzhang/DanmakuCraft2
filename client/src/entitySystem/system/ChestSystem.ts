@@ -127,20 +127,14 @@ export class ChestSpawner {
       private chestsRegister: EntityRegister<ChestEntity>,
       private entityFactory: EntityFactory,
       private law: ChestLaw,
-      private hasSpawned = false,
       private hasSchedule: boolean = false,
       private spawnInterval: number = 0) {
+    if (!hasSchedule) {
+      this.scheduleNextSpawning();
+    }
   }
 
   spawnIfAppropriate(time: Phaser.Time) {
-    if (!this.hasSpawned) {
-      this.scheduleNextSpawning();
-
-      this.hasSpawned = true;
-
-      return;
-    }
-
     if (this.hasSchedule) {
       this.spawnInterval -= time.physicsElapsed;
       if (this.spawnInterval > 0) {

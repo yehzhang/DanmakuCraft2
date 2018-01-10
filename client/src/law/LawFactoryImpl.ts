@@ -52,7 +52,7 @@ class LawFactoryImpl implements LawFactory {
     let buffStrategy = Chain.total(this.baseGenerator)
         .pipe(Weighted.newBuilder<BuffData>()
             .add(new BuffData(BuffType.NONE), 1)
-            .add(new BuffData(BuffType.CHROMATIC), 5)
+            .add(new BuffData(BuffType.CHROMATIC), 7)
             .add(new BuffData(BuffType.HASTY), 2)
             .build())
         .build();

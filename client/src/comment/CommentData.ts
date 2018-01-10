@@ -10,7 +10,7 @@ class CommentData {
       readonly text: string,
       coordinates: Point,
       readonly buffData: BuffData | null) {
-    this.coordinates = coordinates.clone();
+    this.coordinates = coordinates.clone().floor();
   }
 }
 

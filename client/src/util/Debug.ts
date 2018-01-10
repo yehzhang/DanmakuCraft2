@@ -14,6 +14,9 @@ import {NotificationPriority} from '../render/notification/Notifier';
 import ConfigProvider from '../environment/config/ConfigProvider';
 import Updater from '../update/Updater';
 import CommentDataUtil from '../../../scripts/CommentDataUtil';
+import Entity from '../entitySystem/Entity';
+import {Player} from '../entitySystem/alias';
+import {Phaser} from './alias/phaser';
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -23,14 +26,33 @@ class Debug {
       private universe: Universe,
       public showInfo: boolean = true,
       private notificationShowCounts: number = 0,
-      private debugInfo: DebugInfo = new DebugInfo(universe)) {
+      private systems: { [systemName: string]: object } = {},
+      private debugInfo: DebugInfo = new DebugInfo(universe.game, universe.player)) {
     universe.render = inject(this.render.bind(this), universe.render.bind(universe));
 
     if (__DEV__) {
       universe.player.moveSpeedBoostRatio = 10;
     } else if (__STAGE__) {
-      universe.player.moveSpeedBoostRatio = 2;
+      universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
     }
+
+    asSequence([
+      universe.updater['foregroundTracker'],
+      universe.updater['backgroundTracker']])
+        .flatMap(tracker => asSequence(tracker['systemTickers']))
+        .map(ticker => (ticker as any)['system'])
+        .forEach(system => {
+          let systemName = system.constructor.name;
+          if (systems.hasOwnProperty(systemName)) {
+            if (system[systemName] instanceof Array) {
+              system[systemName].push(system);
+            } else {
+              system[systemName] = [system[systemName], system];
+            }
+          } else {
+            system[systemName] = system;
+          }
+        });
   }
 
   get comment() {
@@ -77,11 +99,14 @@ class Debug {
 
   get hideInfo() {
     this.showInfo = false;
+    this.debugInfo.clear();
+
     return true;
   }
 
   static set(universe: Universe) {
     let debug = new this(universe);
+
     // TODO any idea how to expose all modules while debugging?
     Object.assign(window, {
       universe,
@@ -93,8 +118,12 @@ class Debug {
       ChestBuilder,
       SpeechBubbleBuilder,
       Distance,
+      asSequence,
+      PhysicalConstants,
       db: debug,
     });
+
+    return debug;
   }
 
   addComment(
@@ -116,16 +145,17 @@ class Debug {
         .forEach(
             chest => this.debugInfo.text('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
 
-    asSequence([
-      this.universe.commentsStorage.getFinder(),
-      this.universe.updatingCommentsStorage.getFinder()])
-        .flatten()
+    // TODO refactor to add to container system
+    let closestComment: Entity = asSequence(this.universe.updater.collisionDetectionSystem['currentRegions'])
         .flatMap(region => asSequence(region.container))
-        .take(5)
-        .forEach(comment => this.debugInfo.text(
-            'Comment',
-            comment.coordinates,
-            UpdatingBuffCarrier.isTypeOf(comment) ? 'updating' : ''));
+        .minBy((entity: any) =>
+            Distance.roughlyOf(entity.coordinates, this.universe.player.coordinates)) as any;
+    if (closestComment) {
+      this.debugInfo.text(
+          'Comment',
+          closestComment.coordinates,
+          UpdatingBuffCarrier.isTypeOf(closestComment) ? 'updating' : '');
+    }
   }
 
   private getNotificationMessage() {
@@ -159,7 +189,8 @@ function inject(fun: (...args: any[]) => void, other: (...args: any[]) => void =
 
 class DebugInfo {
   constructor(
-      private universe: Universe,
+      private game: Phaser.Game,
+      private player: Player,
       private currentY: number = 20,
       private lineHeight: number = 18) {
   }
@@ -187,7 +218,7 @@ class DebugInfo {
         navigation = '';
       } else {
         let offset = toWorldCoordinateOffset2d(
-            this.universe.player.coordinates,
+            this.player.coordinates,
             coordinates,
             PhysicalConstants.WORLD_SIZE);
         let horizontalDirection = DebugInfo.getDirection(offset.x);
@@ -200,7 +231,7 @@ class DebugInfo {
       text = `${text}: (${coordinates.x}, ${coordinates.y})${navigation}`;
     }
 
-    this.universe.game.debug.text(text, 10, this.currentY += this.lineHeight);
+    this.game.debug.text(text, 10, this.currentY += this.lineHeight, Colors.GOLD);
 
     return this;
   }
@@ -208,9 +239,12 @@ class DebugInfo {
   start() {
     this.currentY = 0;
 
-    this.text('Player', this.universe.player.coordinates, '', true);
-    this.text(`Render radius: ${Updater['getRenderRadius'](this.universe.game)}`);
-
+    this.text('Player', this.player.coordinates, '', true);
+    this.text(`Render radius: ${Updater['getRenderRadius'](this.game)}`);
     return this;
+  }
+
+  clear() {
+    this.game.debug.reset();
   }
 }
