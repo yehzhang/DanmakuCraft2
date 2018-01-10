@@ -1,4 +1,7 @@
-export function bindFirst($elem: JQuery<any>, event: string, selector: any) {
+export function bindFirst<T extends Node>(
+    $elem: JQuery<T>,
+    event: string,
+    selector: JQuery.EventHandler<T>) {
   $elem.on(event, selector);
 
   let bindings = $elem.data('events')[event];

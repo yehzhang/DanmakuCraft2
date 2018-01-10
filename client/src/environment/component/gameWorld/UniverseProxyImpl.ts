@@ -1,9 +1,13 @@
 import UniverseProxy from '../../interface/UniverseProxy';
 import CommentPlacingPolicy from '../../interface/CommentPlacingPolicy';
 import Notifier from '../../../render/notification/Notifier';
+import {Phaser} from '../../../util/alias/phaser';
 
 class UniverseProxyImpl implements UniverseProxy {
-  constructor(private commentPlacingPolicy: CommentPlacingPolicy, private notifier: Notifier) {
+  constructor(
+      private game: Phaser.Game,
+      private commentPlacingPolicy: CommentPlacingPolicy,
+      private notifier: Notifier) {
   }
 
   getCommentPlacingPolicy() {
@@ -12,6 +16,10 @@ class UniverseProxyImpl implements UniverseProxy {
 
   getNotifier(): Notifier {
     return this.notifier;
+  }
+
+  getGame() {
+    return this.game;
   }
 }
 

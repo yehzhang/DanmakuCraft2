@@ -10,9 +10,9 @@ import {Phaser} from '../../../util/alias/phaser';
 class TextInputCommentProvider implements CommentProvider {
   constructor(
       private commentPlacingPolicy: CommentPlacingPolicy,
+      private textInput: JQuery<HTMLElement>,
+      private sendButton: JQuery<HTMLElement>,
       readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal(),
-      private textInput: JQuery<HTMLElement> = $('.bilibili-player-video-danmaku-input'),
-      private sendButton: JQuery<HTMLElement> = $('.bilibili-player-video-btn-send'),
       private isRequestingForInput: boolean = false,
       private shouldRequestForInput: boolean = false,
       private isSendingComment: boolean = false,

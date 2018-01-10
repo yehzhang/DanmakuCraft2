@@ -126,6 +126,7 @@ class Universe extends Phaser.State {
     this.updater = Updater.on(this);
 
     this.proxy = new UniverseProxyImpl(
+        game,
         new CommentPlacingPolicyImpl(
             this.updater.collisionDetectionSystem,
             this.previewCommentLoader,

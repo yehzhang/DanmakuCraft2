@@ -9,9 +9,10 @@ import BilibiliContainerProvider from './component/bilibili/BilibiliContainerPro
 import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
 import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
 import {TestingCommentProvider} from './TestingAdapter';
+import InputInterceptor from './component/bilibili/InputInterceptor';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
-  constructor() {
+  constructor(private gameContainerProvider: GameContainerProvider = new BilibiliContainerProvider()) {
     super();
     if (!BilibiliClientAdapter.canRunOnThisWebPage()) {
       throw new Error('Script cannot run on this page');
@@ -26,8 +27,16 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   onProxySet() {
+    let game = this.universeProxy.getGame();
+    let textInput = $('.bilibili-player-video-danmaku-input');
+    let sendButton = $('.bilibili-player-video-btn-send');
+    let ignored = new InputInterceptor(game.input.keyboard, this.gameContainerProvider, textInput);
+
     let commentSender = new CommentSenderImpl();
-    let commentProvider = new TextInputCommentProvider(this.universeProxy.getCommentPlacingPolicy());
+    let commentProvider = new TextInputCommentProvider(
+        this.universeProxy.getCommentPlacingPolicy(),
+        textInput,
+        sendButton);
     commentProvider.commentReceived.add(commentData => commentSender.send(commentData));
     commentProvider.connect();
   }
@@ -41,7 +50,7 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   getGameContainerProvider(): GameContainerProvider {
-    return new BilibiliContainerProvider();
+    return this.gameContainerProvider;
   }
 
   getSettingsManager(): SettingsManager {
