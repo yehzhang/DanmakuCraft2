@@ -2,14 +2,14 @@ interface EntityRegister<T> extends Iterable<T> {
   /**
    * Loads a single entity.
    */
-  register(entity: T, silent?: boolean): void;
+  register(entity: T): void;
 
   /**
    * Loads an array of entities.
    */
-  registerBatch(entities: Iterable<T>, silent?: boolean): void;
+  registerBatch(entities: Iterable<T>): void;
 
-  deregister(entity: T, silent?: boolean): void;
+  deregister(entity: T): void;
 
   count(): number;
 }

@@ -1,4 +1,4 @@
-import EntityFinder, {EntityExistenceUpdatedEvent} from '../util/entityStorage/EntityFinder';
+import EntityFinder, {ExistenceUpdatedEvent} from '../util/entityStorage/EntityFinder';
 import Entity from '../entitySystem/Entity';
 import ExistenceSystem from '../entitySystem/system/existence/ExistenceSystem';
 import TickSystem from '../entitySystem/system/tick/TickSystem';
@@ -117,20 +117,20 @@ export class EntityFinderRecord<T extends Entity> {
     this.hasUpdatedEntities = false;
   }
 
-  private onEntityUpdated(entityUpdatedEvent: EntityExistenceUpdatedEvent<T>) {
+  private onEntityUpdated(entityUpdatedEvent: ExistenceUpdatedEvent<T>) {
+    if (this.shouldUpdateEntities) {
+      return;
+    }
     this.shouldUpdateEntities = this.shouldRecordUpdate(entityUpdatedEvent);
   }
 
-  private shouldRecordUpdate(entityUpdatedEvent: EntityExistenceUpdatedEvent<T>) {
-    if (entityUpdatedEvent.registeredEntity) {
-      if (this.distanceChecker.isInEnteringRadius(entityUpdatedEvent.registeredEntity)) {
-        return true;
-      }
+  private shouldRecordUpdate(existenceUpdated: ExistenceUpdatedEvent<T>) {
+    if (existenceUpdated.registeredEntities.some(
+            entity => this.distanceChecker.isInEnteringRadius(entity))) {
+      return true;
     }
-    if (entityUpdatedEvent.removedEntity) {
-      if (this.currentEntities.has(entityUpdatedEvent.removedEntity)) {
-        return true;
-      }
+    if (existenceUpdated.removedEntities.some(entity => this.currentEntities.has(entity))) {
+      return true;
     }
     return false;
   }

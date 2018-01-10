@@ -17,7 +17,7 @@ class CommentLoaderImpl implements CommentLoader {
       private buffDataApplier: BuffDataApplier) {
   }
 
-  loadBatch(commentsData: CommentData[], boot?: boolean, blink: boolean = !boot): CommentEntity[] {
+  loadBatch(commentsData: CommentData[], blink: boolean = true): CommentEntity[] {
     let comments = [];
     let updatingComments = [];
     for (let commentData of commentsData) {
@@ -31,11 +31,11 @@ class CommentLoaderImpl implements CommentLoader {
     }
 
     if (comments.length > 0) {
-      this.commentsRegister.registerBatch(comments, boot);
+      this.commentsRegister.registerBatch(comments);
     }
 
     if (updatingComments.length > 0) {
-      this.updatingCommentsRegister.registerBatch(updatingComments, boot);
+      this.updatingCommentsRegister.registerBatch(updatingComments);
     }
 
     if (!blink) {
@@ -45,14 +45,14 @@ class CommentLoaderImpl implements CommentLoader {
     return comments;
   }
 
-  load(commentData: CommentData, boot?: boolean, blink: boolean = !boot): CommentEntity {
+  load(commentData: CommentData, blink: boolean = true): CommentEntity {
     let comment;
     if (commentData.buffData == null) {
       comment = this.entityFactory.createCommentEntity(commentData);
-      this.commentsRegister.register(comment, boot);
+      this.commentsRegister.register(comment);
     } else {
       comment = this.createUpdatingCommentEntity(commentData, commentData.buffData);
-      this.updatingCommentsRegister.register(comment, boot);
+      this.updatingCommentsRegister.register(comment);
     }
 
     if (!blink) {

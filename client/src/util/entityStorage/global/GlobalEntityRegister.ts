@@ -1,34 +1,40 @@
-import BaseEntityRegister from '../BaseEntityRegister';
-import {EntityExistenceUpdatedEvent} from '../EntityFinder';
+import {ExistenceUpdatedEvent} from '../EntityFinder';
 import Iterator from '../../syntax/Iterator';
+import EntityRegister from '../EntityRegister';
 
-class GlobalEntityRegister<T> extends BaseEntityRegister<T> {
+class GlobalEntityRegister<T> implements EntityRegister<T> {
   constructor(
       private entities: Set<T>,
-      private entityRegistered: Phaser.Signal<EntityExistenceUpdatedEvent<T>>) {
-    super();
+      private entityRegistered: Phaser.Signal<ExistenceUpdatedEvent<T>>) {
   }
 
-  register(entity: T, silent?: boolean) {
+  register(entity: T) {
     this.entities.add(entity);
-
-    if (silent) {
-      return;
-    }
-    this.entityRegistered.dispatch(new EntityExistenceUpdatedEvent<T>(entity, null));
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent([entity]));
   }
 
-  deregister(entity: T, silent?: boolean) {
-    let isEntityDeleted = this.entities.delete(entity);
+  registerBatch(entities: Iterable<T>): void {
+    let entitiesArray = Array.from(entities);
 
+    if (entitiesArray.length === 0) {
+      return;
+    }
+
+    for (let entity of entitiesArray) {
+      this.entities.add(entity);
+    }
+
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent(entitiesArray));
+  }
+
+  deregister(entity: T) {
+    let isEntityDeleted = this.entities.delete(entity);
     if (!isEntityDeleted) {
-      console.error('Entity is not registered', entity);
+      console.error('Entity was not registered', entity);
       return;
     }
-    if (silent) {
-      return;
-    }
-    this.entityRegistered.dispatch(new EntityExistenceUpdatedEvent<T>(null, entity));
+
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent<T>([], [entity]));
   }
 
   count() {

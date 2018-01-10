@@ -195,7 +195,7 @@ class Universe extends Phaser.State {
   async loadComments(): Promise<void> {
     let commentProvider = this.adapter.getCommentProvider();
     let commentsData = await commentProvider.getAllComments();
-    this.commentLoader.loadBatch(commentsData, true);
+    this.commentLoader.loadBatch(commentsData);
 
     commentProvider.connect();
     commentProvider.commentReceived.add(this.commentLoader.load, this.commentLoader);

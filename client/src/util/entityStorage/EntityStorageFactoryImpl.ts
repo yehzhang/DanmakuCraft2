@@ -11,7 +11,7 @@ import PhysicalConstants from '../../PhysicalConstants';
 import GlobalEntityRegister from './global/GlobalEntityRegister';
 import GlobalEntityFinder from './global/GlobalEntityFinder';
 import Entity from '../../entitySystem/Entity';
-import {EntityExistenceUpdatedEvent} from './EntityFinder';
+import {ExistenceUpdatedEvent} from './EntityFinder';
 import {Phaser} from '../alias/phaser';
 
 class EntityStorageFactoryImpl implements EntityStorageFactory {
@@ -26,7 +26,7 @@ class EntityStorageFactoryImpl implements EntityStorageFactory {
     }
 
     let chunks = this.createChunks<T>(chunksCount);
-    let entityUpdated = new Phaser.Signal<EntityExistenceUpdatedEvent<Region<T>>>();
+    let entityUpdated = new Phaser.Signal<ExistenceUpdatedEvent<Region<T>>>();
     let entityRegister = new ChunkEntityRegister<T>(chunks, entityUpdated, this.entityFactory);
 
     let entityFinder = new ChunkEntityFinder(chunks, entityUpdated);
@@ -36,7 +36,7 @@ class EntityStorageFactoryImpl implements EntityStorageFactory {
 
   createGlobalEntityStorage<T extends Entity>(): EntityStorage<T> {
     let entities: Set<T> = new Set();
-    let entityUpdated = new Phaser.Signal<EntityExistenceUpdatedEvent<T>>();
+    let entityUpdated = new Phaser.Signal<ExistenceUpdatedEvent<T>>();
     let entityRegister = new GlobalEntityRegister(entities, entityUpdated);
 
     let entityFinder = new GlobalEntityFinder(entities, entityUpdated);

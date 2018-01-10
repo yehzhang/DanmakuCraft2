@@ -1,4 +1,4 @@
-import EntityFinder, {EntityExistenceUpdatedEvent} from '../EntityFinder';
+import EntityFinder, {ExistenceUpdatedEvent} from '../EntityFinder';
 import Point from '../../syntax/Point';
 import Entity from '../../../entitySystem/Entity';
 import Distance from '../../math/Distance';
@@ -9,7 +9,7 @@ import {Phaser} from '../../alias/phaser';
 class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   constructor(
       private entities: Set<T>,
-      readonly entityExistenceUpdated: Phaser.Signal<EntityExistenceUpdatedEvent<T>>) {
+      readonly entityExistenceUpdated: Phaser.Signal<ExistenceUpdatedEvent<T>>) {
   }
 
   listAround(coordinates: Point, radius: number): Iterable<T> {

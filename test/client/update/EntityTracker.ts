@@ -10,7 +10,7 @@ import {
 } from '../../../client/src/update/EntityTracker';
 import Distance from '../../../client/src/util/math/Distance';
 import {Phaser} from '../../../client/src/util/alias/phaser';
-import EntityFinder, {EntityExistenceUpdatedEvent} from '../../../client/src/util/entityStorage/EntityFinder';
+import EntityFinder, {ExistenceUpdatedEvent} from '../../../client/src/util/entityStorage/EntityFinder';
 import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
 
 const NEXT_SAMPLING_RADIUS = 10;
@@ -246,7 +246,7 @@ describe('EntityFinderRecord', () => {
   });
 
   it('should check if a registered entity needs update', () => {
-    entityExistenceUpdated.dispatch(new EntityExistenceUpdatedEvent(entities[3], null));
+    entityExistenceUpdated.dispatch(new ExistenceUpdatedEvent([entities[3]], []));
     verify(mockDistanceChecker.isInEnteringRadius(entities[3])).once();
   });
 
@@ -261,26 +261,26 @@ describe('EntityFinderRecord', () => {
   it('should be updated when an entity is registered nearby', () => {
     when(mockDistanceChecker.isInEnteringRadius(entities[3])).thenReturn(true);
 
-    entityExistenceUpdated.dispatch(new EntityExistenceUpdatedEvent(entities[3], null));
+    entityExistenceUpdated.dispatch(new ExistenceUpdatedEvent([entities[3]], []));
 
     expect(entityFinderRecord.shouldUpdate(Point.origin(), 0)).to.be.true;
   });
 
   it('should not be updated when an entity is registered faraway', () => {
-    entityExistenceUpdated.dispatch(new EntityExistenceUpdatedEvent(entities[3], null));
+    entityExistenceUpdated.dispatch(new ExistenceUpdatedEvent([entities[3]], []));
     expect(entityFinderRecord.shouldUpdate(Point.origin(), 0)).to.be.false;
   });
 
   it('should be updated when a current entity is deregistered', () => {
     entityFinderRecord.currentEntities.add(entities[3]);
 
-    entityExistenceUpdated.dispatch(new EntityExistenceUpdatedEvent(null, entities[3]));
+    entityExistenceUpdated.dispatch(new ExistenceUpdatedEvent([], [entities[3]]));
 
     expect(entityFinderRecord.shouldUpdate(Point.origin(), 0)).to.be.true;
   });
 
   it('should not be updated when a non-current entity is deregistered', () => {
-    entityExistenceUpdated.dispatch(new EntityExistenceUpdatedEvent(null, entities[3]));
+    entityExistenceUpdated.dispatch(new ExistenceUpdatedEvent([], [entities[3]]));
     expect(entityFinderRecord.shouldUpdate(Point.origin(), 0)).to.be.false;
   });
 

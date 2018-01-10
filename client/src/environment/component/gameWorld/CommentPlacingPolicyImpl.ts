@@ -30,7 +30,7 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
     this.clearCommentPreview();
 
     let commentData = this.buildCommentData(text, size, color);
-    let comment = this.previewDisplay = this.commentLoader.load(commentData, false, false);
+    let comment = this.previewDisplay = this.commentLoader.load(commentData, false);
 
     this.isProcessingRequest = true;
     await this.tickCallbackRegister.forDisplay(() => comment.display.alpha = 0.8);
