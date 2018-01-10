@@ -1,12 +1,13 @@
 import Controller from './Controller';
+import {Phaser} from '../util/alias/phaser';
 
 type ValidInputKeyNames = 'up' | 'down' | 'left' | 'right' | 'w' | 's' | 'a' | 'd';
 
 class InputController implements Controller {
   private keys: { [keyName in ValidInputKeyNames]: Phaser.Key };
 
-  constructor(game: Phaser.Game) {
-    this.keys = game.input.keyboard.addKeys({
+  constructor(private input: Phaser.Input) {
+    this.keys = input.keyboard.addKeys({
       up: Phaser.KeyCode.UP,
       down: Phaser.KeyCode.DOWN,
       left: Phaser.KeyCode.LEFT,
@@ -54,19 +55,13 @@ class InputController implements Controller {
   }
 
   receiveInput() {
-    this.turnInput(true);
+    this.input.enabled = true;
     return this;
   }
 
   ignoreInput() {
-    this.turnInput(false);
+    this.input.enabled = false;
     return this;
-  }
-
-  private turnInput(enabled: boolean) {
-    for (let key of Object.values(this.keys)) {
-      key.enabled = enabled;
-    }
   }
 }
 

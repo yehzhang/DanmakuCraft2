@@ -25,7 +25,6 @@ class BootState extends Phaser.State {
     super();
   }
 
-  // noinspection JSUnusedGlobalSymbols
   create() {
     this.configureGame();
     this.runState().catch(reason => this.showFailedLoadingStatus(reason));
@@ -401,7 +400,6 @@ class BootState extends Phaser.State {
             4000,
             Phaser.Easing.Quartic.In,
             true);
-
 
     return new Promise<void>(resolve => {
       earthScaleTween.onStart.addOnce(() => this.game.camera.fade(Colors.BACKGROUND_NUMBER, 2500));

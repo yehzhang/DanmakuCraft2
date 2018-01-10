@@ -69,7 +69,7 @@ class Universe extends Phaser.State {
 
     this.buffDataContainer = new BuffDataContainer();
 
-    this.inputController = new InputController(game).ignoreInput();
+    this.inputController = new InputController(game.input);
 
     this.lawFactory = new LawFactoryImpl();
 
@@ -168,15 +168,19 @@ class Universe extends Phaser.State {
     }
   }
 
-  create() {
-    this.renderer.turnOn().focus(this.player);
+  async create() {
+    this.inputController.ignoreInput();
 
-    this.inputController.receiveInput();
+    this.renderer.turnOn().focus(this.player);
 
     if (__DEV__) {
       let sprite = this.game.add.tileSprite(0, 0, 1920, 1920, 'background');
       this.game.world.sendToBack(sprite);
     }
+
+    await this.renderer.fadeIn();
+
+    this.inputController.receiveInput();
   }
 
   update() {

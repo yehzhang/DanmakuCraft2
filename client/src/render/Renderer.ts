@@ -1,5 +1,6 @@
 import {ExistentEntity} from '../entitySystem/alias';
 import {Phaser} from '../util/alias/phaser';
+import Colors from './Colors';
 
 class Renderer {
   constructor(
@@ -28,6 +29,13 @@ class Renderer {
 
   getStage() {
     return this.stage;
+  }
+
+  async fadeIn() {
+    this.game.camera.flash(Colors.BACKGROUND_NUMBER, 2500, true);
+    return new Promise(resolve => {
+      this.game.camera.onFlashComplete.addOnce(resolve);
+    });
   }
 }
 
