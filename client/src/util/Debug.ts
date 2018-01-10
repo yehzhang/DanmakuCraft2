@@ -26,13 +26,13 @@ class Debug {
       private universe: Universe,
       public showInfo: boolean = true,
       private notificationShowCounts: number = 0,
-      private systems: { [systemName: string]: object } = {},
+      private systems: { [systemName: string]: object | object[] } = {},
       private debugInfo: DebugInfo = new DebugInfo(universe.game, universe.player)) {
     universe.render = inject(this.render.bind(this), universe.render.bind(universe));
 
     if (__DEV__) {
       universe.player.moveSpeedBoostRatio = 10;
-    } else if (__STAGE__) {
+    } else {
       universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
     }
 
@@ -44,15 +44,17 @@ class Debug {
         .forEach(system => {
           let systemName = system.constructor.name;
           if (systems.hasOwnProperty(systemName)) {
-            if (system[systemName] instanceof Array) {
-              system[systemName].push(system);
+            if (systems[systemName] instanceof Array) {
+              (systems[systemName] as object[]).push(system);
             } else {
-              system[systemName] = [system[systemName], system];
+              systems[systemName] = [systems[systemName], system];
             }
           } else {
-            system[systemName] = system;
+            systems[systemName] = system;
           }
         });
+
+    universe.game.time.advancedTiming = true;
   }
 
   get comment() {
@@ -100,6 +102,8 @@ class Debug {
   get hideInfo() {
     this.showInfo = false;
     this.debugInfo.clear();
+
+    this.universe.game.time.advancedTiming = false;
 
     return true;
   }
@@ -240,7 +244,9 @@ class DebugInfo {
     this.currentY = 0;
 
     this.text('Player', this.player.coordinates, '', true);
+    this.text(`FPS: ${this.game.time.fps}`);
     this.text(`Render radius: ${Updater['getRenderRadius'](this.game)}`);
+
     return this;
   }
 
