@@ -1,5 +1,4 @@
 import EntityTracker from './EntityTracker';
-import TickCallbackRegister from './TickCallbackRegister';
 import Universe from '../Universe';
 import ChestSystem, {
   ChestDemolisher, ChestOpener,
@@ -16,6 +15,7 @@ import UnmovableDisplayPositioningSystem from '../entitySystem/system/visibility
 import {Phaser} from '../util/alias/phaser';
 import CommitMotionSystem from '../entitySystem/system/visibility/CommitMotionSystem';
 import MoveDisplaySystem from '../entitySystem/system/tick/MoveDisplaySystem';
+import SynchronizeLifecycleSystem from '../entitySystem/system/visibility/SynchronizeLifecycleSystem';
 
 class Updater {
   constructor(
@@ -24,7 +24,8 @@ class Updater {
       private foregroundTracker: EntityTracker,
       private backgroundTracker: EntityTracker,
       readonly collisionDetectionSystem: CollisionDetectionSystem,
-      readonly tickCallbackRegister: TickCallbackRegister = new TickCallbackRegister()) {
+      readonly synchronizeUpdateSystem: SynchronizeLifecycleSystem,
+      readonly synchronizeRenderSystem: SynchronizeLifecycleSystem) {
   }
 
   static on(universe: Universe) {
@@ -49,6 +50,9 @@ class Updater {
 
     let collisionDetectionSystem = new CollisionDetectionSystem();
 
+    let synchronizeUpdateSystem = new SynchronizeLifecycleSystem();
+    let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
+
     let commentsFinder = universe.commentsStorage.getFinder();
     let updatingCommentsFinder = universe.updatingCommentsStorage.getFinder();
     let chestsFinder = universe.chestsStorage.getFinder();
@@ -68,7 +72,9 @@ class Updater {
 
         .applyVisibilitySystem(chestSystem)
         .toEntities().of(chestsFinder)
-        .applyTickSystem(chestSystem);
+        .applyTickSystem(chestSystem)
+
+        .applyTickSystem(synchronizeUpdateSystem);
 
     foregroundTrackerBuilder.onRender()
         .applyVisibilitySystem(new AddChildSystem(universe.renderer.commentsLayer))
@@ -91,6 +97,8 @@ class Updater {
         .applyVisibilitySystem(new MovingAnimationSystem())
         .toEntities().of(playersFinder)
 
+        .applyTickSystem(synchronizeRenderSystem)
+
         .applyVisibilitySystem(new CommitMotionSystem())
         .toEntities().of(playersFinder);
 
@@ -105,7 +113,9 @@ class Updater {
         universe.game.time,
         foregroundTrackerBuilder.build(),
         backgroundTrackerBuilder.build(),
-        collisionDetectionSystem);
+        collisionDetectionSystem,
+        synchronizeUpdateSystem,
+        synchronizeRenderSystem);
   }
 
   private static getRenderRadius(game: Phaser.Game) {
@@ -115,15 +125,11 @@ class Updater {
   update() {
     this.foregroundTracker.update(this.time);
     this.backgroundTracker.update(this.time);
-    // TODO remove tickCallbackRegister
-    this.tickCallbackRegister.update();
   }
 
   render() {
     this.foregroundTracker.render(this.time);
     this.backgroundTracker.render(this.time);
-    // TODO remove tickCallbackRegister
-    this.tickCallbackRegister.render();
   }
 }
 

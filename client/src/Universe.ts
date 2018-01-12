@@ -30,7 +30,6 @@ import BuffDescription from './entitySystem/system/buff/BuffDescription';
 import Debug from './util/Debug';
 import UniverseProxyImpl from './environment/component/gameWorld/UniverseProxyImpl';
 import NotifierFactoryImpl from './render/notification/NotifierFactoryImpl';
-import TickCallbackRegister from './update/TickCallbackRegister';
 import CommentLoaderImpl from './comment/CommentLoaderImpl';
 import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentPlacingPolicyImpl';
 import Updater from './update/Updater';
@@ -59,7 +58,6 @@ class Universe extends Phaser.State {
   public lawFactory: LawFactory;
   public buffDataApplier: BuffDataApplier;
   public buffDescription: BuffDescription;
-  public tickCallbackRegister: TickCallbackRegister;
   public commentPreviewStorage: EntityStorage<UpdatingCommentEntity>;
   public proxy: UniverseProxy;
   public previewCommentLoader: CommentLoader;
@@ -76,8 +74,6 @@ class Universe extends Phaser.State {
     this.lawFactory = new LawFactoryImpl();
 
     this.buffDescription = new BuffDescription();
-
-    this.tickCallbackRegister = new TickCallbackRegister();
 
     this.buffFactory = new BuffFactoryImpl(game, this.inputController, this.lawFactory);
 
@@ -137,7 +133,7 @@ class Universe extends Phaser.State {
             this.notifier,
             this.buffDataContainer,
             this.player,
-            this.updater.tickCallbackRegister),
+            this.updater.synchronizeUpdateSystem),
         this.notifier);
   }
 

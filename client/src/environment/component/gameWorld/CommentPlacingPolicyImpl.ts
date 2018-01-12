@@ -4,10 +4,10 @@ import CollisionDetectionSystem from '../../../entitySystem/system/visibility/Co
 import BuffDataContainer from '../../../entitySystem/system/buff/BuffDataContainer';
 import CommentLoader from '../../../comment/CommentLoader';
 import Notifier, {NotificationPriority} from '../../../render/notification/Notifier';
-import TickCallbackRegister from '../../../update/TickCallbackRegister';
 import {CommentEntity, Player} from '../../../entitySystem/alias';
 import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffData';
 import Texts from '../../../render/Texts';
+import SynchronizeLifecycleSystem from '../../../entitySystem/system/visibility/SynchronizeLifecycleSystem';
 
 class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   constructor(
@@ -16,7 +16,7 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
       private notifier: Notifier,
       private buffDataContainer: BuffDataContainer,
       private player: Player,
-      private tickCallbackRegister: TickCallbackRegister,
+      private synchronizeUpdateSystem: SynchronizeLifecycleSystem,
       private isProcessingRequest: boolean = false,
       private shouldClearPreview: boolean = false,
       private previewDisplay?: CommentEntity) {
@@ -31,10 +31,10 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
 
     let commentData = this.buildCommentData(text, size, color);
     let comment = this.previewDisplay = this.commentLoader.load(commentData, false);
+    comment.display.alpha = 0.8;
 
     this.isProcessingRequest = true;
-    await this.tickCallbackRegister.forDisplay(() => comment.display.alpha = 0.8);
-    let hasCollision = await this.tickCallbackRegister.forDisplayPosition(
+    let hasCollision = await this.synchronizeUpdateSystem.for(
         () => this.collisionDetectionSystem.collidesWith(comment.display));
     this.isProcessingRequest = false;
 
