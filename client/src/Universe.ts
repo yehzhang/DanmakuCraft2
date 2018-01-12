@@ -69,7 +69,7 @@ class Universe extends Phaser.State {
 
     this.buffDataContainer = new BuffDataContainer();
 
-    this.inputController = new InputController(game.input);
+    this.inputController = new InputController(game);
 
     this.lawFactory = new LawFactoryImpl();
 

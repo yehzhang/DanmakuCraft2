@@ -6,8 +6,11 @@ type ValidInputKeyNames = 'up' | 'down' | 'left' | 'right' | 'w' | 's' | 'a' | '
 class InputController implements Controller {
   private keys: { [keyName in ValidInputKeyNames]: Phaser.Key };
 
-  constructor(private input: Phaser.Input) {
-    this.keys = input.keyboard.addKeys({
+  constructor(
+      game: Phaser.Game,
+      private isGameFocused: boolean = true,
+      private isReceivingInput: boolean = true) {
+    this.keys = game.input.keyboard.addKeys({
       up: Phaser.KeyCode.UP,
       down: Phaser.KeyCode.DOWN,
       left: Phaser.KeyCode.LEFT,
@@ -20,48 +23,76 @@ class InputController implements Controller {
 
     // TODO support for pointer
     // this.game.input.
+
+    game.onBlur.add(() => {
+      this.isGameFocused = false;
+      this.resetKeysStates();
+    });
+    game.onFocus.add(() => this.isGameFocused = true);
   }
 
   get moveLeft() {
-    return this.left && !this.right;
+    if (!this.canMove()) {
+      return false;
+    }
+    return this.isLeftKeyDown() && !this.isRightKeyDown();
   }
 
   get moveRight() {
-    return !this.left && this.right;
+    if (!this.canMove()) {
+      return false;
+    }
+    return !this.isLeftKeyDown() && this.isRightKeyDown();
   }
 
   get moveUp() {
-    return this.up && !this.down;
+    if (!this.canMove()) {
+      return false;
+    }
+    return this.isUpKeyDown() && !this.isDownKeyDown();
   }
 
   get moveDown() {
-    return !this.up && this.down;
-  }
-
-  get left() {
-    return this.keys.left.isDown || this.keys.a.isDown;
-  }
-
-  get right() {
-    return this.keys.right.isDown || this.keys.d.isDown;
-  }
-
-  get up() {
-    return this.keys.up.isDown || this.keys.w.isDown;
-  }
-
-  get down() {
-    return this.keys.down.isDown || this.keys.s.isDown;
+    if (!this.canMove()) {
+      return false;
+    }
+    return !this.isUpKeyDown() && this.isDownKeyDown();
   }
 
   receiveInput() {
-    this.input.enabled = true;
+    this.isReceivingInput = true;
     return this;
   }
 
   ignoreInput() {
-    this.input.enabled = false;
+    this.isReceivingInput = false;
     return this;
+  }
+
+  private resetKeysStates() {
+    for (let key of Object.values(this.keys)) {
+      key.reset(false);
+    }
+  }
+
+  private canMove() {
+    return this.isGameFocused && this.isReceivingInput;
+  }
+
+  private isLeftKeyDown() {
+    return this.keys.left.isDown || this.keys.a.isDown;
+  }
+
+  private isRightKeyDown() {
+    return this.keys.right.isDown || this.keys.d.isDown;
+  }
+
+  private isUpKeyDown() {
+    return this.keys.up.isDown || this.keys.w.isDown;
+  }
+
+  private isDownKeyDown() {
+    return this.keys.down.isDown || this.keys.s.isDown;
   }
 }
 
