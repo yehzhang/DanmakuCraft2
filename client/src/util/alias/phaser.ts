@@ -1,3 +1,5 @@
+/// <reference path='../../../../node_modules/phaser-ce-type-updated/typescript/phaser.d.ts' />
+
 let global = Function('return this')();
 
 export import p2 = require('phaser-ce-type-updated/build/custom/p2');

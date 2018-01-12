@@ -18,7 +18,6 @@
     "downlevelIteration": true
   },
   "include": [
-    "node_modules/phaser-ce-type-updated/typescript/phaser.d.ts",
     "client/src/**/*",
     "scripts/**/*.ts"
   ]
