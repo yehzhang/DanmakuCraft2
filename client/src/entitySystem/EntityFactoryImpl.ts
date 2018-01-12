@@ -25,20 +25,16 @@ class EntityFactoryImpl implements EntityFactory {
       private buffFactory: BuffFactory) {
   }
 
-  private static createBaseCommentEntity<T extends CommentEntity>(
-      data: CommentData, createDisplay: () => Phaser.Text): EntityBuilder<T, CommentEntity> {
-    return Entity.newBuilder<CommentEntity>()
-        .mix(new ImmutableCoordinates(data.coordinates))
-        .mix(new Comment(data.size, data.color, data.text))
-        .mix(new MaybeDisplay(createDisplay));
-  }
-
   createRegion<T>(coordinates: Point) {
     return Entity.newBuilder<Region<T>>()
         .mix(new ImmutableCoordinates(coordinates))
         .mix(new ContainerHolder(new ArrayContainer<T>()))
-        .mix(new MaybeDisplay(() => new PIXI.DisplayObjectContainer()))
+        .mix(new MaybeDisplay(new PIXI.DisplayObjectContainer()))
         .build();
+  }
+
+  createCommentEntity(data: CommentData) {
+    return this.createBaseCommentEntity(data).build();
   }
 
   cloneRegion<T>(region: Region<T>) {
@@ -70,20 +66,18 @@ class EntityFactoryImpl implements EntityFactory {
     return entity;
   }
 
-  createCommentEntity(data: CommentData) {
-    let entity: CommentEntity = EntityFactoryImpl
-        .createBaseCommentEntity(data, () => this.graphicsFactory.createTextFromComment(entity))
+  createUpdatingCommentEntity(data: CommentData) {
+    return this.createBaseCommentEntity(data)
+        .mix(new UpdatingBuffCarrier<UpdatingCommentEntity>())
         .build();
-    return entity;
   }
 
-  createUpdatingCommentEntity(data: CommentData) {
-    let entity: UpdatingCommentEntity =
-        EntityFactoryImpl.createBaseCommentEntity<any>(
-            data, () => this.graphicsFactory.createTextFromComment(entity))
-            .mix(new UpdatingBuffCarrier<UpdatingCommentEntity>())
-            .build();
-    return entity;
+  private createBaseCommentEntity(data: CommentData): EntityBuilder<CommentEntity> {
+    let comment = new Comment(data.size, data.color, data.text);
+    return Entity.newBuilder<CommentEntity>()
+        .mix(new ImmutableCoordinates(data.coordinates))
+        .mix(comment)
+        .mix(new MaybeDisplay(this.graphicsFactory.createTextFromComment(comment)));
   }
 
   createChest(coordinates: Point) {

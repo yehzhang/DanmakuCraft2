@@ -9,7 +9,7 @@ abstract class Entity extends Coordinates {
 
 export default Entity;
 
-export class EntityBuilder<T extends Entity, U extends Component = {}> {
+export class EntityBuilder<T extends Component = {}> {
   private static readonly ROOT_PROTOTYPE = Object.getPrototypeOf({});
 
   constructor(private propertiesChain: object[] = []) {
@@ -55,12 +55,12 @@ export class EntityBuilder<T extends Entity, U extends Component = {}> {
     }, this.ROOT_PROTOTYPE);
   }
 
-  mix<V extends Partial<T>>(component: V): EntityBuilder<T, U & V> {
+  mix<U extends Component>(component: U): EntityBuilder<T & U> {
     EntityBuilder.deepGetOwnPropertyDescriptorsAndAssign(this.propertiesChain, 0, component);
     return this as any;
   }
 
-  build(): U {
+  build(): T {
     if (this.propertiesChain.length === 0) {
       throw new TypeError('No entity was mixed');
     }
