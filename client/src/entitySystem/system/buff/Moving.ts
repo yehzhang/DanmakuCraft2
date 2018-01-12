@@ -30,13 +30,11 @@ class Moving extends PermanentlyUpdatingBuff<MovableEntity> {
     }
 
     if (moveDistanceX === 0 && moveDistanceY === 0) {
-      entity.movedThisTick = false;
       return;
     }
 
-    entity.movedThisTick = true;
     entity.moveBy(moveDistanceX, moveDistanceY);
-    entity.movedOffsetThisTick.setTo(moveDistanceX, moveDistanceY);
+    entity.movedOffset.add(moveDistanceX, moveDistanceY);
   }
 
   protected set(entity: MovableEntity) {

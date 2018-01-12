@@ -6,6 +6,9 @@ class CacheAsBitmapSystem implements ExistenceSystem<Renderable> {
     entity.display.cacheAsBitmap = true;
   }
 
+  update(entity: Renderable) {
+  }
+
   exit(entity: Renderable) {
   }
 

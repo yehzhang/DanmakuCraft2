@@ -4,99 +4,101 @@ import TickSystem from '../entitySystem/system/tick/TickSystem';
 import EntityTrackerBuilder from './EntityTrackerBuilder';
 import {Region} from '../entitySystem/alias';
 import Entity from '../entitySystem/Entity';
+import EntityTracker from './EntityTracker';
 
-export class ApplyClause {
+export class OnOrBuildClause {
   constructor(protected builder: EntityTrackerBuilder) {
   }
 
-  applyExistenceSystem<T>(system: ExistenceSystem<T>): ToClause<T, T> {
-    let systemApplier = new ExistenceSystemApplier(system);
-    return this.createToClause(systemApplier);
+  onUpdate(): ApplyClause {
+    return new ApplyClause(this.builder, true);
   }
 
-  applyTickSystem<T>(system: TickSystem<T>): ToClause<T, T> {
-    let systemApplier = new TickSystemApplier(system);
-    return this.createToClause(systemApplier);
+  onRender(): ApplyClause {
+    return new ApplyClause(this.builder, false);
   }
 
-  protected createToClause<T>(systemApplier: SystemApplier<T>) {
-    let systemApplierManager = new SystemApplierManager(systemApplier, systemApplier);
-    return new ToClause(this.builder, systemApplierManager);
-  }
-}
-
-export class ToClause<T, U> {
-  constructor(
-      private builder: EntityTrackerBuilder,
-      private systemApplierManager: SystemApplierManager<T, U>) {
-  }
-
-  toChildren(): OfClause<Region<T>, U> {
-    return this.createOfClause(this.systemApplierManager.lifted());
-  }
-
-  toEntities(): OfClause<T, U> {
-    return this.createOfClause(this.systemApplierManager);
-  }
-
-  private createOfClause<V, W>(systemApplierManager: SystemApplierManager<V, W>) {
-    return new OfClause(this.builder, systemApplierManager);
-  }
-}
-
-export class OfClause<T, U> {
-  constructor(
-      private builder: EntityTrackerBuilder,
-      private systemApplierManager: SystemApplierManager<T, U>) {
-  }
-
-  of<V extends T & Entity>(entityFinder: EntityFinder<V>): ApplyOrToOrOfOrBuildClause<T, U> {
-    this.systemApplierManager.get().addToBuilder(this.builder, entityFinder);
-    return new ApplyOrToOrOfOrBuildClause(this.builder, this.systemApplierManager);
-  }
-}
-
-export class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
-  constructor(
-      builder: EntityTrackerBuilder, private systemApplierManager: SystemApplierManager<T, U>) {
-    super(builder);
-  }
-
-  toChildren() {
-    return this.createToClause(this.systemApplierManager.getOriginal()).toChildren();
-  }
-
-  toEntities() {
-    return this.createToClause(this.systemApplierManager.getOriginal()).toEntities();
-  }
-
-  and<V extends T & Entity>(entityFinder: EntityFinder<V>) {
-    this.systemApplierManager.get().addToBuilder(this.builder, entityFinder);
-    return this;
-  }
-
-  build() {
+  build(): EntityTracker {
     return this.builder.build();
   }
 }
 
-interface SystemApplier<T> {
-  addToBuilder<U extends T & Entity>(
-      builder: EntityTrackerBuilder, entityFinder: EntityFinder<U>): void;
+class ApplyClause {
+  constructor(protected builder: EntityTrackerBuilder, protected isOnUpdate: boolean) {
+  }
 
-  lifted(): SystemApplier<Region<T>>;
+  applyExistenceSystem<T>(system: ExistenceSystem<T>): ToClause<T> {
+    return new ToClause(this.builder, system, this.isOnUpdate);
+  }
+
+  applyTickSystem(system: TickSystem): ApplyClause {
+    this.builder.applyTickSystem(system, this.isOnUpdate);
+    return this;
+  }
 }
 
-class ExistenceSystemApplier<T> implements SystemApplier<T> {
-  constructor(private system: ExistenceSystem<T>) {
+class ToClause<T> {
+  constructor(
+      private builder: EntityTrackerBuilder,
+      private system: ExistenceSystem<T>,
+      private isOnUpdate: boolean) {
   }
 
-  addToBuilder<U extends T & Entity>(builder: EntityTrackerBuilder, entityFinder: EntityFinder<U>) {
-    builder.applyExistenceSystem(this.system, entityFinder);
+  toChildren(): OfClause<Region<T>, T> {
+    let systemLifter = new SystemLifter(this.system, this.system);
+    return this.createOfClause(systemLifter.lifted());
   }
 
-  lifted(): SystemApplier<Region<T>> {
-    return new ExistenceSystemApplier(new LiftExistenceSystemSystem(this.system));
+  toEntities(): OfClause<T, T> {
+    let systemLifter = new SystemLifter(this.system, this.system);
+    return this.createOfClause(systemLifter);
+  }
+
+  protected createOfClause<V, W>(systemLifter: SystemLifter<V, W>) {
+    return new OfClause(this.builder, systemLifter, this.isOnUpdate);
+  }
+}
+
+class OfClause<T, U> {
+  constructor(
+      private builder: EntityTrackerBuilder,
+      private systemLifter: SystemLifter<T, U>,
+      private isOnUpdate: boolean) {
+  }
+
+  of<V extends T & Entity>(entityFinder: EntityFinder<V>): ApplyOrToOrOfOrBuildClause<T, U> {
+    this.builder.applyExistenceSystem(this.systemLifter.get(), entityFinder, this.isOnUpdate);
+    return new ApplyOrToOrOfOrBuildClause(this.builder, this.systemLifter, this.isOnUpdate);
+  }
+}
+
+class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
+  constructor(
+      builder: EntityTrackerBuilder,
+      private systemLifter: SystemLifter<T, U>,
+      isOnUpdate: boolean) {
+    super(builder, isOnUpdate);
+  }
+
+  toChildren(): OfClause<Region<U>, U> {
+    return this.createOriginalToClause().toChildren();
+  }
+
+  toEntities(): OfClause<U, U> {
+    return this.createOriginalToClause().toEntities();
+  }
+
+  and<V extends T & Entity>(entityFinder: EntityFinder<V>) {
+    this.builder.applyExistenceSystem(this.systemLifter.get(), entityFinder, this.isOnUpdate);
+    return this;
+  }
+
+  private createOriginalToClause() {
+    return new ToClause(this.builder, this.systemLifter.getOriginal(), this.isOnUpdate);
+  }
+
+  build() {
+    return this.builder.build();
   }
 }
 
@@ -110,60 +112,38 @@ class LiftExistenceSystemSystem<T> implements ExistenceSystem<Region<T>> {
     }
   }
 
+  update(region: Region<T>, time: Phaser.Time) {
+    for (let entity of region.container) {
+      this.system.update(entity, time);
+    }
+  }
+
   exit(region: Region<T>) {
     for (let entity of region.container) {
       this.system.exit(entity);
     }
   }
 
-  finish(): void {
+  finish() {
     this.system.finish();
   }
 }
 
-class TickSystemApplier<T> implements SystemApplier<T> {
-  constructor(private system: TickSystem<T>) {
-  }
-
-  addToBuilder<U extends T & Entity>(builder: EntityTrackerBuilder, entityFinder: EntityFinder<U>) {
-    builder.applyTickSystem(this.system, entityFinder);
-  }
-
-  lifted(): SystemApplier<Region<T>> {
-    return new TickSystemApplier(new LiftTickSystemSystem(this.system));
-  }
-}
-
-class LiftTickSystemSystem<T> implements TickSystem<Region<T>> {
-  constructor(private system: TickSystem<T>) {
-  }
-
-  update(region: Region<T>, time: Phaser.Time): void {
-    for (let entity of region.container) {
-      this.system.update(entity, time);
-    }
-  }
-
-  tick(time: Phaser.Time) {
-    this.system.tick(time);
-  }
-}
-
-class SystemApplierManager<T, U> {
+class SystemLifter<T, U> {
   constructor(
-      private liftedSystemApplier: SystemApplier<T>,
-      private originalSystemApplier: SystemApplier<U>) {
+      private liftedSystem: ExistenceSystem<T>,
+      private originalSystem: ExistenceSystem<U>) {
   }
 
-  lifted(): SystemApplierManager<Region<T>, U> {
-    return new SystemApplierManager(this.liftedSystemApplier.lifted(), this.originalSystemApplier);
+  lifted(): SystemLifter<Region<T>, U> {
+    return new SystemLifter(new LiftExistenceSystemSystem(this.liftedSystem), this.originalSystem);
   }
 
-  get(): SystemApplier<T> {
-    return this.liftedSystemApplier;
+  get(): ExistenceSystem<T> {
+    return this.liftedSystem;
   }
 
-  getOriginal(): SystemApplier<U> {
-    return this.originalSystemApplier;
+  getOriginal(): ExistenceSystem<U> {
+    return this.originalSystem;
   }
 }

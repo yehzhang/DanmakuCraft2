@@ -33,6 +33,9 @@ class BackgroundColorSystem implements ExistenceSystem<Region<CommentEntity>> {
     }
   }
 
+  update(region: Region<CommentEntity>) {
+  }
+
   exit(region: Region<CommentEntity>) {
     for (let entity of region.container) {
       this.colorMixer.remove(entity.color);

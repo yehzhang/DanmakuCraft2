@@ -1,13 +1,13 @@
 import EntityFinder, {ExistenceUpdatedEvent} from '../util/entityStorage/EntityFinder';
 import Entity from '../entitySystem/Entity';
 import ExistenceSystem from '../entitySystem/system/existence/ExistenceSystem';
-import TickSystem from '../entitySystem/system/tick/TickSystem';
 import EntityTrackerBuilder from './EntityTrackerBuilder';
-import {ApplyClause} from './entityTrackerBuilderWrapper';
+import {OnOrBuildClause} from './entityTrackerBuilderWrapper';
 import Point from '../util/syntax/Point';
 import DynamicProvider from '../util/DynamicProvider';
 import Distance from '../util/math/Distance';
 import {asSequence} from 'sequency';
+import TickSystem from '../entitySystem/system/tick/TickSystem';
 
 /**
  * Tracks an animated entity and triggers callbacks whenever the entity moves from one region to
@@ -18,40 +18,56 @@ class EntityTracker {
   constructor(
       private trackee: Entity,
       private samplingRadius: DynamicProvider<number>,
-      private systemTickers: Array<SystemTicker<Entity>>,
+      private onUpdateSystemTickers: SystemTicker[],
+      private onRenderSystemTickers: SystemTicker[],
       private entityFinderRecords: Array<EntityFinderRecord<Entity>>,
-      private updateRelations: Array<UpdateRelation<Entity, Entity>>,
       private distanceChecker: DistanceChecker,
-      private currentCoordinate: Point = trackee.coordinates.clone()) {
+      private currentCoordinate: Point = trackee.coordinates.clone(),
+      private updatedRecords: Array<EntityFinderRecord<Entity>> = []) {
   }
 
   static newBuilder(trackee: Entity, samplingRadius: DynamicProvider<number>) {
     let builder = new EntityTrackerBuilder(trackee, samplingRadius);
-    return new ApplyClause(builder);
+    return new OnOrBuildClause(builder);
   }
 
-  tick(time: Phaser.Time) {
+  private static tickSystemTickers(tickers: SystemTicker[], time: Phaser.Time) {
+    asSequence(tickers).reverse().forEach(ticker => ticker.backwardTick(time));
+    for (let ticker of tickers) {
+      ticker.firstForwardTick(time);
+    }
+    for (let ticker of tickers) {
+      ticker.secondForwardTick(time);
+    }
+  }
+
+  update(time: Phaser.Time) {
+    this.commitRecordsUpdate();
+
     let nextCoordinates = this.trackee.coordinates;
     let samplingRadius = this.samplingRadius.getValue();
-    let updatedRecords = this.getEntityFinderRecordsToUpdate(nextCoordinates, samplingRadius)
+    this.updatedRecords = this.getEntityFinderRecordsToUpdate(nextCoordinates, samplingRadius)
         .onEach(record => record.update(nextCoordinates, samplingRadius))
         .toArray();
 
-    asSequence(this.updateRelations).reverse().forEach(relation => relation.backwardTick(time));
-    for (let relation of this.updateRelations) {
-      relation.forwardTick(time);
-    }
-    for (let ticker of this.systemTickers) {
-      ticker.finishingTick(time);
-    }
+    EntityTracker.tickSystemTickers(this.onUpdateSystemTickers, time);
 
-    for (let record of updatedRecords) {
-      record.commitUpdate();
-    }
     this.samplingRadius.commitUpdate();
-    if (updatedRecords.length === this.entityFinderRecords.length) {
+    if (this.updatedRecords.length === this.entityFinderRecords.length) {
       this.currentCoordinate.copyFrom(nextCoordinates);
     }
+  }
+
+  render(time: Phaser.Time) {
+    EntityTracker.tickSystemTickers(this.onRenderSystemTickers, time);
+    this.commitRecordsUpdate();
+  }
+
+  private commitRecordsUpdate() {
+    for (let record of this.updatedRecords) {
+      record.commitUpdate();
+    }
+    this.updatedRecords.length = 0;
   }
 
   private getEntityFinderRecordsToUpdate(nextCoordinates: Point, samplingRadius: number) {
@@ -78,8 +94,7 @@ export class EntityFinderRecord<T extends Entity> {
       public currentEntities: Set<T> = new Set(),
       public enteringEntities: T[] = [],
       public exitingEntities: T[] = [],
-      private shouldUpdateEntities: boolean = true,
-      private hasUpdatedEntities: boolean = false) {
+      private shouldUpdateEntities: boolean = true) {
     entityFinder.entityExistenceUpdated.add(this.onEntityUpdated, this);
   }
 
@@ -104,17 +119,11 @@ export class EntityFinderRecord<T extends Entity> {
     this.currentEntities = nextEntities;
 
     this.shouldUpdateEntities = false;
-    this.hasUpdatedEntities = this.enteringEntities.length > 0 || this.exitingEntities.length > 0;
-  }
-
-  hasUpdate() {
-    return this.hasUpdatedEntities;
   }
 
   commitUpdate() {
     this.enteringEntities.length = 0;
     this.exitingEntities.length = 0;
-    this.hasUpdatedEntities = false;
   }
 
   private onEntityUpdated(existenceUpdated: ExistenceUpdatedEvent<T>) {
@@ -141,7 +150,7 @@ export class DistanceChecker {
 
   constructor(
       private trackee: Entity,
-      readonly samplingRadius: DynamicProvider<number>,
+      private samplingRadius: DynamicProvider<number>,
       private updatingRadius: number,
       readonly updatingDistance: Distance = new Distance(updatingRadius)) {
     this.updateDistance();
@@ -154,10 +163,6 @@ export class DistanceChecker {
     return this.isInDistance(this.enteringDistance, entity);
   }
 
-  isInUpdatingRadius(entity: Entity) {
-    return this.isInDistance(this.updatingDistance, entity);
-  }
-
   private updateDistance() {
     this.enteringDistance = new Distance(this.samplingRadius.getValue() + this.updatingRadius);
   }
@@ -167,77 +172,61 @@ export class DistanceChecker {
   }
 }
 
-export interface SystemTicker<T> {
-  forwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>, time: Phaser.Time): void;
+export interface SystemTicker {
+  backwardTick(time: Phaser.Time): void;
 
-  backwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>, time: Phaser.Time): void;
+  firstForwardTick(time: Phaser.Time): void;
 
-  finishingTick(time: Phaser.Time): void;
+  secondForwardTick(time: Phaser.Time): void;
 }
 
-export class TickSystemTicker<T> implements SystemTicker<T> {
-  constructor(private system: TickSystem<T>) {
+export class RecordSystemTicker<T, U extends T & Entity> implements SystemTicker {
+  constructor(
+      private system: ExistenceSystem<T>,
+      private entityFinderRecord: EntityFinderRecord<U>,
+      private isExistenceChanged: boolean = false) {
   }
 
-  forwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>, time: Phaser.Time) {
-    for (let entity of record.currentEntities) {
+  backwardTick() {
+    if (this.entityFinderRecord.exitingEntities.length > 0) {
+      for (let entity of this.entityFinderRecord.exitingEntities) {
+        this.system.exit(entity);
+      }
+      this.isExistenceChanged = true;
+    }
+  }
+
+  firstForwardTick(time: Phaser.Time) {
+    if (this.entityFinderRecord.enteringEntities.length > 0) {
+      for (let entity of this.entityFinderRecord.enteringEntities) {
+        this.system.enter(entity);
+      }
+      this.isExistenceChanged = true;
+    }
+    for (let entity of this.entityFinderRecord.currentEntities) {
       this.system.update(entity, time);
     }
   }
 
-  backwardUpdate() {
-  }
-
-  finishingTick(time: Phaser.Time) {
-    this.system.tick(time);
-  }
-}
-
-export class ExistenceSystemTicker<T> implements SystemTicker<T> {
-  constructor(private system: ExistenceSystem<T>, private hasUpdate: boolean = false) {
-  }
-
-  forwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>) {
-    if (!record.hasUpdate()) {
-      return;
-    }
-
-    for (let entity of record.enteringEntities) {
-      this.system.enter(entity);
-    }
-
-    this.hasUpdate = true;
-  }
-
-  backwardUpdate<U extends T & Entity>(record: EntityFinderRecord<U>) {
-    if (!record.hasUpdate()) {
-      return;
-    }
-
-    for (let entity of record.exitingEntities) {
-      this.system.exit(entity);
-    }
-
-    this.hasUpdate = true;
-  }
-
-  finishingTick() {
-    if (this.hasUpdate) {
+  secondForwardTick(time: Phaser.Time) {
+    if (this.isExistenceChanged) {
       this.system.finish();
-      this.hasUpdate = false;
+      this.isExistenceChanged = false;
     }
   }
 }
 
-export class UpdateRelation<T, U extends T & Entity> {
-  constructor(private ticker: SystemTicker<T>, private record: EntityFinderRecord<U>) {
-  }
-
-  forwardTick(time: Phaser.Time) {
-    this.ticker.forwardUpdate(this.record, time);
+export class TickSystemTicker implements SystemTicker {
+  constructor(private system: TickSystem) {
   }
 
   backwardTick(time: Phaser.Time) {
-    this.ticker.backwardUpdate(this.record, time);
+  }
+
+  firstForwardTick(time: Phaser.Time) {
+    this.system.tick(time);
+  }
+
+  secondForwardTick() {
   }
 }

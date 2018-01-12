@@ -21,7 +21,7 @@ class MaybeDisplay<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
   // TODO object pooling?
   releaseDisplay() {
     if (this.internalDisplay === undefined) {
-      throw new TypeError('Display is not available');
+      throw new TypeError('Display is not acquired');
     }
     this.internalDisplay = undefined;
   }

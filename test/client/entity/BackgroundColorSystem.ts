@@ -27,57 +27,57 @@ describe('ColorMixer', () => {
 
   describe('should produce a color correctly', () => {
     it('when there are no colors.', () => {
-      expectHsl(0, 0, Phaser.Easing.Exponential.Out(1 / 100));
+      expectHsl(0, 0, Phaser.Easing.Quadratic.Out(1 / 100));
     });
 
     it('when there is one white color.', () => {
       colorMixer.add(Colors.WHITE_NUMBER);
-      expectHsl(0, 0, Phaser.Easing.Exponential.Out(2 / 100));
+      expectHsl(0, 0, Phaser.Easing.Quadratic.Out(2 / 100));
     });
 
     it('when there are two white colors.', () => {
       colorMixer.add(Colors.WHITE_NUMBER);
       colorMixer.add(Colors.WHITE_NUMBER);
 
-      expectHsl(0, 0, Phaser.Easing.Exponential.Out(3 / 100));
+      expectHsl(0, 0, Phaser.Easing.Quadratic.Out(3 / 100));
     });
 
     it('when there is one black color.', () => {
       colorMixer.add(Colors.BLACK_NUMBER);
-      expectHsl(0, 0, Phaser.Easing.Exponential.Out(2 / 100));
+      expectHsl(0, 0, Phaser.Easing.Quadratic.Out(2 / 100));
     });
 
     it('when there are two black colors.', () => {
       colorMixer.add(Colors.BLACK_NUMBER);
       colorMixer.add(Colors.BLACK_NUMBER);
 
-      expectHsl(0, 0, Phaser.Easing.Exponential.Out(3 / 100));
+      expectHsl(0, 0, Phaser.Easing.Quadratic.Out(3 / 100));
     });
 
     it('when there is one red color.', () => {
       colorMixer.add(Colors.RED_NUMBER);
 
-      expectHsl(0, 1 / 20, Phaser.Easing.Exponential.Out(2 / 100));
+      expectHsl(0, 1 / 20, Phaser.Easing.Quadratic.Out(2 / 100));
     });
 
     it('when there is one green color.', () => {
       colorMixer.add(Colors.GREEN_NUMBER);
 
-      expectHsl(1 / 3, 1 / 20, Phaser.Easing.Exponential.Out(2 / 100));
+      expectHsl(1 / 3, 1 / 20, Phaser.Easing.Quadratic.Out(2 / 100));
     });
 
     it('when there is one white color and one black color.', () => {
       colorMixer.add(Colors.WHITE_NUMBER);
       colorMixer.add(Colors.BLACK_NUMBER);
 
-      expectHsl(0, 0, Phaser.Easing.Exponential.Out(3 / 100));
+      expectHsl(0, 0, Phaser.Easing.Quadratic.Out(3 / 100));
     });
 
     it('when there is one green color and one black color.', () => {
       colorMixer.add(Colors.GREEN_NUMBER);
       colorMixer.add(Colors.BLACK_NUMBER);
 
-      expectHsl(1 / 3, 1 / 20, Phaser.Easing.Exponential.Out(3 / 100));
+      expectHsl(1 / 3, 1 / 20, Phaser.Easing.Quadratic.Out(3 / 100));
     });
 
     it('when there is one green color and two black colors.', () => {
@@ -85,7 +85,7 @@ describe('ColorMixer', () => {
       colorMixer.add(Colors.BLACK_NUMBER);
       colorMixer.add(Colors.BLACK_NUMBER);
 
-      expectHsl(1 / 3, 1 / 20, Phaser.Easing.Exponential.Out(4 / 100));
+      expectHsl(1 / 3, 1 / 20, Phaser.Easing.Quadratic.Out(4 / 100));
     });
 
     it('when there are two green colors and one black color.', () => {
@@ -93,14 +93,14 @@ describe('ColorMixer', () => {
       colorMixer.add(Colors.GREEN_NUMBER);
       colorMixer.add(Colors.BLACK_NUMBER);
 
-      expectHsl(1 / 3, 2 / 20, Phaser.Easing.Exponential.Out(4 / 100));
+      expectHsl(1 / 3, 2 / 20, Phaser.Easing.Quadratic.Out(4 / 100));
     });
 
     it('when there are ninety-nine colors.', () => {
       for (let i = 0; i < 98; i++) {
         colorMixer.add(Colors.BLACK_NUMBER);
       }
-      expectHsl(0, 0, Phaser.Easing.Exponential.Out(99 / 100));
+      expectHsl(0, 0, Phaser.Easing.Quadratic.Out(99 / 100));
     });
 
     it('when there are ninety-nine colors.', () => {

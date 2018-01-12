@@ -12,24 +12,24 @@ import Distance from '../../util/math/Distance';
 import Entity from '../Entity';
 import {asSequence} from 'sequency';
 
-class ChestSystem implements TickSystem<ChestEntity>, ExistenceSystem<ChestEntity> {
+class ChestSystem implements TickSystem, ExistenceSystem<ChestEntity> {
   constructor(
       private chestOpener: ChestOpener,
       private chestSpawner: ChestSpawner,
       private chestDemolisher: ChestDemolisher) {
   }
 
-  update(chest: ChestEntity) {
-    if (this.chestOpener.execute(chest)) {
-      this.chestSpawner.scheduleNextSpawning();
-    }
-  }
-
   tick(time: Phaser.Time) {
     this.chestSpawner.spawnIfAppropriate(time);
   }
 
-  enter(chest: ChestEntity) {
+  enter(component: ChestEntity) {
+  }
+
+  update(chest: ChestEntity) {
+    if (this.chestOpener.execute(chest)) {
+      this.chestSpawner.scheduleNextSpawning();
+    }
   }
 
   exit(chest: ChestEntity) {
@@ -147,7 +147,6 @@ export class ChestSpawner {
         return;
       }
     }
-
     this.spawnAt(this.law.spawnLocationStrategy.next());
   }
 

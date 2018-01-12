@@ -9,12 +9,10 @@ import PhysicalConstants from '../PhysicalConstants';
 import {toWorldCoordinateOffset2d} from '../law/space';
 import {asSequence} from 'sequency';
 import Distance from './math/Distance';
-import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
 import {NotificationPriority} from '../render/notification/Notifier';
 import ConfigProvider from '../environment/config/ConfigProvider';
 import Updater from '../update/Updater';
 import CommentDataUtil from '../../../scripts/CommentDataUtil';
-import Entity from '../entitySystem/Entity';
 import {Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
 
@@ -26,7 +24,7 @@ class Debug {
       private universe: Universe,
       public showInfo: boolean = true,
       private notificationShowCounts: number = 0,
-      private systems: { [systemName: string]: object | object[] } = {},
+      private systems: { [systemName: string]: any } = {},
       private debugInfo: DebugInfo = new DebugInfo(universe.game, universe.player)) {
     universe.render = inject(this.render.bind(this), universe.render.bind(universe));
 
@@ -39,13 +37,16 @@ class Debug {
     asSequence([
       universe.updater['foregroundTracker'],
       universe.updater['backgroundTracker']])
-        .flatMap(tracker => asSequence(tracker['systemTickers']))
+        .flatMap(
+            tracker => asSequence([tracker['onUpdateSystemTickers'], tracker['onRenderSystemTickers']]))
+        .flatten()
         .map(ticker => (ticker as any)['system'])
+        .distinct()
         .forEach(system => {
           let systemName = system.constructor.name;
           if (systems.hasOwnProperty(systemName)) {
             if (systems[systemName] instanceof Array) {
-              (systems[systemName] as object[]).push(system);
+              systems[systemName].push(system);
             } else {
               systems[systemName] = [systems[systemName], system];
             }
@@ -55,6 +56,11 @@ class Debug {
         });
 
     universe.game.time.advancedTiming = true;
+  }
+
+  get chest() {
+    let chestCoordinates = this.universe.player.coordinates.clone().add(0, -100);
+    return this.systems.chestSystem['chestSpawner']['spawnAt'](chestCoordinates);
   }
 
   get comment() {
@@ -69,9 +75,27 @@ class Debug {
         new BuffData(BuffType.CHROMATIC));
   }
 
-  get chest() {
-    return this.universe.updater.chestSystem['chestSpawner']['spawnAt'](
-        this.universe.player.coordinates.clone().add(0, -100));
+  static set(universe: Universe) {
+    // TODO any idea how to expose all modules while debugging?
+    Object.assign(window, {
+      universe,
+      game: universe.game,
+      CommentData,
+      BuffData,
+      Colors,
+      Point,
+      ChestBuilder,
+      SpeechBubbleBuilder,
+      Distance,
+      asSequence,
+      PhysicalConstants,
+    });
+
+    let debug = new this(universe);
+
+    (window as any).db = debug;
+
+    return debug;
   }
 
   get say() {
@@ -108,26 +132,10 @@ class Debug {
     return true;
   }
 
-  static set(universe: Universe) {
-    let debug = new this(universe);
-
-    // TODO any idea how to expose all modules while debugging?
-    Object.assign(window, {
-      universe,
-      game: universe.game,
-      CommentData,
-      BuffData,
-      Colors,
-      Point,
-      ChestBuilder,
-      SpeechBubbleBuilder,
-      Distance,
-      asSequence,
-      PhysicalConstants,
-      db: debug,
-    });
-
-    return debug;
+  onCreate() {
+    if (__STAGE__) {
+      let ignored = this.fill;
+    }
   }
 
   addComment(
@@ -147,19 +155,19 @@ class Debug {
 
     asSequence(this.universe.chestsStorage.getFinder())
         .forEach(
-            chest => this.debugInfo.text('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
+            chest => this.debugInfo.line('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
 
     // TODO refactor to add to container system
-    let closestComment: Entity = asSequence(this.universe.updater.collisionDetectionSystem['currentRegions'])
-        .flatMap(region => asSequence(region.container))
-        .minBy((entity: any) =>
-            Distance.roughlyOf(entity.coordinates, this.universe.player.coordinates)) as any;
-    if (closestComment) {
-      this.debugInfo.text(
-          'Comment',
-          closestComment.coordinates,
-          UpdatingBuffCarrier.isTypeOf(closestComment) ? 'updating' : '');
-    }
+    // let closestComment: Entity = asSequence(this.universe.updater.collisionDetectionSystem['currentRegions'])
+    //     .flatMap(region => asSequence(region.container))
+    //     .minBy((entity: any) =>
+    //         Distance.roughlyOf(entity.coordinates, this.universe.player.coordinates)) as any;
+    // if (closestComment) {
+    //   this.debugInfo.line(
+    //       'Comment',
+    //       closestComment.coordinates,
+    //       UpdatingBuffCarrier.isTypeOf(closestComment) ? 'updating' : '');
+    // }
   }
 
   private getNotificationMessage() {
@@ -209,7 +217,7 @@ class DebugInfo {
     return 2;
   }
 
-  text(text: string, coordinates?: Point, note?: string, disableNavigation?: boolean) {
+  line(text: string, coordinates?: Point, note?: string, disableNavigation?: boolean) {
     if (note) {
       text = `${text}(${note})`;
     }
@@ -235,7 +243,7 @@ class DebugInfo {
       text = `${text}: (${coordinates.x}, ${coordinates.y})${navigation}`;
     }
 
-    this.game.debug.text(text, 10, this.currentY += this.lineHeight, Colors.GOLD);
+    this.game.debug.text(text, 10, this.getHeight(), Colors.GOLD);
 
     return this;
   }
@@ -243,11 +251,16 @@ class DebugInfo {
   start() {
     this.currentY = 0;
 
-    this.text('Player', this.player.coordinates, '', true);
-    this.text(`FPS: ${this.game.time.fps}`);
-    this.text(`Render radius: ${Updater['getRenderRadius'](this.game)}`);
+    this.line('Player', this.player.coordinates, '', true);
+    this.line(`FPS: ${this.game.time.fps}`);
+    this.line(`Render radius: ${Updater['getRenderRadius'](this.game)}`);
+    this.line(`Camera focus`, this.game.camera.position, undefined, true);
 
     return this;
+  }
+
+  private getHeight() {
+    return this.currentY += this.lineHeight;
   }
 
   clear() {

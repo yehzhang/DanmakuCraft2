@@ -63,7 +63,7 @@ class LawFactoryImpl implements LawFactory {
   private createColorTransitionLawInstance() {
     let speedStrategy = Chain.total(this.baseGenerator)
         .pipe(Normal.capped(gaussian(0, 5)))
-        .pipe(Scaler.to(0, 3))
+        .pipe(Scaler.to(0, 5))
         .build();
     let pauseStrategy = Chain.total(this.baseGenerator)
         .pipe(Threshold.smallerThan(0.003))

@@ -328,7 +328,9 @@ class BootState extends Phaser.State {
       this.showWaitingForAnyInput(anyInputAlphaTween),
       onAnyInputPromise,
     ]);
-    await onAnyInputPromise;
+    if (!__STAGE__) {
+      await onAnyInputPromise;
+    }
 
     anyInputAlphaTween.stop();
 

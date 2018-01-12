@@ -3,6 +3,8 @@ import {Component} from '../../alias';
 interface ExistenceSystem<T extends Component> {
   enter(component: T): void;
 
+  update(component: T, time: Phaser.Time): void;
+
   exit(component: T): void;
 
   /**

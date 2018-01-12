@@ -6,6 +6,9 @@ class SuperposedEntityRenderSystem implements ExistenceSystem<SuperposedEntity> 
     entity.acquireDisplay();
   }
 
+  update(entity: SuperposedEntity) {
+  }
+
   exit(entity: SuperposedEntity) {
     entity.releaseDisplay();
   }

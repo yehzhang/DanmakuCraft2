@@ -170,6 +170,10 @@ class Universe extends Phaser.State {
   }
 
   async create() {
+    if (__STAGE__) {
+      (window as any).db.onCreate();
+    }
+
     this.inputController.ignoreInput();
 
     this.renderer.turnOn().focus(this.player);

@@ -9,6 +9,9 @@ class RegionRenderSystem implements ExistenceSystem<Region<RenderableEntity>> {
     }
   }
 
+  update(region: Region<RenderableEntity>) {
+  }
+
   exit(region: Region<RenderableEntity>) {
     region.display.removeChildren();
   }

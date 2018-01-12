@@ -3,14 +3,14 @@ import {Renderable, RenderableEntity} from '../../alias';
 import {PIXI} from '../../../util/alias/phaser';
 
 class AddToContainerSystem implements ExistenceSystem<RenderableEntity> {
-  constructor(
-      parentContainer: PIXI.DisplayObjectContainer,
-      private container: PIXI.DisplayObjectContainer = new BridgingContainer()) {
-    parentContainer.addChild(container);
+  constructor(private container: PIXI.DisplayObjectContainer) {
   }
 
   enter(entity: RenderableEntity) {
     this.container.addChild(entity.display);
+  }
+
+  update(entity: RenderableEntity) {
   }
 
   exit(entity: Renderable) {
@@ -18,21 +18,10 @@ class AddToContainerSystem implements ExistenceSystem<RenderableEntity> {
   }
 
   finish() {
+    if (this.container.cacheAsBitmap) {
+      this.container.updateCache();
+    }
   }
 }
 
 export default AddToContainerSystem;
-
-class BridgingContainer extends PIXI.DisplayObjectContainer {
-  // noinspection JSUnusedGlobalSymbols
-  preUpdate() {
-  }
-
-  // noinspection JSUnusedGlobalSymbols
-  update() {
-  }
-
-  // noinspection JSUnusedGlobalSymbols
-  postUpdate() {
-  }
-}

@@ -12,6 +12,9 @@ class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.Disp
     this.currentRegions.add(region);
   }
 
+  update(region: Region<Renderable<T>>) {
+  }
+
   exit(region: Region<Renderable<T>>) {
     this.currentRegions.delete(region);
   }
