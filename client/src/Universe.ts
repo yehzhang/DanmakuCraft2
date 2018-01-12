@@ -8,7 +8,7 @@ import GraphicsFactory from './render/graphics/GraphicsFactory';
 import CommentLoader from './comment/CommentLoader';
 import AdapterFactory from './environment/AdapterFactory';
 import PhysicalConstants from './PhysicalConstants';
-import BuffDataContainer from './comment/BuffDataContainer';
+import BuffDataContainer from './entitySystem/system/buff/BuffDataContainer';
 import {
   ChestEntity, CommentEntity, Player, Region,
   UpdatingCommentEntity

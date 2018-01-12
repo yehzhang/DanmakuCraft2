@@ -1,6 +1,6 @@
 import BuffFactory from './BuffFactory';
 import {Player, UpdatingCommentEntity} from '../../alias';
-import BuffDataContainer from '../../../comment/BuffDataContainer';
+import BuffDataContainer from './BuffDataContainer';
 import {BuffData, BuffType} from './BuffData';
 
 class BuffDataApplier {
