@@ -12,8 +12,8 @@ class Renderer {
       readonly commentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer(),
       readonly updatingCommentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
     stage.add(floatingLayer);
-    playersLayer.add(commentsLayer);
-    playersLayer.add(updatingCommentsLayer);
+    floatingLayer.addChild(commentsLayer);
+    floatingLayer.addChild(updatingCommentsLayer);
 
     stage.add(playersLayer);
 
@@ -37,10 +37,6 @@ class Renderer {
   turnOff() {
     this.stage.visible = false;
     return this;
-  }
-
-  getStage() {
-    return this.stage;
   }
 
   async fadeIn() {
