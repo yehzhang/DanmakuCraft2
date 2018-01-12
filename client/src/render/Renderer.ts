@@ -11,13 +11,13 @@ class Renderer {
       readonly groundLayer: PhaserDisplayContainer = new BridgingContainer(),
       readonly commentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer(),
       readonly updatingCommentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
-    stage.add(floatingLayer);
-    floatingLayer.addChild(commentsLayer);
-    floatingLayer.addChild(updatingCommentsLayer);
+    stage.add(groundLayer);
 
     stage.add(playersLayer);
 
-    stage.add(groundLayer);
+    stage.add(floatingLayer);
+    floatingLayer.addChild(commentsLayer);
+    floatingLayer.addChild(updatingCommentsLayer);
   }
 
   focus(entity: ExistentEntity<Phaser.Sprite>) {
