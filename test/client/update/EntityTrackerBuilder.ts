@@ -42,8 +42,8 @@ describe('EntityTrackerBuilder', () => {
       mock(ChunkEntityFinder)];
     entityFinders = mockEntityFinders.map(instance);
 
-    when(mockEntityFinders[0].entityVisibilityUpdated).thenReturn(new Phaser.Signal());
-    when(mockEntityFinders[1].entityVisibilityUpdated).thenReturn(new Phaser.Signal());
+    when(mockEntityFinders[0].entityExistenceUpdated).thenReturn(new Phaser.Signal());
+    when(mockEntityFinders[1].entityExistenceUpdated).thenReturn(new Phaser.Signal());
     when(mockTrackee.coordinates).thenReturn(Point.origin());
 
     builder = new EntityTrackerBuilder(instance(mockTrackee), new DynamicProvider(0))

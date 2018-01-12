@@ -12,11 +12,13 @@ class Renderer {
       readonly commentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer(),
       readonly updatingCommentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
     stage.add(groundLayer);
+    groundLayer.cacheAsBitmap = true;
 
     stage.add(playersLayer);
 
     stage.add(floatingLayer);
     floatingLayer.addChild(commentsLayer);
+    commentsLayer.cacheAsBitmap = true;
     floatingLayer.addChild(updatingCommentsLayer);
   }
 

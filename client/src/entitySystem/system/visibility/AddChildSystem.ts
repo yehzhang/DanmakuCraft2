@@ -2,7 +2,7 @@ import VisibilitySystem from './VisibilitySystem';
 import {Renderable, RenderableEntity} from '../../alias';
 import {PIXI} from '../../../util/alias/phaser';
 
-class AddToContainerSystem implements VisibilitySystem<RenderableEntity> {
+class AddChildSystem implements VisibilitySystem<RenderableEntity> {
   constructor(private container: PIXI.DisplayObjectContainer) {
   }
 
@@ -24,4 +24,4 @@ class AddToContainerSystem implements VisibilitySystem<RenderableEntity> {
   }
 }
 
-export default AddToContainerSystem;
+export default AddChildSystem;

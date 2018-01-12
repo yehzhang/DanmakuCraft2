@@ -1,7 +1,7 @@
 import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
 import EntityFactory from '../../../entitySystem/EntityFactory';
-import {VisibilityUpdatedEvent} from '../EntityFinder';
+import {ExistenceUpdatedEvent} from '../EntityFinder';
 import {Phaser} from '../../alias/phaser';
 import {asSequence} from 'sequency';
 import Iterator from '../../syntax/Iterator';
@@ -10,7 +10,7 @@ import EntityRegister from '../EntityRegister';
 class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<T> {
   constructor(
       private chunks: Chunks<Region<T>>,
-      private entityRegistered: Phaser.Signal<VisibilityUpdatedEvent<Region<T>>>,
+      private entityRegistered: Phaser.Signal<ExistenceUpdatedEvent<Region<T>>>,
       private entityFactory: EntityFactory) {
   }
 
@@ -21,7 +21,7 @@ class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<
 
     this.chunks.replaceChunkByCoordinates(newChunk.coordinates, newChunk);
 
-    this.entityRegistered.dispatch(new VisibilityUpdatedEvent([newChunk], [chunk]));
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent([newChunk], [chunk]));
   }
 
   registerBatch(entities: Iterable<T>) {
@@ -58,7 +58,7 @@ class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<
       oldChunks.push(chunk);
     });
 
-    this.entityRegistered.dispatch(new VisibilityUpdatedEvent(newChunks, oldChunks));
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent(newChunks, oldChunks));
   }
 
   deregister(entity: T, silent?: boolean) {

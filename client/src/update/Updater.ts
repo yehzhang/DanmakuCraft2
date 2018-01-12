@@ -9,10 +9,9 @@ import MovingAnimationSystem from '../entitySystem/system/visibility/MovingAnima
 import CollisionDetectionSystem from '../entitySystem/system/visibility/CollisionDetectionSystem';
 import PhysicalConstants from '../PhysicalConstants';
 import UpdateSystem from '../entitySystem/system/visibility/UpdateSystem';
-import RegionRenderSystem from '../entitySystem/system/visibility/RegionRenderSystem';
 import DynamicProvider from '../util/DynamicProvider';
 import BackgroundColorSystem from '../entitySystem/system/visibility/BackgroundColorSystem';
-import AddToContainerSystem from '../entitySystem/system/visibility/AddToContainerSystem';
+import AddChildSystem from '../entitySystem/system/visibility/AddChildSystem';
 import UnmovableDisplayPositioningSystem from '../entitySystem/system/visibility/UnmovableDisplayPositioningSystem';
 import {Phaser} from '../util/alias/phaser';
 import CommitMotionSystem from '../entitySystem/system/visibility/CommitMotionSystem';
@@ -58,11 +57,11 @@ class Updater {
 
     let player = universe.player;
 
-    // TODO split render related systems to another tracker called in this.render()
     let foregroundTrackerBuilder = EntityTracker.newBuilder(player, renderRadius);
     foregroundTrackerBuilder.onUpdate()
         .applyVisibilitySystem(new UpdateSystem())
-        .toEntities().of(playersFinder)
+        .toEntities().of(playersFinder).and(commentPreviewFinder)
+        .toChildren().of(updatingCommentsFinder)
 
         .applyVisibilitySystem(collisionDetectionSystem)
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
@@ -72,30 +71,19 @@ class Updater {
         .applyTickSystem(chestSystem);
 
     foregroundTrackerBuilder.onRender()
-        // TODO Migrate to display
-        // .applyVisibilitySystem(new SuperposedEntityRenderSystem())
-        // .toEntities().of(updatingCommentsFinder).and(commentPreviewFinder)
-        // .toChildren().of(updatingCommentsFinder)
-        .applyVisibilitySystem(new RegionRenderSystem())
-        .toEntities().of(commentsFinder) // .and(updatingCommentsFinder)
-    // .applyVisibilitySystem(new CacheAsBitmapSystem())
-    // .toEntities().of(commentsFinder).and(chestsFinder).and(playersFinder)
-
-    // TODO move to onUpdate
-        .applyVisibilitySystem(new UpdateSystem())
-        .toEntities().of(commentPreviewFinder)
-        .toChildren().of(updatingCommentsFinder)
-
-        .applyVisibilitySystem(new AddToContainerSystem(universe.renderer.floatingLayer))
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder)
-        .applyVisibilitySystem(new AddToContainerSystem(universe.renderer.groundLayer))
+        .applyVisibilitySystem(new AddChildSystem(universe.renderer.commentsLayer))
+        .toEntities().of(commentsFinder)
+    // TODO share the same sprite among chromatic comments.
+        .applyVisibilitySystem(new AddChildSystem(universe.renderer.updatingCommentsLayer))
+        .toEntities().of(updatingCommentsFinder)
+        .applyVisibilitySystem(new AddChildSystem(universe.renderer.groundLayer))
         .toEntities().of(chestsFinder)
-        .applyVisibilitySystem(new AddToContainerSystem(universe.renderer.playersLayer))
+        .applyVisibilitySystem(new AddChildSystem(universe.renderer.playersLayer))
         .toEntities().of(playersFinder)
         .applyVisibilitySystem(new UnmovableDisplayPositioningSystem(player))
         .toEntities().of(chestsFinder).and(commentsFinder).and(updatingCommentsFinder)
 
-        .applyVisibilitySystem(new AddToContainerSystem(player.display))
+        .applyVisibilitySystem(new AddChildSystem(player.display))
         .toEntities().of(commentPreviewFinder)
 
         .applyTickSystem(new MoveDisplaySystem(player))

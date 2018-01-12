@@ -35,6 +35,7 @@ import CommentLoaderImpl from './comment/CommentLoaderImpl';
 import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentPlacingPolicyImpl';
 import Updater from './update/Updater';
 import {Phaser} from './util/alias/phaser';
+import Existence from './engine/existence/Existence';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -63,6 +64,7 @@ class Universe extends Phaser.State {
   public proxy: UniverseProxy;
   public previewCommentLoader: CommentLoader;
   public updater: Updater;
+  public existence: Existence;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     super();
@@ -122,6 +124,8 @@ class Universe extends Phaser.State {
         this.commentPreviewStorage.getRegister(),
         this.entityFactory,
         this.buffDataApplier);
+
+    this.existence = Existence.on(this);
 
     this.updater = Updater.on(this);
 
@@ -189,10 +193,13 @@ class Universe extends Phaser.State {
   }
 
   update() {
+    // TODO merge into one.
+    this.existence.update();
     this.updater.update();
   }
 
   render() {
+    this.existence.render();
     this.updater.render();
   }
 

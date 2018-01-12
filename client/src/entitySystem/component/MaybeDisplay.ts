@@ -3,7 +3,7 @@ import {PIXI} from '../../util/alias/phaser';
 class MaybeDisplay<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
   private internalDisplay?: T;
 
-  constructor(private createDisplay: (entity: any) => T, display?: T) {
+  constructor(display: T) {
     this.internalDisplay = display;
   }
 
@@ -18,19 +18,11 @@ class MaybeDisplay<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
     return this.internalDisplay !== undefined;
   }
 
-  // TODO object pooling?
   releaseDisplay() {
     if (this.internalDisplay === undefined) {
-      throw new TypeError('Display is not acquired');
+      throw new TypeError('Display is released already');
     }
     this.internalDisplay = undefined;
-  }
-
-  acquireDisplay() {
-    if (this.internalDisplay !== undefined) {
-      throw new TypeError('Display is already acquired');
-    }
-    this.internalDisplay = this.createDisplay(this);
   }
 }
 

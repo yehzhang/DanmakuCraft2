@@ -1,16 +1,16 @@
-import {VisibilityUpdatedEvent} from '../EntityFinder';
+import {ExistenceUpdatedEvent} from '../EntityFinder';
 import Iterator from '../../syntax/Iterator';
 import EntityRegister from '../EntityRegister';
 
 class GlobalEntityRegister<T> implements EntityRegister<T> {
   constructor(
       private entities: Set<T>,
-      private entityRegistered: Phaser.Signal<VisibilityUpdatedEvent<T>>) {
+      private entityRegistered: Phaser.Signal<ExistenceUpdatedEvent<T>>) {
   }
 
   register(entity: T) {
     this.entities.add(entity);
-    this.entityRegistered.dispatch(new VisibilityUpdatedEvent([entity]));
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent([entity]));
   }
 
   registerBatch(entities: Iterable<T>): void {
@@ -24,7 +24,7 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
       this.entities.add(entity);
     }
 
-    this.entityRegistered.dispatch(new VisibilityUpdatedEvent(entitiesArray));
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent(entitiesArray));
   }
 
   deregister(entity: T) {
@@ -34,7 +34,7 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
       return;
     }
 
-    this.entityRegistered.dispatch(new VisibilityUpdatedEvent<T>([], [entity]));
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent<T>([], [entity]));
   }
 
   count() {

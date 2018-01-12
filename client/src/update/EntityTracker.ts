@@ -1,4 +1,4 @@
-import EntityFinder, {VisibilityUpdatedEvent} from '../util/entityStorage/EntityFinder';
+import EntityFinder, {ExistenceUpdatedEvent} from '../util/entityStorage/EntityFinder';
 import Entity from '../entitySystem/Entity';
 import VisibilitySystem from '../entitySystem/system/visibility/VisibilitySystem';
 import EntityTrackerBuilder from './EntityTrackerBuilder';
@@ -95,7 +95,7 @@ export class EntityFinderRecord<T extends Entity> {
       public enteringEntities: T[] = [],
       public exitingEntities: T[] = [],
       private shouldUpdateEntities: boolean = true) {
-    entityFinder.entityVisibilityUpdated.add(this.onEntityUpdated, this);
+    entityFinder.entityExistenceUpdated.add(this.onEntityUpdated, this);
   }
 
   private static leftOuterJoin<T>(set: Iterable<T>, other: Set<T>): T[] {
@@ -126,19 +126,19 @@ export class EntityFinderRecord<T extends Entity> {
     this.exitingEntities.length = 0;
   }
 
-  private onEntityUpdated(visibilityUpdated: VisibilityUpdatedEvent<T>) {
+  private onEntityUpdated(existenceUpdated: ExistenceUpdatedEvent<T>) {
     if (this.shouldUpdateEntities) {
       return;
     }
-    this.shouldUpdateEntities = this.shouldRecordUpdate(visibilityUpdated);
+    this.shouldUpdateEntities = this.shouldRecordUpdate(existenceUpdated);
   }
 
-  private shouldRecordUpdate(visibilityUpdated: VisibilityUpdatedEvent<T>) {
-    if (visibilityUpdated.registeredEntities.some(
+  private shouldRecordUpdate(existenceUpdated: ExistenceUpdatedEvent<T>) {
+    if (existenceUpdated.registeredEntities.some(
             entity => this.distanceChecker.isInEnteringRadius(entity))) {
       return true;
     }
-    if (visibilityUpdated.removedEntities.some(entity => this.currentEntities.has(entity))) {
+    if (existenceUpdated.removedEntities.some(entity => this.currentEntities.has(entity))) {
       return true;
     }
     return false;
