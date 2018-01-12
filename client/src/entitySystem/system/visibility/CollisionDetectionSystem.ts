@@ -1,10 +1,10 @@
-import ExistenceSystem from './ExistenceSystem';
+import VisibilitySystem from './VisibilitySystem';
 import {Region, Renderable} from '../../alias';
 import {asSequence} from 'sequency';
 import {PIXI} from '../../../util/alias/phaser';
 
 class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer>
-    implements ExistenceSystem<Region<Renderable<T>>> {
+    implements VisibilitySystem<Region<Renderable<T>>> {
   constructor(private currentRegions: Set<Region<Renderable<T>>> = new Set()) {
   }
 

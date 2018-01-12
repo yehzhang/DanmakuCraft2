@@ -2,23 +2,23 @@ import {
   EntityFinderRecord, RecordSystemTicker, SystemTicker,
   TickSystemTicker
 } from '../../../client/src/update/EntityTracker';
-import ExistenceSystem from '../../../client/src/entitySystem/system/existence/ExistenceSystem';
+import VisibilitySystem from '../../../client/src/entitySystem/system/visibility/VisibilitySystem';
 import Entity from '../../../client/src/entitySystem/Entity';
 import {instance, mock, resetCalls, verify, when} from 'ts-mockito';
-import SuperposedEntityRenderSystem from '../../../client/src/entitySystem/system/existence/SuperposedEntityRenderSystem';
 import {Phaser} from '../../../client/src/util/alias/phaser';
 import TickSystem from '../../../client/src/entitySystem/system/tick/TickSystem';
 import MoveDisplaySystem from '../../../client/src/entitySystem/system/tick/MoveDisplaySystem';
+import BackgroundColorSystem from '../../../client/src/entitySystem/system/visibility/BackgroundColorSystem';
 
 describe('RecordSystemTicker', () => {
-  let mockSystem: ExistenceSystem<Entity>;
+  let mockSystem: VisibilitySystem<Entity>;
   let mockRecord: EntityFinderRecord<Entity>;
   let entities: Entity[];
   let time: Phaser.Time;
   let ticker: SystemTicker;
 
   beforeEach(() => {
-    mockSystem = mock(SuperposedEntityRenderSystem);
+    mockSystem = mock(BackgroundColorSystem);
     mockRecord = mock(EntityFinderRecord);
     time = instance(mock(Phaser.Time));
     entities = [instance(mock(Entity))];
@@ -48,7 +48,7 @@ describe('RecordSystemTicker', () => {
 
   });
 
-  it('should not call finish if no existence was updated', () => {
+  it('should not call finish if no visibility was updated', () => {
     when(mockRecord.enteringEntities).thenReturn([]);
     when(mockRecord.exitingEntities).thenReturn([]);
     when(mockRecord.currentEntities).thenReturn(new Set());

@@ -11,7 +11,7 @@ interface EntityFinder<T> extends Iterable<T> {
    * 2. An entity is removed.
    * 3. An entity's coordinates is changed.
    */
-  readonly entityExistenceUpdated: Phaser.Signal<ExistenceUpdatedEvent<T>>;
+  readonly entityVisibilityUpdated: Phaser.Signal<VisibilityUpdatedEvent<T>>;
 
   /**
    * Returns an array of entities around {@param coordinates} within {@param radius}.
@@ -28,7 +28,7 @@ interface EntityFinder<T> extends Iterable<T> {
 
 export default EntityFinder;
 
-export class ExistenceUpdatedEvent<T> {
+export class VisibilityUpdatedEvent<T> {
   constructor(readonly registeredEntities: T[], readonly removedEntities: T[] = []) {
     if (registeredEntities.length === 0 && removedEntities.length === 0) {
       throw new TypeError('No entities were registered or removed');

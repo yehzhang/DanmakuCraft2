@@ -5,19 +5,17 @@ import ChestSystem, {
   ChestDemolisher, ChestOpener,
   ChestSpawner
 } from '../entitySystem/system/ChestSystem';
-import MovingAnimationSystem from '../entitySystem/system/existence/MovingAnimationSystem';
-import CollisionDetectionSystem from '../entitySystem/system/existence/CollisionDetectionSystem';
+import MovingAnimationSystem from '../entitySystem/system/visibility/MovingAnimationSystem';
+import CollisionDetectionSystem from '../entitySystem/system/visibility/CollisionDetectionSystem';
 import PhysicalConstants from '../PhysicalConstants';
-import UpdateSystem from '../entitySystem/system/existence/UpdateSystem';
-import RegionRenderSystem from '../entitySystem/system/existence/RegionRenderSystem';
+import UpdateSystem from '../entitySystem/system/visibility/UpdateSystem';
+import RegionRenderSystem from '../entitySystem/system/visibility/RegionRenderSystem';
 import DynamicProvider from '../util/DynamicProvider';
-import BackgroundColorSystem from '../entitySystem/system/existence/BackgroundColorSystem';
-import AddToContainerSystem from '../entitySystem/system/existence/AddToContainerSystem';
-import SuperposedEntityRenderSystem from '../entitySystem/system/existence/SuperposedEntityRenderSystem';
-import UnmovableDisplayPositioningSystem from '../entitySystem/system/existence/UnmovableDisplayPositioningSystem';
+import BackgroundColorSystem from '../entitySystem/system/visibility/BackgroundColorSystem';
+import AddToContainerSystem from '../entitySystem/system/visibility/AddToContainerSystem';
+import UnmovableDisplayPositioningSystem from '../entitySystem/system/visibility/UnmovableDisplayPositioningSystem';
 import {Phaser} from '../util/alias/phaser';
-import CacheAsBitmapSystem from '../entitySystem/system/existence/CacheAsBitmapSystem';
-import CommitMotionSystem from '../entitySystem/system/existence/CommitMotionSystem';
+import CommitMotionSystem from '../entitySystem/system/visibility/CommitMotionSystem';
 import MoveDisplaySystem from '../entitySystem/system/tick/MoveDisplaySystem';
 
 class Updater {
@@ -52,65 +50,66 @@ class Updater {
 
     let collisionDetectionSystem = new CollisionDetectionSystem();
 
-    // floatingLayer.cacheAsBitmap = true;
-
     let commentsFinder = universe.commentsStorage.getFinder();
     let updatingCommentsFinder = universe.updatingCommentsStorage.getFinder();
     let chestsFinder = universe.chestsStorage.getFinder();
     let playersFinder = universe.playersStorage.getFinder();
     let commentPreviewFinder = universe.commentPreviewStorage.getFinder();
 
+    let player = universe.player;
+
     // TODO split render related systems to another tracker called in this.render()
-    let foregroundTrackerBuilder = EntityTracker.newBuilder(universe.player, renderRadius);
+    let foregroundTrackerBuilder = EntityTracker.newBuilder(player, renderRadius);
     foregroundTrackerBuilder.onUpdate()
-        .applyExistenceSystem(new UpdateSystem())
+        .applyVisibilitySystem(new UpdateSystem())
         .toEntities().of(playersFinder)
 
-        .applyExistenceSystem(collisionDetectionSystem)
+        .applyVisibilitySystem(collisionDetectionSystem)
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
 
-        .applyExistenceSystem(chestSystem)
+        .applyVisibilitySystem(chestSystem)
         .toEntities().of(chestsFinder)
         .applyTickSystem(chestSystem);
 
     foregroundTrackerBuilder.onRender()
-        .applyExistenceSystem(new SuperposedEntityRenderSystem())
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder).and(commentPreviewFinder)
-        .toChildren().of(commentsFinder).and(updatingCommentsFinder)
-        .applyExistenceSystem(new RegionRenderSystem())
-        .toEntities().of(commentsFinder).and(updatingCommentsFinder)
-        .applyExistenceSystem(new CacheAsBitmapSystem())
-        .toEntities().of(commentsFinder).and(chestsFinder).and(playersFinder)
+        // TODO Migrate to display
+        // .applyVisibilitySystem(new SuperposedEntityRenderSystem())
+        // .toEntities().of(updatingCommentsFinder).and(commentPreviewFinder)
+        // .toChildren().of(updatingCommentsFinder)
+        .applyVisibilitySystem(new RegionRenderSystem())
+        .toEntities().of(commentsFinder) // .and(updatingCommentsFinder)
+    // .applyVisibilitySystem(new CacheAsBitmapSystem())
+    // .toEntities().of(commentsFinder).and(chestsFinder).and(playersFinder)
 
     // TODO move to onUpdate
-        .applyExistenceSystem(new UpdateSystem())
+        .applyVisibilitySystem(new UpdateSystem())
         .toEntities().of(commentPreviewFinder)
         .toChildren().of(updatingCommentsFinder)
 
-        .applyExistenceSystem(new AddToContainerSystem(universe.renderer.floatingLayer))
+        .applyVisibilitySystem(new AddToContainerSystem(universe.renderer.floatingLayer))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
-        .applyExistenceSystem(new AddToContainerSystem(universe.renderer.groundLayer))
+        .applyVisibilitySystem(new AddToContainerSystem(universe.renderer.groundLayer))
         .toEntities().of(chestsFinder)
-        .applyExistenceSystem(new AddToContainerSystem(universe.renderer.playersLayer))
+        .applyVisibilitySystem(new AddToContainerSystem(universe.renderer.playersLayer))
         .toEntities().of(playersFinder)
-        .applyExistenceSystem(new UnmovableDisplayPositioningSystem(universe.player))
+        .applyVisibilitySystem(new UnmovableDisplayPositioningSystem(player))
         .toEntities().of(chestsFinder).and(commentsFinder).and(updatingCommentsFinder)
 
-        .applyExistenceSystem(new AddToContainerSystem(universe.player.display))
+        .applyVisibilitySystem(new AddToContainerSystem(player.display))
         .toEntities().of(commentPreviewFinder)
 
-        .applyTickSystem(new MoveDisplaySystem(universe.player))
+        .applyTickSystem(new MoveDisplaySystem(player))
 
-        .applyExistenceSystem(new MovingAnimationSystem())
+        .applyVisibilitySystem(new MovingAnimationSystem())
         .toEntities().of(playersFinder)
 
-        .applyExistenceSystem(new CommitMotionSystem())
+        .applyVisibilitySystem(new CommitMotionSystem())
         .toEntities().of(playersFinder);
 
     let backgroundTrackerBuilder = EntityTracker.newBuilder(
-        universe.player, new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS));
+        player, new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS));
     backgroundTrackerBuilder.onRender()
-        .applyExistenceSystem(new BackgroundColorSystem(universe.game))
+        .applyVisibilitySystem(new BackgroundColorSystem(universe.game))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder);
 
     return new this(

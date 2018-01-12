@@ -1,6 +1,6 @@
 import Entity from '../entitySystem/Entity';
 import EntityFinder from '../util/entityStorage/EntityFinder';
-import ExistenceSystem from '../entitySystem/system/existence/ExistenceSystem';
+import VisibilitySystem from '../entitySystem/system/visibility/VisibilitySystem';
 import DynamicProvider from '../util/DynamicProvider';
 import PhysicalConstants from '../PhysicalConstants';
 import EntityTracker, {
@@ -22,8 +22,8 @@ export class EntityTrackerBuilder {
       private onRenderSystemTickers: SystemTicker[] = []) {
   }
 
-  applyExistenceSystem<T, U extends T & Entity>(
-      system: ExistenceSystem<T>,
+  applyVisibilitySystem<T, U extends T & Entity>(
+      system: VisibilitySystem<T>,
       entityFinder: EntityFinder<U>,
       isOnUpdate: boolean) {
     let entityFinderRecord = this.entityFinderRecords.get(entityFinder) as EntityFinderRecord<U>;

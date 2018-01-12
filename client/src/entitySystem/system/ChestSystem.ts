@@ -1,6 +1,6 @@
 import TickSystem from './tick/TickSystem';
 import {ChestEntity} from '../alias';
-import ExistenceSystem from './existence/ExistenceSystem';
+import VisibilitySystem from './visibility/VisibilitySystem';
 import BuffDataApplier from './buff/BuffDataApplier';
 import ChestLaw from '../../law/ChestLaw';
 import Notifier, {NotificationPriority} from '../../render/notification/Notifier';
@@ -12,7 +12,7 @@ import Distance from '../../util/math/Distance';
 import Entity from '../Entity';
 import {asSequence} from 'sequency';
 
-class ChestSystem implements TickSystem, ExistenceSystem<ChestEntity> {
+class ChestSystem implements TickSystem, VisibilitySystem<ChestEntity> {
   constructor(
       private chestOpener: ChestOpener,
       private chestSpawner: ChestSpawner,

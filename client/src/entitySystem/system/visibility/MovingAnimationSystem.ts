@@ -1,8 +1,8 @@
 import MovingAnimation from '../../component/MovingAnimation';
 import Motion from '../../component/Motion';
-import ExistenceSystem from './ExistenceSystem';
+import VisibilitySystem from './VisibilitySystem';
 
-class MovingAnimationSystem implements ExistenceSystem<Motion & MovingAnimation> {
+class MovingAnimationSystem implements VisibilitySystem<Motion & MovingAnimation> {
   enter(entity: Motion & MovingAnimation) {
   }
 

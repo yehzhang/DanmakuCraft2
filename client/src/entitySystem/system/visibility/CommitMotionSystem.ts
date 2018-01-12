@@ -1,7 +1,7 @@
-import ExistenceSystem from './ExistenceSystem';
+import VisibilitySystem from './VisibilitySystem';
 import Motion from '../../component/Motion';
 
-class CommitMotionSystem implements ExistenceSystem<Motion> {
+class CommitMotionSystem implements VisibilitySystem<Motion> {
   enter(motion: Motion) {
   }
 

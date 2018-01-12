@@ -1,7 +1,7 @@
 import {Region, RenderableEntity} from '../../alias';
-import ExistenceSystem from './ExistenceSystem';
+import VisibilitySystem from './VisibilitySystem';
 
-class RegionRenderSystem implements ExistenceSystem<Region<RenderableEntity>> {
+class RegionRenderSystem implements VisibilitySystem<Region<RenderableEntity>> {
   enter(region: Region<RenderableEntity>) {
     for (let entity of region.container) {
       entity.display.position = entity.asOffsetTo(region.coordinates);
@@ -13,7 +13,7 @@ class RegionRenderSystem implements ExistenceSystem<Region<RenderableEntity>> {
   }
 
   exit(region: Region<RenderableEntity>) {
-    region.display.removeChildren();
+    // region.display.removeChildren();
   }
 
   finish() {

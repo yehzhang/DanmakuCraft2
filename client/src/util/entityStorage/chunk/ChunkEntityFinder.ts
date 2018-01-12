@@ -1,4 +1,4 @@
-import EntityFinder, {ExistenceUpdatedEvent} from '../EntityFinder';
+import EntityFinder, {VisibilityUpdatedEvent} from '../EntityFinder';
 import Point from '../../syntax/Point';
 import {Region, StationaryEntity} from '../../../entitySystem/alias';
 import Chunks from './Chunks';
@@ -15,7 +15,7 @@ import {Phaser} from '../../alias/phaser';
 class ChunkEntityFinder<T> implements EntityFinder<Region<T>> {
   constructor(
       private chunks: Chunks<Region<T>>,
-      readonly entityExistenceUpdated: Phaser.Signal<ExistenceUpdatedEvent<Region<T>>>) {
+      readonly entityVisibilityUpdated: Phaser.Signal<VisibilityUpdatedEvent<Region<T>>>) {
   }
 
   private static inflate(coordinates: Point, radius: number): Phaser.Rectangle {

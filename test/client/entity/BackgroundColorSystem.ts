@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {ColorMixer} from '../../../client/src/entitySystem/system/existence/BackgroundColorSystem';
+import {ColorMixer} from '../../../client/src/entitySystem/system/visibility/BackgroundColorSystem';
 import Colors from '../../../client/src/render/Colors';
 import {Phaser} from '../../../client/src/util/alias/phaser';
 

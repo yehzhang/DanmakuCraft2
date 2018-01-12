@@ -1,8 +1,8 @@
-import ExistenceSystem from './ExistenceSystem';
+import VisibilitySystem from './VisibilitySystem';
 import {Renderable, RenderableEntity, StationaryEntity} from '../../alias';
 import Point from '../../../util/syntax/Point';
 
-class UnmovableDisplayPositioningSystem implements ExistenceSystem<StationaryEntity & Renderable> {
+class UnmovableDisplayPositioningSystem implements VisibilitySystem<StationaryEntity & Renderable> {
   constructor(private anchor: RenderableEntity) {
   }
 

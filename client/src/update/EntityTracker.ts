@@ -1,6 +1,6 @@
-import EntityFinder, {ExistenceUpdatedEvent} from '../util/entityStorage/EntityFinder';
+import EntityFinder, {VisibilityUpdatedEvent} from '../util/entityStorage/EntityFinder';
 import Entity from '../entitySystem/Entity';
-import ExistenceSystem from '../entitySystem/system/existence/ExistenceSystem';
+import VisibilitySystem from '../entitySystem/system/visibility/VisibilitySystem';
 import EntityTrackerBuilder from './EntityTrackerBuilder';
 import {OnOrBuildClause} from './entityTrackerBuilderWrapper';
 import Point from '../util/syntax/Point';
@@ -95,7 +95,7 @@ export class EntityFinderRecord<T extends Entity> {
       public enteringEntities: T[] = [],
       public exitingEntities: T[] = [],
       private shouldUpdateEntities: boolean = true) {
-    entityFinder.entityExistenceUpdated.add(this.onEntityUpdated, this);
+    entityFinder.entityVisibilityUpdated.add(this.onEntityUpdated, this);
   }
 
   private static leftOuterJoin<T>(set: Iterable<T>, other: Set<T>): T[] {
@@ -126,19 +126,19 @@ export class EntityFinderRecord<T extends Entity> {
     this.exitingEntities.length = 0;
   }
 
-  private onEntityUpdated(existenceUpdated: ExistenceUpdatedEvent<T>) {
+  private onEntityUpdated(visibilityUpdated: VisibilityUpdatedEvent<T>) {
     if (this.shouldUpdateEntities) {
       return;
     }
-    this.shouldUpdateEntities = this.shouldRecordUpdate(existenceUpdated);
+    this.shouldUpdateEntities = this.shouldRecordUpdate(visibilityUpdated);
   }
 
-  private shouldRecordUpdate(existenceUpdated: ExistenceUpdatedEvent<T>) {
-    if (existenceUpdated.registeredEntities.some(
+  private shouldRecordUpdate(visibilityUpdated: VisibilityUpdatedEvent<T>) {
+    if (visibilityUpdated.registeredEntities.some(
             entity => this.distanceChecker.isInEnteringRadius(entity))) {
       return true;
     }
-    if (existenceUpdated.removedEntities.some(entity => this.currentEntities.has(entity))) {
+    if (visibilityUpdated.removedEntities.some(entity => this.currentEntities.has(entity))) {
       return true;
     }
     return false;
@@ -182,9 +182,9 @@ export interface SystemTicker {
 
 export class RecordSystemTicker<T, U extends T & Entity> implements SystemTicker {
   constructor(
-      private system: ExistenceSystem<T>,
+      private system: VisibilitySystem<T>,
       private entityFinderRecord: EntityFinderRecord<U>,
-      private isExistenceChanged: boolean = false) {
+      private isVisibilityChanged: boolean = false) {
   }
 
   backwardTick() {
@@ -192,7 +192,7 @@ export class RecordSystemTicker<T, U extends T & Entity> implements SystemTicker
       for (let entity of this.entityFinderRecord.exitingEntities) {
         this.system.exit(entity);
       }
-      this.isExistenceChanged = true;
+      this.isVisibilityChanged = true;
     }
   }
 
@@ -201,7 +201,7 @@ export class RecordSystemTicker<T, U extends T & Entity> implements SystemTicker
       for (let entity of this.entityFinderRecord.enteringEntities) {
         this.system.enter(entity);
       }
-      this.isExistenceChanged = true;
+      this.isVisibilityChanged = true;
     }
     for (let entity of this.entityFinderRecord.currentEntities) {
       this.system.update(entity, time);
@@ -209,9 +209,9 @@ export class RecordSystemTicker<T, U extends T & Entity> implements SystemTicker
   }
 
   secondForwardTick(time: Phaser.Time) {
-    if (this.isExistenceChanged) {
+    if (this.isVisibilityChanged) {
       this.system.finish();
-      this.isExistenceChanged = false;
+      this.isVisibilityChanged = false;
     }
   }
 }

@@ -1,7 +1,7 @@
-import ExistenceSystem from './ExistenceSystem';
+import VisibilitySystem from './VisibilitySystem';
 import {Renderable} from '../../alias';
 
-class CacheAsBitmapSystem implements ExistenceSystem<Renderable> {
+class CacheAsBitmapSystem implements VisibilitySystem<Renderable> {
   enter(entity: Renderable) {
     entity.display.cacheAsBitmap = true;
   }

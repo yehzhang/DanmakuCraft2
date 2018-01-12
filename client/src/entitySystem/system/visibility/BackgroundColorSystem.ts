@@ -1,5 +1,5 @@
 import {CommentEntity, Region} from '../../alias';
-import ExistenceSystem from './ExistenceSystem';
+import VisibilitySystem from './VisibilitySystem';
 import Point from '../../../util/syntax/Point';
 import Colors from '../../../render/Colors';
 import PhysicalConstants from '../../../PhysicalConstants';
@@ -7,7 +7,7 @@ import {Bag} from 'typescript-collections';
 import Polar from '../../../util/math/Polar';
 import {Phaser} from '../../../util/alias/phaser';
 
-class BackgroundColorSystem implements ExistenceSystem<Region<CommentEntity>> {
+class BackgroundColorSystem implements VisibilitySystem<Region<CommentEntity>> {
   private baseColor: Phaser.RGBColor;
 
   constructor(

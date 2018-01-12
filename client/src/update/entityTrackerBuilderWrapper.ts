@@ -1,4 +1,4 @@
-import ExistenceSystem from '../entitySystem/system/existence/ExistenceSystem';
+import VisibilitySystem from '../entitySystem/system/visibility/VisibilitySystem';
 import EntityFinder from '../util/entityStorage/EntityFinder';
 import TickSystem from '../entitySystem/system/tick/TickSystem';
 import EntityTrackerBuilder from './EntityTrackerBuilder';
@@ -27,7 +27,7 @@ class ApplyClause {
   constructor(protected builder: EntityTrackerBuilder, protected isOnUpdate: boolean) {
   }
 
-  applyExistenceSystem<T>(system: ExistenceSystem<T>): ToClause<T> {
+  applyVisibilitySystem<T>(system: VisibilitySystem<T>): ToClause<T> {
     return new ToClause(this.builder, system, this.isOnUpdate);
   }
 
@@ -40,7 +40,7 @@ class ApplyClause {
 class ToClause<T> {
   constructor(
       private builder: EntityTrackerBuilder,
-      private system: ExistenceSystem<T>,
+      private system: VisibilitySystem<T>,
       private isOnUpdate: boolean) {
   }
 
@@ -67,7 +67,7 @@ class OfClause<T, U> {
   }
 
   of<V extends T & Entity>(entityFinder: EntityFinder<V>): ApplyOrToOrOfOrBuildClause<T, U> {
-    this.builder.applyExistenceSystem(this.systemLifter.get(), entityFinder, this.isOnUpdate);
+    this.builder.applyVisibilitySystem(this.systemLifter.get(), entityFinder, this.isOnUpdate);
     return new ApplyOrToOrOfOrBuildClause(this.builder, this.systemLifter, this.isOnUpdate);
   }
 }
@@ -89,7 +89,7 @@ class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
   }
 
   and<V extends T & Entity>(entityFinder: EntityFinder<V>) {
-    this.builder.applyExistenceSystem(this.systemLifter.get(), entityFinder, this.isOnUpdate);
+    this.builder.applyVisibilitySystem(this.systemLifter.get(), entityFinder, this.isOnUpdate);
     return this;
   }
 
@@ -102,8 +102,8 @@ class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
   }
 }
 
-class LiftExistenceSystemSystem<T> implements ExistenceSystem<Region<T>> {
-  constructor(private system: ExistenceSystem<T>) {
+class LiftVisibilitySystemSystem<T> implements VisibilitySystem<Region<T>> {
+  constructor(private system: VisibilitySystem<T>) {
   }
 
   enter(region: Region<T>) {
@@ -131,19 +131,19 @@ class LiftExistenceSystemSystem<T> implements ExistenceSystem<Region<T>> {
 
 class SystemLifter<T, U> {
   constructor(
-      private liftedSystem: ExistenceSystem<T>,
-      private originalSystem: ExistenceSystem<U>) {
+      private liftedSystem: VisibilitySystem<T>,
+      private originalSystem: VisibilitySystem<U>) {
   }
 
   lifted(): SystemLifter<Region<T>, U> {
-    return new SystemLifter(new LiftExistenceSystemSystem(this.liftedSystem), this.originalSystem);
+    return new SystemLifter(new LiftVisibilitySystemSystem(this.liftedSystem), this.originalSystem);
   }
 
-  get(): ExistenceSystem<T> {
+  get(): VisibilitySystem<T> {
     return this.liftedSystem;
   }
 
-  getOriginal(): ExistenceSystem<U> {
+  getOriginal(): VisibilitySystem<U> {
     return this.originalSystem;
   }
 }

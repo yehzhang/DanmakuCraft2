@@ -1,8 +1,8 @@
-import ExistenceSystem from './ExistenceSystem';
+import VisibilitySystem from './VisibilitySystem';
 import {Renderable, RenderableEntity} from '../../alias';
 import {PIXI} from '../../../util/alias/phaser';
 
-class AddToContainerSystem implements ExistenceSystem<RenderableEntity> {
+class AddToContainerSystem implements VisibilitySystem<RenderableEntity> {
   constructor(private container: PIXI.DisplayObjectContainer) {
   }
 
