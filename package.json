@@ -5,7 +5,7 @@
   "main": "dist/bundle.js",
   "scripts": {
     "postinstall": "npm run server:link",
-    "server:link": "cd server && ln -s ../node_modules node_modules || ln -s ../package.json package.json || cd assets/static/ && ln -s ../../../build build || cd ../../..",
+    "server:link": "cd server; ln -s ../node_modules node_modules; ln -s ../package.json package.json; cd assets/static/; ln -s ../../../build build; cd ../../..",
     "client:build:dev": "webpack --watch --config client/webpack.dev.js",
     "client:build:stage": "webpack --watch --config client/webpack.stage.js",
     "client:build:prod": "webpack --config client/webpack.prod.js",
@@ -47,6 +47,7 @@
     "typescript": "^2.6.1",
     "webpack": "^3.8.1",
     "webpack-merge": "^4.1.1",
+    "webpack-watch-time-plugin": "^0.1.2",
     "xml2js": "^0.4.19"
   },
   "dependencies": {

@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const PACKAGE_DIR = require('app-root-path').toString();
 const SRC_DIR = path.resolve(__dirname, 'src');
 const PHASER_DIR = path.join(PACKAGE_DIR, 'node_modules/phaser-ce-type-updated');
+const WatchTimePlugin = require('webpack-watch-time-plugin');
 
 module.exports = {
   entry: `${SRC_DIR}/index.ts`,
@@ -47,6 +48,7 @@ module.exports = {
     new webpack.DefinePlugin({
       __WEBPACK__: JSON.stringify(true),
     }),
+    WatchTimePlugin,
   ],
   resolve: {
     extensions: ['.ts', '.js'],
@@ -61,5 +63,5 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.join(PACKAGE_DIR, 'build'),
-  },
+  }
 };
