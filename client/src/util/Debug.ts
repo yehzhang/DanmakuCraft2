@@ -11,7 +11,7 @@ import {asSequence} from 'sequency';
 import Distance from './math/Distance';
 import {NotificationPriority} from '../render/notification/Notifier';
 import ConfigProvider from '../environment/config/ConfigProvider';
-import Updater from '../update/Updater';
+import Visibility from '../engine/visibility/Visibility';
 import CommentDataUtil from '../../../scripts/CommentDataUtil';
 import {Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
@@ -34,13 +34,12 @@ class Debug {
       universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
     }
 
-    asSequence([
-      universe.updater['foregroundTracker'],
-      universe.updater['backgroundTracker']])
-        .flatMap(
-            tracker => asSequence([tracker['onUpdateSystemTickers'], tracker['onRenderSystemTickers']]))
+    asSequence(universe.visibility['engines']).flatMap(
+        engine => asSequence([engine['onUpdateSystemTickers'], engine['onRenderSystemTickers']]))
+        .plus<any>(asSequence(universe.existence['engines']).flatMap(
+            engine => asSequence([engine['onUpdateRelations'], engine['onRenderRelations']])))
         .flatten()
-        .map(ticker => (ticker as any)['system'])
+        .map(systemHolder => (systemHolder as any)['system'])
         .distinct()
         .forEach(system => {
           let systemName = system.constructor.name;
@@ -158,16 +157,12 @@ class Debug {
             chest => this.debugInfo.line('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
 
     // TODO refactor to add to container system
-    // let closestComment: Entity = asSequence(this.universe.updater.collisionDetectionSystem['currentRegions'])
-    //     .flatMap(region => asSequence(region.container))
-    //     .minBy((entity: any) =>
-    //         Distance.roughlyOf(entity.coordinates, this.universe.player.coordinates)) as any;
-    // if (closestComment) {
-    //   this.debugInfo.line(
-    //       'Comment',
-    //       closestComment.coordinates,
-    //       UpdatingBuffCarrier.isTypeOf(closestComment) ? 'updating' : '');
-    // }
+    // let closestComment: Entity =
+    // asSequence(this.universe.visibility.collisionDetectionSystem['currentRegions'])
+    // .flatMap(region => asSequence(region.container)) .minBy((entity: any) =>
+    // Distance.roughlyOf(entity.coordinates, this.universe.player.coordinates)) as any; if
+    // (closestComment) { this.debugInfo.line( 'Comment', closestComment.coordinates,
+    // UpdatingBuffCarrier.isTypeOf(closestComment) ? 'updating' : ''); }
   }
 
   private getNotificationMessage() {
@@ -253,7 +248,7 @@ class DebugInfo {
 
     this.line('Player', this.player.coordinates, '', true);
     this.line(`FPS: ${this.game.time.fps}`);
-    this.line(`Render radius: ${Updater['getRenderRadius'](this.game)}`);
+    this.line(`Render radius: ${Visibility['getRenderRadius'](this.game)}`);
     this.line(`Camera focus`, this.game.camera.position, undefined, true);
 
     return this;

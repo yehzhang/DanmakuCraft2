@@ -32,7 +32,7 @@ import UniverseProxyImpl from './environment/component/gameWorld/UniverseProxyIm
 import NotifierFactoryImpl from './render/notification/NotifierFactoryImpl';
 import CommentLoaderImpl from './comment/CommentLoaderImpl';
 import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentPlacingPolicyImpl';
-import Updater from './update/Updater';
+import Visibility from './engine/visibility/Visibility';
 import {Phaser} from './util/alias/phaser';
 import Existence from './engine/existence/Existence';
 
@@ -61,7 +61,7 @@ class Universe extends Phaser.State {
   public commentPreviewStorage: EntityStorage<UpdatingCommentEntity>;
   public proxy: UniverseProxy;
   public previewCommentLoader: CommentLoader;
-  public updater: Updater;
+  public visibility: Visibility;
   public existence: Existence;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
@@ -121,19 +121,18 @@ class Universe extends Phaser.State {
         this.entityFactory,
         this.buffDataApplier);
 
+    this.visibility = Visibility.on(this);
     this.existence = Existence.on(this);
-
-    this.updater = Updater.on(this);
 
     this.proxy = new UniverseProxyImpl(
         game,
         new CommentPlacingPolicyImpl(
-            this.updater.collisionDetectionSystem,
+            this.visibility.collisionDetectionSystem,
             this.previewCommentLoader,
             this.notifier,
             this.buffDataContainer,
             this.player,
-            this.updater.synchronizeUpdateSystem),
+            this.visibility.synchronizeUpdateSystem),
         this.notifier);
   }
 
@@ -190,13 +189,13 @@ class Universe extends Phaser.State {
 
   update() {
     // TODO merge into one.
-    this.existence.update();
-    this.updater.update();
+    this.existence.update(this.game.time);
+    this.visibility.update(this.game.time);
   }
 
   render() {
-    this.existence.render();
-    this.updater.render();
+    this.existence.render(this.game.time);
+    this.visibility.render(this.game.time);
   }
 
   async loadComments(): Promise<void> {

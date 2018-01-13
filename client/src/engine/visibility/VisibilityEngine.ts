@@ -1,20 +1,21 @@
-import EntityFinder, {ExistenceUpdatedEvent} from '../util/entityStorage/EntityFinder';
-import Entity from '../entitySystem/Entity';
-import VisibilitySystem from '../entitySystem/system/visibility/VisibilitySystem';
-import EntityTrackerBuilder from './EntityTrackerBuilder';
-import {OnOrBuildClause} from './entityTrackerBuilderWrapper';
-import Point from '../util/syntax/Point';
-import DynamicProvider from '../util/DynamicProvider';
-import Distance from '../util/math/Distance';
+import EntityFinder, {ExistenceUpdatedEvent} from '../../util/entityStorage/EntityFinder';
+import Entity from '../../entitySystem/Entity';
+import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
+import VisibilityEngineBuilder from './VisibilityEngineBuilder';
+import {OnOrBuildClause} from './visibilityEngineBuilderWrapper';
+import Point from '../../util/syntax/Point';
+import DynamicProvider from '../../util/DynamicProvider';
+import Distance from '../../util/math/Distance';
 import {asSequence} from 'sequency';
-import TickSystem from '../entitySystem/system/tick/TickSystem';
+import TickSystem from '../../entitySystem/system/tick/TickSystem';
+import SystemEngine from '../SystemEngine';
 
 /**
  * Tracks an animated entity and triggers callbacks whenever the entity moves from one region to
  * another.
  * The entity must be animated because otherwise it never updates, and thus requires no tracking.
  */
-class EntityTracker {
+class VisibilityEngine implements SystemEngine {
   constructor(
       private trackee: Entity,
       private samplingRadius: DynamicProvider<number>,
@@ -27,7 +28,7 @@ class EntityTracker {
   }
 
   static newBuilder(trackee: Entity, samplingRadius: DynamicProvider<number>) {
-    let builder = new EntityTrackerBuilder(trackee, samplingRadius);
+    let builder = new VisibilityEngineBuilder(trackee, samplingRadius);
     return new OnOrBuildClause(builder);
   }
 
@@ -50,7 +51,7 @@ class EntityTracker {
         .onEach(record => record.update(nextCoordinates, samplingRadius))
         .toArray();
 
-    EntityTracker.tickSystemTickers(this.onUpdateSystemTickers, time);
+    VisibilityEngine.tickSystemTickers(this.onUpdateSystemTickers, time);
 
     this.samplingRadius.commitUpdate();
     if (this.updatedRecords.length === this.entityFinderRecords.length) {
@@ -59,7 +60,7 @@ class EntityTracker {
   }
 
   render(time: Phaser.Time) {
-    EntityTracker.tickSystemTickers(this.onRenderSystemTickers, time);
+    VisibilityEngine.tickSystemTickers(this.onRenderSystemTickers, time);
     this.commitRecordsUpdate();
   }
 
@@ -85,7 +86,7 @@ class EntityTracker {
   }
 }
 
-export default EntityTracker;
+export default VisibilityEngine;
 
 export class EntityFinderRecord<T extends Entity> {
   constructor(

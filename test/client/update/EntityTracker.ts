@@ -3,10 +3,10 @@ import {expect} from 'chai';
 import Point from '../../../client/src/util/syntax/Point';
 import Entity from '../../../client/src/entitySystem/Entity';
 import DynamicProvider from '../../../client/src/util/DynamicProvider';
-import EntityTracker, {
+import VisibilityEngine, {
   DistanceChecker, EntityFinderRecord, SystemTicker,
   TickSystemTicker
-} from '../../../client/src/update/EntityTracker';
+} from '../../../client/src/engine/visibility/VisibilityEngine';
 import Distance from '../../../client/src/util/math/Distance';
 import {Phaser} from '../../../client/src/util/alias/phaser';
 import EntityFinder, {ExistenceUpdatedEvent} from '../../../client/src/util/entityStorage/EntityFinder';
@@ -15,7 +15,7 @@ import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/Chun
 const NEXT_SAMPLING_RADIUS = 10;
 const NEXT_COORDINATES = Point.of(100, 100);
 
-describe('EntityTracker', () => {
+describe('VisibilityEngine', () => {
   let mockTrackee: Entity;
   let mockSamplingRadius: DynamicProvider<number>;
   let mockSystemTickers: SystemTicker[];
@@ -24,7 +24,7 @@ describe('EntityTracker', () => {
   let mockDistanceChecker: DistanceChecker;
   let mockDistance: Distance;
   let time: Phaser.Time;
-  let entityTracker: EntityTracker;
+  let visibilityEngine: VisibilityEngine;
   let currentCoordinates: Point;
   let entityFinderRecords: Array<EntityFinderRecord<Entity>>;
 
@@ -49,7 +49,7 @@ describe('EntityTracker', () => {
     when(mockSamplingRadius.getValue()).thenReturn(NEXT_SAMPLING_RADIUS);
     when(mockDistanceChecker.updatingDistance).thenReturn(instance(mockDistance));
 
-    entityTracker = new EntityTracker(
+    visibilityEngine = new VisibilityEngine(
         instance(mockTrackee),
         instance(mockSamplingRadius),
         systemTickers,
@@ -62,7 +62,7 @@ describe('EntityTracker', () => {
   it('should update all records when out of update radius', () => {
     when(mockDistance.isClose(NEXT_COORDINATES, deepEqual(currentCoordinates))).thenReturn(false);
 
-    entityTracker.update(time);
+    visibilityEngine.update(time);
 
     verify(mockDistance.isClose(NEXT_COORDINATES, deepEqual(currentCoordinates))).once();
     verify(mockDistance.isClose(NEXT_COORDINATES, deepEqual(currentCoordinates))).once();
@@ -74,7 +74,7 @@ describe('EntityTracker', () => {
     when(mockDistance.isClose(NEXT_COORDINATES, deepEqual(currentCoordinates))).thenReturn(true);
     when(mockSamplingRadius.hasUpdate()).thenReturn(true);
 
-    entityTracker.update(time);
+    visibilityEngine.update(time);
 
     verify(mockSamplingRadius.hasUpdate()).once();
     verify(mockEntityFinderRecords[0].shouldUpdate(anything(), anything())).never();
@@ -88,7 +88,7 @@ describe('EntityTracker', () => {
     when(mockEntityFinderRecords[1].shouldUpdate(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn(true);
 
-    entityTracker.update(time);
+    visibilityEngine.update(time);
 
     verify(mockEntityFinderRecords[0].shouldUpdate(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
     verify(mockEntityFinderRecords[1].shouldUpdate(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
@@ -97,7 +97,7 @@ describe('EntityTracker', () => {
   });
 
   it('should update tickers once for each procedure', () => {
-    entityTracker.update(time);
+    visibilityEngine.update(time);
 
     verify(mockSystemTickers[0].firstForwardTick(time)).once();
     verify(mockSystemTickers[1].firstForwardTick(time)).once();
@@ -108,7 +108,7 @@ describe('EntityTracker', () => {
   });
 
   it('should update tickers in order', () => {
-    entityTracker.update(time);
+    visibilityEngine.update(time);
 
     verify(mockSystemTickers[1].backwardTick(time))
         .calledBefore(mockSystemTickers[0].backwardTick(time));
@@ -123,14 +123,14 @@ describe('EntityTracker', () => {
   });
 
   it('should update current coordinates when out of updating radius', () => {
-    entityTracker.update(time);
+    visibilityEngine.update(time);
     expect(currentCoordinates).to.deep.equal(NEXT_COORDINATES);
   });
 
   it('should update current coordinates when sampling radius is changed', () => {
     when(mockSamplingRadius.hasUpdate()).thenReturn(true);
 
-    entityTracker.update(time);
+    visibilityEngine.update(time);
 
     expect(currentCoordinates).to.deep.equal(NEXT_COORDINATES);
   });
@@ -140,7 +140,7 @@ describe('EntityTracker', () => {
     when(mockEntityFinderRecords[0].shouldUpdate(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn(true);
 
-    entityTracker.update(time);
+    visibilityEngine.update(time);
 
     expect(currentCoordinates).to.deep.equal(Point.origin());
   });
@@ -148,7 +148,7 @@ describe('EntityTracker', () => {
   it('should commit sampling radius changes', () => {
     when(mockSamplingRadius.hasUpdate()).thenReturn(true);
 
-    entityTracker.update(time);
+    visibilityEngine.update(time);
 
     verify(mockSamplingRadius.commitUpdate()).once();
   });
@@ -159,7 +159,7 @@ describe('EntityFinderRecord', () => {
   let mockEntityFinder: EntityFinder<Entity>;
   let mockDistanceChecker: DistanceChecker;
   let entities: Entity[];
-  let entityExistenceUpdated: Phaser.Signal;
+  let entityExistenceUpdated: Phaser.Signal<ExistenceUpdatedEvent<Entity>>;
 
   beforeEach(() => {
     entityExistenceUpdated = new Phaser.Signal();

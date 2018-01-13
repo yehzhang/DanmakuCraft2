@@ -4,15 +4,15 @@ class SystemEnginesEngine<T extends SystemEngine> implements SystemEngine {
   constructor(private engines: T[]) {
   }
 
-  update() {
+  update(time: Phaser.Time) {
     for (let engine of this.engines) {
-      engine.update();
+      engine.update(time);
     }
   }
 
-  render() {
+  render(time: Phaser.Time) {
     for (let engine of this.engines) {
-      engine.render();
+      engine.render(time);
     }
   }
 }

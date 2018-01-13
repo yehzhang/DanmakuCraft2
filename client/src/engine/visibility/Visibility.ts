@@ -1,31 +1,30 @@
-import EntityTracker from './EntityTracker';
-import Universe from '../Universe';
+import VisibilityEngine from './VisibilityEngine';
+import Universe from '../../Universe';
 import ChestSystem, {
   ChestDemolisher, ChestOpener,
   ChestSpawner
-} from '../entitySystem/system/ChestSystem';
-import MovingAnimationSystem from '../entitySystem/system/visibility/MovingAnimationSystem';
-import CollisionDetectionSystem from '../entitySystem/system/visibility/CollisionDetectionSystem';
-import PhysicalConstants from '../PhysicalConstants';
-import UpdateSystem from '../entitySystem/system/visibility/UpdateSystem';
-import DynamicProvider from '../util/DynamicProvider';
-import BackgroundColorSystem from '../entitySystem/system/visibility/BackgroundColorSystem';
-import AddChildSystem from '../entitySystem/system/visibility/AddChildSystem';
-import UnmovableDisplayPositioningSystem from '../entitySystem/system/visibility/UnmovableDisplayPositioningSystem';
-import {Phaser} from '../util/alias/phaser';
-import CommitMotionSystem from '../entitySystem/system/visibility/CommitMotionSystem';
-import MoveDisplaySystem from '../entitySystem/system/tick/MoveDisplaySystem';
-import SynchronizeLifecycleSystem from '../entitySystem/system/visibility/SynchronizeLifecycleSystem';
+} from '../../entitySystem/system/ChestSystem';
+import MovingAnimationSystem from '../../entitySystem/system/visibility/MovingAnimationSystem';
+import CollisionDetectionSystem from '../../entitySystem/system/visibility/CollisionDetectionSystem';
+import PhysicalConstants from '../../PhysicalConstants';
+import UpdateSystem from '../../entitySystem/system/visibility/UpdateSystem';
+import DynamicProvider from '../../util/DynamicProvider';
+import BackgroundColorSystem from '../../entitySystem/system/visibility/BackgroundColorSystem';
+import AddChildSystem from '../../entitySystem/system/visibility/AddChildSystem';
+import UnmovableDisplayPositioningSystem from '../../entitySystem/system/visibility/UnmovableDisplayPositioningSystem';
+import {Phaser} from '../../util/alias/phaser';
+import CommitMotionSystem from '../../entitySystem/system/visibility/CommitMotionSystem';
+import MoveDisplaySystem from '../../entitySystem/system/tick/MoveDisplaySystem';
+import SynchronizeLifecycleSystem from '../../entitySystem/system/visibility/SynchronizeLifecycleSystem';
+import SystemEnginesEngine from '../SystemEnginesEngine';
 
-class Updater {
+class Visibility extends SystemEnginesEngine<VisibilityEngine> {
   constructor(
-      private game: Phaser.Game,
-      private time: Phaser.Time,
-      private foregroundTracker: EntityTracker,
-      private backgroundTracker: EntityTracker,
+      engines: VisibilityEngine[],
       readonly collisionDetectionSystem: CollisionDetectionSystem,
       readonly synchronizeUpdateSystem: SynchronizeLifecycleSystem,
       readonly synchronizeRenderSystem: SynchronizeLifecycleSystem) {
+    super(engines);
   }
 
   static on(universe: Universe) {
@@ -61,7 +60,7 @@ class Updater {
 
     let player = universe.player;
 
-    let foregroundTrackerBuilder = EntityTracker.newBuilder(player, renderRadius);
+    let foregroundTrackerBuilder = VisibilityEngine.newBuilder(player, renderRadius);
     foregroundTrackerBuilder.onUpdate()
         .applyVisibilitySystem(new UpdateSystem())
         .toEntities().of(playersFinder).and(commentPreviewFinder)
@@ -102,17 +101,14 @@ class Updater {
         .applyVisibilitySystem(new CommitMotionSystem())
         .toEntities().of(playersFinder);
 
-    let backgroundTrackerBuilder = EntityTracker.newBuilder(
+    let backgroundTrackerBuilder = VisibilityEngine.newBuilder(
         player, new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS));
     backgroundTrackerBuilder.onRender()
         .applyVisibilitySystem(new BackgroundColorSystem(universe.game))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder);
 
     return new this(
-        universe.game,
-        universe.game.time,
-        foregroundTrackerBuilder.build(),
-        backgroundTrackerBuilder.build(),
+        [foregroundTrackerBuilder.build(), backgroundTrackerBuilder.build()],
         collisionDetectionSystem,
         synchronizeUpdateSystem,
         synchronizeRenderSystem);
@@ -121,16 +117,6 @@ class Updater {
   private static getRenderRadius(game: Phaser.Game) {
     return PhysicalConstants.getRenderRadius(game.width, game.height);
   }
-
-  update() {
-    this.foregroundTracker.update(this.time);
-    this.backgroundTracker.update(this.time);
-  }
-
-  render() {
-    this.foregroundTracker.render(this.time);
-    this.backgroundTracker.render(this.time);
-  }
 }
 
-export default Updater;
+export default Visibility;

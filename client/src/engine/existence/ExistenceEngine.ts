@@ -9,7 +9,7 @@ import {asSequence} from 'sequency';
 class ExistenceEngine {
   constructor(
       private onUpdateRelations: ExistenceRelation[],
-      private onRenderRelation: ExistenceRelation[]) {
+      private onRenderRelations: ExistenceRelation[]) {
   }
 
   static newBuilder() {
@@ -28,7 +28,7 @@ class ExistenceEngine {
   }
 
   render() {
-    ExistenceEngine.tickRelations(this.onRenderRelation);
+    ExistenceEngine.tickRelations(this.onRenderRelations);
   }
 }
 

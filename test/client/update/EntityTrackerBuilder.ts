@@ -1,4 +1,4 @@
-import EntityTrackerBuilder from '../../../client/src/update/EntityTrackerBuilder';
+import VisibilityEngineBuilder from '../../../client/src/engine/visibility/VisibilityEngineBuilder';
 import {instance, mock, when} from 'ts-mockito';
 import Entity from '../../../client/src/entitySystem/Entity';
 import DynamicProvider from '../../../client/src/util/DynamicProvider';
@@ -13,8 +13,8 @@ import {Phaser} from '../../../client/src/util/alias/phaser';
 import MoveDisplaySystem from '../../../client/src/entitySystem/system/tick/MoveDisplaySystem';
 import BackgroundColorSystem from '../../../client/src/entitySystem/system/visibility/BackgroundColorSystem';
 
-describe('EntityTrackerBuilder', () => {
-  let builder: EntityTrackerBuilder;
+describe('VisibilityEngineBuilder', () => {
+  let builder: VisibilityEngineBuilder;
   let mockTrackee: Entity;
   let mockEntityFinders: Array<EntityFinder<Entity>>;
   let entityFinders: Array<EntityFinder<Entity>>;
@@ -46,7 +46,7 @@ describe('EntityTrackerBuilder', () => {
     when(mockEntityFinders[1].entityExistenceUpdated).thenReturn(new Phaser.Signal());
     when(mockTrackee.coordinates).thenReturn(Point.origin());
 
-    builder = new EntityTrackerBuilder(instance(mockTrackee), new DynamicProvider(0))
+    builder = new VisibilityEngineBuilder(instance(mockTrackee), new DynamicProvider(0))
         .applyTickSystem(tickSystems[0], false)
         .applyVisibilitySystem(visibilitySystems[0], entityFinders[1], false)
         .applyTickSystem(tickSystems[1], false)

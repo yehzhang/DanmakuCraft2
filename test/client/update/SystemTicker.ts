@@ -1,7 +1,7 @@
 import {
   EntityFinderRecord, RecordSystemTicker, SystemTicker,
   TickSystemTicker
-} from '../../../client/src/update/EntityTracker';
+} from '../../../client/src/engine/visibility/VisibilityEngine';
 import VisibilitySystem from '../../../client/src/entitySystem/system/visibility/VisibilitySystem';
 import Entity from '../../../client/src/entitySystem/Entity';
 import {instance, mock, resetCalls, verify, when} from 'ts-mockito';

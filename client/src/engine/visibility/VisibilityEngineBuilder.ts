@@ -1,16 +1,16 @@
-import Entity from '../entitySystem/Entity';
-import EntityFinder from '../util/entityStorage/EntityFinder';
-import VisibilitySystem from '../entitySystem/system/visibility/VisibilitySystem';
-import DynamicProvider from '../util/DynamicProvider';
-import PhysicalConstants from '../PhysicalConstants';
-import EntityTracker, {
+import Entity from '../../entitySystem/Entity';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
+import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
+import DynamicProvider from '../../util/DynamicProvider';
+import PhysicalConstants from '../../PhysicalConstants';
+import VisibilityEngine, {
   DistanceChecker, EntityFinderRecord, RecordSystemTicker, SystemTicker,
   TickSystemTicker,
-} from './EntityTracker';
-import TickSystem from '../entitySystem/system/tick/TickSystem';
+} from './VisibilityEngine';
+import TickSystem from '../../entitySystem/system/tick/TickSystem';
 import {asSequence} from 'sequency';
 
-export class EntityTrackerBuilder {
+export class VisibilityEngineBuilder {
   constructor(
       private trackee: Entity,
       private samplingRadius: DynamicProvider<number>,
@@ -47,7 +47,7 @@ export class EntityTrackerBuilder {
     if (!asSequence([this.onUpdateSystemTickers, this.onUpdateSystemTickers]).any()) {
       throw new TypeError('No systems were applied');
     }
-    return new EntityTracker(
+    return new VisibilityEngine(
         this.trackee,
         this.samplingRadius,
         this.onUpdateSystemTickers,
@@ -68,4 +68,4 @@ export class EntityTrackerBuilder {
   }
 }
 
-export default EntityTrackerBuilder;
+export default VisibilityEngineBuilder;

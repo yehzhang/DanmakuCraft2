@@ -1,13 +1,13 @@
-import VisibilitySystem from '../entitySystem/system/visibility/VisibilitySystem';
-import EntityFinder from '../util/entityStorage/EntityFinder';
-import TickSystem from '../entitySystem/system/tick/TickSystem';
-import EntityTrackerBuilder from './EntityTrackerBuilder';
-import {Region} from '../entitySystem/alias';
-import Entity from '../entitySystem/Entity';
-import EntityTracker from './EntityTracker';
+import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
+import TickSystem from '../../entitySystem/system/tick/TickSystem';
+import VisibilityEngineBuilder from './VisibilityEngineBuilder';
+import {Region} from '../../entitySystem/alias';
+import Entity from '../../entitySystem/Entity';
+import VisibilityEngine from './VisibilityEngine';
 
 export class OnOrBuildClause {
-  constructor(protected builder: EntityTrackerBuilder) {
+  constructor(protected builder: VisibilityEngineBuilder) {
   }
 
   onUpdate(): ApplyClause {
@@ -18,13 +18,13 @@ export class OnOrBuildClause {
     return new ApplyClause(this.builder, false);
   }
 
-  build(): EntityTracker {
+  build(): VisibilityEngine {
     return this.builder.build();
   }
 }
 
 class ApplyClause {
-  constructor(protected builder: EntityTrackerBuilder, protected isOnUpdate: boolean) {
+  constructor(protected builder: VisibilityEngineBuilder, protected isOnUpdate: boolean) {
   }
 
   applyVisibilitySystem<T>(system: VisibilitySystem<T>): ToClause<T> {
@@ -39,7 +39,7 @@ class ApplyClause {
 
 class ToClause<T> {
   constructor(
-      private builder: EntityTrackerBuilder,
+      private builder: VisibilityEngineBuilder,
       private system: VisibilitySystem<T>,
       private isOnUpdate: boolean) {
   }
@@ -61,7 +61,7 @@ class ToClause<T> {
 
 class OfClause<T, U> {
   constructor(
-      private builder: EntityTrackerBuilder,
+      private builder: VisibilityEngineBuilder,
       private systemLifter: SystemLifter<T, U>,
       private isOnUpdate: boolean) {
   }
@@ -74,7 +74,7 @@ class OfClause<T, U> {
 
 class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
   constructor(
-      builder: EntityTrackerBuilder,
+      builder: VisibilityEngineBuilder,
       private systemLifter: SystemLifter<T, U>,
       isOnUpdate: boolean) {
     super(builder, isOnUpdate);
@@ -93,12 +93,12 @@ class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
     return this;
   }
 
-  private createOriginalToClause() {
-    return new ToClause(this.builder, this.systemLifter.getOriginal(), this.isOnUpdate);
-  }
-
   build() {
     return this.builder.build();
+  }
+
+  private createOriginalToClause() {
+    return new ToClause(this.builder, this.systemLifter.getOriginal(), this.isOnUpdate);
   }
 }
 
