@@ -1,6 +1,6 @@
 import NotifierFactory from './NotifierFactory';
 import PoppingNotifier from './PoppingNotifier';
-import GraphicsFactory from '../graphics/GraphicsFactory';
+import GraphicsFactory from '../../render/graphics/GraphicsFactory';
 import Point from '../../util/syntax/Point';
 import {Phaser} from '../../util/alias/phaser';
 

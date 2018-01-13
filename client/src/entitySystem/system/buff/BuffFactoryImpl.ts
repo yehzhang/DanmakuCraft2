@@ -1,6 +1,6 @@
 import Chromatic, {BouncingColorTransition} from './Chromatic';
 import BuffFactory from './BuffFactory';
-import Controller from '../../../controller/Controller';
+import Controller from '../../../input/Controller';
 import Moving from './Moving';
 import Hasty from './Hasty';
 import LawFactory from '../../../law/LawFactory';

@@ -1,5 +1,5 @@
 import BaseNotifier from './BaseNotifier';
-import {NotifierView} from '../graphics/GraphicsFactory';
+import {NotifierView} from '../../render/graphics/GraphicsFactory';
 import ConditionalVariable from '../../util/async/ConditionalVariable';
 import {NotificationPriority} from './Notifier';
 import {Phaser} from '../../util/alias/phaser';

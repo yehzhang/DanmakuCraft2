@@ -1,6 +1,6 @@
 import {MovableEntity} from '../../alias';
 import PermanentlyUpdatingBuff from './PermanentlyUpdatingBuff';
-import Controller from '../../../controller/Controller';
+import Controller from '../../../input/Controller';
 import PhysicalConstants from '../../../PhysicalConstants';
 import {Phaser} from '../../../util/alias/phaser';
 

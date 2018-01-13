@@ -3,7 +3,7 @@ import CommentData from '../../../comment/CommentData';
 import CollisionDetectionSystem from '../../../entitySystem/system/visibility/CollisionDetectionSystem';
 import BuffDataContainer from '../../../entitySystem/system/buff/BuffDataContainer';
 import CommentLoader from '../../../comment/CommentLoader';
-import Notifier, {NotificationPriority} from '../../../render/notification/Notifier';
+import Notifier, {NotificationPriority} from '../../../output/notification/Notifier';
 import {CommentEntity, Player} from '../../../entitySystem/alias';
 import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffData';
 import Texts from '../../../render/Texts';

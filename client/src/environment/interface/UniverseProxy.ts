@@ -1,5 +1,5 @@
 import CommentPlacingPolicy from './CommentPlacingPolicy';
-import Notifier from '../../render/notification/Notifier';
+import Notifier from '../../output/notification/Notifier';
 import {Phaser} from '../../util/alias/phaser';
 
 interface UniverseProxy {

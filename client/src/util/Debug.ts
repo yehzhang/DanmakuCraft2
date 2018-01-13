@@ -9,7 +9,7 @@ import PhysicalConstants from '../PhysicalConstants';
 import {toWorldCoordinateOffset2d} from '../law/space';
 import {asSequence} from 'sequency';
 import Distance from './math/Distance';
-import {NotificationPriority} from '../render/notification/Notifier';
+import {NotificationPriority} from '../output/notification/Notifier';
 import ConfigProvider from '../environment/config/ConfigProvider';
 import Visibility from '../engine/visibility/Visibility';
 import CommentDataUtil from '../../../scripts/CommentDataUtil';

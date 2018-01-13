@@ -1,6 +1,6 @@
 import UniverseProxy from '../../interface/UniverseProxy';
 import CommentPlacingPolicy from '../../interface/CommentPlacingPolicy';
-import Notifier from '../../../render/notification/Notifier';
+import Notifier from '../../../output/notification/Notifier';
 import {Phaser} from '../../../util/alias/phaser';
 
 class UniverseProxyImpl implements UniverseProxy {

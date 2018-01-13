@@ -3,7 +3,7 @@ import {ChestEntity} from '../alias';
 import VisibilitySystem from './visibility/VisibilitySystem';
 import BuffDataApplier from './buff/BuffDataApplier';
 import ChestLaw from '../../law/ChestLaw';
-import Notifier, {NotificationPriority} from '../../render/notification/Notifier';
+import Notifier, {NotificationPriority} from '../../output/notification/Notifier';
 import BuffDescription from './buff/BuffDescription';
 import EntityFactory from '../EntityFactory';
 import Point from '../../util/syntax/Point';
