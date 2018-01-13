@@ -1,8 +1,9 @@
 import TickSystem from './TickSystem';
-import {MovableEntity, Renderable} from '../../alias';
+import {MovableEntity} from '../../alias';
+import Display from '../../component/Display';
 
 class MoveDisplaySystem implements TickSystem {
-  constructor(private anchor: MovableEntity & Renderable) {
+  constructor(private anchor: MovableEntity & Display) {
   }
 
   tick() {

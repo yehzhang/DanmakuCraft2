@@ -1,21 +1,22 @@
 import VisibilitySystem from './VisibilitySystem';
-import {Region, Renderable} from '../../alias';
+import {Region} from '../../alias';
 import {asSequence} from 'sequency';
 import {PIXI} from '../../../util/alias/phaser';
+import Display from '../../component/Display';
 
 class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer>
-    implements VisibilitySystem<Region<Renderable<T>>> {
-  constructor(private currentRegions: Set<Region<Renderable<T>>> = new Set()) {
+    implements VisibilitySystem<Region<Display<T>>> {
+  constructor(private currentRegions: Set<Region<Display<T>>> = new Set()) {
   }
 
-  enter(region: Region<Renderable<T>>) {
+  enter(region: Region<Display<T>>) {
     this.currentRegions.add(region);
   }
 
-  update(region: Region<Renderable<T>>) {
+  update(region: Region<Display<T>>) {
   }
 
-  exit(region: Region<Renderable<T>>) {
+  exit(region: Region<Display<T>>) {
     this.currentRegions.delete(region);
   }
 
@@ -32,7 +33,7 @@ class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.Disp
     });
   }
 
-  collidesIf(callback: (entity: Renderable<T>) => boolean) {
+  collidesIf(callback: (entity: Display<T>) => boolean) {
     return asSequence(this.currentRegions)
         .flatMap(region => asSequence(region.container))
         .any(callback);

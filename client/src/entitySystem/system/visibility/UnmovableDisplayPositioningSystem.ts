@@ -1,20 +1,22 @@
 import VisibilitySystem from './VisibilitySystem';
-import {Renderable, RenderableEntity, StationaryEntity} from '../../alias';
+import {StationaryEntity} from '../../alias';
 import Point from '../../../util/syntax/Point';
+import Entity from '../../Entity';
+import Display from '../../component/Display';
 
-class UnmovableDisplayPositioningSystem implements VisibilitySystem<StationaryEntity & Renderable> {
-  constructor(private anchor: RenderableEntity) {
+class UnmovableDisplayPositioningSystem implements VisibilitySystem<StationaryEntity & Display> {
+  constructor(private anchor: Entity & Display) {
   }
 
-  enter(entity: StationaryEntity & Renderable) {
+  enter(entity: StationaryEntity & Display) {
     entity.display.position =
         Point.add(entity.asOffsetTo(this.anchor.coordinates), this.anchor.display.position);
   }
 
-  update(entity: StationaryEntity & Renderable) {
+  update(entity: StationaryEntity & Display) {
   }
 
-  exit(entity: StationaryEntity & Renderable) {
+  exit(entity: StationaryEntity & Display) {
   }
 
   finish() {

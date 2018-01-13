@@ -1,6 +1,6 @@
-import {ExistentEntity} from '../entitySystem/alias';
 import {Phaser, PIXI} from '../util/alias/phaser';
 import Colors from './Colors';
+import Display from '../entitySystem/component/Display';
 
 class Renderer {
   constructor(
@@ -21,7 +21,7 @@ class Renderer {
     floatingLayer.addChild(updatingCommentsLayer);
   }
 
-  focus(entity: ExistentEntity<Phaser.Sprite>) {
+  focus(entity: Display<Phaser.Sprite>) {
     this.game.camera.follow(entity.display, Phaser.Camera.FOLLOW_LOCKON);
 
     // Allow camera to move out of the world.

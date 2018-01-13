@@ -1,19 +1,19 @@
 import VisibilitySystem from './VisibilitySystem';
-import {Renderable, RenderableEntity} from '../../alias';
 import {PIXI} from '../../../util/alias/phaser';
+import Display from '../../component/Display';
 
-class AddChildSystem implements VisibilitySystem<RenderableEntity> {
+class AddChildSystem implements VisibilitySystem<Display> {
   constructor(private container: PIXI.DisplayObjectContainer) {
   }
 
-  enter(entity: RenderableEntity) {
+  enter(entity: Display) {
     this.container.addChild(entity.display);
   }
 
-  update(entity: RenderableEntity) {
+  update(entity: Display) {
   }
 
-  exit(entity: Renderable) {
+  exit(entity: Display) {
     this.container.removeChild(entity.display);
   }
 
