@@ -43,6 +43,7 @@ class Debug {
         .distinct()
         .forEach(system => {
           let systemName = system.constructor.name;
+          systemName = systemName.charAt(0).toLowerCase() + systemName.slice(1);
           if (systems.hasOwnProperty(systemName)) {
             if (systems[systemName] instanceof Array) {
               systems[systemName].push(system);
