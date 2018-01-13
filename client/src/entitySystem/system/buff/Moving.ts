@@ -11,7 +11,7 @@ class Moving extends PermanentlyUpdatingBuff<MovableEntity> {
 
   tick(entity: MovableEntity, time: Phaser.Time) {
     let moveDistance = Math.round(PhysicalConstants.PLAYER_MOVE_DISTANCE_PER_SECOND
-        * time.physicsElapsed
+        * (time.elapsedMS / Phaser.Timer.SECOND)
         * entity.moveSpeedBoostRatio);
     // TODO impl damping
     let moveDistanceX = 0;
