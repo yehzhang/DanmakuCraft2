@@ -35,6 +35,8 @@ import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentP
 import Visibility from './engine/visibility/Visibility';
 import {Phaser} from './util/alias/phaser';
 import Existence from './engine/existence/Existence';
+import DynamicProvider from './util/DynamicProvider';
+import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -63,9 +65,12 @@ class Universe extends Phaser.State {
   public previewCommentLoader: CommentLoader;
   public visibility: Visibility;
   public existence: Existence;
+  public isStarted: DynamicProvider<boolean>;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     super();
+
+    this.isStarted = new DynamicProvider(false);
 
     this.buffDataContainer = new BuffDataContainer();
 
@@ -121,8 +126,26 @@ class Universe extends Phaser.State {
         this.entityFactory,
         this.buffDataApplier);
 
-    this.visibility = Visibility.on(this);
-    this.existence = Existence.on(this);
+    let systemFactory = new SystemFactoryImpl(
+        this.game,
+        this.lawFactory,
+        this.player,
+        this.buffDataApplier,
+        this.buffDescription,
+        this.notifier,
+        this.entityFactory);
+    this.visibility = Visibility.on(
+        game,
+        this.player,
+        systemFactory,
+        this.commentsStorage.getFinder(),
+        this.updatingCommentsStorage.getFinder(),
+        this.chestsStorage,
+        this.playersStorage.getFinder(),
+        this.commentPreviewStorage.getFinder(),
+        this.renderer);
+    this.existence =
+        Existence.on(this.commentsStorage.getFinder(), this.updatingCommentsStorage.getFinder());
 
     this.proxy = new UniverseProxyImpl(
         game,
@@ -185,6 +208,8 @@ class Universe extends Phaser.State {
     await this.renderer.fadeIn();
 
     this.inputController.receiveInput();
+
+    this.isStarted.update(true);
   }
 
   update() {

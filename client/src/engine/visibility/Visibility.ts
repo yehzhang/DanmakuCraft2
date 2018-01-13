@@ -1,9 +1,4 @@
 import VisibilityEngine from './VisibilityEngine';
-import Universe from '../../Universe';
-import ChestSystem, {
-  ChestDemolisher, ChestOpener,
-  ChestSpawner
-} from '../../entitySystem/system/ChestSystem';
 import MovingAnimationSystem from '../../entitySystem/system/visibility/MovingAnimationSystem';
 import CollisionDetectionSystem from '../../entitySystem/system/visibility/CollisionDetectionSystem';
 import PhysicalConstants from '../../PhysicalConstants';
@@ -17,6 +12,14 @@ import CommitMotionSystem from '../../entitySystem/system/visibility/CommitMotio
 import MoveDisplaySystem from '../../entitySystem/system/tick/MoveDisplaySystem';
 import SynchronizeLifecycleSystem from '../../entitySystem/system/visibility/SynchronizeLifecycleSystem';
 import SystemEnginesEngine from '../SystemEnginesEngine';
+import {
+  ChestEntity, CommentEntity, Player, Region,
+  UpdatingCommentEntity
+} from '../../entitySystem/alias';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
+import SystemFactory from '../../entitySystem/system/SystemFactory';
+import EntityStorage from '../../util/entityStorage/EntityStorage';
+import Renderer from '../../render/Renderer';
 
 class Visibility extends SystemEnginesEngine<VisibilityEngine> {
   constructor(
@@ -27,38 +30,26 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
     super(engines);
   }
 
-  static on(universe: Universe) {
-    let renderRadius = new DynamicProvider(this.getRenderRadius(universe.game));
-    universe.game.scale.onSizeChange.add(() => renderRadius.update(this.getRenderRadius(universe.game)));
-
-    let chestLaw =
-        universe.lawFactory.createChestLaw(universe.player, renderRadius, __DEV__ ? 1 : undefined);
-    let chestSystem = new ChestSystem(
-        new ChestOpener(
-            universe.game,
-            universe.player,
-            universe.buffDataApplier,
-            chestLaw,
-            universe.notifier,
-            universe.buffDescription),
-        new ChestSpawner(
-            universe.chestsStorage.getRegister(),
-            universe.entityFactory,
-            chestLaw),
-        new ChestDemolisher(universe.chestsStorage.getRegister()));
+  static on(
+      game: Phaser.Game,
+      player: Player,
+      systemFactory: SystemFactory,
+      commentsFinder: EntityFinder<Region<CommentEntity>>,
+      updatingCommentsFinder: EntityFinder<Region<UpdatingCommentEntity>>,
+      chestsStorage: EntityStorage<ChestEntity>,
+      playersFinder: EntityFinder<Player>,
+      commentPreviewFinder: EntityFinder<UpdatingCommentEntity>,
+      renderer: Renderer) {
+    let renderRadius = new DynamicProvider(this.getRenderRadius(game));
+    game.scale.onSizeChange.add(() => renderRadius.update(this.getRenderRadius(game)));
 
     let collisionDetectionSystem = new CollisionDetectionSystem();
 
     let synchronizeUpdateSystem = new SynchronizeLifecycleSystem();
     let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
 
-    let commentsFinder = universe.commentsStorage.getFinder();
-    let updatingCommentsFinder = universe.updatingCommentsStorage.getFinder();
-    let chestsFinder = universe.chestsStorage.getFinder();
-    let playersFinder = universe.playersStorage.getFinder();
-    let commentPreviewFinder = universe.commentPreviewStorage.getFinder();
-
-    let player = universe.player;
+    let chestSystem = systemFactory.createChestSystem(renderRadius, chestsStorage.getRegister());
+    let chestsFinder = chestsStorage.getFinder();
 
     let foregroundTrackerBuilder = VisibilityEngine.newBuilder(player, renderRadius);
     foregroundTrackerBuilder.onUpdate()
@@ -76,14 +67,14 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .applyTickSystem(synchronizeUpdateSystem);
 
     foregroundTrackerBuilder.onRender()
-        .applyVisibilitySystem(new AddChildSystem(universe.renderer.commentsLayer))
+        .applyVisibilitySystem(new AddChildSystem(renderer.commentsLayer))
         .toEntities().of(commentsFinder)
     // TODO share the same sprite among chromatic comments.
-        .applyVisibilitySystem(new AddChildSystem(universe.renderer.updatingCommentsLayer))
+        .applyVisibilitySystem(new AddChildSystem(renderer.updatingCommentsLayer))
         .toEntities().of(updatingCommentsFinder)
-        .applyVisibilitySystem(new AddChildSystem(universe.renderer.groundLayer))
+        .applyVisibilitySystem(new AddChildSystem(renderer.groundLayer))
         .toEntities().of(chestsFinder)
-        .applyVisibilitySystem(new AddChildSystem(universe.renderer.playersLayer))
+        .applyVisibilitySystem(new AddChildSystem(renderer.playersLayer))
         .toEntities().of(playersFinder)
         .applyVisibilitySystem(new UnmovableDisplayPositioningSystem(player))
         .toEntities().of(chestsFinder).and(commentsFinder).and(updatingCommentsFinder)
@@ -104,7 +95,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
     let backgroundTrackerBuilder = VisibilityEngine.newBuilder(
         player, new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS));
     backgroundTrackerBuilder.onRender()
-        .applyVisibilitySystem(new BackgroundColorSystem(universe.game))
+        .applyVisibilitySystem(new BackgroundColorSystem(game))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder);
 
     return new this(

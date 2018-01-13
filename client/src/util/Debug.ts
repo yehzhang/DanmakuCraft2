@@ -143,7 +143,8 @@ class Debug {
       text: string = Debug.DEFAULT_COMMENT_TEXT,
       color: number = Debug.DEFAULT_COMMENT_COLOR,
       buffData: BuffData | null = null) {
-    this.createComment(coordinates, text, color, buffData);
+    return this.universe.commentLoader.load(
+        new CommentData(25, color, text, coordinates, buffData));
   }
 
   private render() {
@@ -165,15 +166,6 @@ class Debug {
     message += message;
     message += message;
     return message;
-  }
-
-  private createComment(
-      coordinates: Point,
-      text: string,
-      color: number,
-      buffData: BuffData | null) {
-    return this.universe.commentLoader.load(
-        new CommentData(25, color, text, coordinates, buffData));
   }
 }
 
