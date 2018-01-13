@@ -1,6 +1,7 @@
 import Point from '../syntax/Point';
 import PhysicalConstants from '../../PhysicalConstants';
-import {toWorldCoordinateOffset2d, validateRadius} from '../../law/space';
+import {toWorldCoordinateOffset2d, toWorldIntervalOffset, validateRadius} from '../../law/space';
+import {DisplayableEntity} from '../../entitySystem/alias';
 
 class Distance {
   private maxDistanceSquared: number;
@@ -29,6 +30,21 @@ class Distance {
 
   isClose(coordinates: Point, other: Point) {
     return Distance.squaredOf(coordinates, other) <= this.maxDistanceSquared;
+  }
+
+  isDisplayClose(entity: DisplayableEntity, other: Point) {
+    let bounds = entity.getDisplayWorldBounds();
+    let horizontalOffset = toWorldIntervalOffset(
+        bounds.left,
+        bounds.right,
+        other.x,
+        PhysicalConstants.WORLD_SIZE);
+    let verticalOffset = toWorldIntervalOffset(
+        bounds.top,
+        bounds.bottom,
+        other.y,
+        PhysicalConstants.WORLD_SIZE);
+    return Point.of(horizontalOffset, verticalOffset).getMagnitudeSq() <= this.maxDistanceSquared;
   }
 }
 

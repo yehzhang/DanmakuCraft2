@@ -1,12 +1,12 @@
 import EntityFinder, {ExistenceUpdatedEvent} from '../EntityFinder';
 import Point from '../../syntax/Point';
-import Entity from '../../../entitySystem/Entity';
 import Distance from '../../math/Distance';
 import {asSequence} from 'sequency';
 import Iterator from '../../syntax/Iterator';
 import {Phaser} from '../../alias/phaser';
+import {DisplayableEntity} from '../../../entitySystem/alias';
 
-class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
+class GlobalEntityFinder<T extends DisplayableEntity> implements EntityFinder<T> {
   constructor(
       private entities: Set<T>,
       readonly entityExistenceUpdated: Phaser.Signal<ExistenceUpdatedEvent<T>>) {
@@ -19,7 +19,7 @@ class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
 
     let distance = new Distance(radius);
     return asSequence(this.entities)
-        .filter(entity => distance.isClose(entity.coordinates, coordinates))
+        .filter(entity => distance.isDisplayClose(entity, coordinates))
         .asIterable();
   }
 

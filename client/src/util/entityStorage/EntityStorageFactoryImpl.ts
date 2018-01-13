@@ -1,7 +1,7 @@
 import EntityStorageFactory from './EntityStorageFactory';
 import Point from '../syntax/Point';
 import EntityFactory from '../../entitySystem/EntityFactory';
-import {Region, StationaryEntity} from '../../entitySystem/alias';
+import {DisplayableEntity, Region, StationaryEntity} from '../../entitySystem/alias';
 import EntityStorage from './EntityStorage';
 import ChunkEntityRegister from './chunk/ChunkEntityRegister';
 import Chunks from './chunk/Chunks';
@@ -10,15 +10,15 @@ import EntityStorageImpl from './EntityStorageImpl';
 import PhysicalConstants from '../../PhysicalConstants';
 import GlobalEntityRegister from './global/GlobalEntityRegister';
 import GlobalEntityFinder from './global/GlobalEntityFinder';
-import Entity from '../../entitySystem/Entity';
 import {ExistenceUpdatedEvent} from './EntityFinder';
 import {Phaser} from '../alias/phaser';
+import Display from '../../entitySystem/component/Display';
 
 class EntityStorageFactoryImpl implements EntityStorageFactory {
   constructor(private entityFactory: EntityFactory) {
   }
 
-  createChunkEntityStorage<T extends StationaryEntity>(
+  createChunkEntityStorage<T extends StationaryEntity & Display>(
       chunksCount: number): EntityStorage<T, Region<T>> {
     chunksCount = Math.floor(chunksCount);
     if (!(chunksCount > 0)) {
@@ -34,7 +34,7 @@ class EntityStorageFactoryImpl implements EntityStorageFactory {
     return new EntityStorageImpl(entityRegister, entityFinder);
   }
 
-  createGlobalEntityStorage<T extends Entity>(): EntityStorage<T> {
+  createGlobalEntityStorage<T extends DisplayableEntity>(): EntityStorage<T> {
     let entities: Set<T> = new Set();
     let entityUpdated = new Phaser.Signal<ExistenceUpdatedEvent<T>>();
     let entityRegister = new GlobalEntityRegister(entities, entityUpdated);

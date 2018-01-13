@@ -1,5 +1,5 @@
 import ExistenceEngine from './ExistenceEngine';
-import RegionChildrenPositioningSystem from '../../entitySystem/system/existence/RegionChildrenPositioningSystem';
+import AddChildToRegionSystem from '../../entitySystem/system/existence/AddChildToRegionSystem';
 import SystemEnginesEngine from '../SystemEnginesEngine';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
 import {CommentEntity, Region, UpdatingCommentEntity} from '../../entitySystem/alias';
@@ -9,7 +9,7 @@ class Existence extends SystemEnginesEngine<ExistenceEngine> {
       commentsFinder: EntityFinder<Region<CommentEntity>>,
       updatingCommentsFinder: EntityFinder<Region<UpdatingCommentEntity>>) {
     let existenceEngine = ExistenceEngine.newBuilder().onRender()
-        .apply(new RegionChildrenPositioningSystem())
+        .apply(new AddChildToRegionSystem())
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
 
         .build();

@@ -4,16 +4,27 @@ import {instance, mock, when} from 'ts-mockito';
 import GlobalEntityFinder from '../../../client/src/util/entityStorage/global/GlobalEntityFinder';
 import Point from '../../../client/src/util/syntax/Point';
 import {expect} from 'chai';
-import {Phaser} from '../../../client/src/util/alias/phaser';
+import {Phaser, PIXI} from '../../../client/src/util/alias/phaser';
+import {DisplayableEntity} from '../../../client/src/entitySystem/alias';
+import MutableCoordinates from '../../../client/src/entitySystem/component/MutableCoordinates';
+import Display from '../../../client/src/entitySystem/component/Display';
+import Rectangle from '../../../client/src/util/syntax/Rectangle';
 
 describe('EntityFinder', () => {
-  let mockEntities: Entity[];
-  let entities: Entity[];
+  let mockEntities: DisplayableEntity[];
+  let entities: DisplayableEntity[];
 
   beforeEach(() => {
+    let FakeDisplayableEntity = () => {
+    };
+    FakeDisplayableEntity.prototype = Object.getPrototypeOf(Entity.newBuilder()
+        .mix(new MutableCoordinates(Point.origin()))
+        .mix(new Display(new PIXI.DisplayObjectContainer()))
+        .build());
+
     mockEntities = [
-      mock(Entity),
-      mock(Entity),
+      mock(FakeDisplayableEntity),
+      mock(FakeDisplayableEntity),
     ];
     entities = mockEntities.map(instance);
   });
@@ -31,7 +42,9 @@ describe('EntityFinder', () => {
     describe('should list entities correctly', () => {
       it(`for ${subject}`, () => {
         when(mockEntities[0].coordinates).thenReturn(Point.origin());
+        when(mockEntities[0].getDisplayWorldBounds()).thenReturn(Rectangle.empty());
         when(mockEntities[1].coordinates).thenReturn(Point.of(3, 4));
+        when(mockEntities[1].getDisplayWorldBounds()).thenReturn(Rectangle.of(3, 4, 0, 0));
 
         expect(Array.from(finder.listAround(Point.origin(), 5))).to.deep.equal(entities);
         expect(Array.from(finder.listAround(Point.origin(), 5 - 1e-6)))

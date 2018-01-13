@@ -23,7 +23,9 @@ class PhysicalConstants {
   public static readonly HASTY_BOOST_RATIO = 1.4;
 
   public static getRenderRadius(gameWidth: number, gameHeight: number): number {
-    return Math.ceil(Math.max(gameWidth, gameHeight) / 2 + this.ENTITY_TRACKER_UPDATE_RADIUS);
+    return Math.ceil(Math.max(gameWidth, gameHeight) / 2
+        + this.ENTITY_TRACKER_UPDATE_RADIUS
+        + 200); // TODO handle comments protruding from a chunk
   }
 }
 

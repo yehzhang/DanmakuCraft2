@@ -6,7 +6,7 @@ import EntityFinder, {ExistenceUpdatedEvent} from '../../../client/src/util/enti
 import ExistenceSystem from '../../../client/src/entitySystem/system/existence/ExistenceSystem';
 import Entity from '../../../client/src/entitySystem/Entity';
 import {anything, instance, mock, resetCalls, verify, when} from 'ts-mockito';
-import RegionChildrenPositioningSystem from '../../../client/src/entitySystem/system/existence/RegionChildrenPositioningSystem';
+import AddChildToRegionSystem from '../../../client/src/entitySystem/system/existence/AddChildToRegionSystem';
 import Iterator from '../../../client/src/util/syntax/Iterator';
 import {expect} from 'chai';
 import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
@@ -58,7 +58,7 @@ describe('ExistenceRelation', () => {
   let entityFinder: EntityFinder<Entity>;
 
   beforeEach(() => {
-    mockSystem = mock(RegionChildrenPositioningSystem);
+    mockSystem = mock(AddChildToRegionSystem);
     let mockEnteringEntities = [mock(Entity), mock(Entity)];
     enteringEntities = [mockEnteringEntities.map(instance)];
     let mockExitingEntities = [mock(Entity), mock(Entity)];

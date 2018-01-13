@@ -7,6 +7,8 @@ import {asSequence} from 'sequency';
 import Iterator from '../../syntax/Iterator';
 import EntityRegister from '../EntityRegister';
 
+// TODO ChunkEntityRegister cannot handle comments protruding from a chunk
+// Can add an entity to multiple regions, but cannot add a display to multiple parents.
 class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<T> {
   constructor(
       private chunks: Chunks<Region<T>>,
@@ -57,7 +59,7 @@ class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<
     this.entityRegistered.dispatch(new ExistenceUpdatedEvent(newChunks, oldChunks));
   }
 
-  deregister(entity: T, silent?: boolean) {
+  deregister(entity: T) {
     // TODO
     throw new Error('Not implemented');
   }

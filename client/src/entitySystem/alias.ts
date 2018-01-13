@@ -16,6 +16,8 @@ export type Component = {};
 export type StationaryEntity = Entity & ImmutableCoordinates;
 export type MovableEntity = Entity & MutableCoordinates & Motion;
 
+export type DisplayableEntity<T = PIXI.DisplayObjectContainer> = Entity & Display<T>;
+
 export type Region<T = Component> =
     StationaryEntity & ContainerHolder<T> & Display<PIXI.DisplayObjectContainer>;
 

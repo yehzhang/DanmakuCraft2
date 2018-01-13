@@ -1,11 +1,10 @@
 import VisibilitySystem from './VisibilitySystem';
-import {StationaryEntity} from '../../alias';
+import {DisplayableEntity, StationaryEntity} from '../../alias';
 import Point from '../../../util/syntax/Point';
-import Entity from '../../Entity';
 import Display from '../../component/Display';
 
 class UnmovableDisplayPositioningSystem implements VisibilitySystem<StationaryEntity & Display> {
-  constructor(private anchor: Entity & Display) {
+  constructor(private anchor: DisplayableEntity) {
   }
 
   enter(entity: StationaryEntity & Display) {

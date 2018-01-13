@@ -1,6 +1,7 @@
 import {ExistenceUpdatedEvent} from '../EntityFinder';
 import Iterator from '../../syntax/Iterator';
 import EntityRegister from '../EntityRegister';
+import {asSequence} from 'sequency';
 
 class GlobalEntityRegister<T> implements EntityRegister<T> {
   constructor(
@@ -9,22 +10,25 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
   }
 
   register(entity: T) {
-    this.entities.add(entity);
-    this.entityRegistered.dispatch(new ExistenceUpdatedEvent([entity]));
-  }
-
-  registerBatch(entities: Iterable<T>): void {
-    let entitiesArray = Array.from(entities);
-
-    if (entitiesArray.length === 0) {
+    if (this.entities.has(entity)) {
       return;
     }
 
-    for (let entity of entitiesArray) {
-      this.entities.add(entity);
-    }
+    this.entities.add(entity);
 
-    this.entityRegistered.dispatch(new ExistenceUpdatedEvent(entitiesArray));
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent([entity]));
+  }
+
+  registerBatch(entities: Iterable<T>) {
+    let addedEntities = asSequence(entities)
+        .filter(entity => !this.entities.has(entity))
+        .onEach(entity => this.entities.add(entity))
+        .toArray();
+
+    if (addedEntities.length === 0) {
+      return;
+    }
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent(addedEntities));
   }
 
   deregister(entity: T) {
@@ -34,7 +38,7 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
       return;
     }
 
-    this.entityRegistered.dispatch(new ExistenceUpdatedEvent<T>([], [entity]));
+    this.entityRegistered.dispatch(new ExistenceUpdatedEvent([], [entity]));
   }
 
   count() {

@@ -6,7 +6,7 @@ import PhysicalConstants from '../PhysicalConstants';
  * @param max maximum value of a coordinate, exclusive. Note that min is assumed zero.
  */
 export function toWorldCoordinate(coordinate: number, max: number): number {
-  if (max <= 0) {
+  if (!(max > 0)) {
     throw new TypeError('Max is not a positive number');
   }
 
@@ -67,4 +67,14 @@ export function validateRadius(radius: number) {
     return;
   }
   throw new TypeError(`Invalid world radius: '${radius}'`);
+}
+
+export function toWorldIntervalOffset(
+    intervalBeginning: number,
+    intervalEnding: number,
+    other: number,
+    max: number) {
+  let leftOffset = toWorldCoordinateOffset(intervalBeginning, other, max);
+  let rightOffset = toWorldCoordinateOffset(other, intervalEnding, max);
+  return Math.max(leftOffset, rightOffset, 0);
 }
