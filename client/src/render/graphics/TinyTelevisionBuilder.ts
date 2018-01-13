@@ -42,25 +42,29 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .moveTo(42, 18)
         .lineTo(55, 0)
 
-        // face
+        // eyes
         .moveTo(27, 35)
         .lineTo(16, 41)
         .moveTo(42, 34)
         .lineTo(54, 42)
+
+        // mouth
         .moveTo(25, 43)
         .curveTo(30, 54, 36, 45)
         .curveTo(42, 57, 47, 45)
 
-        // feet
+        // left feet
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(12, 66)
-        .lineTo(12, 67)
+        .lineTo(12, 70)
         .moveTo(19, 67)
-        .curveTo(20, 70, 15, 70)
+        .bezierCurveTo(20, 70, 15, 70, 14, 70)
+
+        // right feet
         .moveTo(51, 67)
-        .curveTo(52, 70, 56, 71)
+        .bezierCurveTo(52, 70, 56, 71, 56, 71)
         .moveTo(58, 66)
-        .lineTo(58, 68);
+        .lineTo(57, 70);
   }
 
   static drawSecondFrame(graphics: Graphics) {
@@ -103,25 +107,29 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .moveTo(42, 17)
         .lineTo(55, 1)
 
-        // face
+        // eyes
         .moveTo(28, 35)
         .lineTo(18, 40)
         .moveTo(42, 33)
         .lineTo(54, 40)
+
+        // mouth
         .moveTo(28, 43)
         .curveTo(26, 57, 36, 45)
         .curveTo(44, 57, 45, 46)
 
-        // feet
+        // left feet
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(12, 64)
-        .lineTo(12, 67)
+        .lineTo(12, 69)
         .moveTo(19, 65)
-        .curveTo(21, 69, 15, 69)
+        .bezierCurveTo(21, 70, 19, 70, 13, 71)
+
+        // right feet
         .moveTo(51, 67)
-        .curveTo(51, 71, 56, 71)
+        .bezierCurveTo(51, 71, 50, 72, 56, 73)
         .moveTo(58, 66)
-        .lineTo(58, 67);
+        .lineTo(56, 71);
   }
 
   static drawThirdFrame(graphics: Graphics) {
@@ -160,26 +168,30 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
         .moveTo(42, 17)
         .lineTo(53, 0)
 
-        // face
+        // eyes
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(27, 34)
         .lineTo(18, 40)
         .moveTo(41, 32)
         .lineTo(54, 41)
+
+        // mouth
         .moveTo(27, 44)
         .curveTo(26, 55, 36, 42)
         .curveTo(42, 56, 43, 44)
 
-        // feet
+        // left feet
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
         .moveTo(11, 64)
-        .lineTo(11, 67)
+        .lineTo(12, 70)
         .moveTo(19, 65)
-        .curveTo(19, 69, 14, 69)
+        .bezierCurveTo(19, 69, 14, 71, 14, 71)
+
+        // right feet
         .moveTo(49, 67)
-        .lineTo(49, 68)
+        .lineTo(50, 70)
         .moveTo(57, 66)
-        .curveTo(56, 70, 52, 69);
+        .bezierCurveTo(56, 70, 52, 71, 52, 71);
   }
 
   protected getDrawer(index: number) {

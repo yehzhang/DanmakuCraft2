@@ -109,7 +109,7 @@ class InjectableGraphics implements Graphics {
   }
 
   curveTo(cpX: number, cpY: number, toX: number, toY: number) {
-    return this.bezierCurveTo(cpX, cpY, cpX, cpY, toX, toY);
+    return this.bezierCurveTo(cpX, cpY, toX, toY, toX, toY);
   }
 
   bezierCurveTo(cpX: number, cpY: number, cpX2: number, cpY2: number, toX: number, toY: number) {
