@@ -188,7 +188,6 @@ class Universe extends Phaser.State {
   }
 
   update() {
-    // TODO merge into one.
     this.existence.update(this.game.time);
     this.visibility.update(this.game.time);
   }

@@ -5,7 +5,6 @@ import BuffDataApplier from '../entitySystem/system/buff/BuffDataApplier';
 import {CommentEntity, UpdatingCommentEntity} from '../entitySystem/alias';
 import CommentData from './CommentData';
 import {BuffData} from '../entitySystem/system/buff/BuffData';
-import {asSequence} from 'sequency';
 import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
 
 class CommentLoaderImpl implements CommentLoader {
@@ -17,7 +16,7 @@ class CommentLoaderImpl implements CommentLoader {
       private buffDataApplier: BuffDataApplier) {
   }
 
-  loadBatch(commentsData: CommentData[], blink: boolean = true): CommentEntity[] {
+  loadBatch(commentsData: CommentData[]): CommentEntity[] {
     let comments = [];
     let updatingComments = [];
     for (let commentData of commentsData) {
@@ -38,14 +37,10 @@ class CommentLoaderImpl implements CommentLoader {
       this.updatingCommentsRegister.registerBatch(updatingComments);
     }
 
-    if (!blink) {
-      asSequence(comments).plus(updatingComments).forEach(comment => this.blink(comment));
-    }
-
     return comments;
   }
 
-  load(commentData: CommentData, blink: boolean = true): CommentEntity {
+  load(commentData: CommentData): CommentEntity {
     let comment;
     if (commentData.buffData == null) {
       comment = this.entityFactory.createCommentEntity(commentData);
@@ -53,10 +48,6 @@ class CommentLoaderImpl implements CommentLoader {
     } else {
       comment = this.createUpdatingCommentEntity(commentData, commentData.buffData);
       this.updatingCommentsRegister.register(comment);
-    }
-
-    if (!blink) {
-      this.blink(comment);
     }
 
     return comment;
@@ -77,11 +68,6 @@ class CommentLoaderImpl implements CommentLoader {
     let comment = this.entityFactory.createUpdatingCommentEntity(commentData);
     this.buffDataApplier.activateOnComment(buffData, comment);
     return comment;
-  }
-
-  private blink(comment: CommentEntity) {
-    // TODO
-    // this.game.add.tween(comment).to({alpha: 0})
   }
 }
 

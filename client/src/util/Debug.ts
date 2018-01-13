@@ -155,14 +155,6 @@ class Debug {
     asSequence(this.universe.chestsStorage.getFinder())
         .forEach(
             chest => this.debugInfo.line('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
-
-    // TODO refactor to add to container system
-    // let closestComment: Entity =
-    // asSequence(this.universe.visibility.collisionDetectionSystem['currentRegions'])
-    // .flatMap(region => asSequence(region.container)) .minBy((entity: any) =>
-    // Distance.roughlyOf(entity.coordinates, this.universe.player.coordinates)) as any; if
-    // (closestComment) { this.debugInfo.line( 'Comment', closestComment.coordinates,
-    // UpdatingBuffCarrier.isTypeOf(closestComment) ? 'updating' : ''); }
   }
 
   private getNotificationMessage() {

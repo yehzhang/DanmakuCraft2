@@ -2,9 +2,9 @@ import {CommentEntity} from '../entitySystem/alias';
 import CommentData from './CommentData';
 
 interface CommentLoader {
-  loadBatch(commentsData: CommentData[], blink?: boolean): CommentEntity[];
+  loadBatch(commentsData: CommentData[]): CommentEntity[];
 
-  load(commentData: CommentData, blink?: boolean): CommentEntity;
+  load(commentData: CommentData): CommentEntity;
 
   unload(comment: CommentEntity): void;
 }
