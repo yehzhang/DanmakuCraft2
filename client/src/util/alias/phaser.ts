@@ -43,3 +43,4 @@ if (!__WEBPACK__) {
 }
 
 export import Phaser = require('phaser-ce-type-updated/build/custom/phaser-split');
+global.Phaser = Phaser;
