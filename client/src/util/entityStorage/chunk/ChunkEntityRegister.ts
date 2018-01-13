@@ -16,10 +16,9 @@ class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<
 
   register(entity: T) {
     let chunk = this.chunks.getChunkByCoordinates(entity.coordinates);
-    let newChunk = this.entityFactory.cloneRegion(chunk);
-    newChunk.container.add(entity);
+    let newChunk = this.entityFactory.createRegion(chunk.coordinates, chunk.container.add(entity));
 
-    this.chunks.replaceChunkByCoordinates(newChunk.coordinates, newChunk);
+    this.chunks.replaceChunkByCoordinates(chunk.coordinates, newChunk);
 
     this.entityRegistered.dispatch(new ExistenceUpdatedEvent([newChunk], [chunk]));
   }
@@ -47,11 +46,8 @@ class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<
     let newChunks: Array<Region<T>> = [];
     let oldChunks: Array<Region<T>> = [];
     chunksToReplace.forEach((entitiesToAdd, chunk) => {
-      let newChunk = this.entityFactory.cloneRegion(chunk);
-      for (let entity of entitiesToAdd) {
-        newChunk.container.add(entity);
-      }
-
+      let newChunk =
+          this.entityFactory.createRegion(chunk.coordinates, chunk.container.addAll(entitiesToAdd));
       this.chunks.replaceChunkByCoordinates(newChunk.coordinates, newChunk);
 
       newChunks.push(newChunk);

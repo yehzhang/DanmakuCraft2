@@ -1,7 +1,7 @@
-import Container from '../../util/entityStorage/Container';
+import ImmutableContainer from '../../util/entityStorage/ImmutableContainer';
 
 class ContainerHolder<T> {
-  constructor(public container: Container<T>) {
+  constructor(public container: ImmutableContainer<T>) {
   }
 }
 

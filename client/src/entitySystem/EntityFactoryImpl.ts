@@ -4,7 +4,6 @@ import CommentData from '../comment/CommentData';
 import Comment from './component/Comment';
 import Entity, {EntityBuilder} from './Entity';
 import ImmutableCoordinates from './component/ImmutableCoordinates';
-import MaybeDisplay from './component/MaybeDisplay';
 import BuffFactory from './system/buff/BuffFactory';
 import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
 import MutableCoordinates from './component/MutableCoordinates';
@@ -13,10 +12,11 @@ import Display from './component/Display';
 import MovingAnimation from './component/MovingAnimation';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import Point from '../util/syntax/Point';
-import ArrayContainer from '../util/entityStorage/chunk/ArrayContainer';
+import SetContainer from '../util/entityStorage/chunk/SetContainer';
 import ContainerHolder from './component/ContainerHolder';
 import Chest from './component/Chest';
 import {Phaser, PIXI} from '../util/alias/phaser';
+import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
 
 class EntityFactoryImpl implements EntityFactory {
   constructor(
@@ -25,26 +25,19 @@ class EntityFactoryImpl implements EntityFactory {
       private buffFactory: BuffFactory) {
   }
 
-  createRegion<T>(coordinates: Point) {
+  createRegion<T>(
+      coordinates: Point,
+      container: ImmutableContainer<T> = new SetContainer<T>(),
+      display: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
     return Entity.newBuilder<Region<T>>()
         .mix(new ImmutableCoordinates(coordinates))
-        .mix(new ContainerHolder(new ArrayContainer<T>()))
-        .mix(new MaybeDisplay(new PIXI.DisplayObjectContainer()))
+        .mix(new ContainerHolder(container))
+        .mix(new Display(display))
         .build();
   }
 
   createCommentEntity(data: CommentData) {
     return this.createBaseCommentEntity(data).build();
-  }
-
-  cloneRegion<T>(region: Region<T>) {
-    let newRegion = this.createRegion<T>(region.coordinates);
-
-    for (let entity of region.container) {
-      newRegion.container.add(entity);
-    }
-
-    return newRegion;
   }
 
   createPlayer(coordinates: Point) {
@@ -77,7 +70,7 @@ class EntityFactoryImpl implements EntityFactory {
     return Entity.newBuilder<CommentEntity>()
         .mix(new ImmutableCoordinates(data.coordinates))
         .mix(comment)
-        .mix(new MaybeDisplay(this.graphicsFactory.createTextFromComment(comment)));
+        .mix(new Display(this.graphicsFactory.createTextFromComment(comment)));
   }
 
   createChest(coordinates: Point) {

@@ -26,17 +26,17 @@ export type RenderableEntity<T extends PIXI.DisplayObject = PIXI.DisplayObject> 
     Renderable<T> & Entity;
 
 export type Region<T = Component> =
-    StationaryEntity & ContainerHolder<T> & MaybeDisplay<PIXI.DisplayObjectContainer>;
+    StationaryEntity & ContainerHolder<T> & Display<PIXI.DisplayObjectContainer>;
 
 export type Updatable<T extends Component = Component> = UpdatingBuffCarrier<T> & T;
 
-export type CommentEntity = StationaryEntity & MaybeDisplay<Phaser.Text> & Comment;
+export type CommentEntity = StationaryEntity & Display<Phaser.Text> & Comment;
 export type UpdatingCommentEntity = Updatable<CommentEntity>;
 
 export type Observer = MovableEntity & Display<Phaser.Sprite>;
 export type Player<T extends Component = Component> = Updatable<Observer & MovingAnimation & T>;
 export type NonPlayerCharacter<T extends Component = Component> =
-    Updatable<MovableEntity & MaybeDisplay<Phaser.Sprite>>;
+    Updatable<MovableEntity & Display<Phaser.Sprite>>;
 
 export type TinyTelevision = Player;
 

@@ -1,13 +1,13 @@
 import {instance, mock} from 'ts-mockito';
-import Container from '../../../client/src/util/entityStorage/Container';
+import ImmutableContainer from '../../../client/src/util/entityStorage/ImmutableContainer';
 import Entity from '../../../client/src/entitySystem/Entity';
-import ArrayContainer from '../../../client/src/util/entityStorage/chunk/ArrayContainer';
+import SetContainer from '../../../client/src/util/entityStorage/chunk/SetContainer';
 import {expect} from 'chai';
 
-describe('ArrayContainer', () => {
+describe('SetContainer', () => {
   let mockEntities: Entity[];
   let entities: Entity[];
-  let container: Container<Entity>;
+  let container: ImmutableContainer<Entity>;
 
   beforeEach(() => {
     mockEntities = [
@@ -15,33 +15,41 @@ describe('ArrayContainer', () => {
       mock(Entity),
       mock(Entity)];
     entities = mockEntities.map(instance);
-    container = new ArrayContainer([]);
+    container = new SetContainer();
   });
 
   it('add() and count() work', () => {
     expect(container.count()).to.equal(0);
 
-    container.add(entities[0]);
+    container = container.add(entities[0]);
     expect(container.count()).to.equal(1);
 
-    container.add(entities[1]);
+    container = container.add(entities[1]);
     expect(container.count()).to.equal(2);
 
-    container.add(entities[2]);
+    container = container.add(entities[2]);
     expect(container.count()).to.equal(3);
   });
 
+  it('container is immutable', () => {
+    container.add(entities[0]);
+    expect(container.count()).to.equal(0);
+
+    container.addAll(entities);
+    expect(container.count()).to.equal(0);
+  });
+
   it('add() discards duplicate entities', () => {
-    container.add(entities[0]);
-    container.add(entities[0]);
+    container = container.add(entities[0]);
+    container = container.add(entities[0]);
 
     expect(container.count()).to.equal(1);
   });
 
   it('iteration works', () => {
-    container.add(entities[0]);
-    container.add(entities[1]);
-    container.add(entities[2]);
+    container = container.add(entities[0]);
+    container = container.add(entities[1]);
+    container = container.add(entities[2]);
 
     let entitiesIndex = 0;
     for (let entity of container) {
