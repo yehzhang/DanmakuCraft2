@@ -1,12 +1,12 @@
 import EntityStorage from './EntityStorage';
-import {DisplayableEntity, Region, StationaryEntity} from '../../entitySystem/alias';
-import Display from '../../entitySystem/component/Display';
+import {Region, StationaryEntity} from '../../entitySystem/alias';
+import Entity from '../../entitySystem/Entity';
 
 interface EntityStorageFactory {
-  createChunkEntityStorage<T extends StationaryEntity & Display>(
+  createChunkEntityStorage<T extends StationaryEntity>(
       chunksCount: number): EntityStorage<T, Region<T>>;
 
-  createGlobalEntityStorage<T extends DisplayableEntity>(): EntityStorage<T>;
+  createGlobalEntityStorage<T extends Entity>(): EntityStorage<T>;
 }
 
 export default EntityStorageFactory;

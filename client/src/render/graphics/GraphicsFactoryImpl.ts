@@ -103,6 +103,46 @@ class GraphicsFactoryImpl implements GraphicsFactory {
     return new NotifierView(speechBubble, textField, TEXT_BOUNDS_WIDTH);
   }
 
+  createWorldCenterSign(size: number, color: string) {
+    let container = new PIXI.DisplayObjectContainer();
+    let upArrow = this.createText('⬆', 94, color);
+    let downArrow = this.createText('⬇', 94, color);
+    let leftArrow = this.createText('⬅', 94, color);
+
+    let rightArrow = this.createText('⬅', 94, color);
+    rightArrow.scale.x = -1;
+
+    let bullet = this.createText('•', 94 / 2, color);
+
+    container.addChild(bullet);
+    bullet.anchor.setTo(0.5);
+
+    container.addChild(upArrow);
+    upArrow.anchor.setTo(0.5, 0);
+    upArrow.position.y = size / 4;
+
+    container.addChild(downArrow);
+    downArrow.anchor.setTo(0.5, 1);
+    downArrow.position.y = -size / 4;
+
+    container.addChild(leftArrow);
+    leftArrow.anchor.setTo(0, 0.5);
+    leftArrow.position.x = size / 4;
+
+    container.addChild(rightArrow);
+    rightArrow.anchor.setTo(0, 0.5);
+    rightArrow.position.x = -size / 4;
+
+    return container;
+  }
+
+  createWorldOriginSign(size: number, color: string) {
+    let display = this.createText('O ', 94, color);
+    display.addFontStyle('italic', 0);
+
+    return display;
+  }
+
   private createTinyTelevisionSpriteSheet() {
     return new TinyTelevisionBuilder(this.game, this.idGenerator)
         .pushFrame(0).withShadow()

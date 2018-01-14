@@ -55,10 +55,10 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
 
         // left feet
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
-        .moveTo(12, 66)
-        .lineTo(12, 70)
-        .moveTo(19, 67)
-        .bezierCurveTo(20, 70, 15, 70, 14, 70)
+        .moveTo(14, 66)
+        .lineTo(14, 70)
+        .moveTo(21, 67)
+        .bezierCurveTo(22, 70, 17, 70, 16, 70)
 
         // right feet
         .moveTo(51, 67)
@@ -120,10 +120,10 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
 
         // left feet
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
-        .moveTo(12, 64)
-        .lineTo(12, 69)
-        .moveTo(19, 65)
-        .bezierCurveTo(21, 70, 19, 70, 13, 71)
+        .moveTo(14, 64)
+        .lineTo(14, 69)
+        .moveTo(21, 65)
+        .bezierCurveTo(23, 70, 21, 70, 15, 71)
 
         // right feet
         .moveTo(51, 67)
@@ -182,10 +182,10 @@ class TinyTelevisionBuilder extends GraphicsBuilder<number> {
 
         // left feet
         .lineStyle(4, Colors.BLACK_NUMBER, 1)
-        .moveTo(11, 64)
-        .lineTo(12, 70)
-        .moveTo(19, 65)
-        .bezierCurveTo(19, 69, 14, 71, 14, 71)
+        .moveTo(13, 64)
+        .lineTo(14, 70)
+        .moveTo(21, 65)
+        .bezierCurveTo(21, 69, 16, 71, 16, 71)
 
         // right feet
         .moveTo(49, 67)

@@ -9,8 +9,12 @@ class Renderer {
       readonly floatingLayer: PhaserDisplayContainer = new BridgingContainer(),
       readonly playersLayer: Phaser.Group = game.make.group(),
       readonly groundLayer: PhaserDisplayContainer = new BridgingContainer(),
+      readonly backgroundLayer: PhaserDisplayContainer = new BridgingContainer(),
       readonly commentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer(),
       readonly updatingCommentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
+    stage.add(backgroundLayer);
+    backgroundLayer.cacheAsBitmap = true;
+
     stage.add(groundLayer);
 
     stage.add(playersLayer);

@@ -4,12 +4,17 @@ import Distance from '../../math/Distance';
 import {asSequence} from 'sequency';
 import Iterator from '../../syntax/Iterator';
 import {Phaser} from '../../alias/phaser';
-import {DisplayableEntity} from '../../../entitySystem/alias';
+import Entity from '../../../entitySystem/Entity';
+import Display from '../../../entitySystem/component/Display';
 
-class GlobalEntityFinder<T extends DisplayableEntity> implements EntityFinder<T> {
+class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   constructor(
       private entities: Set<T>,
       readonly entityExistenceUpdated: Phaser.Signal<ExistenceUpdatedEvent<T>>) {
+  }
+
+  private static isDisplay(entity: any): entity is Display {
+    return entity.hasOwnProperty('display');
   }
 
   listAround(coordinates: Point, radius: number): Iterable<T> {
@@ -19,7 +24,12 @@ class GlobalEntityFinder<T extends DisplayableEntity> implements EntityFinder<T>
 
     let distance = new Distance(radius);
     return asSequence(this.entities)
-        .filter(entity => distance.isDisplayClose(entity, coordinates))
+        .filter(entity => {
+          if (GlobalEntityFinder.isDisplay(entity)) {
+            return distance.isDisplayClose(entity, coordinates);
+          }
+          return distance.isClose(entity.coordinates, coordinates);
+        })
         .asIterable();
   }
 

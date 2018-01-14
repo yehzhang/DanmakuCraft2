@@ -134,7 +134,10 @@ class Debug {
 
   onCreate() {
     if (__STAGE__) {
-      let ignored = this.fill;
+      let canFill = (window as any).canFill;
+      if (canFill === undefined || canFill) {
+        let ignored = this.fill;
+      }
     }
   }
 
@@ -157,6 +160,18 @@ class Debug {
     asSequence(this.universe.chestsStorage.getFinder())
         .forEach(
             chest => this.debugInfo.line('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
+
+    let closestSign = asSequence(this.universe.signsStorage.getFinder())
+        .minBy(sign => Distance.roughlyOf(sign.coordinates, this.universe.player.coordinates));
+    if (closestSign) {
+      let note;
+      if (closestSign.display instanceof Phaser.Text) {
+        note = closestSign.display.text;
+      }  else {
+        note = undefined;
+      }
+      this.debugInfo.line('Sign', closestSign.coordinates, note);
+    }
   }
 
   private getNotificationMessage() {

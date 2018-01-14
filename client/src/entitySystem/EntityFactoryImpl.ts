@@ -80,6 +80,17 @@ class EntityFactoryImpl implements EntityFactory {
         .mix(new Chest())
         .build();
   }
+
+  createPointEntity(coordinates: Point) {
+    return Entity.newBuilder().mix(new ImmutableCoordinates(coordinates)).build();
+  }
+
+  createSignEntity(coordinates: Point, display: PIXI.DisplayObjectContainer) {
+    return Entity.newBuilder()
+        .mix(new ImmutableCoordinates(coordinates))
+        .mix(new Display(display))
+        .build();
+  }
 }
 
 export default EntityFactoryImpl;

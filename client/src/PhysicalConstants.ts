@@ -15,7 +15,7 @@ class PhysicalConstants {
 
   public static readonly COMMENT_BLINK_DURATION_MS = 150;
 
-  public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS = 300;
+  public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS = 200;
   public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION = 15;
   public static readonly BACKGROUND_TRANSITION_DURATION_MS = 3 * Phaser.Timer.SECOND;
 

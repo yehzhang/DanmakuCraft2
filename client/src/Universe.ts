@@ -10,7 +10,7 @@ import AdapterFactory from './environment/AdapterFactory';
 import PhysicalConstants from './PhysicalConstants';
 import BuffDataContainer from './entitySystem/system/buff/BuffDataContainer';
 import {
-  ChestEntity, CommentEntity, Player, Region,
+  ChestEntity, CommentEntity, Player, Region, SignEntity,
   UpdatingCommentEntity
 } from './entitySystem/alias';
 import BuffFactory from './entitySystem/system/buff/BuffFactory';
@@ -37,6 +37,8 @@ import {Phaser} from './util/alias/phaser';
 import Existence from './engine/existence/Existence';
 import DynamicProvider from './util/DynamicProvider';
 import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
+import Entity from './entitySystem/Entity';
+import HardCodedPreset from './preset/HardCodedPreset';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -66,6 +68,8 @@ class Universe extends Phaser.State {
   public visibility: Visibility;
   public existence: Existence;
   public isStarted: DynamicProvider<boolean>;
+  public spawnPointsStorage: EntityStorage<Entity>;
+  public signsStorage: EntityStorage<SignEntity>;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     super();
@@ -101,6 +105,16 @@ class Universe extends Phaser.State {
     this.playersStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.chestsStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.commentPreviewStorage = this.entityStorageFactory.createGlobalEntityStorage();
+    this.spawnPointsStorage = this.entityStorageFactory.createGlobalEntityStorage();
+    this.signsStorage = this.entityStorageFactory.createGlobalEntityStorage();
+
+    let preset = new HardCodedPreset(
+        this.entityFactory,
+        this.randomDataGenerator,
+        this.graphicsFactory);
+    preset.populateSigns(this.signsStorage.getRegister());
+    preset.populateSpawnPoints(
+        this.spawnPointsStorage.getRegister(), this.signsStorage.getRegister());
 
     this.player = this.entityFactory.createPlayer(Point.origin()); // TODO where to spawn?
     this.playersStorage.getRegister().register(this.player);
@@ -143,6 +157,8 @@ class Universe extends Phaser.State {
         this.chestsStorage,
         this.playersStorage.getFinder(),
         this.commentPreviewStorage.getFinder(),
+        this.spawnPointsStorage.getFinder(),
+        this.signsStorage.getFinder(),
         this.renderer);
     this.existence =
         Existence.on(this.commentsStorage.getFinder(), this.updatingCommentsStorage.getFinder());

@@ -6,12 +6,15 @@ import PhysicalConstants from '../../../PhysicalConstants';
 import {Bag} from 'typescript-collections';
 import Polar from '../../../util/math/Polar';
 import {Phaser} from '../../../util/alias/phaser';
+import Entity from '../../Entity';
+import Container from '../../../util/entityStorage/Container';
 
 class BackgroundColorSystem implements VisibilitySystem<Region<CommentEntity>> {
   private baseColor: Phaser.RGBColor;
 
   constructor(
       private game: Phaser.Game,
+      private currentSpawnPoints: Container<Entity>,
       private transitionDuration: number = PhysicalConstants.BACKGROUND_TRANSITION_DURATION_MS,
       private colorMixer: ColorMixer = new ColorMixer(),
       baseColor: number = Colors.BACKGROUND_NUMBER,
@@ -27,7 +30,6 @@ class BackgroundColorSystem implements VisibilitySystem<Region<CommentEntity>> {
   }
 
   enter(region: Region<CommentEntity>) {
-    // TODO enforce lightning of spawn points
     for (let entity of region.container) {
       this.colorMixer.add(entity.color);
     }
@@ -47,12 +49,19 @@ class BackgroundColorSystem implements VisibilitySystem<Region<CommentEntity>> {
       this.colorTween.stop();
     }
 
-    let hsl = this.colorMixer.getMixedColor();
-    let colorMask = Phaser.Color.HSLtoRGB(hsl.h, hsl.s, hsl.l);
-    let color = BackgroundColorSystem.blendColors(colorMask, this.baseColor);
-
+    let color = this.getBackgroundColor();
     this.colorTween = this.buildBackgroundColorTween(color);
     this.colorTween.start();
+  }
+
+  private getBackgroundColor() {
+    if (this.currentSpawnPoints.count() > 0) {
+      return Colors.BACKGROUND_NUMBER;
+    }
+
+    let hsl = this.colorMixer.getMixedColor();
+    let colorMask = Phaser.Color.HSLtoRGB(hsl.h, hsl.s, hsl.l);
+    return BackgroundColorSystem.blendColors(colorMask, this.baseColor);
   }
 
   private buildBackgroundColorTween(targetColor: number): Phaser.Tween {

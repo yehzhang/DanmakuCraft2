@@ -17,6 +17,10 @@ interface GraphicsFactory {
   createChest(): Phaser.Sprite;
 
   createSpeechBubble(): NotifierView;
+
+  createWorldCenterSign(size: number, color: string): PIXI.DisplayObjectContainer;
+
+  createWorldOriginSign(size: number, color: string): Phaser.Text;
 }
 
 export default GraphicsFactory;

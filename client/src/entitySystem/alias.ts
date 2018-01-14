@@ -30,3 +30,5 @@ export type Observer = MovableEntity & Display<Phaser.Sprite>;
 export type Player<T extends Component = Component> = Updatable<Observer & MovingAnimation & T>;
 
 export type ChestEntity = StationaryEntity & Display<Phaser.Sprite> & Chest;
+
+export type SignEntity = StationaryEntity & Display<PIXI.DisplayObjectContainer>;

@@ -13,13 +13,15 @@ import MoveDisplaySystem from '../../entitySystem/system/tick/MoveDisplaySystem'
 import SynchronizeLifecycleSystem from '../../entitySystem/system/visibility/SynchronizeLifecycleSystem';
 import SystemEnginesEngine from '../SystemEnginesEngine';
 import {
-  ChestEntity, CommentEntity, Player, Region,
+  ChestEntity, CommentEntity, Player, Region, SignEntity,
   UpdatingCommentEntity
 } from '../../entitySystem/alias';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
 import SystemFactory from '../../entitySystem/system/SystemFactory';
 import EntityStorage from '../../util/entityStorage/EntityStorage';
 import Renderer from '../../render/Renderer';
+import ContainerSystem from '../../entitySystem/system/visibility/ContainerSystem';
+import Entity from '../../entitySystem/Entity';
 
 class Visibility extends SystemEnginesEngine<VisibilityEngine> {
   constructor(
@@ -39,6 +41,8 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
       chestsStorage: EntityStorage<ChestEntity>,
       playersFinder: EntityFinder<Player>,
       commentPreviewFinder: EntityFinder<UpdatingCommentEntity>,
+      spawnPointsFinder: EntityFinder<Entity>,
+      signsFinder: EntityFinder<SignEntity>,
       renderer: Renderer) {
     let renderRadius = new DynamicProvider(this.getRenderRadius(game));
     game.scale.onSizeChange.add(() => renderRadius.update(this.getRenderRadius(game)));
@@ -47,6 +51,8 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
     let synchronizeUpdateSystem = new SynchronizeLifecycleSystem();
     let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
+
+    let spawnPointsContainerSystem = new ContainerSystem<Entity>();
 
     let chestSystem = systemFactory.createChestSystem(renderRadius, chestsStorage.getRegister());
     let chestsFinder = chestsStorage.getFinder();
@@ -76,8 +82,11 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .toEntities().of(chestsFinder)
         .applyVisibilitySystem(new AddChildSystem(renderer.playersLayer))
         .toEntities().of(playersFinder)
+        .applyVisibilitySystem(new AddChildSystem(renderer.backgroundLayer))
+        .toEntities().of(signsFinder)
         .applyVisibilitySystem(new UnmovableDisplayPositioningSystem(player))
-        .toEntities().of(chestsFinder).and(commentsFinder).and(updatingCommentsFinder)
+        .toEntities()
+        .of(chestsFinder).and(commentsFinder).and(updatingCommentsFinder).and(signsFinder)
 
         .applyVisibilitySystem(new AddChildSystem(player.display))
         .toEntities().of(commentPreviewFinder)
@@ -95,7 +104,10 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
     let backgroundTrackerBuilder = VisibilityEngine.newBuilder(
         player, new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS));
     backgroundTrackerBuilder.onRender()
-        .applyVisibilitySystem(new BackgroundColorSystem(game))
+        .applyVisibilitySystem(spawnPointsContainerSystem)
+        .toEntities().of(spawnPointsFinder)
+
+        .applyVisibilitySystem(new BackgroundColorSystem(game, spawnPointsContainerSystem))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder);
 
     return new this(
