@@ -12,6 +12,10 @@ class Point extends Phaser.Point {
   static origin() {
     return new this();
   }
+
+  static ofPolar(azimuth: number, radius: number) {
+    return new this().setToPolar(azimuth, radius);
+  }
 }
 
 export default Point;

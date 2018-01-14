@@ -52,7 +52,6 @@ class Universe extends Phaser.State {
   public buffDataContainer: BuffDataContainer;
   public player: Player;
   public buffFactory: BuffFactory;
-  public randomDataGenerator: Phaser.RandomDataGenerator;
   public entityFactory: EntityFactory;
   public graphicsFactory: GraphicsFactory;
   public updatingCommentsStorage: EntityStorage<UpdatingCommentEntity, Region<UpdatingCommentEntity>>;
@@ -86,12 +85,11 @@ class Universe extends Phaser.State {
 
     this.buffFactory = new BuffFactoryImpl(game, this.inputController, this.lawFactory);
 
-    this.randomDataGenerator = new Phaser.RandomDataGenerator([new Date()]);
-
+    let randomDataGenerator = new Phaser.RandomDataGenerator([new Date()]);
     let settingsManager = adapter.getSettingsManager();
     this.graphicsFactory = new GraphicsFactoryImpl(
         game,
-        this.randomDataGenerator,
+        randomDataGenerator,
         settingsManager.getSetting(SettingsOptions.FONT_FAMILY),
         settingsManager.getSetting(SettingsOptions.TEXT_SHADOW));
 
@@ -108,15 +106,14 @@ class Universe extends Phaser.State {
     this.spawnPointsStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.signsStorage = this.entityStorageFactory.createGlobalEntityStorage();
 
-    let preset = new HardCodedPreset(
-        this.entityFactory,
-        this.randomDataGenerator,
-        this.graphicsFactory);
+    let preset = new HardCodedPreset(this.entityFactory, this.graphicsFactory);
     preset.populateSigns(this.signsStorage.getRegister());
     preset.populateSpawnPoints(
         this.spawnPointsStorage.getRegister(), this.signsStorage.getRegister());
 
-    this.player = this.entityFactory.createPlayer(Point.origin()); // TODO where to spawn?
+    this.player = this.entityFactory.createPlayer(Point.origin());
+    this.player.coordinates.copyFrom(preset.getPlayerSpawnPoint());
+
     this.playersStorage.getRegister().register(this.player);
 
     let notifierFactory = new NotifierFactoryImpl(game, this.graphicsFactory);

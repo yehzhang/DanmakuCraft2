@@ -6,6 +6,11 @@ import Colors from '../render/Colors';
 import EntityRegister from '../util/entityStorage/EntityRegister';
 import {SignEntity} from '../entitySystem/alias';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
+import Chain from '../util/dataGenerator/Chain';
+import Scaler from '../util/dataGenerator/Scaler';
+import SimpleDataGenerator from '../util/dataGenerator/SimpleDataGenerator';
+import Const from '../util/dataGenerator/Const';
+import Joining from '../util/dataGenerator/Joining';
 
 class PresetPoint<T> {
   constructor(readonly x: number, readonly y: number, readonly data: T) {
@@ -20,41 +25,39 @@ class HardCodedPreset implements Preset {
   private static readonly SIGN_SIZE = 94;
 
   private static readonly SPAWN_POINTS = [
-    new PresetPoint(8100, 8748, '8'), // NW
-    new PresetPoint(16200, 7128, '1'), // N
-    new PresetPoint(23004, 8424, '6'), // NE
-    new PresetPoint(7452, 15876, '3'), // W
-    new PresetPoint(24624, 16524, '7'), // E
-    new PresetPoint(8424, 23004, '4'), // SW
-    new PresetPoint(16524, 24948, '⑨'), // S
-    new PresetPoint(24300, 23652, '2')  // SE
-  ];
+    new PresetPoint(8424, 8586, '8'), // NW
+    new PresetPoint(16362, 9396, '1'), // N
+    new PresetPoint(24300, 8748, '6'), // NE
+    new PresetPoint(8748, 16038, '3'), // W
+    new PresetPoint(23652, 16524, '7'), // E
+    new PresetPoint(9072, 23976, '4'), // SW
+    new PresetPoint(16524, 23490, '⑨'), // S
+    new PresetPoint(23976, 23814, '2')]; // SE
 
-  private static readonly WORLD_CENTER_COORDINATES = Point.of(16200, 16200);
+  private static readonly WORLD_CENTER_COORDINATES = Point.of(16200, 16200); // WORLD_SIZE was 32400
   private static readonly WORLD_ORIGIN_COORDINATES = Point.origin();
 
-  constructor(
-      private entityFactory: EntityFactory,
-      private simpleRandom: Phaser.RandomDataGenerator,
-      private graphicsFactory: GraphicsFactory) {
+  private static readonly SPAWN_POINT_CHANGE_INTERVAL = 10 * Phaser.Timer.MINUTE;
+  private static readonly SPAWN_COORDINATE_MAX_OFFSET = 675;
+
+  constructor(private entityFactory: EntityFactory, private graphicsFactory: GraphicsFactory) {
   }
 
-  // getPlayerSpawnPoint(commentsRegister: EntityRegister<CommentEntity>): Point {
-  getPlayerSpawnPoint(): Point {
-    // TODO
-    throw new TypeError('Not implemented');
-    // asSequence(commentsRegister)
-    //     .drop(commentsRegister.count() * 0.9);
-    // let spawnPoint = this.random.pick(HardCodedPreset.SPAWN_POINTS);
-    // this.entityFactory.createSignEntity(this.graphicsFactory.cre);
-    // Chain.total(seededRandom)
-    //     .pipe(Scaler.to(0, Phaser.Math.PI2))
-    //     .pipe(Const.of(azimuth => {
-    //       let radius = renderRadius.getValue() - 1;
-    //       let offset = Point.origin().setToPolar(azimuth, radius);
-    //       return Phaser.Point.add(trackee.coordinates, offset);
-    //     }))
-    //     .build();
+  getPlayerSpawnPoint() {
+    let spawnPeriod = Math.floor(Date.now() / HardCodedPreset.SPAWN_POINT_CHANGE_INTERVAL);
+    let spawnPointIndex = spawnPeriod % HardCodedPreset.SPAWN_POINTS.length;
+    let spawnPoint = HardCodedPreset.SPAWN_POINTS[spawnPointIndex];
+
+    let randomOffsets = Chain.total(Joining.of(
+        Chain.total(new SimpleDataGenerator()).pipe(Scaler.to(0, Phaser.Math.PI2)).build(),
+        Chain.total(new SimpleDataGenerator())
+            .pipe(Scaler.to(0, HardCodedPreset.SPAWN_COORDINATE_MAX_OFFSET ** 2))
+            .pipe(Const.of(Math.sqrt))
+            .build()))
+        .pipe(Const.of(([azimuth, radius]) => Point.ofPolar(azimuth, radius)))
+        .build()
+        .next();
+    return spawnPoint.coordinates.add(randomOffsets.x, randomOffsets.y);
   }
 
   populateSpawnPoints(

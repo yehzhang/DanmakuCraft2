@@ -39,7 +39,7 @@ class LawFactoryImpl implements LawFactory {
           // Must be in render radius. Otherwise, chest may not be entered, and thus not exited and
           // demolished. Minus one for miserable floating point number arithmetic.
           let radius = renderRadius.getValue() - 1;
-          let offset = Point.origin().setToPolar(azimuth, radius);
+          let offset = Point.ofPolar(azimuth, radius);
           return Phaser.Point.add(trackee.coordinates, offset);
         }))
         .build();
