@@ -33,7 +33,7 @@ class Moving extends PermanentlyUpdatingBuff<MovableEntity> {
       return;
     }
 
-    entity.moveBy(moveDistanceX, moveDistanceY);
+    entity.addToCoordinatesBy(moveDistanceX, moveDistanceY);
     entity.movedOffset.add(moveDistanceX, moveDistanceY);
   }
 

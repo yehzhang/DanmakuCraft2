@@ -75,11 +75,40 @@ class Debug {
         new BuffData(BuffType.CHROMATIC));
   }
 
+  get currentEntities() {
+    let distance = this.getVisibleDistance();
+    return asSequence(this.universe.visibility['engines'])
+        .map(engine => engine['entityFinderRecords'])
+        .flatten()
+        .map(record => record.currentEntities)
+        .flatten()
+        .filter(entity => distance.isClose(entity.coordinates, this.universe.player.coordinates))
+        .toArray();
+  }
+
+  get currentDisplays() {
+    let distance = this.getVisibleDistance();
+    return asSequence(this.universe.renderer['stage'].children as PIXI.DisplayObjectContainer[])
+        .map(child => child.children)
+        .flatten()
+        .map(child => (child as PIXI.DisplayObjectContainer).children)
+        .flatten()
+        .filter(
+            display => distance.isClose(display.position, this.universe.player.display.position))
+        .toArray();
+  }
+
+  set playerCoordinates(coordinates: Point) {
+    this.movePlayerBy(Phaser.Point.subtract(coordinates, this.universe.player.coordinates));
+  }
+
+  set playerOffset(offset: number) {
+    this.movePlayerBy(Point.of(offset, offset));
+  }
+
   static set(universe: Universe) {
     // TODO any idea how to expose all modules while debugging?
-    Object.assign(window, {
-      universe,
-      game: universe.game,
+    Object.assign(window, universe, {
       CommentData,
       BuffData,
       Colors,
@@ -96,6 +125,17 @@ class Debug {
     (window as any).db = debug;
 
     return debug;
+  }
+
+  private movePlayerBy(offset: Point) {
+    let ignored = this.universe.visibility.synchronizeUpdateSystem.for(() => {
+      this.universe.player.addToCoordinatesBy(offset.x, offset.y);
+      this.universe.player.movedOffset.add(offset.x, offset.y);
+    });
+  }
+
+  private getVisibleDistance() {
+    return new Distance(this.universe.game.width / 2);
   }
 
   get say() {
@@ -167,7 +207,7 @@ class Debug {
       let note;
       if (closestSign.display instanceof Phaser.Text) {
         note = closestSign.display.text;
-      }  else {
+      } else {
         note = undefined;
       }
       this.debugInfo.line('Sign', closestSign.coordinates, note);

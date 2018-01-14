@@ -2,14 +2,14 @@ import {Component} from './alias';
 import Coordinates from './component/Coordinates';
 
 abstract class Entity extends Coordinates {
-  static newBuilder<T extends Entity = any>(): EntityBuilder<T> {
+  static newBuilder<T extends Component = {}>(): EntityBuilder<T> {
     return new EntityBuilder();
   }
 }
 
 export default Entity;
 
-export class EntityBuilder<T extends Component = {}> {
+export class EntityBuilder<T extends Component> {
   private static readonly ROOT_PROTOTYPE = Object.getPrototypeOf({});
 
   constructor(private propertiesChain: object[] = []) {

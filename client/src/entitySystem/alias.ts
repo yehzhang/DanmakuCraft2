@@ -9,6 +9,8 @@ import MovingAnimation from './component/MovingAnimation';
 import ContainerHolder from './component/ContainerHolder';
 import Chest from './component/Chest';
 import {Phaser, PIXI} from '../util/alias/phaser';
+import RegisteredTimes from './component/RegisteredTimes';
+import Blink from './component/Blink';
 
 // noinspection TsLint
 export type Component = {};
@@ -23,7 +25,8 @@ export type Region<T = Component> =
 
 export type Updatable<T extends Component = Component> = UpdatingBuffCarrier<T> & T;
 
-export type CommentEntity = StationaryEntity & Display<Phaser.Text> & Comment;
+export type CommentEntity =
+    StationaryEntity & Display<Phaser.Text> & Comment & RegisteredTimes & Blink;
 export type UpdatingCommentEntity = Updatable<CommentEntity>;
 
 export type Observer = MovableEntity & Display<Phaser.Sprite>;

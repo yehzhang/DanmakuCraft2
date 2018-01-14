@@ -22,6 +22,7 @@ import EntityStorage from '../../util/entityStorage/EntityStorage';
 import Renderer from '../../render/Renderer';
 import ContainerSystem from '../../entitySystem/system/visibility/ContainerSystem';
 import Entity from '../../entitySystem/Entity';
+import BlinkCachedDisplaySystem from '../../entitySystem/system/visibility/BlinkCachedDisplaySystem';
 
 class Visibility extends SystemEnginesEngine<VisibilityEngine> {
   constructor(
@@ -50,15 +51,13 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
     let collisionDetectionSystem = new CollisionDetectionSystem();
 
     let synchronizeUpdateSystem = new SynchronizeLifecycleSystem();
-    let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
-
-    let spawnPointsContainerSystem = new ContainerSystem<Entity>();
 
     let chestSystem = systemFactory.createChestSystem(renderRadius, chestsStorage.getRegister());
     let chestsFinder = chestsStorage.getFinder();
 
     let foregroundTrackerBuilder = VisibilityEngine.newBuilder(player, renderRadius);
     foregroundTrackerBuilder.onUpdate()
+        // Update buffs
         .applyVisibilitySystem(new UpdateSystem())
         .toEntities().of(playersFinder).and(commentPreviewFinder)
         .toChildren().of(updatingCommentsFinder)
@@ -72,22 +71,32 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
         .applyTickSystem(synchronizeUpdateSystem);
 
+    let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
+    let addUncachedCommentsSystem = new AddChildSystem(renderer.commentsLayer);
+    let positioningSystem = new UnmovableDisplayPositioningSystem(player);
+
     foregroundTrackerBuilder.onRender()
-        .applyVisibilitySystem(new AddChildSystem(renderer.commentsLayer))
+        // Render
+        .applyVisibilitySystem(new AddChildSystem(renderer.cachedCommentsLayer))
         .toEntities().of(commentsFinder)
-    // TODO share the same sprite among chromatic comments.
-        .applyVisibilitySystem(new AddChildSystem(renderer.updatingCommentsLayer))
+        .applyVisibilitySystem(addUncachedCommentsSystem)
         .toEntities().of(updatingCommentsFinder)
         .applyVisibilitySystem(new AddChildSystem(renderer.groundLayer))
         .toEntities().of(chestsFinder)
         .applyVisibilitySystem(new AddChildSystem(renderer.playersLayer))
         .toEntities().of(playersFinder)
-        .applyVisibilitySystem(new AddChildSystem(renderer.backgroundLayer))
+        .applyVisibilitySystem(new AddChildSystem(renderer.cachedBackgroundLayer))
         .toEntities().of(signsFinder)
-        .applyVisibilitySystem(new UnmovableDisplayPositioningSystem(player))
+        .applyVisibilitySystem(positioningSystem)
         .toEntities()
         .of(chestsFinder).and(commentsFinder).and(updatingCommentsFinder).and(signsFinder)
 
+    // Blink entities that are displayed in cached layers.
+        .applyVisibilitySystem(new BlinkCachedDisplaySystem(
+            positioningSystem, addUncachedCommentsSystem))
+        .toEntities().of(commentsFinder)
+
+    // Preview comments
         .applyVisibilitySystem(new AddChildSystem(player.display))
         .toEntities().of(commentPreviewFinder)
 
@@ -100,6 +109,8 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
         .applyVisibilitySystem(new CommitMotionSystem())
         .toEntities().of(playersFinder);
+
+    let spawnPointsContainerSystem = new ContainerSystem<Entity>();
 
     let backgroundTrackerBuilder = VisibilityEngine.newBuilder(
         player, new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS));

@@ -1,8 +1,8 @@
 import EntityFactory from './EntityFactory';
-import {CommentEntity, Region, UpdatingCommentEntity} from './alias';
+import {Region, UpdatingCommentEntity} from './alias';
 import CommentData from '../comment/CommentData';
 import Comment from './component/Comment';
-import Entity, {EntityBuilder} from './Entity';
+import Entity from './Entity';
 import ImmutableCoordinates from './component/ImmutableCoordinates';
 import BuffFactory from './system/buff/BuffFactory';
 import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
@@ -17,6 +17,8 @@ import ContainerHolder from './component/ContainerHolder';
 import Chest from './component/Chest';
 import {Phaser, PIXI} from '../util/alias/phaser';
 import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
+import RegisteredTimes from './component/RegisteredTimes';
+import Blink from './component/Blink';
 
 class EntityFactoryImpl implements EntityFactory {
   constructor(
@@ -37,7 +39,7 @@ class EntityFactoryImpl implements EntityFactory {
   }
 
   createCommentEntity(data: CommentData) {
-    return this.createBaseCommentEntity(data).build();
+    return this.createCommentEntityBuilder(data).build();
   }
 
   createPlayer(coordinates: Point) {
@@ -60,17 +62,19 @@ class EntityFactoryImpl implements EntityFactory {
   }
 
   createUpdatingCommentEntity(data: CommentData) {
-    return this.createBaseCommentEntity(data)
+    return this.createCommentEntityBuilder(data)
         .mix(new UpdatingBuffCarrier<UpdatingCommentEntity>())
         .build();
   }
 
-  private createBaseCommentEntity(data: CommentData): EntityBuilder<CommentEntity> {
+  private createCommentEntityBuilder(data: CommentData) {
     let comment = new Comment(data.size, data.color, data.text);
-    return Entity.newBuilder<CommentEntity>()
+    return Entity.newBuilder()
         .mix(new ImmutableCoordinates(data.coordinates))
         .mix(comment)
-        .mix(new Display(this.graphicsFactory.createTextFromComment(comment)));
+        .mix(new Display(this.graphicsFactory.createTextFromComment(comment)))
+        .mix(new RegisteredTimes())
+        .mix(new Blink());
   }
 
   createChest(coordinates: Point) {

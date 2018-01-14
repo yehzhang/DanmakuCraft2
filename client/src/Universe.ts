@@ -17,7 +17,6 @@ import BuffFactory from './entitySystem/system/buff/BuffFactory';
 import EntityFactory from './entitySystem/EntityFactory';
 import BuffFactoryImpl from './entitySystem/system/buff/BuffFactoryImpl';
 import EntityFactoryImpl from './entitySystem/EntityFactoryImpl';
-import Point from './util/syntax/Point';
 import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
 import EntityStorage from './util/entityStorage/EntityStorage';
 import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
@@ -66,14 +65,14 @@ class Universe extends Phaser.State {
   public previewCommentLoader: CommentLoader;
   public visibility: Visibility;
   public existence: Existence;
-  public isStarted: DynamicProvider<boolean>;
+  public isGameStarted: DynamicProvider<boolean>;
   public spawnPointsStorage: EntityStorage<Entity>;
   public signsStorage: EntityStorage<SignEntity>;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     super();
 
-    this.isStarted = new DynamicProvider(false);
+    this.isGameStarted = new DynamicProvider(false);
 
     this.buffDataContainer = new BuffDataContainer();
 
@@ -111,9 +110,7 @@ class Universe extends Phaser.State {
     preset.populateSpawnPoints(
         this.spawnPointsStorage.getRegister(), this.signsStorage.getRegister());
 
-    this.player = this.entityFactory.createPlayer(Point.origin());
-    this.player.coordinates.copyFrom(preset.getPlayerSpawnPoint());
-
+    this.player = this.entityFactory.createPlayer(preset.getPlayerSpawnPoint());
     this.playersStorage.getRegister().register(this.player);
 
     let notifierFactory = new NotifierFactoryImpl(game, this.graphicsFactory);
@@ -157,8 +154,11 @@ class Universe extends Phaser.State {
         this.spawnPointsStorage.getFinder(),
         this.signsStorage.getFinder(),
         this.renderer);
-    this.existence =
-        Existence.on(this.commentsStorage.getFinder(), this.updatingCommentsStorage.getFinder());
+    this.existence = Existence.on(
+        game,
+        this.isGameStarted,
+        this.commentsStorage.getFinder(),
+        this.updatingCommentsStorage.getFinder());
 
     this.proxy = new UniverseProxyImpl(
         game,
@@ -218,11 +218,11 @@ class Universe extends Phaser.State {
       this.game.world.sendToBack(sprite);
     }
 
+    this.isGameStarted.update(true);
+
     await this.renderer.fadeIn();
 
     this.inputController.receiveInput();
-
-    this.isStarted.update(true);
   }
 
   update() {

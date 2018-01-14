@@ -15,6 +15,7 @@ import SystemEngine from '../SystemEngine';
  * another.
  * The entity must be animated because otherwise it never updates, and thus requires no tracking.
  */
+// TODO takes entityFinders / record trackers instead of data class
 class VisibilityEngine implements SystemEngine {
   constructor(
       private trackee: Entity,
@@ -43,6 +44,7 @@ class VisibilityEngine implements SystemEngine {
   }
 
   update(time: Phaser.Time) {
+    // TODO when there are more than one updates between two renders, entering and exiting entities are cleared. need to keep them until render, but should not reapply with update systems.
     this.commitRecordsUpdate();
 
     let nextCoordinates = this.trackee.coordinates;
@@ -88,6 +90,72 @@ class VisibilityEngine implements SystemEngine {
 
 export default VisibilityEngine;
 
+// export class RecordTracker {
+//   constructor(
+//       private trackee: Entity,
+//       private samplingRadius: DynamicProvider<number>,
+//       private entityFinderRecords: Array<EntityFinderRecord<Entity>>,
+//       private distanceChecker: DistanceChecker,
+//       private currentCoordinate: Point = trackee.coordinates.clone(),
+//       private updatedRecords: Array<EntityFinderRecord<Entity>> = []) {
+//   }
+//
+//   private static tickSystemTickers(tickers: SystemTicker[], time: Phaser.Time) {
+//     asSequence(tickers).reverse().forEach(ticker => ticker.backwardTick(time));
+//     for (let ticker of tickers) {
+//       ticker.firstForwardTick(time);
+//     }
+//     for (let ticker of tickers) {
+//       ticker.secondForwardTick(time);
+//     }
+//   }
+//
+//   update(time: Phaser.Time) {
+//     // TODO when there are more than one updates between two renders, entering and exiting entities are cleared. need to keep them until render, but should not reapply by update systems.
+//     this.commitRecordsUpdate();
+//
+//     let nextCoordinates = this.trackee.coordinates;
+//     let samplingRadius = this.samplingRadius.getValue();
+//     this.updatedRecords = this.getEntityFinderRecordsToUpdate(nextCoordinates, samplingRadius)
+//         .onEach(record => record.update(nextCoordinates, samplingRadius))
+//         .toArray();
+//
+//     VisibilityEngine.tickSystemTickers(this.onUpdateSystemTickers, time);
+//
+//     this.samplingRadius.commitUpdate();
+//     if (this.updatedRecords.length === this.entityFinderRecords.length) {
+//       this.currentCoordinate.copyFrom(nextCoordinates);
+//     }
+//   }
+//
+//   render(time: Phaser.Time) {
+//     VisibilityEngine.tickSystemTickers(this.onRenderSystemTickers, time);
+//     this.commitRecordsUpdate();
+//   }
+//
+//   private commitRecordsUpdate() {
+//     for (let record of this.updatedRecords) {
+//       record.commitUpdate();
+//     }
+//     this.updatedRecords.length = 0;
+//   }
+//
+//   private getEntityFinderRecordsToUpdate(nextCoordinates: Point, samplingRadius: number) {
+//     let records = asSequence(this.entityFinderRecords);
+//
+//     if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinate)) {
+//       return records;
+//     }
+//
+//     if (this.samplingRadius.hasUpdate()) {
+//       return records;
+//     }
+//
+//     return records.filter(record => record.shouldUpdate(nextCoordinates, samplingRadius));
+//   }
+// }
+
+// TODO move entities to another data class
 export class EntityFinderRecord<T extends Entity> {
   constructor(
       private entityFinder: EntityFinder<T>,

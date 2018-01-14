@@ -1,22 +1,21 @@
 import VisibilitySystem from './VisibilitySystem';
-import {Region} from '../../alias';
+import {DisplayableEntity, Region} from '../../alias';
 import {asSequence} from 'sequency';
 import {PIXI} from '../../../util/alias/phaser';
-import Display from '../../component/Display';
 
-class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.DisplayObjectContainer>
-    implements VisibilitySystem<Region<Display<T>>> {
-  constructor(private currentRegions: Set<Region<Display<T>>> = new Set()) {
+class CollisionDetectionSystem<T extends DisplayableEntity = DisplayableEntity>
+    implements VisibilitySystem<Region<T>> {
+  constructor(private currentRegions: Set<Region<T>> = new Set()) {
   }
 
-  enter(region: Region<Display<T>>) {
+  enter(region: Region<T>) {
     this.currentRegions.add(region);
   }
 
-  update(region: Region<Display<T>>) {
+  update(region: Region<T>) {
   }
 
-  exit(region: Region<Display<T>>) {
+  exit(region: Region<T>) {
     this.currentRegions.delete(region);
   }
 
@@ -26,14 +25,14 @@ class CollisionDetectionSystem<T extends PIXI.DisplayObjectContainer = PIXI.Disp
   collidesWith(display: PIXI.DisplayObjectContainer) {
     let bounds = display.getBounds();
     return this.collidesIf(entity => {
-      if (entity.display === display) {
+      if (display === entity.display) {
         return false;
       }
       return entity.display.getBounds().intersects(bounds);
     });
   }
 
-  collidesIf(callback: (entity: Display<T>) => boolean) {
+  collidesIf(callback: (entity: DisplayableEntity) => boolean) {
     return asSequence(this.currentRegions)
         .flatMap(region => asSequence(region.container))
         .any(callback);

@@ -12,7 +12,9 @@ abstract class Coordinates {
   /**
    * Returns internal coordinates. Modifying them directly may or may not change the internal ones.
    */
-  abstract get coordinates(): Point;
+  get coordinates(): Point {
+    return this.point.clone();
+  }
 
   /**
    * Returns internal coordinates as an offset to {@param coordinates} as they are world
