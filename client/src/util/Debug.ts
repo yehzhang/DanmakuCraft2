@@ -211,6 +211,11 @@ class Debug {
       }
       this.debugInfo.line('Sign', closestSign.coordinates, note);
     }
+
+    let previewEntity = (this.universe.proxy.getCommentPlacingPolicy() as any)['previewEntity'];
+    if (previewEntity != null) {
+      this.universe.game.debug.spriteBounds(previewEntity.display);
+    }
   }
 
   private getNotificationMessage() {

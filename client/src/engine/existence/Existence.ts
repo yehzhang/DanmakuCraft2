@@ -4,13 +4,11 @@ import SystemEnginesEngine from '../SystemEnginesEngine';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
 import {CommentEntity, Region, UpdatingCommentEntity} from '../../entitySystem/alias';
 import TweenBlinkingSystem from '../../entitySystem/system/existence/TweenBlinkingSystem';
-import DynamicProvider from '../../util/DynamicProvider';
 import IncrementRegisteredTimesSystem from '../../entitySystem/system/existence/IncrementRegisteredTimesSystem';
 
 class Existence extends SystemEnginesEngine<ExistenceEngine> {
   static on(
       game: Phaser.Game,
-      isGameStarted: DynamicProvider<boolean>,
       commentsFinder: EntityFinder<Region<CommentEntity>>,
       updatingCommentsFinder: EntityFinder<Region<UpdatingCommentEntity>>) {
     let existenceEngineBuilder = ExistenceEngine.newBuilder();
@@ -22,7 +20,7 @@ class Existence extends SystemEnginesEngine<ExistenceEngine> {
         .apply(new AddChildToRegionSystem())
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
 
-        .apply(new TweenBlinkingSystem(game, isGameStarted))
+        .apply(new TweenBlinkingSystem(game))
         .toChildren().of(commentsFinder).and(updatingCommentsFinder)
 
         .build();

@@ -7,8 +7,7 @@ class MoveDisplaySystem implements TickSystem {
   }
 
   tick() {
-    this.anchor.display.position.add(
-        this.anchor.movedOffset.x, this.anchor.movedOffset.y);
+    this.anchor.display.position.add(this.anchor.movedOffset.x, this.anchor.movedOffset.y);
   }
 }
 

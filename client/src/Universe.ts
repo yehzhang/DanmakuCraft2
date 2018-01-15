@@ -164,9 +164,7 @@ class Universe extends Phaser.State {
             this.previewCommentLoader,
             this.notifier,
             this.buffDataContainer,
-            this.player,
-            this.visibility.synchronizeUpdateSystem,
-            this.visibility.synchronizeRenderSystem),
+            this.player),
         this.notifier);
   }
 

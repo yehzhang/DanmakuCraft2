@@ -7,7 +7,6 @@ import Notifier, {NotificationPriority} from '../../../output/notification/Notif
 import {CommentEntity, Player} from '../../../entitySystem/alias';
 import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffData';
 import Texts from '../../../render/Texts';
-import SynchronizeLifecycleSystem from '../../../entitySystem/system/visibility/SynchronizeLifecycleSystem';
 
 class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   constructor(
@@ -16,34 +15,17 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
       private notifier: Notifier,
       private buffDataContainer: BuffDataContainer,
       private player: Player,
-      private synchronizeUpdateSystem: SynchronizeLifecycleSystem,
-      private synchronizeRenderSystem: SynchronizeLifecycleSystem,
-      private isProcessingRequest: boolean = false,
-      private shouldClearPreview: boolean = false,
-      private previewDisplay?: CommentEntity) {
+      private previewEntity?: CommentEntity) {
   }
 
-  async requestFor(text: string, size: number, color: number) {
-    if (this.isProcessingRequest) {
-      throw new TypeError('Cannot process more than one request at the same time');
-    }
-
+  requestFor(text: string, size: number, color: number) {
     this.clearCommentPreview();
 
     let commentData = this.buildCommentData(text, size, color);
-    let comment = this.previewDisplay = this.commentLoader.load(commentData);
-    comment.display.alpha = 0.7;
+    this.previewEntity = this.commentLoader.load(commentData);
 
-    this.isProcessingRequest = true;
-    await this.synchronizeUpdateSystem.noop();
-    await this.synchronizeRenderSystem.noop();
-    this.isProcessingRequest = false;
-
-    if (this.collisionDetectionSystem.collidesWith(comment.display)) {
-      if (this.shouldClearPreview) {
-        this.clearCommentPreview();
-        this.shouldClearPreview = false;
-      }
+    if (!this.collisionDetectionSystem.collidesWith(this.previewEntity)) {
+      this.previewEntity.display.alpha = 0.7;
       return commentData;
     }
 
@@ -67,17 +49,12 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   }
 
   private clearCommentPreview() {
-    if (this.isProcessingRequest) {
-      this.shouldClearPreview = true;
+    if (this.previewEntity === undefined) {
       return;
     }
 
-    if (this.previewDisplay === undefined) {
-      return;
-    }
-
-    this.commentLoader.unload(this.previewDisplay);
-    this.previewDisplay = undefined;
+    this.commentLoader.unload(this.previewEntity);
+    this.previewEntity = undefined;
   }
 
   private buildCommentData(text: string, size: number, color: number) {
