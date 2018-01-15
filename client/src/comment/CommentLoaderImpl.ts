@@ -6,6 +6,7 @@ import {CommentEntity, UpdatingCommentEntity} from '../entitySystem/alias';
 import CommentData from './CommentData';
 import {BuffData} from '../entitySystem/system/buff/BuffData';
 import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
+import {asSequence} from 'sequency';
 
 class CommentLoaderImpl implements CommentLoader {
   constructor(
@@ -16,7 +17,7 @@ class CommentLoaderImpl implements CommentLoader {
       private buffDataApplier: BuffDataApplier) {
   }
 
-  loadBatch(commentsData: CommentData[]): CommentEntity[] {
+  loadBatch(commentsData: CommentData[], blink?: boolean): CommentEntity[] {
     let comments = [];
     let updatingComments = [];
     for (let commentData of commentsData) {
@@ -37,10 +38,15 @@ class CommentLoaderImpl implements CommentLoader {
       this.updatingCommentsRegister.registerBatch(updatingComments);
     }
 
+    if (!blink) {
+      asSequence([comments, updatingComments]).flatten()
+          .forEach(comment => comment.registeredTimes = Infinity);
+    }
+
     return comments;
   }
 
-  load(commentData: CommentData): CommentEntity {
+  load(commentData: CommentData, blink?: boolean): CommentEntity {
     let comment;
     if (commentData.buffData == null) {
       comment = this.entityFactory.createCommentEntity(commentData);
@@ -48,6 +54,10 @@ class CommentLoaderImpl implements CommentLoader {
     } else {
       comment = this.createUpdatingCommentEntity(commentData, commentData.buffData);
       this.updatingCommentsRegister.register(comment);
+    }
+
+    if (!blink) {
+      comment.registeredTimes = Infinity;
     }
 
     return comment;

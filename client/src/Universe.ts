@@ -238,7 +238,7 @@ class Universe extends Phaser.State {
     let commentsData = await commentProvider.getAllComments();
 
     commentProvider.connect();
-    commentProvider.commentReceived.add(this.commentLoader.load, this.commentLoader);
+    commentProvider.commentReceived.add(data => this.commentLoader.load(data, true));
 
     return this.commentsLoader.bind(this, commentsData);
   }

@@ -178,7 +178,7 @@ class Debug {
       color: number = Debug.DEFAULT_COMMENT_COLOR,
       buffData: BuffData | null = null) {
     return this.universe.commentLoader.load(
-        new CommentData(25, color, text, coordinates, buffData));
+        new CommentData(25, color, text, coordinates, buffData), true);
   }
 
   private render() {
