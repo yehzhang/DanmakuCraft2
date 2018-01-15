@@ -39,6 +39,7 @@ import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
 import Entity from './entitySystem/Entity';
 import HardCodedPreset from './preset/HardCodedPreset';
 import CommentData from './comment/CommentData';
+import Provider from './util/syntax/Provider';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -235,15 +236,16 @@ class Universe extends Phaser.State {
 
   async loadComments(): Promise<() => void> {
     let commentProvider = this.adapter.getCommentProvider();
-    let commentsData = await commentProvider.getAllComments();
+    let commentsDataProvider = await commentProvider.getAllComments();
 
     commentProvider.connect();
     commentProvider.commentReceived.add(data => this.commentLoader.load(data, true));
 
-    return this.commentsLoader.bind(this, commentsData);
+    return this.commentsLoader.bind(this, commentsDataProvider);
   }
 
-  private commentsLoader(commentsData: CommentData[]) {
+  private commentsLoader(commentsDataProvider: Provider<CommentData[]>) {
+    let commentsData = commentsDataProvider();
     this.commentLoader.loadBatch(commentsData);
   }
 

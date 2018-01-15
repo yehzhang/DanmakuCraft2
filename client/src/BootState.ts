@@ -111,7 +111,7 @@ class BootState extends Phaser.State {
     if (__STAGE__) {
       let canFill = (window as any).canFill;
       if (canFill === undefined || canFill) {
-        await (window as any).db.fill;
+        return await (window as any).db.loadComments();
       }
       return () => {
       };

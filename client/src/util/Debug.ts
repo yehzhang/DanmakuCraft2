@@ -149,6 +149,10 @@ class Debug {
   }
 
   get fill() {
+    return this.loadComments().then(loader => loader());
+  }
+
+  async loadComments() {
     let config = ConfigProvider.get();
     return new Promise<Document>((resolve, reject) => $.ajax({
       type: 'GET',
@@ -158,8 +162,10 @@ class Debug {
       error: reject,
     }))
         .then(document => {
-          let commentsData = CommentDataUtil.parseFromDocument(document);
-          return this.universe.commentLoader.loadBatch(commentsData);
+          return () => {
+            let commentsData = CommentDataUtil.parseFromDocument(document);
+            return this.universe.commentLoader.loadBatch(commentsData);
+          };
         });
   }
 

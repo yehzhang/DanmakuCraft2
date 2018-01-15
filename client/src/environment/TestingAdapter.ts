@@ -4,6 +4,7 @@ import GameContainerProvider from './interface/GameContainerProvider';
 import CommentData from '../comment/CommentData';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 import BaseSettingsManager from './component/BaseSettingsManager';
+import Provider from '../util/syntax/Provider';
 
 class TestingAdapter extends BaseEnvironmentAdapter {
   onProxySet(): void {
@@ -37,8 +38,8 @@ export class TestingCommentProvider implements CommentProvider {
   connect() {
   }
 
-  async getAllComments(): Promise<CommentData[]> {
-    return new Promise<CommentData[]>(resolve => resolve([]));
+  async getAllComments() {
+    return new Promise<Provider<CommentData[]>>(resolve => resolve(() => []));
   }
 }
 

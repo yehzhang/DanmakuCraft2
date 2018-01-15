@@ -6,6 +6,7 @@ import CommentData from '../../../comment/CommentData';
 import CommentProvider from '../../interface/CommentProvider';
 import {bindFirst} from '../../util';
 import {Phaser} from '../../../util/alias/phaser';
+import Provider from '../../../util/syntax/Provider';
 
 class TextInputCommentProvider implements CommentProvider {
   constructor(
@@ -41,7 +42,7 @@ class TextInputCommentProvider implements CommentProvider {
     this.sendButton.on('click', this.onSendButtonClickedFinal.bind(this));
   }
 
-  getAllComments(): Promise<CommentData[]> {
+  getAllComments(): Promise<Provider<CommentData[]>> {
     throw new TypeError('This operation is not supported');
   }
 
