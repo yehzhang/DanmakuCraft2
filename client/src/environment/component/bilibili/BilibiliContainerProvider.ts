@@ -7,9 +7,11 @@ class BilibiliContainerProvider implements GameContainerProvider {
     videoFrame.empty();
     videoFrame.attr('id', BilibiliContainerProvider.CONTAINER_ID);
     // videoFrame is not recovered when player's size is changed.
+
+    $('.bilibili-player-ending-panel').remove();
   }
 
-  getContainerId(): string {
+  getContainerId() {
     return BilibiliContainerProvider.CONTAINER_ID;
   }
 }

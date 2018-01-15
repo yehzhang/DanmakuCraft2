@@ -8,17 +8,9 @@ class InputInterceptor {
   constructor(
       keyboard: Phaser.Keyboard,
       private gameContainerFocuser: GameContainerMonitor,
-      private commentTextInput: JQuery<HTMLElement>,
-      // private playButton: JQuery<HTMLElement>,
-      // private progressBar: JQuery<HTMLElement>,
-  ) {
+      private commentTextInput: JQuery<HTMLElement>) {
     this.keyboard = keyboard as KeyboardExtended;
-
     this.interceptKeyboardInputs();
-
-    // TODO Fix play progress bar and play button
-
-    // TODO Let volume bar actually controls
   }
 
   private interceptKeyboardInputs() {
@@ -42,10 +34,13 @@ class InputInterceptor {
     });
   }
 
+  private static stop(event: JQuery.Event) {
+    event.stopImmediatePropagation();
+  }
+
   private switchFocusBetweenGameAndText(event: JQuery.Event) {
     if (this.gameContainerFocuser.isFocused()) {
       this.commentTextInput.focus();
-      // TODO test
       // TODO should not work if user is not logged in or text input is greyed out.
     } else if (this.isCommentTextInputFocused()) {
       let inputValue = this.commentTextInput.val();
@@ -59,24 +54,23 @@ class InputInterceptor {
       return false;
     }
 
-    event.stopImmediatePropagation();
+    InputInterceptor.stop(event);
 
     return true;
   }
 
-  private interceptIfGameIsFocused(
-      event: JQuery.Event, callback: (event: JQuery.Event) => void) {
+  private isCommentTextInputFocused() {
+    return this.commentTextInput.is(':focus');
+  }
+
+  private interceptIfGameIsFocused(event: JQuery.Event, callback: (event: JQuery.Event) => void) {
     if (!this.gameContainerFocuser.isFocused()) {
       return;
     }
 
     callback(event);
 
-    event.stopImmediatePropagation();
-  }
-
-  private isCommentTextInputFocused() {
-    return this.commentTextInput.is(':focus');
+    InputInterceptor.stop(event);
   }
 }
 
