@@ -1,10 +1,10 @@
 export function bindFirst<T extends Node>(
-    $elem: JQuery<T>,
+    element: JQuery<T>,
     event: string,
     selector: JQuery.EventHandler<T>) {
-  $elem.on(event, selector);
+  element.on(event, selector);
 
-  let bindings = $elem.data('events')[event];
+  let bindings = element.data('events')[event];
   bindings.unshift(bindings.pop());
 }
 

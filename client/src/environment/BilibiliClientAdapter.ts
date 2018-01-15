@@ -10,9 +10,13 @@ import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettin
 import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
 import {TestingCommentProvider} from './TestingAdapter';
 import InputInterceptor from './component/bilibili/InputInterceptor';
+import GameContainerFocuser from './component/bilibili/GameContainerFocuser';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
-  constructor(private gameContainerProvider: GameContainerProvider = new BilibiliContainerProvider()) {
+  constructor(
+      private gameContainer: JQuery<HTMLElement> = $('.bilibili-player-video-wrap'),
+      private gameContainerProvider: GameContainerProvider =
+          new BilibiliContainerProvider(gameContainer)) {
     super();
     if (!BilibiliClientAdapter.canRunOnThisWebPage()) {
       throw new Error('Script cannot run on this page');
@@ -30,7 +34,10 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
     let game = this.universeProxy.getGame();
     let textInput = $('.bilibili-player-video-danmaku-input');
     let sendButton = $('.bilibili-player-video-btn-send');
-    let ignored = new InputInterceptor(game.input.keyboard, this.gameContainerProvider, textInput);
+    let ignored = new InputInterceptor(
+        game.input.keyboard,
+        new GameContainerFocuser(this.gameContainer),
+        textInput);
 
     let commentSender = new CommentSenderImpl();
     let commentProvider = new TextInputCommentProvider(
