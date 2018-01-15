@@ -21,8 +21,14 @@ class BootState extends Phaser.State {
   private earthGroup: Phaser.Group;
   private borderGroup: Phaser.Group;
 
+  private backgroundGroup: Phaser.Group;
+
   constructor(private adapter: EnvironmentAdapter, private makeUniverse: UniverseFactory) {
     super();
+
+    if (__STAGE__) {
+      (window as any).boot = this;
+    }
   }
 
   create() {
@@ -44,6 +50,13 @@ class BootState extends Phaser.State {
 
   private craftRenderGroups() {
     this.initialGameSize = this.getCurrentGameSize();
+
+    this.backgroundGroup = this.game.add.group();
+
+    let background = this.game.add.graphics(0, 0, this.backgroundGroup);
+    background.beginFill(Colors.BLACK_NUMBER);
+    background.drawRect(0, 0, 4000, 4000);
+    background.endFill();
 
     let settingsManager = this.adapter.getSettingsManager();
     let fontFamily = settingsManager.getSetting(SettingsOptions.FONT_FAMILY);
@@ -139,23 +152,27 @@ class BootState extends Phaser.State {
     this.waitForAnyInputGroup.destroy();
     this.earthGroup.destroy();
     this.borderGroup.destroy();
+    this.backgroundGroup.destroy();
   }
 
   private async runState(): Promise<void> {
-    let universe;
     if (__DEV__) {
-      let commentsLoader;
-      [universe, commentsLoader] = await this.loadUniverseAndComments();
-      commentsLoader();
+      await this.loadUniverseAndComments();
     } else {
-      universe = await this.showOpeningAndLoadUniverseAndComments();
+      await this.showOpeningAndLoadUniverseAndComments();
     }
-
-    this.game.state.add('MainState', universe);
-    this.game.state.start('MainState', false, false);
   }
 
-  private async loadUniverseAndComments(): Promise<[Universe, () => void]> {
+  private async startMainState(universe: Universe) {
+    this.game.state.add('MainState', universe);
+    this.game.state.start('MainState', false, false);
+
+    await Promise.all([
+      universe.visibility.synchronizeUpdateSystem.noop(),
+      universe.visibility.synchronizeRenderSystem.noop()]);
+  }
+
+  private async getUniverseAndCommentsLoader(): Promise<[Universe, () => void]> {
     let universe = this.makeUniverse(this.game, this.adapter);
     let proxy = universe.getProxy();
     this.adapter.setProxy(proxy);
@@ -164,30 +181,39 @@ class BootState extends Phaser.State {
     return [universe, commentsLoader];
   }
 
-  private async showOpeningAndLoadUniverseAndComments(): Promise<Universe> {
+  private async loadUniverseAndComments() {
+    let [universe, commentsLoader] = await this.getUniverseAndCommentsLoader();
+
+    commentsLoader();
+    universe.onTransitionScreenAllWhite();
+    universe.onTransitionFinished();
+
+    await this.startMainState(universe);
+  }
+
+  private async showOpeningAndLoadUniverseAndComments() {
     this.craftRenderGroups();
 
     let [[universe, commentsLoader]] = await Promise.all([
-      this.loadUniverseAndComments(),
+      this.getUniverseAndCommentsLoader(),
       this.showLoadingStatus(),
       this.approachUniverseBorder(),
       this.approachEarthFaraway()]);
 
     commentsLoader();
 
-    await Promise.all([
-      this.showCompletedLoadingStatus(),
-      this.waitForUniverseBorderOpen(),
-    ]);
+    await this.startMainState(universe);
 
-    await Promise.all([
-      this.passThroughUniverseBorder(),
-      this.approachEarth(),
-    ]);
+    await Promise.all([this.showCompletedLoadingStatus(), this.waitForUniverseBorderOpen()]);
+
+    await Promise.all([this.passThroughUniverseBorder(), this.approachEarth()]);
 
     this.destroyRenderGroups();
+    universe.onTransitionScreenAllWhite();
 
-    return universe;
+    await this.fadeInWorld();
+
+    universe.onTransitionFinished();
   }
 
   private async showLoadingStatus(): Promise<void> {
@@ -325,7 +351,7 @@ class BootState extends Phaser.State {
     this.waitForAnyInputGroup.alpha = 1;
     let anyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
         .to(
-            {alpha: 0.1},
+            {alpha: 0},
             PhysicalConstants.COMMENT_BLINK_DURATION_MS,
             Phaser.Easing.Linear.None,
             true,
@@ -333,10 +359,8 @@ class BootState extends Phaser.State {
             1,
             true);
 
-    await Promise.race([
-      this.showWaitingForAnyInput(anyInputAlphaTween),
-      onAnyInputPromise,
-    ]);
+    await Promise.race([this.showWaitingForAnyInput(anyInputAlphaTween), onAnyInputPromise]);
+
     if (!__STAGE__) {
       await onAnyInputPromise;
     }
@@ -421,6 +445,13 @@ class BootState extends Phaser.State {
 
         resolve();
       });
+    });
+  }
+
+  private async fadeInWorld() {
+    this.game.camera.flash(Colors.BACKGROUND_NUMBER, 2500, true);
+    return new Promise(resolve => {
+      this.game.camera.onFlashComplete.addOnce(resolve);
     });
   }
 }

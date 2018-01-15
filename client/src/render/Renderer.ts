@@ -1,5 +1,4 @@
 import {Phaser, PIXI} from '../util/alias/phaser';
-import Colors from './Colors';
 import Display from '../entitySystem/component/Display';
 
 class Renderer {
@@ -44,11 +43,8 @@ class Renderer {
     return this;
   }
 
-  async fadeIn() {
-    this.game.camera.flash(Colors.BACKGROUND_NUMBER, 2500, true);
-    return new Promise(resolve => {
-      this.game.camera.onFlashComplete.addOnce(resolve);
-    });
+  getStage() {
+    return this.stage;
   }
 }
 

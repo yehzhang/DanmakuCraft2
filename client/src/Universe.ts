@@ -34,7 +34,6 @@ import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentP
 import Visibility from './engine/visibility/Visibility';
 import {Phaser} from './util/alias/phaser';
 import Existence from './engine/existence/Existence';
-import DynamicProvider from './util/DynamicProvider';
 import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
 import Entity from './entitySystem/Entity';
 import HardCodedPreset from './preset/HardCodedPreset';
@@ -67,18 +66,15 @@ class Universe extends Phaser.State {
   public previewCommentLoader: CommentLoader;
   public visibility: Visibility;
   public existence: Existence;
-  public isGameStarted: DynamicProvider<boolean>;
   public spawnPointsStorage: EntityStorage<Entity>;
   public signsStorage: EntityStorage<SignEntity>;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     super();
 
-    this.isGameStarted = new DynamicProvider(false);
-
     this.buffDataContainer = new BuffDataContainer();
 
-    this.inputController = new InputController(game);
+    this.inputController = new InputController(game).ignoreInput();
 
     this.lawFactory = new LawFactoryImpl();
 
@@ -158,7 +154,6 @@ class Universe extends Phaser.State {
         this.renderer);
     this.existence = Existence.on(
         game,
-        this.isGameStarted,
         this.commentsStorage.getFinder(),
         this.updatingCommentsStorage.getFinder());
 
@@ -207,20 +202,18 @@ class Universe extends Phaser.State {
     }
   }
 
-  async create() {
-    this.inputController.ignoreInput();
-
-    this.renderer.turnOn().focus(this.player);
-
+  create() {
     if (__DEV__) {
       let sprite = this.game.add.tileSprite(0, 0, 1920, 1920, 'background');
       this.game.world.sendToBack(sprite);
     }
+  }
 
-    this.isGameStarted.update(true);
+  onTransitionScreenAllWhite() {
+    this.renderer.turnOn().focus(this.player);
+  }
 
-    await this.renderer.fadeIn();
-
+  onTransitionFinished() {
     this.inputController.receiveInput();
   }
 
