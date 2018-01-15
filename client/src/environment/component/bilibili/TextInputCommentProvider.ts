@@ -7,7 +7,6 @@ import CommentProvider from '../../interface/CommentProvider';
 import {bindFirst} from '../../util';
 import {Phaser} from '../../../util/alias/phaser';
 import Provider from '../../../util/syntax/Provider';
-import $ = require('jquery');
 
 class TextInputCommentProvider implements CommentProvider {
   constructor(

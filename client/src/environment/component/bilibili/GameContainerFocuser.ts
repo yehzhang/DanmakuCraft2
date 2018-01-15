@@ -1,4 +1,3 @@
-import $ = require('jquery');
 
 class GameContainerFocuser {
   constructor(

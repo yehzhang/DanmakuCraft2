@@ -15,7 +15,6 @@ import Visibility from '../engine/visibility/Visibility';
 import CommentDataUtil from '../../../scripts/CommentDataUtil';
 import {Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
-import $ = require('jquery');
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -155,15 +154,17 @@ class Debug {
 
   async loadComments() {
     let config = ConfigProvider.get();
-    return new Promise<Document>((resolve, reject) => $.ajax({
-      type: 'GET',
-      url: config.baseUrl + config.defaultBatchCommentsPath,
-      dataType: 'xml',
-      success: resolve,
-      error: reject,
-    }))
-        .then(document => {
+    return new Promise<Event>((resolve, reject) => {
+      let xhr = new XMLHttpRequest();
+      xhr.responseType = 'document';
+      xhr.addEventListener('load', resolve);
+      xhr.addEventListener('error', reject);
+      xhr.open('GET', config.baseUrl + config.defaultBatchCommentsPath);
+      xhr.send();
+    })
+        .then(event => {
           return () => {
+            let document = (event.target as XMLHttpRequest).response;
             let commentsData = CommentDataUtil.parseFromDocument(document);
             return this.universe.commentLoader.loadBatch(commentsData);
           };
