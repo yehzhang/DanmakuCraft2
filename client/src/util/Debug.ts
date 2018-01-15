@@ -15,6 +15,7 @@ import Visibility from '../engine/visibility/Visibility';
 import CommentDataUtil from '../../../scripts/CommentDataUtil';
 import {Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
+import $ = require('jquery');
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -107,7 +108,6 @@ class Debug {
   }
 
   static set(universe: Universe) {
-    // TODO any idea how to expose all modules while debugging?
     Object.assign(window, universe, {
       CommentData,
       BuffData,
@@ -118,6 +118,7 @@ class Debug {
       Distance,
       asSequence,
       PhysicalConstants,
+      ConfigProvider,
     });
 
     let debug = new this(universe);

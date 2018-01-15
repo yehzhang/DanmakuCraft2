@@ -11,6 +11,7 @@ import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
 import {TestingCommentProvider} from './TestingAdapter';
 import InputInterceptor from './component/bilibili/InputInterceptor';
 import GameContainerFocuser from './component/bilibili/GameContainerFocuser';
+import $ = require('jquery');
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   constructor(

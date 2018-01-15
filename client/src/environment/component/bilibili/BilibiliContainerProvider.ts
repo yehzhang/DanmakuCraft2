@@ -1,4 +1,5 @@
 import GameContainerProvider from '../../interface/GameContainerProvider';
+import $ = require('jquery');
 
 class BilibiliContainerProvider implements GameContainerProvider {
   private static readonly CONTAINER_ID = 'danmaku-craft-container';

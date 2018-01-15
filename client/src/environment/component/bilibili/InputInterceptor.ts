@@ -1,6 +1,7 @@
 import {Phaser} from '../../../util/alias/phaser';
 import GameContainerMonitor from './GameContainerFocuser';
 import {bindFirst} from '../../util';
+import $ = require('jquery');
 
 class InputInterceptor {
   private keyboard: KeyboardExtended;

@@ -1,3 +1,5 @@
+import $ = require('jquery');
+
 class GameContainerFocuser {
   constructor(
       private gameContainer: JQuery<HTMLElement>,

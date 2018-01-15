@@ -2,6 +2,5 @@ client/src/
 build/
 references/
 .idea/
-client/resources/index.dev.html
 .rpt2_cache/
 test/
