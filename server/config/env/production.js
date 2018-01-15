@@ -11,6 +11,10 @@
  */
 
 module.exports = {
+  parameters: {
+    // TODO cdn
+    // bundleFileUrl: 'http://localhost:1337/static/build/bundle.js'
+  },
 
   /***************************************************************************
    * Set the default database connection for models in the production        *
@@ -25,7 +29,7 @@ module.exports = {
    * Set the port in the production environment to 80                        *
    ***************************************************************************/
 
-  // port: 80,
+  port: 80,
 
   /***************************************************************************
    * Set the log level in production environment to "silent"                 *

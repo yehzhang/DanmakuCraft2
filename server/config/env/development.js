@@ -11,6 +11,9 @@
  */
 
 module.exports = {
+  parameters: {
+    bundleFileUrl: '/static/build/bundle.js',
+  }
 
   /***************************************************************************
    * Set the default database connection for models in the development       *

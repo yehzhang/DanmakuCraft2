@@ -4,7 +4,13 @@ export function bindFirst<T extends Node>(
     selector: JQuery.EventHandler<T>) {
   element.on(event, selector);
 
-  let bindings = element.data('events')[event];
+  let events = element.data('events');
+  if (events == null) {
+    element.on(event, selector);
+    return;
+  }
+
+  let bindings = events[event];
   bindings.unshift(bindings.pop());
 }
 

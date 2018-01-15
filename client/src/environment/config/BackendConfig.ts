@@ -1,24 +1,28 @@
-class ApiConfig {
+class BackendConfig {
   constructor(
       readonly baseUrl: string,
       readonly batchCommentsPath: string,
       readonly defaultBatchCommentsPath: string,
-      readonly newCommentBroadcastPath: string) {
+      readonly newCommentBroadcastPath: string,
+      readonly gameContainerId: string,
+      readonly officialWebsiteHostname: string) {
   }
 
   static newBuilder() {
-    return new ApiConfigBuilder();
+    return new BackendConfigBuilder();
   }
 }
 
-export default ApiConfig;
+export default BackendConfig;
 
-class ApiConfigBuilder {
+class BackendConfigBuilder {
   constructor(
       private baseUrl?: string,
       private batchCommentsPath?: string,
       private defaultBatchCommentsPath?: string,
-      private newCommentBroadcastPath?: string) {
+      private newCommentBroadcastPath?: string,
+      private gameContainerId?: string,
+      private officialWebsiteHostname?: string) {
   }
 
   setBaseUrl(baseUrl: string) {
@@ -41,15 +45,27 @@ class ApiConfigBuilder {
     return this;
   }
 
-  build(): ApiConfig {
-    return new ApiConfig(
+  setGameContainer(gameContainerId: string) {
+    this.gameContainerId = gameContainerId;
+    return this;
+  }
+
+  setOfficialWebsiteHostname(officialWebsiteHostname: string) {
+    this.officialWebsiteHostname = officialWebsiteHostname;
+    return this;
+  }
+
+  build(): BackendConfig {
+    return new BackendConfig(
         this.validate('baseUrl'),
         this.validate('batchCommentsPath'),
         this.validate('defaultBatchCommentsPath'),
-        this.validate('newCommentBroadcastPath'));
+        this.validate('newCommentBroadcastPath'),
+        this.validate('gameContainerId'),
+        this.validate('officialWebsiteHostname'));
   }
 
-  validate(fieldName: keyof ApiConfig): any {
+  validate(fieldName: keyof BackendConfig): any {
     let field = (this as any)[fieldName];
     if (field == null) {
       throw new TypeError(`Field ${fieldName} is missing`);
