@@ -38,6 +38,7 @@ import DynamicProvider from './util/DynamicProvider';
 import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
 import Entity from './entitySystem/Entity';
 import HardCodedPreset from './preset/HardCodedPreset';
+import CommentData from './comment/CommentData';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -168,7 +169,8 @@ class Universe extends Phaser.State {
             this.notifier,
             this.buffDataContainer,
             this.player,
-            this.visibility.synchronizeUpdateSystem),
+            this.visibility.synchronizeUpdateSystem,
+            this.visibility.synchronizeRenderSystem),
         this.notifier);
   }
 
@@ -205,10 +207,6 @@ class Universe extends Phaser.State {
   }
 
   async create() {
-    if (__STAGE__) {
-      (window as any).db.onCreate();
-    }
-
     this.inputController.ignoreInput();
 
     this.renderer.turnOn().focus(this.player);
@@ -235,13 +233,18 @@ class Universe extends Phaser.State {
     this.visibility.render(this.game.time);
   }
 
-  async loadComments(): Promise<void> {
+  async loadComments(): Promise<() => void> {
     let commentProvider = this.adapter.getCommentProvider();
     let commentsData = await commentProvider.getAllComments();
-    this.commentLoader.loadBatch(commentsData);
 
     commentProvider.connect();
     commentProvider.commentReceived.add(this.commentLoader.load, this.commentLoader);
+
+    return this.commentsLoader.bind(this, commentsData);
+  }
+
+  private commentsLoader(commentsData: CommentData[]) {
+    this.commentLoader.loadBatch(commentsData);
   }
 
   getProxy(): UniverseProxy {

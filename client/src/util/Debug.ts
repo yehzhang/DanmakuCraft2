@@ -172,15 +172,6 @@ class Debug {
     return true;
   }
 
-  onCreate() {
-    if (__STAGE__) {
-      let canFill = (window as any).canFill;
-      if (canFill === undefined || canFill) {
-        let ignored = this.fill;
-      }
-    }
-  }
-
   addComment(
       coordinates: Point = this.universe.player.coordinates,
       text: string = Debug.DEFAULT_COMMENT_TEXT,

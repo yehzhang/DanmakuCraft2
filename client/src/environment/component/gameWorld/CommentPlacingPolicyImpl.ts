@@ -17,6 +17,7 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
       private buffDataContainer: BuffDataContainer,
       private player: Player,
       private synchronizeUpdateSystem: SynchronizeLifecycleSystem,
+      private synchronizeRenderSystem: SynchronizeLifecycleSystem,
       private isProcessingRequest: boolean = false,
       private shouldClearPreview: boolean = false,
       private previewDisplay?: CommentEntity) {
@@ -31,14 +32,14 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
 
     let commentData = this.buildCommentData(text, size, color);
     let comment = this.previewDisplay = this.commentLoader.load(commentData);
-    comment.display.alpha = 0.8;
+    comment.display.alpha = 0.7;
 
     this.isProcessingRequest = true;
-    let hasCollision = await this.synchronizeUpdateSystem.for(
-        () => this.collisionDetectionSystem.collidesWith(comment.display));
+    await this.synchronizeUpdateSystem.noop();
+    await this.synchronizeRenderSystem.noop();
     this.isProcessingRequest = false;
 
-    if (!hasCollision) {
+    if (this.collisionDetectionSystem.collidesWith(comment.display)) {
       if (this.shouldClearPreview) {
         this.clearCommentPreview();
         this.shouldClearPreview = false;

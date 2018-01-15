@@ -107,12 +107,16 @@ class BootState extends Phaser.State {
     this.game.scale.onSizeChange.add(this.onGameResize, this);
   }
 
-  private destroyRenderGroups() {
-     this.titleGroup.destroy();
-     this.loadingStatusGroup.destroy();
-     this.waitForAnyInputGroup.destroy();
-     this.earthGroup.destroy();
-     this.borderGroup.destroy();
+  private static async loadComments(universe: Universe): Promise<() => void> {
+    if (__STAGE__) {
+      let canFill = (window as any).canFill;
+      if (canFill === undefined || canFill) {
+        await (window as any).db.fill;
+      }
+      return () => {
+      };
+    }
+    return await universe.loadComments();
   }
 
   private onGameResize() {
@@ -129,42 +133,47 @@ class BootState extends Phaser.State {
     return Point.of(this.game.width, this.game.height);
   }
 
+  private destroyRenderGroups() {
+    this.titleGroup.destroy();
+    this.loadingStatusGroup.destroy();
+    this.waitForAnyInputGroup.destroy();
+    this.earthGroup.destroy();
+    this.borderGroup.destroy();
+  }
+
   private async runState(): Promise<void> {
     let universe;
     if (__DEV__) {
-      universe = await this.loadUniverse();
+      let commentsLoader;
+      [universe, commentsLoader] = await this.loadUniverseAndComments();
+      commentsLoader();
     } else {
-      universe = await this.showOpeningAndLoadUniverse();
+      universe = await this.showOpeningAndLoadUniverseAndComments();
     }
 
     this.game.state.add('MainState', universe);
     this.game.state.start('MainState', false, false);
   }
 
-  private async loadUniverse(): Promise<Universe> {
+  private async loadUniverseAndComments(): Promise<[Universe, () => void]> {
     let universe = this.makeUniverse(this.game, this.adapter);
-
     let proxy = universe.getProxy();
     this.adapter.setProxy(proxy);
 
-    await universe.loadComments();
-
-    return universe;
+    let commentsLoader = await BootState.loadComments(universe);
+    return [universe, commentsLoader];
   }
 
-  private async showOpeningAndLoadUniverse(): Promise<Universe> {
+  private async showOpeningAndLoadUniverseAndComments(): Promise<Universe> {
     this.craftRenderGroups();
 
-    let [universe, , , ] = await Promise.all([
-      this.loadUniverse().catch(reason => reason),
+    let [[universe, commentsLoader]] = await Promise.all([
+      this.loadUniverseAndComments(),
       this.showLoadingStatus(),
       this.approachUniverseBorder(),
-      this.approachEarthFaraway(),
-    ]);
+      this.approachEarthFaraway()]);
 
-    if (universe instanceof Error) {
-      throw universe;
-    }
+    commentsLoader();
 
     await Promise.all([
       this.showCompletedLoadingStatus(),

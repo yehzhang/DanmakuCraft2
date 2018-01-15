@@ -4,6 +4,7 @@ import Point from '../util/syntax/Point';
 class CommentData {
   readonly coordinates: Point;
 
+  // TODO subtitle comment
   constructor(
       readonly size: number,
       readonly color: number,
