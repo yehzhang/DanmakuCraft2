@@ -34,34 +34,44 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   private static disableControls() {
-    // Disable progress bar
+    // Disable progress bar.
     $('.bilibili-player-video-control .bilibili-player-video-progress-bar .bpui-slider-tracker-wrp')
         .off();
     $('.bilibili-player-video-control .bilibili-player-video-progress-bar .bpui-slider-handle')
         .off();
 
-    // Disable previews above progress bar
+    // Disable previews above progress bar.
     $('.bilibili-player-video-control .bilibili-player-video-progress-bar').off();
 
-    // Disable play button
+    // Disable play button.
     $('.bilibili-player-video-control .bilibili-player-video-btn-start').off();
 
-    // Disable quality button
+    // Disable quality button.
     $('.bilibili-player-video-control .bilibili-player-video-quality-menu').off();
 
-    // Disable comment visibility button
+    // Disable comment visibility button.
     $('.bilibili-player-video-control .bilibili-player-video-btn-danmaku').off();
 
-    // Disable playback button
+    // Disable playback button.
     $('.bilibili-player-video-control .bilibili-player-video-btn-repeat').off();
 
-    // Disable time input
+    // Disable time input.
     $('.bilibili-player-video-control .bilibili-player-video-time-wrap').off();
 
-    // Disable keyboard controls to the video player
+    // Disable keyboard controls to the video player.
     $(window).off('keydown');
 
     // Player controls not disabled: volume, widescreen, and fullscreen.
+
+    // Disable control bar hiding in fullscreen mode.
+    $('#bilibiliPlayer').off('video_mousemove.bilibiliplayer');
+    $('.bilibili-player-video-control .bilibili-player-video-btn-fullscreen').on('click', () => {
+      setTimeout(() => {
+        $('.bilibili-player-video-sendbar').add('.bilibili-player-video-control')
+            .stop()
+            .attr('opacity', 1);
+      }, 5010);
+    });
   }
 
   onProxySet() {

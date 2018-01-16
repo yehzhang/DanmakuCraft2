@@ -27,14 +27,8 @@ class GameContainerFocuser {
   }
 
   private listenToGameFocusChanges() {
-    $(this.gameContainer).on('click', event => {
-      this.focus();
-      event.stopImmediatePropagation();
-    });
-    $(window).on('click', () => this.unfocus());
-    $(window).on('focusin', () => {
-      this.unfocus();
-    });
+    $(this.gameContainer).on('click', () => this.focus());
+    $(window).on('focusin', () => this.unfocus());
   }
 }
 

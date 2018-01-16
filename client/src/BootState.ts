@@ -6,6 +6,7 @@ import {SettingsOptions} from './environment/interface/SettingsManager';
 import PhysicalConstants from './PhysicalConstants';
 import Point from './util/syntax/Point';
 import {Phaser} from './util/alias/phaser';
+import Rectangle from './util/syntax/Rectangle';
 
 /**
  * Displays the opening and loads the universe
@@ -45,7 +46,12 @@ class BootState extends Phaser.State {
     // Too ugly when zoomed if turned on
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 
-    this.game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+    this.game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE;
+    this.game.scale.setResizeCallback(this.onResize, this);
+  }
+
+  private onResize(scale: Phaser.ScaleManager, parentBounds: Rectangle) {
+    this.game.scale.setGameSize(parentBounds.width, parentBounds.height);
   }
 
   private craftRenderGroups() {
