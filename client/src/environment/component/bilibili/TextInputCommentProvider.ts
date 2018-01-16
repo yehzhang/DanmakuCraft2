@@ -12,20 +12,35 @@ class TextInputCommentProvider implements CommentProvider {
       private commentPlacingPolicy: CommentPlacingPolicy,
       private textInput: JQuery<HTMLElement>,
       private sendButton: JQuery<HTMLElement>,
+      private fontSelection =
+          $('.bilibili-player-mode-selection-row.fontsize .selection-span.active'),
+      private colorInput =
+          $('.bilibili-player-video-sendbar .bilibili-player-color-picker-color-code'),
       readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal()) {
   }
 
-  private static getSelectedFontSize(): number {
-    let $fontSelection = $('.bilibili-player-mode-selection-row.fontsize .selection-span.active');
-    let commentSizeValue = $fontSelection.attr('data-value');
+  private getSelectedFontSize(): number {
+    let commentSizeValue = this.fontSelection.attr('data-value');
     if (commentSizeValue) {
       return Number(commentSizeValue);
     }
     return Parameters.DEFAULT_FONT_SIZE;
   }
 
-  private static getSelectedFontColor(): number {
-    return Colors.WHITE_NUMBER; // TODO
+  private getSelectedFontColor(): number {
+    let inputValue = this.colorInput.val();
+    if (inputValue != null) {
+      if (inputValue.constructor === Array) {
+        inputValue = (inputValue as string[])[0];
+      }
+      if (inputValue.constructor === Number) {
+        return inputValue as number;
+      }
+      if (inputValue.constructor === String) {
+        return Phaser.Color.hexToRGB(inputValue as string) & 0xFFFFFF;
+      }
+    }
+    return Colors.WHITE_NUMBER;
   }
 
   connect() {
@@ -44,6 +59,9 @@ class TextInputCommentProvider implements CommentProvider {
 
   private requestForPlacingComment() {
     let textInputValue = this.textInput.val();
+    if (textInputValue && textInputValue.constructor === Array) {
+      textInputValue = (textInputValue as string[])[0];
+    }
     if (!textInputValue) {
       this.commentPlacingPolicy.cancelRequest();
       return null;
@@ -51,8 +69,8 @@ class TextInputCommentProvider implements CommentProvider {
 
     return this.commentPlacingPolicy.requestFor(
         textInputValue.toString(),
-        TextInputCommentProvider.getSelectedFontSize(),
-        TextInputCommentProvider.getSelectedFontColor());
+        this.getSelectedFontSize(),
+        this.getSelectedFontColor());
   }
 
   private onSendButtonClickedInitially(event: JQuery.Event) {
