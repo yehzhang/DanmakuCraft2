@@ -51,7 +51,7 @@ class BootState extends Phaser.State {
     this.game.scale.setResizeCallback(this.onResize, this);
   }
 
-  private onResize(scale: Phaser.ScaleManager, parentBounds: Rectangle) {
+  private onResize(ignored: Phaser.ScaleManager, parentBounds: Rectangle) {
     this.game.scale.setGameSize(parentBounds.width, parentBounds.height);
   }
 
