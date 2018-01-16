@@ -7,8 +7,13 @@ import Notifier, {NotificationPriority} from '../../../output/notification/Notif
 import {CommentEntity, Player} from '../../../entitySystem/alias';
 import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffData';
 import Texts from '../../../render/Texts';
+import Point from '../../../util/syntax/Point';
 
 class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
+  // Maximum blur radius = 2. Minimum line padding = 9.
+  // Multiply by 2 because bounds of comments in collision system are not shrunk,
+  private static readonly COLLISION_BOUNDS_SHRINKAGE = Point.of(2, 9 / 2 + 2).multiply(2, 2);
+
   constructor(
       private collisionDetectionSystem: CollisionDetectionSystem,
       private commentLoader: CommentLoader,
@@ -18,21 +23,25 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
       private previewEntity?: CommentEntity) {
   }
 
+  private static getCollisionBounds(entity: CommentEntity) {
+    return entity.getDisplayWorldBounds()
+        .inflate(-this.COLLISION_BOUNDS_SHRINKAGE.x, -this.COLLISION_BOUNDS_SHRINKAGE.y);
+  }
+
   requestFor(text: string, size: number, color: number) {
     this.clearCommentPreview();
 
     let commentData = this.buildCommentData(text, size, color);
     this.previewEntity = this.commentLoader.load(commentData);
 
-    if (!this.collisionDetectionSystem.collidesWith(this.previewEntity)) {
+    let bounds = CommentPlacingPolicyImpl.getCollisionBounds(this.previewEntity);
+    if (!this.collisionDetectionSystem.collidesIn(bounds)) {
       this.previewEntity.display.alpha = 0.7;
       return commentData;
     }
 
     this.notifier.send(
         Texts.forName('main.comment.insert.collision'), NotificationPriority.OVERRIDE);
-
-    this.clearCommentPreview();
 
     return null;
   }

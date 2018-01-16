@@ -11,7 +11,7 @@ class PhysicalConstants {
   public static readonly BACKGROUND_SAMPLING_RADIUS = 3100;
   public static readonly ENTITY_TRACKER_UPDATE_RADIUS = PhysicalConstants.CHUNK_SIZE;
 
-  public static readonly PLAYER_MOVE_DISTANCE_PER_SECOND = 216;
+  public static readonly PLAYER_MOVE_PIXELS_PER_SECOND = 216;
 
   public static readonly COMMENT_BLINK_DURATION_MS = 150;
 

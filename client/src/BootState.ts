@@ -200,8 +200,8 @@ class BootState extends Phaser.State {
       this.approachUniverseBorder(),
       this.approachEarthFaraway()]);
 
+    // Heavy computing part
     commentsLoader();
-
     await this.startMainState(universe);
 
     await Promise.all([this.showCompletedLoadingStatus(), this.waitForUniverseBorderOpen()]);

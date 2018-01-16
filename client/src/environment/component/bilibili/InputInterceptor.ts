@@ -20,12 +20,16 @@ class InputInterceptor {
 
     bindFirst($(window), 'keydown', event => {
       if (event.which === Phaser.KeyCode.ENTER) {
-        if (this.switchFocusBetweenGameAndText(event)) {
-          return;
-        }
+        return;
       }
       this.interceptIfGameIsFocused(event, () => this.keyboard.processKeyDown(event));
     });
+    $(window).on('keydown', event => {
+      if (event.which === Phaser.KeyCode.ENTER) {
+        this.switchFocusBetweenGameAndText(event);
+      }
+    });
+
     bindFirst($(window), 'keyup', event => {
       this.interceptIfGameIsFocused(event, () => this.keyboard.processKeyUp(event));
     });
@@ -41,22 +45,9 @@ class InputInterceptor {
   private switchFocusBetweenGameAndText(event: JQuery.Event) {
     if (this.gameContainerFocuser.isFocused()) {
       this.commentTextInput.focus();
-      // TODO should not work if user is not logged in or text input is greyed out.
     } else if (this.isCommentTextInputFocused()) {
-      let inputValue = this.commentTextInput.val();
-      if (inputValue && inputValue.toString()) {
-        // Do not intercept. Let player handle it.
-        return false;
-      }
-
       this.gameContainerFocuser.focus();
-    } else {
-      return false;
     }
-
-    InputInterceptor.stop(event);
-
-    return true;
   }
 
   private isCommentTextInputFocused() {

@@ -129,7 +129,7 @@ class Debug {
 
   private movePlayerBy(offset: Point) {
     let ignored = this.universe.visibility.synchronizeUpdateSystem.for(() => {
-      this.universe.player.addToCoordinatesBy(offset.x, offset.y);
+      this.universe.player.addToCoordinatesBy(offset);
       this.universe.player.movedOffset.add(offset.x, offset.y);
     });
   }

@@ -6,17 +6,13 @@ import CommentProvider from '../../interface/CommentProvider';
 import {bindFirst} from '../../util';
 import {Phaser} from '../../../util/alias/phaser';
 import Provider from '../../../util/syntax/Provider';
-import Timeout from '../../../util/async/Timeout';
-import Delivery from '../../../util/async/Delivery';
 
 class TextInputCommentProvider implements CommentProvider {
   constructor(
       private commentPlacingPolicy: CommentPlacingPolicy,
       private textInput: JQuery<HTMLElement>,
       private sendButton: JQuery<HTMLElement>,
-      readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal(),
-      private sendButtonTimeout: Timeout = new Timeout(Phaser.Timer.SECOND),
-      private isSendingComment: boolean = false) {
+      readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal()) {
   }
 
   private static getSelectedFontSize(): number {
@@ -33,8 +29,9 @@ class TextInputCommentProvider implements CommentProvider {
   }
 
   connect() {
-    this.textInput.on('input', this.onTextInput.bind(this));
-    bindFirst(this.sendButton, 'click', this.onSendButtonClickedInitial.bind(this));
+    this.textInput.on('input', () => this.onTextInput());
+    this.textInput.on('focus', () => this.onTextInput());
+    bindFirst(this.sendButton, 'click', event => this.onSendButtonClickedInitially(event));
   }
 
   getAllComments(): Promise<Provider<CommentData[]>> {
@@ -49,7 +46,6 @@ class TextInputCommentProvider implements CommentProvider {
     let textInputValue = this.textInput.val();
     if (!textInputValue) {
       this.commentPlacingPolicy.cancelRequest();
-      // Ok to not notify only if notify all below
       return null;
     }
 
@@ -59,7 +55,7 @@ class TextInputCommentProvider implements CommentProvider {
         TextInputCommentProvider.getSelectedFontColor());
   }
 
-  private async onSendButtonClickedInitial(event: Event) {
+  private onSendButtonClickedInitially(event: JQuery.Event) {
     if (this.isSendButtonDisabled()) {
       return null;
     }
@@ -70,35 +66,13 @@ class TextInputCommentProvider implements CommentProvider {
       return;
     }
 
-    if (this.isSendingComment) {
-      return;
-    }
-    this.isSendingComment = true;
+    this.commentPlacingPolicy.commitRequest();
 
-    let canSendComment = new Delivery<boolean>();
-
-    let onFinalCallback = () => canSendComment.set(true);
-    this.sendButton.on('click', onFinalCallback);
-
-    await Promise.race([canSendComment.wait(), this.rejectSendingCommentAfterTimeout(canSendComment)]);
-
-    if (canSendComment.get()) {
-      this.commentReceived.dispatch(commentData);
-    }
-
-    this.sendButton.off('click', onFinalCallback);
-
-    // Set false after sent
-    this.isSendingComment = false;
+    this.commentReceived.dispatch(commentData);
   }
 
   private isSendButtonDisabled() {
     return this.sendButton.hasClass('bpui-state-disabled');
-  }
-
-  private async rejectSendingCommentAfterTimeout(delivery: Delivery<boolean>) {
-    await this.sendButtonTimeout.wait();
-    delivery.set(false);
   }
 }
 

@@ -70,10 +70,8 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
     let sendButton = $('.bilibili-player-video-btn-send');
 
     // TODO Let volume bar actually controls
-    let ignored = new InputInterceptor(
-        game.input.keyboard,
-        new GameContainerFocuser(this.gameContainer),
-        textInput);
+    let gameContainerFocuser = new GameContainerFocuser(this.gameContainer);
+    let ignored = new InputInterceptor(game.input.keyboard, gameContainerFocuser, textInput);
 
     let commentProvider = new TextInputCommentProvider(
         this.universeProxy.getCommentPlacingPolicy(),

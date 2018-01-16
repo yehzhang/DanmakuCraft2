@@ -6,12 +6,12 @@ export function bindFirst<T extends Node>(
 
   let events = element.data('events');
   if (events == null) {
+    console.error('Failed to bind handler to the first');
     element.on(event, selector);
-    return;
+  } else {
+    let bindings = events[event];
+    bindings.unshift(bindings.pop());
   }
-
-  let bindings = events[event];
-  bindings.unshift(bindings.pop());
 }
 
 export class WebSocketManager {

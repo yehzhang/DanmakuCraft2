@@ -1,4 +1,3 @@
-
 class GameContainerFocuser {
   constructor(
       private gameContainer: JQuery<HTMLElement>,

@@ -1,6 +1,7 @@
 import VisibilitySystem from './VisibilitySystem';
 import {DisplayableEntity, Region} from '../../alias';
 import {asSequence} from 'sequency';
+import Rectangle from '../../../util/syntax/Rectangle';
 
 class CollisionDetectionSystem<T extends DisplayableEntity = DisplayableEntity>
     implements VisibilitySystem<Region<T>> {
@@ -21,14 +22,19 @@ class CollisionDetectionSystem<T extends DisplayableEntity = DisplayableEntity>
   finish() {
   }
 
-  collidesWith(entity: DisplayableEntity) {
-    let bounds = entity.getDisplayWorldBounds();
-    return this.collidesIf(other => {
-      if (entity === other) {
-        return false;
-      }
-      return other.getDisplayWorldBounds().intersects(bounds);
-    });
+  static intersectsNegative(bounds: Rectangle, other: Rectangle) {
+    if (bounds.right < other.x
+        || bounds.bottom < other.y
+        || bounds.x > other.right
+        || bounds.y > other.bottom) {
+      return false;
+    }
+    return true;
+  }
+
+  collidesIn(bounds: Rectangle) {
+    return this.collidesIf(entity => CollisionDetectionSystem.intersectsNegative(
+        bounds, entity.getDisplayWorldBounds()));
   }
 
   collidesIf(callback: (entity: DisplayableEntity) => boolean) {

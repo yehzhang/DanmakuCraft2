@@ -7,15 +7,11 @@ class MovingAnimationSystem implements VisibilitySystem<Motion & MovingAnimation
   }
 
   update(entity: Motion & MovingAnimation) {
-    if (entity.movedOffset.isZero()) {
-      if (entity.movingAnimation.isPlaying) {
-        entity.movingAnimation.stop(true);
-      }
-    } else {
-      if (!entity.movingAnimation.isPlaying) {
-        entity.movingAnimation.play();
-        entity.movingAnimation.frame = 1;
-      }
+    if (entity.isMoving && !entity.movingAnimation.isPlaying) {
+      entity.movingAnimation.play();
+      entity.movingAnimation.frame = 1;
+    } else if (!entity.isMoving && entity.movingAnimation.isPlaying) {
+      entity.movingAnimation.stop(true);
     }
   }
 

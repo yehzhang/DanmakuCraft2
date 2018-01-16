@@ -1,11 +1,12 @@
 import Coordinates from './Coordinates';
 import {toWorldCoordinate2d} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
+import Point from '../../util/syntax/Point';
 
 class MutableCoordinates extends Coordinates {
-  addToCoordinatesBy(distanceX: number, distanceY: number) {
-    this.point = toWorldCoordinate2d(
-        this.point.add(distanceX, distanceY), PhysicalConstants.WORLD_SIZE);
+  addToCoordinatesBy(offset: Point) {
+    this.point =
+        toWorldCoordinate2d(this.point.add(offset.x, offset.y), PhysicalConstants.WORLD_SIZE);
   }
 }
 
