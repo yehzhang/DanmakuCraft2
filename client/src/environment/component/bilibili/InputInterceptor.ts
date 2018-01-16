@@ -1,6 +1,7 @@
 import {Phaser} from '../../../util/alias/phaser';
 import GameContainerMonitor from './GameContainerFocuser';
 import {bindFirst} from '../../util';
+import Widgets from './Widgets';
 
 class InputInterceptor {
   private keyboard: KeyboardExtended;
@@ -8,7 +9,7 @@ class InputInterceptor {
   constructor(
       keyboard: Phaser.Keyboard,
       private gameContainerFocuser: GameContainerMonitor,
-      private commentTextInput: JQuery<HTMLElement>) {
+      private widgets: Widgets) {
     this.keyboard = keyboard as KeyboardExtended;
     this.interceptKeyboardInputs();
   }
@@ -26,7 +27,7 @@ class InputInterceptor {
     });
     $(window).on('keydown', event => {
       if (event.which === Phaser.KeyCode.ENTER) {
-        this.switchFocusBetweenGameAndText(event);
+        this.switchFocusBetweenGameAndText();
       }
     });
 
@@ -42,16 +43,16 @@ class InputInterceptor {
     event.stopImmediatePropagation();
   }
 
-  private switchFocusBetweenGameAndText(event: JQuery.Event) {
+  private switchFocusBetweenGameAndText() {
     if (this.gameContainerFocuser.isFocused()) {
-      this.commentTextInput.focus();
+      this.widgets.textInput.focus();
     } else if (this.isCommentTextInputFocused()) {
       this.gameContainerFocuser.focus();
     }
   }
 
   private isCommentTextInputFocused() {
-    return this.commentTextInput.is(':focus');
+    return this.widgets.textInput.is(':focus');
   }
 
   private interceptIfGameIsFocused(event: JQuery.Event, callback: (event: JQuery.Event) => void) {

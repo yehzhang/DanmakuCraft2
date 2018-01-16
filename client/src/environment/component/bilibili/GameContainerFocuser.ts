@@ -1,6 +1,8 @@
+import Widgets from './Widgets';
+
 class GameContainerFocuser {
   constructor(
-      private gameContainer: JQuery<HTMLElement>,
+      private widgets: Widgets,
       private isContainerFocused: boolean = !GameContainerFocuser.hasAnyOtherFocus()) {
     this.listenToGameFocusChanges();
   }
@@ -27,7 +29,7 @@ class GameContainerFocuser {
   }
 
   private listenToGameFocusChanges() {
-    $(this.gameContainer).on('click', () => this.focus());
+    $(this.widgets.videoFrame).on('click', () => this.focus());
     $(window).on('focusin', () => this.unfocus());
   }
 }

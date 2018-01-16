@@ -11,12 +11,13 @@ import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
 import {TestingCommentProvider} from './TestingAdapter';
 import InputInterceptor from './component/bilibili/InputInterceptor';
 import GameContainerFocuser from './component/bilibili/GameContainerFocuser';
+import Widgets from './component/bilibili/Widgets';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   constructor(
-      private gameContainer: JQuery<HTMLElement> = $('.bilibili-player-video-wrap'),
+      private widgets: Widgets = new Widgets(),
       private gameContainerProvider: GameContainerProvider =
-          new BilibiliContainerProvider(gameContainer)) {
+          new BilibiliContainerProvider(widgets)) {
     super();
 
     if (!BilibiliClientAdapter.canRunOnThisWebPage()) {
@@ -75,21 +76,17 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   onProxySet() {
-    let game = this.universeProxy.getGame();
-    let textInput = $('.bilibili-player-video-danmaku-input');
-    let sendButton = $('.bilibili-player-video-btn-send');
-
-    // TODO Let volume bar actually controls
-    let gameContainerFocuser = new GameContainerFocuser(this.gameContainer);
-    let ignored = new InputInterceptor(game.input.keyboard, gameContainerFocuser, textInput);
-
-    let commentProvider = new TextInputCommentProvider(
-        this.universeProxy.getCommentPlacingPolicy(),
-        textInput,
-        sendButton);
+    let commentProvider =
+        new TextInputCommentProvider(this.universeProxy.getCommentPlacingPolicy(), this.widgets);
     let commentSender = new CommentSenderImpl();
     commentProvider.commentReceived.add(commentData => commentSender.send(commentData));
     commentProvider.connect();
+
+    let game = this.universeProxy.getGame();
+    let gameContainerFocuser = new GameContainerFocuser(this.widgets);
+    let ignored = new InputInterceptor(game.input.keyboard, gameContainerFocuser, this.widgets);
+
+    // TODO Let volume bar actually controls
   }
 
   getCommentProvider() {
