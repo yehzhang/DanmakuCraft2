@@ -8,6 +8,7 @@ export default class Colors {
   static readonly GREEN = '#00FF00';
   static readonly BLACK = '#000000';
   static readonly BACKGROUND = '#F6F9FA';
+  static readonly TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
   static readonly BACKGROUND_NUMBER = 0xF6F9FA;
   static readonly WHITE_NUMBER = 0xFFFFFF;

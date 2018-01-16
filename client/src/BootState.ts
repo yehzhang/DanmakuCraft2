@@ -7,13 +7,15 @@ import PhysicalConstants from './PhysicalConstants';
 import Point from './util/syntax/Point';
 import {Phaser} from './util/alias/phaser';
 import Rectangle from './util/syntax/Rectangle';
+import Timeout from './util/async/Timeout';
 
 /**
  * Displays the opening and loads the universe
  */
 class BootState extends Phaser.State {
   private initialGameSize: Point;
-  private titleGroup: Phaser.Group;
+  private titleTextGroup: Phaser.Group;
+  private titleVersionGroup: Phaser.Group;
 
   private loadingStatusGroup: Phaser.Group;
   private loadingStatusText: Phaser.Text;
@@ -26,7 +28,6 @@ class BootState extends Phaser.State {
 
   constructor(private adapter: EnvironmentAdapter, private makeUniverse: UniverseFactory) {
     super();
-
     if (__STAGE__) {
       (window as any).boot = this;
     }
@@ -69,20 +70,37 @@ class BootState extends Phaser.State {
 
     this.borderGroup = this.game.add.group();
 
-    this.titleGroup = this.game.add.group(this.borderGroup);
-    this.titleGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
-    this.titleGroup.visible = false;
-    let title = this.game.add.text(
+    this.titleVersionGroup = this.game.add.group(this.borderGroup);
+    this.titleVersionGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
+    this.titleVersionGroup.visible = false;
+    let titleVersion = this.game.add.text(
         0,
         0,
-        Texts.forName('boot.title'),
+        '          ' + Texts.forName('boot.title.version'),
         {
           font: fontFamily,
           fontSize: 94,
-          fill: Colors.GOLD,
         },
-        this.titleGroup);
-    title.anchor.setTo(0.5, 2);
+        this.titleVersionGroup);
+    titleVersion.anchor.setTo(0.5, 2);
+    titleVersion.addColor(Colors.TRANSPARENT, 0);
+    titleVersion.addColor(Colors.GOLD, 4);
+
+    this.titleTextGroup = this.game.add.group(this.borderGroup);
+    this.titleTextGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
+    this.titleTextGroup.visible = false;
+    let titleText = this.game.add.text(
+        0,
+        0,
+        Texts.forName('boot.title.text'),
+        {
+          font: fontFamily,
+          fontSize: 94,
+        },
+        this.titleTextGroup);
+    titleText.anchor.setTo(0.5, 2);
+    titleText.addColor(Colors.GOLD, 0);
+    titleText.addColor(Colors.TRANSPARENT, 4);
 
     this.loadingStatusGroup = this.game.add.group();
     this.loadingStatusGroup.fixedToCamera = true;
@@ -152,13 +170,16 @@ class BootState extends Phaser.State {
     return Point.of(this.game.width, this.game.height);
   }
 
-  private destroyRenderGroups() {
-    this.titleGroup.destroy();
+  private cleanupWorld() {
+    this.titleTextGroup.destroy();
+    this.titleVersionGroup.destroy();
     this.loadingStatusGroup.destroy();
     this.waitForAnyInputGroup.destroy();
     this.earthGroup.destroy();
     this.borderGroup.destroy();
     this.backgroundGroup.destroy();
+
+    this.game.scale.onSizeChange.remove(this.onGameResize, this);
   }
 
   private async runState(): Promise<void> {
@@ -173,7 +194,7 @@ class BootState extends Phaser.State {
     this.game.state.add('MainState', universe);
     this.game.state.start('MainState', false, false);
 
-    await Promise.all([
+    return Promise.all([
       universe.visibility.synchronizeUpdateSystem.noop(),
       universe.visibility.synchronizeRenderSystem.noop()]);
   }
@@ -214,8 +235,12 @@ class BootState extends Phaser.State {
 
     await Promise.all([this.passThroughUniverseBorder(), this.approachEarth()]);
 
-    this.destroyRenderGroups();
+    let timeoutPromise = new Timeout(Phaser.Timer.SECOND).wait();
+
+    this.cleanupWorld();
     universe.onTransitionScreenAllWhite();
+
+    await timeoutPromise;
 
     await this.fadeInWorld();
 
@@ -238,11 +263,16 @@ class BootState extends Phaser.State {
     });
   }
 
-  private async approachUniverseBorder(): Promise<void> {
-    this.titleGroup.visible = true;
+  private async approachUniverseBorder() {
+    await this.approachTitleText();
+    await this.approachTitleVersion();
+  }
 
-    this.titleGroup.alpha = 0;
-    this.game.add.tween(this.titleGroup)
+  private async approachTitleText() {
+    this.titleTextGroup.visible = true;
+
+    this.titleTextGroup.alpha = 0;
+    this.game.add.tween(this.titleTextGroup)
         .to(
             {alpha: 1},
             200,
@@ -250,15 +280,15 @@ class BootState extends Phaser.State {
             true,
             400);
 
-    this.titleGroup.scale.setTo(0);
-    let titleScaleTween = this.game.add.tween(this.titleGroup.scale)
+    this.titleTextGroup.scale.setTo(0);
+    let titleScaleTween = this.game.add.tween(this.titleTextGroup.scale)
         .to(
             {x: 0.1, y: 0.1},
             2000,
             Phaser.Easing.Quadratic.In,
             true,
             300);
-    let titleScaleTween2 = this.game.add.tween(this.titleGroup.scale)
+    let titleScaleTween2 = this.game.add.tween(this.titleTextGroup.scale)
         .to(
             {x: 1, y: 1},
             800,
@@ -267,6 +297,30 @@ class BootState extends Phaser.State {
 
     return new Promise<void>(resolve => {
       titleScaleTween2.onComplete.addOnce(resolve);
+    });
+  }
+
+  private async approachTitleVersion() {
+    this.titleVersionGroup.visible = true;
+
+    this.titleVersionGroup.alpha = 0;
+    this.game.add.tween(this.titleVersionGroup)
+        .to(
+            {alpha: 1},
+            50,
+            Phaser.Easing.Linear.None,
+            true);
+
+    this.titleVersionGroup.scale.setTo(0);
+    let titleScaleTween = this.game.add.tween(this.titleVersionGroup.scale)
+        .to(
+            {x: 1, y: 1},
+            400,
+            Phaser.Easing.Quadratic.Out,
+            true);
+
+    return new Promise<void>(resolve => {
+      titleScaleTween.onComplete.addOnce(resolve);
     });
   }
 
@@ -408,15 +462,21 @@ class BootState extends Phaser.State {
     });
   }
 
-  private async passThroughUniverseBorder(): Promise<void> {
-    this.game.add.tween(this.titleGroup.scale)
+  private async passThroughUniverseBorder() {
+    return Promise.all([
+      this.passThroughTitle(this.titleTextGroup),
+      this.passThroughTitle(this.titleVersionGroup)]);
+  }
+
+  private async passThroughTitle(title: PIXI.DisplayObject) {
+    this.game.add.tween(title.scale)
         .to(
             {x: 5, y: 5},
             1000,
             Phaser.Easing.Cubic.In,
             true);
 
-    let titlePositionTween = this.game.add.tween(this.titleGroup.position)
+    let titlePositionTween = this.game.add.tween(title.position)
         .to(
             {y: -100},
             1000,
@@ -432,18 +492,19 @@ class BootState extends Phaser.State {
    * Expands the center white square until it is as large as the game.
    */
   private async approachEarth() {
-    let targetScale = this.initialGameSize.divide(this.earthGroup.width, this.earthGroup.height);
-    targetScale.setTo(Math.max(targetScale.x, targetScale.y) * 5);
+    let targetScale = this.getCurrentGameSize().divide(this.earthGroup.width, this.earthGroup.height);
+    targetScale.setTo(Math.max(targetScale.x, targetScale.y) * 10);
 
     let earthScaleTween = this.game.add.tween(this.earthGroup.scale)
         .to(
             targetScale,
-            4000,
+            5000,
             Phaser.Easing.Quartic.In,
             true);
 
+    earthScaleTween.onStart.addOnce(() => this.game.camera.fade(Colors.BACKGROUND_NUMBER, 3000));
+
     return new Promise<void>(resolve => {
-      earthScaleTween.onStart.addOnce(() => this.game.camera.fade(Colors.BACKGROUND_NUMBER, 2500));
       this.game.camera.onFadeComplete.addOnce(() => {
         this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
 

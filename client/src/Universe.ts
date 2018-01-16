@@ -178,7 +178,7 @@ class Universe extends Phaser.State {
     let adapterFactory = new AdapterFactory();
     let adapter = adapterFactory.createAdapter();
     let gameContainer = adapter.getGameContainerProvider().getContainerId();
-    let game = new Phaser.Game('100', '100', Phaser.AUTO, gameContainer, null);
+    let game = new Phaser.Game(0, 0, Phaser.AUTO, gameContainer, null);
 
     game.state.add('BootState', new BootState(adapter, Universe.makeUniverse));
     game.state.start('BootState');
