@@ -48,10 +48,10 @@ class BootState extends Phaser.State {
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 
     this.game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE;
-    this.game.scale.setResizeCallback(this.onResize, this);
+    this.game.scale.setResizeCallback(this.onGameResize, this);
   }
 
-  private onResize(ignored: Phaser.ScaleManager, parentBounds: Rectangle) {
+  private onGameResize(ignored: Phaser.ScaleManager, parentBounds: Rectangle) {
     this.game.scale.setGameSize(parentBounds.width, parentBounds.height);
   }
 
@@ -141,7 +141,7 @@ class BootState extends Phaser.State {
     earthGraphics.drawRect(-5, -5, 10, 10);
     earthGraphics.endFill();
 
-    this.game.scale.onSizeChange.add(this.onGameResize, this);
+    this.game.scale.onSizeChange.add(this.onGameSizeChange, this);
   }
 
   private static async loadComments(universe: Universe): Promise<() => void> {
@@ -156,7 +156,7 @@ class BootState extends Phaser.State {
     return await universe.loadComments();
   }
 
-  private onGameResize() {
+  private onGameSizeChange() {
     let gameSize = this.getCurrentGameSize();
 
     this.loadingStatusGroup.cameraOffset = gameSize.clone().multiply(0.95, 0.95);
@@ -179,7 +179,7 @@ class BootState extends Phaser.State {
     this.borderGroup.destroy();
     this.backgroundGroup.destroy();
 
-    this.game.scale.onSizeChange.remove(this.onGameResize, this);
+    this.game.scale.onSizeChange.remove(this.onGameSizeChange, this);
   }
 
   private async runState(): Promise<void> {
