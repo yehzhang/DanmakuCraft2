@@ -1,5 +1,6 @@
 import BaseSettingsManager from '../BaseSettingsManager';
-import {SettingsOptions, TextShadowStyle} from '../../interface/SettingsManager';
+import {SettingsOptions} from '../../interface/SettingsManager';
+import TextShadowStyle from '../../../render/TextShadowStyle';
 
 class LocalStorageSettingsManager extends BaseSettingsManager {
   protected loadSettings() {

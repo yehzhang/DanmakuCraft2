@@ -1,5 +1,4 @@
 import TinyTelevisionBuilder from './TinyTelevisionBuilder';
-import {TextShadowStyle} from '../../environment/interface/SettingsManager';
 import Comment from '../../entitySystem/component/Comment';
 import Colors from '../Colors';
 import GraphicsFactory, {NotifierView, PlayerView} from './GraphicsFactory';
@@ -7,6 +6,7 @@ import ChestBuilder from './ChestBuilder';
 import SpeechBubbleBuilder from './SpeechBubbleBuilder';
 import Point from '../../util/syntax/Point';
 import PixelParticleBuilder from './PixelParticleBuilder';
+import TextShadowStyle from '../TextShadowStyle';
 
 class GraphicsFactoryImpl implements GraphicsFactory {
   constructor(

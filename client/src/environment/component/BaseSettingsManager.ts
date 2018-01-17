@@ -1,8 +1,6 @@
-import SettingsManager, {
-  SettingsOption, SettingsOptions,
-  TextShadowStyle
-} from '../interface/SettingsManager';
+import SettingsManager, {SettingsOption, SettingsOptions} from '../interface/SettingsManager';
 import {isLinux} from '../util';
+import TextShadowStyle from '../../render/TextShadowStyle';
 
 abstract class BaseSettingsManager implements SettingsManager {
   private static readonly DEFAULT_SETTINGS: Map<SettingsOptions, any> = new Map()

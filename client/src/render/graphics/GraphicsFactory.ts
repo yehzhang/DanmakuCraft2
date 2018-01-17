@@ -1,5 +1,5 @@
 import Comment from '../../entitySystem/component/Comment';
-import {TextShadowStyle} from '../../environment/interface/SettingsManager';
+import TextShadowStyle from '../TextShadowStyle';
 
 interface GraphicsFactory {
   createTextFromComment(comment: Comment): Phaser.Text;
