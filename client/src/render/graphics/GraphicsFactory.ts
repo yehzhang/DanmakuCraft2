@@ -21,6 +21,8 @@ interface GraphicsFactory {
   createWorldCenterSign(size: number, color: string): PIXI.DisplayObjectContainer;
 
   createWorldOriginSign(size: number, color: string): Phaser.Text;
+
+  createPixelParticleSpriteSheet(color?: number, size?: number): string;
 }
 
 export default GraphicsFactory;

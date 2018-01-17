@@ -8,23 +8,29 @@ import Point from './util/syntax/Point';
 import {Phaser} from './util/alias/phaser';
 import Rectangle from './util/syntax/Rectangle';
 import Timeout from './util/async/Timeout';
+import ParticlesField from './render/ParticlesField';
+import Perspective from './render/Perspective';
 
 /**
  * Displays the opening and loads the universe
  */
 class BootState extends Phaser.State {
-  private initialGameSize: Point;
-  private titleTextGroup: Phaser.Group;
-  private titleVersionGroup: Phaser.Group;
+  private static readonly FOCAL_LENGTH = 10;
+  private currentGameSize: Point;
+  private titleTextPerspective: Perspective;
+  private titleVersionPerspective: Perspective;
 
   private loadingStatusGroup: Phaser.Group;
   private loadingStatusText: Phaser.Text;
 
   private waitForAnyInputGroup: Phaser.Group;
-  private earthGroup: Phaser.Group;
+
   private borderGroup: Phaser.Group;
 
   private backgroundGroup: Phaser.Group;
+  private earthPerspective: Perspective;
+  private particlesField: ParticlesField;
+  private particlesFieldGroup: Phaser.Group;
 
   constructor(private adapter: EnvironmentAdapter, private makeUniverse: UniverseFactory) {
     super();
@@ -38,6 +44,18 @@ class BootState extends Phaser.State {
     this.runState().catch(reason => this.showFailedLoadingStatus(reason));
   }
 
+  startParticlesField(universe: Universe) {
+    let ignored = universe.visibility.synchronizeRenderSystem.for(() => {
+      if (!this.particlesField) {
+        return;
+      }
+
+      this.particlesField.update();
+
+      this.startParticlesField(universe);
+    });
+  }
+
   private configureGame() {
     // Do not pause on blur.
     this.game.stage.disableVisibilityChange = true;
@@ -48,15 +66,17 @@ class BootState extends Phaser.State {
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 
     this.game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE;
-    this.game.scale.setResizeCallback(this.onGameResize, this);
+    this.game.scale.setResizeCallback(this.onGameResized, this);
+
+    this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
   }
 
-  private onGameResize(ignored: Phaser.ScaleManager, parentBounds: Rectangle) {
+  private onGameResized(ignored: Phaser.ScaleManager, parentBounds: Rectangle) {
     this.game.scale.setGameSize(parentBounds.width, parentBounds.height);
   }
 
-  private craftRenderGroups() {
-    this.initialGameSize = this.getCurrentGameSize();
+  private craftRenderings() {
+    this.currentGameSize = this.getCurrentGameSize();
 
     this.backgroundGroup = this.game.add.group();
 
@@ -70,9 +90,8 @@ class BootState extends Phaser.State {
 
     this.borderGroup = this.game.add.group();
 
-    this.titleVersionGroup = this.game.add.group(this.borderGroup);
-    this.titleVersionGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
-    this.titleVersionGroup.visible = false;
+    let titleVersionGroup = this.game.add.group(this.borderGroup);
+    titleVersionGroup.position = this.currentGameSize.clone().multiply(0.5, 0.4);
     let titleVersion = this.game.add.text(
         0,
         0,
@@ -81,14 +100,15 @@ class BootState extends Phaser.State {
           font: fontFamily,
           fontSize: 94,
         },
-        this.titleVersionGroup);
+        titleVersionGroup);
     titleVersion.anchor.setTo(0.5, 2);
     titleVersion.addColor(Colors.TRANSPARENT, 0);
     titleVersion.addColor(Colors.GOLD, 4);
+    this.titleVersionPerspective = new Perspective(titleVersionGroup, 500, BootState.FOCAL_LENGTH);
+    this.titleVersionPerspective.visible = false;
 
-    this.titleTextGroup = this.game.add.group(this.borderGroup);
-    this.titleTextGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
-    this.titleTextGroup.visible = false;
+    let titleTextGroup = this.game.add.group(this.borderGroup);
+    titleTextGroup.position = this.currentGameSize.clone().multiply(0.5, 0.4);
     let titleText = this.game.add.text(
         0,
         0,
@@ -97,14 +117,16 @@ class BootState extends Phaser.State {
           font: fontFamily,
           fontSize: 94,
         },
-        this.titleTextGroup);
-    titleText.anchor.setTo(0.5, 2);
+        titleTextGroup);
     titleText.addColor(Colors.GOLD, 0);
     titleText.addColor(Colors.TRANSPARENT, 4);
+    titleText.anchor.setTo(0.5, 2);
+    this.titleTextPerspective = new Perspective(titleTextGroup, 500, BootState.FOCAL_LENGTH);
+    this.titleTextPerspective.visible = false;
 
     this.loadingStatusGroup = this.game.add.group();
     this.loadingStatusGroup.fixedToCamera = true;
-    this.loadingStatusGroup.cameraOffset = this.initialGameSize.clone().multiply(0.95, 0.95);
+    this.loadingStatusGroup.cameraOffset = this.currentGameSize.clone().multiply(0.95, 0.95);
     this.loadingStatusGroup.visible = false;
     this.loadingStatusText = this.game.add.text(
         0,
@@ -119,7 +141,7 @@ class BootState extends Phaser.State {
     this.loadingStatusText.anchor.setTo(1);
 
     this.waitForAnyInputGroup = this.game.add.group(this.borderGroup);
-    this.waitForAnyInputGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
+    this.waitForAnyInputGroup.position = this.currentGameSize.clone().multiply(0.5, 0.5);
     this.waitForAnyInputGroup.visible = false;
     let waitForAnyInputText = this.game.add.text(
         0,
@@ -133,15 +155,19 @@ class BootState extends Phaser.State {
         this.waitForAnyInputGroup);
     waitForAnyInputText.anchor.setTo(0.5, -3);
 
-    this.earthGroup = this.game.add.group(this.borderGroup);
-    this.earthGroup.position = this.initialGameSize.clone().multiply(0.5, 0.5);
-    this.earthGroup.visible = false;
-    let earthGraphics = this.game.add.graphics(0, 0, this.earthGroup);
+    let earthGroup = this.game.add.group(this.borderGroup);
+    earthGroup.position = this.currentGameSize.clone().multiply(0.5, 0.5);
+    let earthGraphics = this.game.add.graphics(0, 0, earthGroup);
     earthGraphics.beginFill(Colors.BACKGROUND_NUMBER);
-    earthGraphics.drawRect(-5, -5, 10, 10);
+    earthGraphics.drawRect(-100, -100, 200, 200);
     earthGraphics.endFill();
+    this.earthPerspective = new Perspective(earthGroup, 1000, BootState.FOCAL_LENGTH);
+    this.earthPerspective.visible = true;
 
-    this.game.scale.onSizeChange.add(this.onGameSizeChange, this);
+    this.particlesFieldGroup = this.game.add.group(this.borderGroup);
+    this.particlesFieldGroup.position = this.currentGameSize.clone().multiply(0.5, 0.5);
+
+    this.game.scale.onSizeChange.add(this.onGameSizeChanged, this);
   }
 
   private static async loadComments(universe: Universe): Promise<() => void> {
@@ -156,14 +182,18 @@ class BootState extends Phaser.State {
     return await universe.loadComments();
   }
 
-  private onGameSizeChange() {
+  private onGameSizeChanged() {
     let gameSize = this.getCurrentGameSize();
 
     this.loadingStatusGroup.cameraOffset = gameSize.clone().multiply(0.95, 0.95);
 
     this.borderGroup.position = gameSize.clone()
-        .subtract(this.initialGameSize.x, this.initialGameSize.y)
+        .subtract(this.currentGameSize.x, this.currentGameSize.y)
         .divide(2, 2);
+
+    if (this.particlesField) {
+      this.particlesField.onGameSizeChanged(gameSize.x, gameSize.y);
+    }
   }
 
   private getCurrentGameSize() {
@@ -171,15 +201,17 @@ class BootState extends Phaser.State {
   }
 
   private cleanupWorld() {
-    this.titleTextGroup.destroy();
-    this.titleVersionGroup.destroy();
     this.loadingStatusGroup.destroy();
     this.waitForAnyInputGroup.destroy();
-    this.earthGroup.destroy();
     this.borderGroup.destroy();
     this.backgroundGroup.destroy();
+    this.particlesFieldGroup.destroy();
 
-    this.game.scale.onSizeChange.remove(this.onGameSizeChange, this);
+    if (this.particlesField) {
+      this.particlesField.destroy();
+    }
+
+    this.game.scale.onSizeChange.remove(this.onGameSizeChanged, this);
   }
 
   private async runState(): Promise<void> {
@@ -219,7 +251,7 @@ class BootState extends Phaser.State {
   }
 
   private async showOpeningAndLoadUniverseAndComments() {
-    this.craftRenderGroups();
+    this.craftRenderings();
 
     let [[universe, commentsLoader]] = await Promise.all([
       this.getUniverseAndCommentsLoader(),
@@ -228,14 +260,21 @@ class BootState extends Phaser.State {
       this.approachEarthFaraway()]);
 
     // Heavy computing part
+    // TODO take a break every once in a while
     commentsLoader();
     await this.startMainState(universe);
+    this.buildParticlesField(universe);
+
+    this.startParticlesField(universe);
 
     await Promise.all([this.showCompletedLoadingStatus(), this.waitForUniverseBorderOpen()]);
 
-    await Promise.all([this.passThroughUniverseBorder(), this.approachEarth()]);
+    await Promise.all([
+      this.passThroughUniverseBorder(),
+      this.approachParticlesField(),
+      this.approachEarth()]);
 
-    let timeoutPromise = new Timeout(Phaser.Timer.SECOND).wait();
+    let timeoutPromise = Timeout.after(2 * Phaser.Timer.SECOND);
 
     this.cleanupWorld();
     universe.onTransitionScreenAllWhite();
@@ -247,107 +286,56 @@ class BootState extends Phaser.State {
     universe.onTransitionFinished();
   }
 
+  private buildParticlesField(universe: Universe) {
+    let spriteSheetKey = universe.graphicsFactory.createPixelParticleSpriteSheet();
+    this.particlesField = new ParticlesField(this.game, spriteSheetKey);
+    this.particlesFieldGroup.add(this.particlesField.display);
+  }
+
   private async showLoadingStatus(): Promise<void> {
     this.loadingStatusGroup.visible = true;
 
     this.loadingStatusGroup.alpha = 0;
     let statusAlphaTween = this.game.add.tween(this.loadingStatusGroup)
-        .to(
-            {alpha: 1},
-            2000,
-            Phaser.Easing.Exponential.Out,
-            true);
+        .to({alpha: 1}, 2000, Phaser.Easing.Linear.None, true);
 
-    return new Promise<void>(resolve => {
-      statusAlphaTween.onComplete.addOnce(resolve);
-    });
+    return this.waitForCompletion(statusAlphaTween);
   }
 
   private async approachUniverseBorder() {
+    await Timeout.after(2000);
     await this.approachTitleText();
     await this.approachTitleVersion();
   }
 
   private async approachTitleText() {
-    this.titleTextGroup.visible = true;
+    this.titleTextPerspective.visible = true;
 
-    this.titleTextGroup.alpha = 0;
-    this.game.add.tween(this.titleTextGroup)
-        .to(
-            {alpha: 1},
-            200,
-            Phaser.Easing.Linear.None,
-            true,
-            400);
+    let zTween = this.game.add.tween(this.titleTextPerspective)
+        .to({z: 100}, 2000, Phaser.Easing.Quadratic.In, true);
+    let zTween2 = this.game.add.tween(this.titleTextPerspective)
+        .to({z: 0}, 400, Phaser.Easing.Quadratic.Out);
+    zTween.chain(zTween2);
 
-    this.titleTextGroup.scale.setTo(0);
-    let titleScaleTween = this.game.add.tween(this.titleTextGroup.scale)
-        .to(
-            {x: 0.1, y: 0.1},
-            2000,
-            Phaser.Easing.Quadratic.In,
-            true,
-            300);
-    let titleScaleTween2 = this.game.add.tween(this.titleTextGroup.scale)
-        .to(
-            {x: 1, y: 1},
-            800,
-            Phaser.Easing.Quadratic.Out);
-    titleScaleTween.chain(titleScaleTween2);
-
-    return new Promise<void>(resolve => {
-      titleScaleTween2.onComplete.addOnce(resolve);
-    });
+    return this.waitForCompletion(zTween2);
   }
 
   private async approachTitleVersion() {
-    this.titleVersionGroup.visible = true;
+    this.titleVersionPerspective.visible = true;
 
-    this.titleVersionGroup.alpha = 0;
-    this.game.add.tween(this.titleVersionGroup)
-        .to(
-            {alpha: 1},
-            50,
-            Phaser.Easing.Linear.None,
-            true);
+    let zTween = this.game.add.tween(this.titleVersionPerspective)
+        .to({z: 0}, 1000, Phaser.Easing.Quadratic.InOut, true);
 
-    this.titleVersionGroup.scale.setTo(0);
-    let titleScaleTween = this.game.add.tween(this.titleVersionGroup.scale)
-        .to(
-            {x: 1, y: 1},
-            400,
-            Phaser.Easing.Quadratic.Out,
-            true);
-
-    return new Promise<void>(resolve => {
-      titleScaleTween.onComplete.addOnce(resolve);
-    });
+    return this.waitForCompletion(zTween);
   }
 
   private async approachEarthFaraway() {
-    this.earthGroup.visible = true;
+    this.earthPerspective.visible = true;
 
-    this.earthGroup.alpha = 0;
-    this.game.add.tween(this.earthGroup)
-        .to(
-            {alpha: 1},
-            200,
-            Phaser.Easing.Linear.None,
-            true,
-            400);
+    let zTween = this.game.add.tween(this.earthPerspective)
+        .to({z: 100}, 5000, Phaser.Easing.Quadratic.InOut, true);
 
-    this.earthGroup.scale.setTo(0);
-    let earthScaleTween = this.game.add.tween(this.earthGroup.scale)
-        .to(
-            {x: 1, y: 1},
-            2700,
-            Phaser.Easing.Quadratic.In,
-            true,
-            300);
-
-    return new Promise<void>(resolve => {
-      earthScaleTween.onComplete.addOnce(resolve);
-    });
+    return this.waitForCompletion(zTween);
   }
 
   private showFailedLoadingStatus(error: Error) {
@@ -400,13 +388,13 @@ class BootState extends Phaser.State {
             Phaser.Easing.Linear.None);
     loadingStatusAlphaTween.chain(loadingStatusAlphaTween2);
 
-    return new Promise<void>(resolve => {
-      loadingStatusAlphaTween2.onComplete.addOnce(resolve);
-    });
+    return this.waitForCompletion(loadingStatusAlphaTween2);
   }
 
   private async waitForUniverseBorderOpen() {
     let onAnyInputPromise = this.listenOnAnyInput();
+
+    this.waitForAnyInputGroup.visible = true;
 
     this.waitForAnyInputGroup.alpha = 1;
     let anyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
@@ -419,11 +407,8 @@ class BootState extends Phaser.State {
             1,
             true);
 
-    await Promise.race([this.showWaitingForAnyInput(anyInputAlphaTween), onAnyInputPromise]);
-
-    if (!__STAGE__) {
-      await onAnyInputPromise;
-    }
+    await Promise.race([this.waitForCompletion(anyInputAlphaTween), onAnyInputPromise]);
+    await onAnyInputPromise;
 
     anyInputAlphaTween.stop();
 
@@ -433,93 +418,60 @@ class BootState extends Phaser.State {
   private async listenOnAnyInput(): Promise<void> {
     return new Promise<void>(resolve => {
       this.game.input.onDown.add(resolve);
-      this.game.input.keyboard.onDownCallback = resolve;
+      this.game.input.keyboard.onPressCallback = resolve;
     })
         .then(() => {
           this.game.input.onDown.removeAll();
-          this.game.input.keyboard.onDownCallback = null as any;
+          this.game.input.keyboard.onPressCallback = null as any;
         });
   }
 
-  private async showWaitingForAnyInput(anyInputAlphaTween: Phaser.Tween) {
-    this.waitForAnyInputGroup.visible = true;
-
-    return new Promise<void>(resolve => {
-      anyInputAlphaTween.onComplete.addOnce(resolve);
-    });
+  private async waitForCompletion(tween: Phaser.Tween): Promise<void> {
+    return new Promise<void>(resolve => tween.onComplete.addOnce(resolve));
   }
 
   private async hideWaitingForAnyInput() {
     let waitForAnyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
-        .to(
-            {alpha: 0},
-            500,
-            Phaser.Easing.Quadratic.Out,
-            true);
-
-    return new Promise<void>(resolve => {
-      waitForAnyInputAlphaTween.onComplete.addOnce(resolve);
-    });
+        .to({alpha: 0}, 500, Phaser.Easing.Quadratic.Out, true);
+    return this.waitForCompletion(waitForAnyInputAlphaTween);
   }
 
   private async passThroughUniverseBorder() {
     return Promise.all([
-      this.passThroughTitle(this.titleTextGroup),
-      this.passThroughTitle(this.titleVersionGroup)]);
+      this.passThroughTitle(this.titleTextPerspective),
+      this.passThroughTitle(this.titleVersionPerspective)]);
   }
 
-  private async passThroughTitle(title: PIXI.DisplayObject) {
-    this.game.add.tween(title.scale)
+  private async passThroughTitle(perspective: Perspective) {
+    let zTween = this.game.add.tween(perspective)
         .to(
-            {x: 5, y: 5},
-            1000,
-            Phaser.Easing.Cubic.In,
+            {z: -100},
+            4500,
+            Phaser.Easing.Quadratic.InOut,
             true);
-
-    let titlePositionTween = this.game.add.tween(title.position)
-        .to(
-            {y: -100},
-            1000,
-            Phaser.Easing.Cubic.In,
-            true);
-
-    return new Promise<void>(resolve => {
-      titlePositionTween.onComplete.addOnce(resolve);
-    });
+    return this.waitForCompletion(zTween);
   }
 
   /**
    * Expands the center white square until it is as large as the game.
    */
   private async approachEarth() {
-    let targetScale = this.getCurrentGameSize().divide(this.earthGroup.width, this.earthGroup.height);
-    targetScale.setTo(Math.max(targetScale.x, targetScale.y) * 10);
+    this.game.add.tween(this.earthPerspective)
+        .to({z: -BootState.FOCAL_LENGTH}, 4500, Phaser.Easing.Quadratic.InOut, true);
 
-    let earthScaleTween = this.game.add.tween(this.earthGroup.scale)
-        .to(
-            targetScale,
-            5000,
-            Phaser.Easing.Quartic.In,
-            true);
+    await Timeout.after(900);
+    this.game.camera.fade(Colors.BACKGROUND_NUMBER, 3500);
 
-    earthScaleTween.onStart.addOnce(() => this.game.camera.fade(Colors.BACKGROUND_NUMBER, 3000));
+    return new Promise(resolve => this.game.camera.onFadeComplete.addOnce(resolve));
+  }
 
-    return new Promise<void>(resolve => {
-      this.game.camera.onFadeComplete.addOnce(() => {
-        this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
-
-        earthScaleTween.stop();
-
-        resolve();
-      });
-    });
+  private async approachParticlesField() {
+    return this.particlesField.approach(2000, Phaser.Easing.Linear.None);
   }
 
   private async fadeInWorld() {
     this.game.camera.flash(Colors.BACKGROUND_NUMBER, 2500, true);
-    return new Promise(resolve => {
-      this.game.camera.onFlashComplete.addOnce(resolve);
-    });
+    return new Promise(resolve => this.game.camera.onFlashComplete.addOnce(resolve));
   }
 }
 

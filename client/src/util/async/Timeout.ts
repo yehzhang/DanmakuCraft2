@@ -2,8 +2,12 @@ class Timeout {
   constructor(private duration: number = 0) {
   }
 
-  async wait(duration: number = this.duration) {
-    return new Promise(resolve => setTimeout(resolve, duration));
+  static async after(duration: number) {
+    return new this(duration).wait();
+  }
+
+  async wait() {
+    return new Promise(resolve => setTimeout(resolve, this.duration));
   }
 }
 

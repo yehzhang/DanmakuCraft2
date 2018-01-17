@@ -6,6 +6,7 @@ import GraphicsFactory, {NotifierView, PlayerView} from './GraphicsFactory';
 import ChestBuilder from './ChestBuilder';
 import SpeechBubbleBuilder from './SpeechBubbleBuilder';
 import Point from '../../util/syntax/Point';
+import PixelParticleBuilder from './PixelParticleBuilder';
 
 class GraphicsFactoryImpl implements GraphicsFactory {
   constructor(
@@ -141,6 +142,12 @@ class GraphicsFactoryImpl implements GraphicsFactory {
     display.addFontStyle('italic', 0);
 
     return display;
+  }
+
+  createPixelParticleSpriteSheet(color: number = Colors.BACKGROUND_NUMBER, size: number = 4) {
+    return new PixelParticleBuilder(this.game, this.idGenerator, color, size)
+        .pushFrame(0)
+        .toSpriteSheet();
   }
 
   private createTinyTelevisionSpriteSheet() {
