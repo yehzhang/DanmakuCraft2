@@ -258,6 +258,8 @@ class BootState extends Phaser.State {
       this.showLoadingStatus(),
       this.approachUniverseBorder(),
       this.approachEarthFaraway()]);
+    // Wait for complete rendering??
+    await Timeout.after(100);
 
     // Heavy computing part
     // TODO take a break every once in a while
