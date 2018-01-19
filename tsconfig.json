@@ -1,13 +1,7 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "es2015",
-      "es2016",
-      "es2017"
-    ],
     "module": "commonjs",
-    "target": "es5",
+    "target": "es2017",
     "moduleResolution": "node",
     "outDir": "build",
     "declaration": false,
@@ -18,7 +12,8 @@
     "downlevelIteration": true
   },
   "include": [
-    "client/src/**/*",
-    "scripts/**/*.ts"
+    "client/src/**/*.ts",
+    "scripts/**/*.ts",
+    "server/**/*.ts"
   ]
 }
