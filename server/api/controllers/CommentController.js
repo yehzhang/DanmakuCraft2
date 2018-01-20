@@ -10,7 +10,7 @@ module.exports = {
         commentsCount = MAX_COMMENTS_COUNT;
       }
 
-      let comments = await Comment.findLatest(commentsCount);
+      let comments = await Comment.findLatestData(commentsCount);
 
       if (request.isSocket) {
         // TODO watch only if there are not too many watchers already.

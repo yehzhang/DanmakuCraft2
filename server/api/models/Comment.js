@@ -31,12 +31,24 @@ module.exports = {
     user: {
       model: 'user',
     },
+
+    toJSON() {
+      let commentData = this.toObject();
+
+      if (commentData.buffType == null) {
+        delete commentData.buffType;
+        delete commentData.buffParameter;
+      }
+
+      return commentData;
+    },
   },
 
-  async findLatest(count) {
-    return await Comment.find({
+  async findLatestData(count) {
+    return Comment.find({
+      select: ['text', 'color', 'size', 'coordinateX', 'coordinateY', 'buffType', 'buffParameter'],
       limit: count,
-      sort: 'sendTime DESC',
+      sort: 'createdAt DESC',
     });
   }
 };
