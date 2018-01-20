@@ -3,7 +3,7 @@
  */
 module.exports.models = {
   // see `config/connections.js`
-  // connection: 'localDiskDb',
+  connection: 'localPostgresqlServer',
 
   migrate: 'safe',
 };

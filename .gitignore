@@ -112,8 +112,8 @@ typings/
 #
 ################################################
 
-config/local.js
-config/ssl/
+server/config/local.js
+server/config/ssl/
 
 
 
