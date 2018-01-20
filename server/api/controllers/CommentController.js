@@ -59,6 +59,9 @@ function parseCommentDataFrom(request) {
   if (text.length === 0) {
     throw new ParameterError('error.comment.text.empty');
   }
+  if (text.length > 220) {
+    throw new ParameterError('error.comment.text.long');
+  }
   // No need to strip whitespaces as they allow players to better format their comments.
 
   return {

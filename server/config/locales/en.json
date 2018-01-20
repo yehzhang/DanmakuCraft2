@@ -1,6 +1,7 @@
 {
   "error.comment.text": "Failed to recognize the content of comment",
   "error.comment.text.empty": "Comment cannot be empty",
+  "error.comment.text.long": "Comment is too long",
   "error.comment.color": "Failed to recognize the color of comment",
   "error.comment.size": "Failed to recognize the size of comment",
   "error.comment.coordinate": "Failed to recognize the coordinate of comment",
