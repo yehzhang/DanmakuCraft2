@@ -1,9 +1,9 @@
 module.exports = {
-  wrapErrorResponseData(reason) {
+  wrapErrorData(reason) {
     return new ErrorResponseData(reason);
   },
 
-  wrapValueResponseData(value) {
+  wrapValueData(value) {
     return new ValueResponseData(value);
   },
 };

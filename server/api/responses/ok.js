@@ -15,27 +15,25 @@ module.exports = function sendOK(data, options) {
   let res = this.res;
   let sails = req._sails;
 
-  let responseData = Utils.wrapValueResponseData(data);
-
   sails.log.silly('res.ok() :: Sending 200 ("OK") response');
 
   res.status(200);
 
-  // If appropriate, serve responseData as JSON(P)
+  // If appropriate, serve data as JSON(P)
   // If views are disabled, revert to json
   if (req.wantsJSON || sails.config.hooks.views === false) {
-    return res.jsonx(responseData);
+    return res.jsonx(JsonResponse.wrapValueData(data));
   }
 
   // If second argument is a string, we take that to mean it refers to a view.
   // If it was omitted, use an empty object (`{}`)
   options = (typeof options === 'string') ? {view: options} : options || {};
 
-  // Attempt to prettify responseData for views, if it's a non-error object
-  let viewData = responseData;
+  // Attempt to prettify data for views, if it's a non-error object
+  let viewData = data;
   if (!(viewData instanceof Error) && 'object' == typeof viewData) {
     try {
-      viewData = require('util').inspect(responseData, {depth: null});
+      viewData = require('util').inspect(data, {depth: null});
     }
     catch (e) {
       viewData = undefined;
@@ -49,6 +47,6 @@ module.exports = function sendOK(data, options) {
     return res.view(options.view, {data: viewData, title: 'OK'});
   }
   return res.guessView({data: viewData, title: 'OK'}, function couldNotGuessView() {
-    return res.jsonx(responseData);
+    return res.jsonx(JsonResponse.wrapValueData(data));
   });
 };

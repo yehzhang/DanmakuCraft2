@@ -1,7 +1,7 @@
 import {
   ErrorResponse as ErrorResponseInterface, ErrorResponseStatus, Response as ResponseInterface,
   ValueResponse as ValueResponseInterface, ValueResponseStatus
-} from '../../../../../server/api/services/Response';
+} from '../../../../../server/api/services/response';
 
 abstract class Response<T> {
   static from<T>(message: Partial<ResponseInterface>): Response<T> | null {

@@ -19,27 +19,25 @@ module.exports = function badRequest(data, options) {
   let res = this.res;
   let sails = req._sails;
 
-  let responseData = Utils.wrapErrorResponseData(data);
-
   res.status(400);
 
-  if (responseData === undefined) {
+  if (data === undefined) {
     sails.log.warn('Sending 400 ("Bad Request") response');
   } else {
-    sails.log.warn('Sending 400 ("Bad Request") response: \n', responseData);
+    sails.log.warn('Sending 400 ("Bad Request") response: \n', data);
   }
 
   // Only include errors in response if application environment
   // is not set to 'production'.  In production, we shouldn't
   // send back any identifying information about errors.
   if (sails.config.environment === 'production' && sails.config.keepResponseErrors !== true) {
-    responseData = undefined;
+    data = undefined;
   }
 
   // If the user-agent wants JSON, always respond with JSON
   // If views are disabled, revert to json
   if (req.wantsJSON || sails.config.hooks.views === false) {
-    return res.jsonx(responseData);
+    return res.jsonx(JsonResponse.wrapErrorData(data));
   }
 
   // If second argument is a string, we take that to mean it refers to a view.
@@ -47,10 +45,10 @@ module.exports = function badRequest(data, options) {
   options = (typeof options === 'string') ? {view: options} : options || {};
 
   // Attempt to prettify responseData for views, if it's a non-error object
-  let viewData = responseData;
+  let viewData = data;
   if (!(viewData instanceof Error) && 'object' == typeof viewData) {
     try {
-      viewData = require('util').inspect(responseData, {depth: null});
+      viewData = require('util').inspect(data, {depth: null});
     } catch (e) {
       viewData = undefined;
     }
@@ -62,5 +60,7 @@ module.exports = function badRequest(data, options) {
   if (options.view) {
     return res.view(options.view, {data: viewData, title: 'Bad Request'});
   }
-  return res.guessView({data: viewData, title: 'Bad Request'}, () => res.jsonx(responseData));
+  return res.guessView({data: viewData, title: 'Bad Request'}, () => {
+    res.jsonx(JsonResponse.wrapErrorData(data));
+  });
 };

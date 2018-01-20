@@ -17,13 +17,11 @@ module.exports = function serverError(data, options) {
   let res = this.res;
   let sails = req._sails;
 
-  let responseData = Utils.wrapErrorResponseData(data);
-
   res.status(500);
 
   // Log error to console
-  if (responseData !== undefined) {
-    sails.log.error('Sending 500 ("Server Error") response: \n', responseData);
+  if (data !== undefined) {
+    sails.log.error('Sending 500 ("Server Error") response: \n', data);
   } else {
     sails.log.error('Sending empty 500 ("Server Error") response');
   }
@@ -32,24 +30,24 @@ module.exports = function serverError(data, options) {
   // is not set to 'production'.  In production, we shouldn't
   // send back any identifying information about errors.
   if (sails.config.environment === 'production' && sails.config.keepResponseErrors !== true) {
-    responseData = undefined;
+    data = undefined;
   }
 
   // If the user-agent wants JSON, always respond with JSON
   // If views are disabled, revert to json
   if (req.wantsJSON || sails.config.hooks.views === false) {
-    return res.jsonx(responseData);
+    return res.jsonx(JsonResponse.wrapErrorData(data));
   }
 
   // If second argument is a string, we take that to mean it refers to a view.
   // If it was omitted, use an empty object (`{}`)
   options = (typeof options === 'string') ? {view: options} : options || {};
 
-  // Attempt to prettify responseData for views, if it's a non-error object
-  let viewData = responseData;
+  // Attempt to prettify data for views, if it's a non-error object
+  let viewData = data;
   if (!(viewData instanceof Error) && 'object' == typeof viewData) {
     try {
-      viewData = require('util').inspect(responseData, {depth: null});
+      viewData = require('util').inspect(data, {depth: null});
     } catch (e) {
       viewData = undefined;
     }
@@ -76,7 +74,7 @@ module.exports = function serverError(data, options) {
           'res.serverError() :: When attempting to render error page view, an error occured (sending JSON instead).  Details: ',
           err);
       }
-      return res.jsonx(responseData);
+      return res.jsonx(JsonResponse.wrapErrorData(data));
     }
     return res.send(html);
   });

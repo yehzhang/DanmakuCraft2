@@ -18,8 +18,6 @@ module.exports = function created(data, options) {
   let res = this.res;
   let sails = req._sails;
 
-  let responseData = Utils.wrapValueResponseData(data);
-
   sails.log.silly('res.created() :: Sending 201 ("CREATED") response');
 
   // Set status code
@@ -28,7 +26,7 @@ module.exports = function created(data, options) {
   // If appropriate, serve data as JSON(P)
   // If views are disabled, revert to json
   if (req.wantsJSON || sails.config.hooks.views === false) {
-    return res.jsonx(responseData);
+    return res.jsonx(JsonResponse.wrapValueData(data));
   }
 
   // If second argument is a string, we take that to mean it refers to a view.
@@ -36,10 +34,10 @@ module.exports = function created(data, options) {
   options = (typeof options === 'string') ? {view: options} : options || {};
 
   // Attempt to prettify data for views, if it's a non-error object
-  let viewData = responseData;
+  let viewData = data;
   if (!(viewData instanceof Error) && 'object' == typeof viewData) {
     try {
-      viewData = require('util').inspect(responseData, {depth: null});
+      viewData = require('util').inspect(data, {depth: null});
     } catch (e) {
       viewData = undefined;
     }
@@ -52,6 +50,6 @@ module.exports = function created(data, options) {
     return res.view(options.view, {data: viewData, title: 'Created'});
   }
   return res.guessView({data: viewData, title: 'Created'}, function couldNotGuessView() {
-    return res.jsonx(responseData);
+    return res.jsonx(JsonResponse.wrapValueData(data));
   });
 };
