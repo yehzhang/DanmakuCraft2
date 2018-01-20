@@ -1,9 +1,8 @@
 import BilibiliClientAdapter from './BilibiliClientAdapter';
 import TestingAdapter from './TestingAdapter';
 import ConfigProvider from './config/ConfigProvider';
-import BackendConfig from './config/BackendConfig';
-import {apis} from '../../../server/config/apis';
-import {parameters} from '../../../server/config/parameters';
+import FrontendConfig from './config/FrontendConfig';
+import {frontend} from '../../../server/config/frontend';
 import OfficialWebsiteAdapter from './OfficialWebsiteAdapter';
 
 class AdapterFactory {
@@ -12,13 +11,11 @@ class AdapterFactory {
   }
 
   private static loadConfig() {
-    ConfigProvider.set(BackendConfig.newBuilder()
-        .setBaseUrl(apis.baseUrl)
-        .setBatchCommentsPath(apis.batchCommentsPath)
-        .setDefaultBatchCommentsPath(apis.defaultBatchCommentsPath)
-        .setNewCommentBroadcastPath(apis.newCommentBroadcastPath)
-        .setGameContainer(parameters.gameContainerId)
-        .setOfficialWebsiteHostname(parameters.officialWebsiteHostname)
+    ConfigProvider.set(FrontendConfig.newBuilder()
+        .setBaseUrl(frontend.baseUrl)
+        .setBatchCommentsPath(frontend.commentsPath)
+        .setDefaultBatchCommentsPath(frontend.defaultBatchCommentsPath)
+        .setGameContainer(frontend.gameContainerId)
         .build());
   }
 
@@ -26,10 +23,10 @@ class AdapterFactory {
     if (__DEV__) {
       return this.createTestingAdapter();
     }
-    if (location.hostname === ConfigProvider.get().officialWebsiteHostname) {
-      return this.createOfficialAdapter();
+    if (location.hostname.includes('bilibili')) {
+      return this.createBilibiliClientAdapter();
     }
-    return this.createBilibiliClientAdapter();
+    return this.createOfficialAdapter();
   }
 
   createTestingAdapter() {

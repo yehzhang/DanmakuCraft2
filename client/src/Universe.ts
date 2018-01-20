@@ -1,6 +1,6 @@
 import EnvironmentAdapter from './environment/interface/EnvironmentAdapter';
 import UniverseProxy from './environment/interface/UniverseProxy';
-import BootState from './BootState';
+import MainState from './MainState';
 import Notifier from './output/notification/Notifier';
 import Renderer from './render/Renderer';
 import InputController from './input/InputController';
@@ -26,7 +26,6 @@ import LawFactoryImpl from './law/LawFactoryImpl';
 import LawFactory from './law/LawFactory';
 import BuffDataApplier from './entitySystem/system/buff/BuffDataApplier';
 import BuffDescription from './entitySystem/system/buff/BuffDescription';
-import Debug from './util/Debug';
 import UniverseProxyImpl from './environment/component/gameWorld/UniverseProxyImpl';
 import NotifierFactoryImpl from './output/notification/NotifierFactoryImpl';
 import CommentLoaderImpl from './comment/CommentLoaderImpl';
@@ -37,13 +36,11 @@ import Existence from './engine/existence/Existence';
 import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
 import Entity from './entitySystem/Entity';
 import HardCodedPreset from './preset/HardCodedPreset';
-import CommentData from './comment/CommentData';
-import Provider from './util/syntax/Provider';
 
 /**
  * Instantiates and connects components. Starts the game.
  */
-class Universe extends Phaser.State {
+class Universe {
   public inputController: InputController;
   public renderer: Renderer;
   public commentLoader: CommentLoader;
@@ -70,8 +67,6 @@ class Universe extends Phaser.State {
   public signsStorage: EntityStorage<SignEntity>;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
-    super();
-
     this.buffDataContainer = new BuffDataContainer();
 
     this.inputController = new InputController(game).ignoreInput();
@@ -180,31 +175,15 @@ class Universe extends Phaser.State {
     let gameContainer = adapter.getGameContainerProvider().getContainerId();
     let game = new Phaser.Game(0, 0, Phaser.AUTO, gameContainer, null);
 
-    game.state.add('BootState', new BootState(adapter, Universe.makeUniverse));
-    game.state.start('BootState');
-  }
+    game.state.add('MainState', new MainState(() => {
+      let universe = new Universe(game, adapter);
 
-  private static makeUniverse(game: Phaser.Game, adapter: EnvironmentAdapter) {
-    let universe = new Universe(game, adapter);
+      let proxy = universe.getProxy();
+      adapter.setProxy(proxy);
 
-    if (__STAGE__) {
-      Debug.set(universe);
-    }
-
-    return universe;
-  }
-
-  preload() {
-    if (__DEV__) {
-      this.game.load.image('background', 'debug-grid-1920x1920.png');
-    }
-  }
-
-  create() {
-    if (__DEV__) {
-      let sprite = this.game.add.tileSprite(0, 0, 1920, 1920, 'background');
-      this.game.world.sendToBack(sprite);
-    }
+      return universe;
+    }));
+    game.state.start('MainState');
   }
 
   onTransitionScreenAllWhite() {
@@ -225,21 +204,6 @@ class Universe extends Phaser.State {
     this.visibility.render(this.game.time);
   }
 
-  async loadComments(): Promise<() => void> {
-    let commentProvider = this.adapter.getCommentProvider();
-    let commentsDataProvider = await commentProvider.getAllComments();
-
-    commentProvider.connect();
-    commentProvider.commentReceived.add(data => this.commentLoader.load(data, true));
-
-    return this.commentsLoader.bind(this, commentsDataProvider);
-  }
-
-  private commentsLoader(commentsDataProvider: Provider<CommentData[]>) {
-    let commentsData = commentsDataProvider();
-    this.commentLoader.loadBatch(commentsData);
-  }
-
   getProxy(): UniverseProxy {
     return this.proxy;
   }
@@ -248,5 +212,3 @@ class Universe extends Phaser.State {
 export default Universe;
 
 let hasGenesis: boolean = false;
-
-export type UniverseFactory = (game: Phaser.Game, adapter: EnvironmentAdapter) => Universe;

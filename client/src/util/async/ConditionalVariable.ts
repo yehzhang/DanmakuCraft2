@@ -1,20 +1,26 @@
 class ConditionalVariable {
-  constructor(
-      private currentPromise: Promise<void> | null = null,
-      public notifyAll: () => void = () => {
-      }) {
+  constructor(private callbacks: Array<() => void> = []) {
   }
 
-  async wait() {
-    if (this.currentPromise == null) {
-      this.currentPromise = new Promise(resolve => {
-        this.notifyAll = resolve;
-      })
-          .then(resolve => {
-            this.currentPromise = null;
-          });
+  notify() {
+    let callback = this.callbacks.shift();
+
+    if (callback == null) {
+      return;
     }
-    return this.currentPromise;
+
+    callback();
+  }
+
+  notifyAll() {
+    for (let callback of this.callbacks) {
+      callback();
+    }
+    this.callbacks.length = 0;
+  }
+
+  async wait(): Promise<void> {
+    return new Promise<void>(resolve => this.callbacks.push(resolve));
   }
 }
 

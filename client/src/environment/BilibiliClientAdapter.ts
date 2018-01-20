@@ -1,6 +1,5 @@
 import OfficialCommentProvider from './component/officialWebsite/OfficialCommentProvider';
 import GameContainerProvider from './interface/GameContainerProvider';
-import SettingsManager from './interface/SettingsManager';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 import TextInputCommentProvider from './component/bilibili/TextInputCommentProvider';
 import EnvironmentVariables from './component/bilibili/EnvironmentVariables';
@@ -8,23 +7,24 @@ import Parameters from './component/bilibili/Parameters';
 import BilibiliContainerProvider from './component/bilibili/BilibiliContainerProvider';
 import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
 import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
-import {TestingCommentProvider} from './TestingAdapter';
 import InputInterceptor from './component/bilibili/InputInterceptor';
 import GameContainerFocuser from './component/bilibili/GameContainerFocuser';
 import Widgets from './component/bilibili/Widgets';
+import Socket from './component/officialWebsite/Socket';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   constructor(
       private widgets: Widgets = new Widgets(),
       private gameContainerProvider: GameContainerProvider =
-          new BilibiliContainerProvider(widgets)) {
+          new BilibiliContainerProvider(widgets),
+      private socket: Socket = new Socket()) {
     super();
 
     if (!BilibiliClientAdapter.canRunOnThisWebPage()) {
       throw new Error('Script cannot run on this page');
     }
 
-    BilibiliClientAdapter.disableControls();
+    BilibiliClientAdapter.disablePlayerControls();
   }
 
   private static canRunOnThisWebPage() {
@@ -34,7 +34,7 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
     return EnvironmentVariables.aid === Parameters.AID;
   }
 
-  private static disableControls() {
+  private static disablePlayerControls() {
     // Disable progress bar.
     $('.bilibili-player-video-control .bilibili-player-video-progress-bar .bpui-slider-tracker-wrp')
         .off();
@@ -78,30 +78,24 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   onProxySet() {
     let commentProvider =
         new TextInputCommentProvider(this.universeProxy.getCommentPlacingPolicy(), this.widgets);
-    let commentSender = new CommentSenderImpl();
-    commentProvider.commentReceived.add(commentData => commentSender.send(commentData));
-    commentProvider.connect();
+    let ignored = new CommentSenderImpl(this.socket, commentProvider);
 
     let game = this.universeProxy.getGame();
     let gameContainerFocuser = new GameContainerFocuser(this.widgets);
-    let ignored = new InputInterceptor(game.input.keyboard, gameContainerFocuser, this.widgets);
+    let ignored2 = new InputInterceptor(game.input.keyboard, gameContainerFocuser, this.widgets);
 
     // TODO Let volume bar actually controls
   }
 
   getCommentProvider() {
-    if (__STAGE__) {
-      // TODO remove
-      return new TestingCommentProvider();
-    }
-    return new OfficialCommentProvider();
+    return new OfficialCommentProvider(this.socket);
   }
 
-  getGameContainerProvider(): GameContainerProvider {
+  getGameContainerProvider() {
     return this.gameContainerProvider;
   }
 
-  getSettingsManager(): SettingsManager {
+  getSettingsManager() {
     return new LocalStorageSettingsManager();
   }
 }

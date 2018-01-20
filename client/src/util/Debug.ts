@@ -149,7 +149,7 @@ class Debug {
   }
 
   get fill() {
-    return this.loadComments().then(loader => loader());
+    return this.loadComments();
   }
 
   async loadComments() {
@@ -163,11 +163,9 @@ class Debug {
       xhr.send();
     })
         .then(event => {
-          return () => {
-            let document = (event.target as XMLHttpRequest).response;
-            let commentsData = CommentDataUtil.parseFromDocument(document);
-            return this.universe.commentLoader.loadBatch(commentsData);
-          };
+          let document = (event.target as XMLHttpRequest).response;
+          let commentsData = CommentDataUtil.parseFromDocument(document);
+          return this.universe.commentLoader.loadBatch(commentsData);
         });
   }
 

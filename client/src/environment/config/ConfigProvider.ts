@@ -1,15 +1,15 @@
-import BackendConfig from './BackendConfig';
+import FrontendConfig from './FrontendConfig';
 
 class ConfigProvider {
-  private static config?: BackendConfig;
+  private static config?: FrontendConfig;
 
-  static set(apiConfig: BackendConfig) {
+  static set(apiConfig: FrontendConfig) {
     this.config = apiConfig;
   }
 
-  static get(): BackendConfig {
+  static get(): FrontendConfig {
     if (this.config == null) {
-      throw new TypeError('BackendConfig is not set');
+      throw new TypeError('FrontendConfig is not set');
     }
     return this.config;
   }

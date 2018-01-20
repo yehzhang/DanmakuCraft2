@@ -9,7 +9,7 @@ if (__STAGE__) {
   })(console.log);
 }
 
-import 'core-js/shim';
+import './util/polyfill';
 import Universe from './Universe';
 
 function main() {

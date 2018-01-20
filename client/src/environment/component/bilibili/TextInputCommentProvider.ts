@@ -4,8 +4,8 @@ import CommentData from '../../../comment/CommentData';
 import CommentProvider from '../../interface/CommentProvider';
 import {bindFirst} from '../../util';
 import {Phaser} from '../../../util/alias/phaser';
-import Provider from '../../../util/syntax/Provider';
 import Widgets from './Widgets';
+import Queue from '../../../util/async/Queue';
 
 class TextInputCommentProvider implements CommentProvider {
   private static readonly DEFAULT_COMMENT_SIZE = 25;
@@ -13,10 +13,10 @@ class TextInputCommentProvider implements CommentProvider {
   constructor(
       private commentPlacingPolicy: CommentPlacingPolicy,
       private widgets: Widgets,
-      readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal(),
       private commentText: string | null = null,
       private commentSize: number = TextInputCommentProvider.DEFAULT_COMMENT_SIZE,
-      private commentColor: number = Colors.WHITE_NUMBER) {
+      private commentColor: number = Colors.WHITE_NUMBER,
+      private commentDataQueue: Queue<CommentData> = new Queue()) {
   }
 
   connect() {
@@ -77,7 +77,7 @@ class TextInputCommentProvider implements CommentProvider {
     this.requestForPlacingComment();
   }
 
-  getAllComments(): Promise<Provider<CommentData[]>> {
+  async * getAllComments(): AsyncIterable<CommentData> {
     throw new TypeError('This operation is not supported');
   }
 
@@ -90,6 +90,12 @@ class TextInputCommentProvider implements CommentProvider {
         this.commentText,
         this.commentSize,
         this.commentColor);
+  }
+
+  async * getNewComments() {
+    while (true) {
+      yield this.commentDataQueue.unshift();
+    }
   }
 
   private onSendButtonClickedInitially(event: JQuery.Event) {
@@ -105,7 +111,7 @@ class TextInputCommentProvider implements CommentProvider {
 
     this.commentPlacingPolicy.commitRequest();
 
-    this.commentReceived.dispatch(commentData);
+    let ignored = this.commentDataQueue.shift(commentData);
   }
 
   private isSendButtonDisabled() {

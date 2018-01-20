@@ -1,9 +1,6 @@
 import CommentData from '../../comment/CommentData';
-import Provider from '../../util/syntax/Provider';
 
 interface CommentProvider {
-  readonly commentReceived: Phaser.Signal<CommentData>;
-
   /**
    * Call this method when it is appropriate.
    */
@@ -14,7 +11,9 @@ interface CommentProvider {
    * This operation is probably expensive, so listen on NEW_COMMENT for new comments.
    * Throws an error if fails to get all comments.
    */
-  getAllComments(): Promise<Provider<CommentData[]>>;
+  getAllComments(): AsyncIterable<CommentData>;
+
+  getNewComments(): AsyncIterable<CommentData>;
 }
 
 export default CommentProvider;

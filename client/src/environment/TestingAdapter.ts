@@ -4,7 +4,6 @@ import GameContainerProvider from './interface/GameContainerProvider';
 import CommentData from '../comment/CommentData';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 import BaseSettingsManager from './component/BaseSettingsManager';
-import Provider from '../util/syntax/Provider';
 
 class TestingAdapter extends BaseEnvironmentAdapter {
   onProxySet(): void {
@@ -15,7 +14,7 @@ class TestingAdapter extends BaseEnvironmentAdapter {
   }
 
   getCommentProvider(): CommentProvider {
-    return new TestingCommentProvider(new Phaser.Signal());
+    return new TestingCommentProvider();
   }
 
   getGameContainerProvider(): GameContainerProvider {
@@ -26,20 +25,19 @@ class TestingAdapter extends BaseEnvironmentAdapter {
 export default TestingAdapter;
 
 export class TestingContainerProvider implements GameContainerProvider {
-  getContainerId(): string {
+  getContainerId() {
     return 'container';
   }
 }
 
 export class TestingCommentProvider implements CommentProvider {
-  constructor(readonly commentReceived: Phaser.Signal<CommentData> = new Phaser.Signal()) {
-  }
-
   connect() {
   }
 
-  async getAllComments() {
-    return new Promise<Provider<CommentData[]>>(resolve => resolve(() => []));
+  async * getAllComments(): AsyncIterable<CommentData> {
+  }
+
+  async * getNewComments(): AsyncIterable<CommentData> {
   }
 }
 
