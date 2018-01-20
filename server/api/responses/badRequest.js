@@ -14,47 +14,44 @@
  * );
  * ```
  */
-
 module.exports = function badRequest(data, options) {
+  let req = this.req;
+  let res = this.res;
+  let sails = req._sails;
 
-  // Get access to `req`, `res`, & `sails`
-  var req = this.req;
-  var res = this.res;
-  var sails = req._sails;
+  let responseData = Utils.wrapErrorResponseData(data);
 
-  // Set status code
   res.status(400);
 
-  // Log error to console
-  if (data !== undefined) {
-    sails.log.verbose('Sending 400 ("Bad Request") response: \n',data);
+  if (responseData === undefined) {
+    sails.log.warn('Sending 400 ("Bad Request") response');
+  } else {
+    sails.log.warn('Sending 400 ("Bad Request") response: \n', responseData);
   }
-  else sails.log.verbose('Sending 400 ("Bad Request") response');
 
   // Only include errors in response if application environment
   // is not set to 'production'.  In production, we shouldn't
   // send back any identifying information about errors.
   if (sails.config.environment === 'production' && sails.config.keepResponseErrors !== true) {
-    data = undefined;
+    responseData = undefined;
   }
 
   // If the user-agent wants JSON, always respond with JSON
   // If views are disabled, revert to json
   if (req.wantsJSON || sails.config.hooks.views === false) {
-    return res.jsonx(data);
+    return res.jsonx(responseData);
   }
 
   // If second argument is a string, we take that to mean it refers to a view.
   // If it was omitted, use an empty object (`{}`)
-  options = (typeof options === 'string') ? { view: options } : options || {};
+  options = (typeof options === 'string') ? {view: options} : options || {};
 
-  // Attempt to prettify data for views, if it's a non-error object
-  var viewData = data;
+  // Attempt to prettify responseData for views, if it's a non-error object
+  let viewData = responseData;
   if (!(viewData instanceof Error) && 'object' == typeof viewData) {
     try {
-      viewData = require('util').inspect(data, {depth: null});
-    }
-    catch(e) {
+      viewData = require('util').inspect(responseData, {depth: null});
+    } catch (e) {
       viewData = undefined;
     }
   }
@@ -63,14 +60,7 @@ module.exports = function badRequest(data, options) {
   // Otherwise try to guess an appropriate view, or if that doesn't
   // work, just send JSON.
   if (options.view) {
-    return res.view(options.view, { data: viewData, title: 'Bad Request' });
+    return res.view(options.view, {data: viewData, title: 'Bad Request'});
   }
-
-  // If no second argument provided, try to serve the implied view,
-  // but fall back to sending JSON(P) if no view can be inferred.
-  else return res.guessView({ data: viewData, title: 'Bad Request' }, function couldNotGuessView () {
-    return res.jsonx(data);
-  });
-
+  return res.guessView({data: viewData, title: 'Bad Request'}, () => res.jsonx(responseData));
 };
-

@@ -31,19 +31,19 @@ module.exports.session = {
   *                                                                          *
   ***************************************************************************/
 
-  // cookie: {
-  //   // Cookie expiration in milliseconds.
-  //   // For example, use 24 * 60 * 60 * 1000 to make sessions expire in 24 hours.
-  //   // Default is null, making it a browser cookie, so the session will
-  //   // last only for as long as the browser is open.
-  //   maxAge: null,
-  //   // Path that the cookie is valid for.
-  //   path: '/',
-  //   // Should the session cookie be HTTP-only? (See https://www.owasp.org/index.php/HttpOnly)
-  //   httpOnly: true,
-  //   // Should the session cookie be secure? (only valid for HTTPS sites)
-  //   secure: false
-  // },
+  cookie: {
+    // Cookie expiration in milliseconds.
+    // For example, use 24 * 60 * 60 * 1000 to make sessions expire in 24 hours.
+    // Default is null, making it a browser cookie, so the session will
+    // last only for as long as the browser is open.
+    maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // = 10 years.
+    // Path that the cookie is valid for.
+    path: '/',
+    // Should the session cookie be HTTP-only? (See https://www.owasp.org/index.php/HttpOnly)
+    httpOnly: true,
+    // Should the session cookie be secure? (only valid for HTTPS sites)
+    secure: false
+  },
 
   /***************************************************************************
   *                                                                          *

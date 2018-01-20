@@ -1,3 +1,9 @@
 {
+  "error.comment.text": "无法识别弹幕的内容",
+  "error.comment.text.empty": "弹幕不能是空的",
+  "error.comment.color": "无法识别弹幕的颜色",
+  "error.comment.size": "无法识别弹幕的字号",
+  "error.comment.coordinate": "无法识别弹幕的坐标",
+
   "appName": "弹幕世界2"
 }
