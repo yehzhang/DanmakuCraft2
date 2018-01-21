@@ -12,7 +12,6 @@ import Distance from './math/Distance';
 import {NotificationPriority} from '../output/notification/Notifier';
 import ConfigProvider from '../environment/config/ConfigProvider';
 import Visibility from '../engine/visibility/Visibility';
-import CommentDataUtil from '../../../scripts/CommentDataUtil';
 import {Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
 
@@ -108,6 +107,7 @@ class Debug {
 
   static set(universe: Universe) {
     Object.assign(window, universe, {
+      universe,
       CommentData,
       BuffData,
       Colors,
@@ -146,27 +146,6 @@ class Debug {
   get shout() {
     this.universe.notifier.send(this.getNotificationMessage(), NotificationPriority.SKIP);
     return this.universe.notifier;
-  }
-
-  get fill() {
-    return this.loadComments();
-  }
-
-  async loadComments() {
-    let config = ConfigProvider.get();
-    return new Promise<Event>((resolve, reject) => {
-      let xhr = new XMLHttpRequest();
-      xhr.responseType = 'document';
-      xhr.addEventListener('load', resolve);
-      xhr.addEventListener('error', reject);
-      xhr.open('GET', config.baseUrl + config.defaultBatchCommentsPath);
-      xhr.send();
-    })
-        .then(event => {
-          let document = (event.target as XMLHttpRequest).response;
-          let commentsData = CommentDataUtil.parseFromDocument(document);
-          return this.universe.commentLoader.loadBatch(commentsData);
-        });
   }
 
   get hideInfo() {

@@ -14,22 +14,20 @@ class CommentData {
     this.coordinates = coordinates.clone().floor();
   }
 
-  static structureFrom(
-      size: number,
-      color: number,
-      text: string,
-      coordinateX: number,
-      coordinateY: number,
-      buffType?: number,
-      buffParameter?: number) {
+  static structureFrom(flatData: FlatCommentData) {
     let buffData;
-    if (buffType != null && buffParameter != null) {
-      buffData = new BuffData(buffType, buffParameter);
+    if (flatData.buffType != null && flatData.buffParameter != null) {
+      buffData = new BuffData(flatData.buffType, flatData.buffParameter);
     } else {
       buffData = null;
     }
 
-    return new CommentData(size, color, text, Point.of(coordinateX, coordinateY), buffData);
+    return new CommentData(
+        flatData.size,
+        flatData.color,
+        flatData.text,
+        Point.of(flatData.coordinateX, flatData.coordinateY),
+        buffData);
   }
 
   flatten(): FlatCommentData {

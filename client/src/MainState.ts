@@ -49,7 +49,7 @@ class MainState extends Phaser.State {
         await this.loadUniverseAndShowOpeningScene();
       }
     } catch (e) {
-      console.error('Error when displaying opening scene', e);
+      console.error('Error when displaying opening scene:', e);
       if (this.scene) {
         this.scene.showFailedLoadingStatus();
       }
@@ -91,14 +91,6 @@ class MainState extends Phaser.State {
   }
 
   private async loadComments(): Promise<void> {
-    if (__STAGE__) {
-      let canFill = (window as any).canFill;
-      if (canFill === undefined || canFill) {
-        return (window as any).db.loadComments();
-      }
-      return;
-    }
-
     let commentProvider = this.universe.adapter.getCommentProvider();
     return this.universe.commentLoader.loadProvider(commentProvider);
   }

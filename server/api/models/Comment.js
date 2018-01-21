@@ -1,13 +1,16 @@
 module.exports = {
   attributes: {
     text: {
-      type: 'string'
+      type: 'string',
+      required: true,
     },
     color: {
-      type: 'integer'
+      type: 'integer',
+      required: true,
     },
     size: {
-      type: 'integer'
+      type: 'integer',
+      required: true,
     },
     createdAt: {
       type: 'datetime',
@@ -16,20 +19,21 @@ module.exports = {
     },
     coordinateX: {
       type: 'integer',
+      required: true,
     },
     coordinateY: {
       type: 'integer',
+      required: true,
     },
     buffType: {
       type: 'integer',
-      required: false,
     },
     buffParameter: {
       type: 'integer',
-      required: false,
     },
     user: {
       model: 'user',
+      required: true,
     },
 
     toJSON() {

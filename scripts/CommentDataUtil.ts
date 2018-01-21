@@ -1,11 +1,10 @@
-import CommentData from '../client/src/comment/CommentData';
-import {BuffData, BuffType} from '../client/src/entitySystem/system/buff/BuffData';
-import Point from '../client/src/util/syntax/Point';
+import {BuffType} from '../client/src/entitySystem/system/buff/BuffData';
+import {FlatCommentData} from '../client/src/comment/CommentData';
 
 class CommentDataUtil {
   static readonly METADATA_DELIMITER = '/[';
 
-  static parseFromDocument(document: Document): CommentData[] {
+  static parseFromDocument(document: Document): BilibiliCommentData[] {
     return Array.from(document.getElementsByTagName('d'))
         .map(commentElement => {
           let attributes = commentElement.attributes.getNamedItem('p').value;
@@ -16,10 +15,10 @@ class CommentDataUtil {
             return null;
           }
         })
-        .filter(Boolean) as CommentData[];
+        .filter(Boolean) as BilibiliCommentData[];
   }
 
-  static parseFromXmlLine(attributes: string, text: string): CommentData | null {
+  static parseFromXmlLine(attributes: string, text: string): BilibiliCommentData | null {
     // Parse metadata
     let indexMetadata = text.lastIndexOf(this.METADATA_DELIMITER);
     if (indexMetadata === -1) {
@@ -41,31 +40,37 @@ class CommentDataUtil {
     let commentText = text.slice(0, indexMetadata);
 
     // Parse properties
-    let positionX;
-    let positionY;
-    let buffData = null;
+    let coordinateX;
+    let coordinateY;
+    let buffData: any = {};
     if (properties.length === 2) {
-      [positionX, positionY] = properties;
+      [coordinateX, coordinateY] = properties;
     } else if (properties.length === 4) {
       let buffType;
       let buffParameter;
-      [positionX, positionY, buffType, buffParameter] = properties;
+      [coordinateX, coordinateY, buffType, buffParameter] = properties;
       if (BuffType[buffType] != null) {
-        buffData = new BuffData(buffType, buffParameter);
+        buffData.type = buffType;
+        buffData.parameter = buffParameter;
       }
     } else {
       throw new TypeError(`Unknown properties: ${properties}`);
     }
 
     // Parse attributes
-    let [, , size, color] = attributes.split(',');
+    let [, , size, color, sentAt, , userId] = attributes.split(',');
 
-    return new CommentData(
-        Number(size),
-        Number(color),
-        commentText,
-        Point.of(positionX, positionY),
-        buffData);
+    return {
+      size: Number(size),
+      color: Number(color),
+      text: commentText,
+      coordinateX,
+      coordinateY,
+      buffType: buffData.type,
+      buffParameter: buffData.parameter,
+      sentAt: Number(sentAt),
+      userId,
+    };
   }
 
   // Thanks @UHI for av488629
@@ -80,3 +85,8 @@ class CommentDataUtil {
 }
 
 export default CommentDataUtil;
+
+export interface BilibiliCommentData extends FlatCommentData {
+  readonly sentAt: number;
+  readonly userId: string;
+}

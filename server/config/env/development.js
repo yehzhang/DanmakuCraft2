@@ -7,7 +7,6 @@ module.exports = {
   },
 
   models: {
-    // connection: 'someMongodbServer',
-    migrate: 'alter'
+    migrate: 'drop'
   },
 };

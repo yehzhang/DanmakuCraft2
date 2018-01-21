@@ -14,7 +14,6 @@ class AdapterFactory {
     ConfigProvider.set(FrontendConfig.newBuilder()
         .setBaseUrl(frontend.baseUrl)
         .setBatchCommentsPath(frontend.commentsPath)
-        .setDefaultBatchCommentsPath(frontend.defaultBatchCommentsPath)
         .setGameContainer(frontend.gameContainerId)
         .build());
   }

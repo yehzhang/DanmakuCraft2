@@ -3,9 +3,7 @@ module.exports.frontend = {
   // baseUrl: "http://danmakucraft.com",
   // baseUrl: "http://ec2-54-245-145-60.us-west-2.compute.amazonaws.com:1337/",
   baseUrl: "http://localhost:1337",
-  commentsPath: "/comments",
-
-  defaultBatchCommentsPath: "/data/comments.dev.xml",
+  commentsPath: "/comment",
 
   gameContainerId: "game-container",
 };
