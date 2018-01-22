@@ -2,7 +2,7 @@ import Colors from './Colors';
 import Point from '../util/syntax/Point';
 import Perspective from './Perspective';
 import Texts from './Texts';
-import Timeout from '../util/async/Timeout';
+import Sleep from '../util/async/Sleep';
 import PhysicalConstants from '../PhysicalConstants';
 import ParticlesField from './ParticlesField';
 import GraphicsFactory from './graphics/GraphicsFactory';
@@ -67,7 +67,7 @@ class OpeningScene {
   }
 
   async approachUniverseBorder() {
-    await Timeout.after(2000);
+    await Sleep.after(2000);
     await this.approachTitleText();
     await this.approachTitleVersion();
   }
@@ -147,7 +147,7 @@ class OpeningScene {
     this.game.add.tween(this.earthPerspective)
         .to({z: -OpeningScene.FOCAL_LENGTH}, 4500, Phaser.Easing.Quadratic.InOut, true);
 
-    await Timeout.after(900);
+    await Sleep.after(900);
     this.game.camera.fade(Colors.BACKGROUND_NUMBER, 3500);
 
     return new Promise(resolve => this.game.camera.onFadeComplete.addOnce(resolve));

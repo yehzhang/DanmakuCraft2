@@ -1,6 +1,4 @@
-class Timeout {
-  private static MOMENT_DURATION = 100;
-
+class Sleep {
   constructor(private duration: number = 0) {
   }
 
@@ -8,8 +6,8 @@ class Timeout {
     return new this(duration).wait();
   }
 
-  static async moment() {
-    return this.after(this.MOMENT_DURATION);
+  static async immediate() {
+    return new Promise(setImmediate);
   }
 
   async wait() {
@@ -17,4 +15,4 @@ class Timeout {
   }
 }
 
-export default Timeout;
+export default Sleep;

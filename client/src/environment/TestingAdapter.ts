@@ -4,6 +4,7 @@ import GameContainerProvider from './interface/GameContainerProvider';
 import CommentData from '../comment/CommentData';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 import BaseSettingsManager from './component/BaseSettingsManager';
+import {BuiltinAsyncIterable} from '../util/alias/builtin';
 
 class TestingAdapter extends BaseEnvironmentAdapter {
   onProxySet(): void {
@@ -34,10 +35,11 @@ export class TestingCommentProvider implements CommentProvider {
   connect() {
   }
 
-  async * getAllComments(): AsyncIterable<CommentData> {
+  async getAllComments() {
+    return [];
   }
 
-  async * getNewComments(): AsyncIterable<CommentData> {
+  async * getNewComments(): BuiltinAsyncIterable<CommentData> {
   }
 }
 

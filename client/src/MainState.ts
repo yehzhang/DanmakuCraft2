@@ -1,11 +1,14 @@
 import Universe from './Universe';
 import {Phaser} from './util/alias/phaser';
-import Timeout from './util/async/Timeout';
+import Sleep from './util/async/Sleep';
 import OpeningScene from './render/OpeningScene';
 import Colors from './render/Colors';
 import Rectangle from './util/syntax/Rectangle';
 import Provider from './util/syntax/Provider';
 import Debug from './util/Debug';
+import CommentData from './comment/CommentData';
+import AsyncIterable from './util/syntax/AsyncIterable';
+import {asSequence} from 'sequency';
 
 class MainState extends Phaser.State {
   private scene: OpeningScene | null;
@@ -90,13 +93,25 @@ class MainState extends Phaser.State {
     this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
   }
 
-  private async loadComments(): Promise<void> {
+  private async loadCommentsDataAndListenToNewComments() {
     let commentProvider = this.universe.adapter.getCommentProvider();
-    return this.universe.commentLoader.loadProvider(commentProvider);
+    let commentsData = await commentProvider.getAllComments();
+
+    let ignored = this.loadCommentsAsync(commentProvider.getNewComments(), true);
+    commentProvider.connect();
+
+    return commentsData;
+  }
+
+  private async loadCommentsAsync(commentsData: AsyncIterable<CommentData>, blink: boolean) {
+    for await (let commentData of commentsData) {
+      this.universe.commentLoader.load(commentData, blink);
+    }
   }
 
   private async loadUniverseButSkipOpeningScene() {
-    await this.loadComments();
+    let commentsData = await this.loadCommentsDataAndListenToNewComments();
+    this.universe.commentLoader.loadBatch(commentsData, false);
 
     this.universe.onTransitionScreenAllWhite();
     this.universe.onTransitionFinished();
@@ -106,19 +121,26 @@ class MainState extends Phaser.State {
     this.scene = new OpeningScene(this.universe.game, this.universe.graphicsFactory);
     this.updatables.add(this.scene);
 
+    let commentsDataPromise = this.loadCommentsDataAndListenToNewComments();
+
     await Promise.all([
-      this.loadComments(),
       this.scene.showLoadingStatus(),
       this.scene.approachUniverseBorder(),
       this.scene.approachEarthFaraway()]);
 
+    this.scene.startParticlesField();
+
+    let commentsData = await commentsDataPromise;
+    let dataChunks = asSequence(commentsData).chunk(100);
+    for (let dataChunk of dataChunks) {
+      this.universe.commentLoader.loadBatch(dataChunk, false);
+      await Sleep.immediate();  // let animations play
+    }
+
     this.updatables.add(this.universe);
     this.renderables.add(this.universe);
-
-    // Wait for engines to initialize.
-    await Timeout.moment();
-
-    this.scene.startParticlesField();
+    // Wait for engines to initialize before starting animations.
+    await Sleep.immediate();
 
     await Promise.all([
       this.scene.showCompletedLoadingStatus(),
@@ -129,7 +151,7 @@ class MainState extends Phaser.State {
       this.scene.approachParticlesField(),
       this.scene.approachEarth()]);
 
-    let timeoutPromise = Timeout.after(2 * Phaser.Timer.SECOND);
+    let timeoutPromise = Sleep.after(2 * Phaser.Timer.SECOND);
 
     this.scene.cleanupWorld();
     this.updatables.delete(this.scene);

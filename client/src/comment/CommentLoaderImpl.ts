@@ -7,7 +7,6 @@ import CommentData from './CommentData';
 import {BuffData} from '../entitySystem/system/buff/BuffData';
 import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
 import {asSequence} from 'sequency';
-import CommentProvider from '../environment/interface/CommentProvider';
 
 class CommentLoaderImpl implements CommentLoader {
   constructor(
@@ -18,7 +17,7 @@ class CommentLoaderImpl implements CommentLoader {
       private buffDataApplier: BuffDataApplier) {
   }
 
-  loadBatch(commentsData: CommentData[], blink?: boolean): CommentEntity[] {
+  loadBatch(commentsData: Iterable<CommentData>, blink?: boolean): CommentEntity[] {
     let comments = [];
     let updatingComments = [];
     for (let commentData of commentsData) {
@@ -79,19 +78,6 @@ class CommentLoaderImpl implements CommentLoader {
     let comment = this.entityFactory.createUpdatingCommentEntity(commentData);
     this.buffDataApplier.activateOnComment(buffData, comment);
     return comment;
-  }
-
-  async loadProvider(commentProvider: CommentProvider): Promise<void> {
-    await this.loadComments(commentProvider.getAllComments(), false);
-    let ignored = this.loadComments(commentProvider.getNewComments(), true);
-
-    commentProvider.connect();
-  }
-
-  private async loadComments(commentsData: AsyncIterable<CommentData>, blink: boolean) {
-    for await (let commentData of commentsData) {
-      this.load(commentData, blink);
-    }
   }
 }
 

@@ -12,7 +12,7 @@ class SetContainer<T> implements ImmutableContainer<T> {
     return new SetContainer(newItems);
   }
 
-  addAll(items: T[]): ImmutableContainer<T> {
+  addAll(items: T[]) {
     let newItems = new Set(this.items);
     for (let item of items) {
       newItems.add(item);
@@ -25,7 +25,7 @@ class SetContainer<T> implements ImmutableContainer<T> {
     return this.items.size;
   }
 
-  [Symbol.iterator](): Iterator<T> {
+  [Symbol.iterator]() {
     return Iterator.of(this.items);
   }
 }

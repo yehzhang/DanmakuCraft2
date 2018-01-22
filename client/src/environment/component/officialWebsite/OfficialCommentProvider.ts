@@ -6,6 +6,7 @@ import {BuffData} from '../../../entitySystem/system/buff/BuffData';
 import Queue from '../../../util/async/Queue';
 import Socket from './Socket';
 import Response from './Response';
+import {asSequence} from 'sequency';
 
 class OfficialCommentProvider implements CommentProvider {
   constructor(
@@ -35,17 +36,16 @@ class OfficialCommentProvider implements CommentProvider {
     });
   }
 
-  async * getAllComments() {
+  async getAllComments() {
     let response = await this.socket.get<FlatCommentData[]>(ConfigProvider.get().commentsPath);
 
     if (response == null) {
-      return;
+      return [];
     }
 
-    for (let flatData of response.apply()) {
-      let commentData = OfficialCommentProvider.createCommentDataFrom(flatData);
-      yield Promise.resolve(commentData);
-    }
+    return asSequence(response.apply())
+        .map(data => OfficialCommentProvider.createCommentDataFrom(data))
+        .asIterable();
   }
 
   async * getNewComments() {

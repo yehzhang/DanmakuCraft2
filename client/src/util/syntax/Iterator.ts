@@ -1,4 +1,4 @@
-import BuiltinIterator from '../alias/BuiltinIterator';
+import {BuiltinIterator} from '../alias/builtin';
 
 abstract class Iterator<T> implements BuiltinIterator<T> {
   static of<T>(iterable: Iterable<T>): BuiltinIterator<T> {

@@ -14,6 +14,7 @@ import ConfigProvider from '../environment/config/ConfigProvider';
 import Visibility from '../engine/visibility/Visibility';
 import {Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
+import Sleep from './async/Sleep';
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -118,6 +119,7 @@ class Debug {
       asSequence,
       PhysicalConstants,
       ConfigProvider,
+      Sleep,
     });
 
     let debug = new this(universe);

@@ -65,6 +65,7 @@ describe('ExistenceRelation', () => {
     exitingEntities = [mockExitingEntities.map(instance)];
     mockEntityFinder = mock(ChunkEntityFinder);
     entityFinder = instance(mockEntityFinder);
+    entityFinder[Symbol.iterator] = () => Iterator.of([]);
 
     when(mockEntityFinder.entityExistenceUpdated).thenReturn(new Phaser.Signal());
     mockEntityFinder[Symbol.iterator] = () => Iterator.of([]);

@@ -11,7 +11,7 @@ interface CommentProvider {
    * This operation is probably expensive, so listen on NEW_COMMENT for new comments.
    * Throws an error if fails to get all comments.
    */
-  getAllComments(): AsyncIterable<CommentData>;
+  getAllComments(): Promise<Iterable<CommentData>>;
 
   getNewComments(): AsyncIterable<CommentData>;
 }
