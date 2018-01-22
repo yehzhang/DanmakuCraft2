@@ -9,8 +9,8 @@ class Renderer {
       readonly playersLayer: Phaser.Group = game.make.group(),
       readonly groundLayer: PhaserDisplayContainer = new BridgingContainer(),
       readonly cachedBackgroundLayer: PhaserDisplayContainer = new BridgingContainer(),
-      readonly cachedCommentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer(),
-      readonly commentsLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
+      readonly cachedFloatingLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer(),
+      readonly uncachedFloatingLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
     stage.add(cachedBackgroundLayer);
     cachedBackgroundLayer.cacheAsBitmap = true;
 
@@ -19,13 +19,13 @@ class Renderer {
     stage.add(playersLayer);
 
     stage.add(floatingLayer);
-    floatingLayer.addChild(cachedCommentsLayer);
-    cachedCommentsLayer.cacheAsBitmap = true;
-    floatingLayer.addChild(commentsLayer);
+    floatingLayer.addChild(cachedFloatingLayer);
+    cachedFloatingLayer.cacheAsBitmap = true;
+    floatingLayer.addChild(uncachedFloatingLayer);
   }
 
   focus(entity: Display<Phaser.Sprite>) {
-    this.game.camera.follow(entity.display, Phaser.Camera.FOLLOW_LOCKON);
+    this.game.camera.follow(entity.display, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
 
     // Allow camera to move out of the world.
     this.game.camera.bounds = null;
@@ -41,10 +41,6 @@ class Renderer {
   turnOff() {
     this.stage.visible = false;
     return this;
-  }
-
-  getStage() {
-    return this.stage;
   }
 }
 

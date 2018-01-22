@@ -72,12 +72,12 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .applyTickSystem(synchronizeUpdateSystem);
 
     let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
-    let addUncachedCommentsSystem = new AddChildSystem(renderer.commentsLayer);
+    let addUncachedCommentsSystem = new AddChildSystem(renderer.uncachedFloatingLayer);
     let positioningSystem = new UnmovableDisplayPositioningSystem(player);
 
     foregroundTrackerBuilder.onRender()
         // Render
-        .applyVisibilitySystem(new AddChildSystem(renderer.cachedCommentsLayer))
+        .applyVisibilitySystem(new AddChildSystem(renderer.cachedFloatingLayer))
         .toEntities().of(commentsFinder)
         .applyVisibilitySystem(addUncachedCommentsSystem)
         .toEntities().of(updatingCommentsFinder)
