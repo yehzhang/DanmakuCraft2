@@ -32,7 +32,7 @@ class ParticlesField {
     return [
       Phaser.Math.between(-width * 2, width * 2),
       Phaser.Math.between(-height * 2, height * 2),
-      Phaser.Math.between(-ParticlesField.MAX_DISTANCE * 5, 0)];
+      Phaser.Math.between(-ParticlesField.MAX_DISTANCE * 5, 0) - ParticlesField.FOCAL_LENGTH];
   }
 
   update() {

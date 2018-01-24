@@ -9,6 +9,7 @@ import Debug from './util/Debug';
 import CommentData from './comment/CommentData';
 import AsyncIterable from './util/syntax/AsyncIterable';
 import {asSequence} from 'sequency';
+import PhysicalConstants from './PhysicalConstants';
 
 class MainState extends Phaser.State {
   private scene: OpeningScene | null;
@@ -131,16 +132,18 @@ class MainState extends Phaser.State {
     this.scene.startParticlesField();
 
     let commentsData = await commentsDataPromise;
-    let dataChunks = asSequence(commentsData).chunk(100);
+    let dataChunks = asSequence(commentsData)
+        .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
+        .chunk(100);
     for (let dataChunk of dataChunks) {
+      await Sleep.moment();  // let animations play
       this.universe.commentLoader.loadBatch(dataChunk, false);
-      await Sleep.immediate();  // let animations play
     }
 
     this.updatables.add(this.universe);
     this.renderables.add(this.universe);
     // Wait for engines to initialize before starting animations.
-    await Sleep.immediate();
+    await Sleep.moment();
 
     await Promise.all([
       this.scene.showCompletedLoadingStatus(),

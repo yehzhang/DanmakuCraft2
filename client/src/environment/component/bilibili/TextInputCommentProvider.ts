@@ -77,7 +77,7 @@ class TextInputCommentProvider implements CommentProvider {
     this.requestForPlacingComment();
   }
 
-  async * getAllComments(): AsyncIterable<CommentData> {
+  async getAllComments(): Promise<Iterable<CommentData>> {
     throw new TypeError('This operation is not supported');
   }
 

@@ -6,8 +6,8 @@ class Sleep {
     return new this(duration).wait();
   }
 
-  static async immediate() {
-    return new Promise(setImmediate);
+  static async moment() {
+    return this.after(0);
   }
 
   async wait() {
