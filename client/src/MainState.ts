@@ -81,17 +81,23 @@ class MainState extends Phaser.State {
     // Do not pause on blur.
     this.game.stage.disableVisibilityChange = true;
 
-    // Make tiny television less blurry
-    this.game.renderer.renderSession.roundPixels = true;
-    // Too ugly when zoomed if turned on
-    // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
-
     this.game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE;
     this.game.scale.setResizeCallback((ignored: Phaser.ScaleManager, parentBounds: Rectangle) => {
       this.game.scale.setGameSize(parentBounds.width, parentBounds.height);
     });
 
     this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
+
+    // Let camera following with lerp actually focus.
+    this.game.camera.roundPx = false;
+
+    // Make tiny television less blurry
+    // When combined with the option above, however, some fixed-to-camera displays convulse.
+    // this.game.renderer.renderSession.roundPixels = true;
+
+    // Make tiny television less blurry
+    // However, it looks too ugly when zoomed if turned on
+    // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
   }
 
   private async loadCommentsDataAndListenToNewComments() {

@@ -5,7 +5,7 @@ import {toWorldCoordinateOffset2d} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
 
 class Nudge {
-  private static readonly NUDGING_DURATION = 90;
+  private static readonly NUDGING_DURATION = 70;
 
   constructor(public nudgingDuration: number = 0, public nudgeDestination: Point = Point.origin()) {
   }

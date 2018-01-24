@@ -2,42 +2,44 @@ import CommentPlacingPolicy from '../../interface/CommentPlacingPolicy';
 import CommentData from '../../../comment/CommentData';
 import CollisionDetectionSystem from '../../../entitySystem/system/visibility/CollisionDetectionSystem';
 import BuffDataContainer from '../../../entitySystem/system/buff/BuffDataContainer';
-import CommentLoader from '../../../comment/CommentLoader';
 import Notifier, {NotificationPriority} from '../../../output/notification/Notifier';
-import {CommentEntity, Player} from '../../../entitySystem/alias';
+import {Player} from '../../../entitySystem/alias';
 import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffData';
 import Texts from '../../../render/Texts';
 import Point from '../../../util/syntax/Point';
+import GraphicsFactory from '../../../render/graphics/GraphicsFactory';
+import Display from '../../../entitySystem/component/Display';
 
 class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   // Maximum blur radius = 2. Minimum line padding = 9.
   // Multiply by 2 because bounds of comments in collision system are not shrunk,
-  private static readonly COLLISION_BOUNDS_SHRINKAGE = Point.of(2, 9 / 2 + 2).multiply(2, 2);
+  private static readonly COLLISION_BOUNDS_SHRINKAGE = Point.of(2, 9 / 2 + 2).multiply(2, 2).add(2, 2);
 
   constructor(
       private collisionDetectionSystem: CollisionDetectionSystem,
-      private commentLoader: CommentLoader,
+      private graphicsFactory: GraphicsFactory,
       private notifier: Notifier,
       private buffDataContainer: BuffDataContainer,
       private player: Player,
-      private previewEntity?: CommentEntity) {
-  }
-
-  private static getCollisionBounds(entity: CommentEntity) {
-    return entity.getDisplayWorldBounds()
-        .inflate(-this.COLLISION_BOUNDS_SHRINKAGE.x, -this.COLLISION_BOUNDS_SHRINKAGE.y);
+      private fixedToCameraLayer: PIXI.DisplayObjectContainer,
+      private previewDisplay?: Phaser.Text) {
   }
 
   requestFor(text: string, size: number, color: number) {
     this.clearCommentPreview();
 
-    let commentData = this.buildCommentData(text, size, color);
-    this.previewEntity = this.commentLoader.load(commentData);
+    this.previewDisplay =
+        this.graphicsFactory.createText(text, size, Phaser.Color.getWebRGB(color));
+    this.previewDisplay.anchor.setTo(0.5);
+    this.fixedToCameraLayer.addChild(this.previewDisplay);
 
-    let bounds = CommentPlacingPolicyImpl.getCollisionBounds(this.previewEntity);
+    let bounds = Display.getWorldBounds(this.previewDisplay, this.player)
+        .inflate(
+            -CommentPlacingPolicyImpl.COLLISION_BOUNDS_SHRINKAGE.x,
+            -CommentPlacingPolicyImpl.COLLISION_BOUNDS_SHRINKAGE.y);
     if (!this.collisionDetectionSystem.collidesIn(bounds)) {
-      this.previewEntity.display.alpha = 0.7;
-      return commentData;
+      this.previewDisplay.alpha = 0.7;
+      return this.buildCommentData(text, size, color);
     }
 
     this.notifier.send(
@@ -58,12 +60,12 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   }
 
   private clearCommentPreview() {
-    if (this.previewEntity === undefined) {
+    if (this.previewDisplay === undefined) {
       return;
     }
 
-    this.commentLoader.unload(this.previewEntity);
-    this.previewEntity = undefined;
+    this.fixedToCameraLayer.removeChild(this.previewDisplay);
+    this.previewDisplay = undefined;
   }
 
   private buildCommentData(text: string, size: number, color: number) {

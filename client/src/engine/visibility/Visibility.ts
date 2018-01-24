@@ -41,7 +41,6 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
       updatingCommentsFinder: EntityFinder<Region<UpdatingCommentEntity>>,
       chestsStorage: EntityStorage<ChestEntity>,
       playersFinder: EntityFinder<Player>,
-      commentPreviewFinder: EntityFinder<UpdatingCommentEntity>,
       spawnPointsFinder: EntityFinder<Entity>,
       signsFinder: EntityFinder<SignEntity>,
       renderer: Renderer) {
@@ -59,7 +58,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
     foregroundTrackerBuilder.onUpdate()
         // Update buffs
         .applyVisibilitySystem(new UpdateSystem())
-        .toEntities().of(playersFinder).and(commentPreviewFinder)
+        .toEntities().of(playersFinder)
         .toChildren().of(updatingCommentsFinder)
 
         .applyVisibilitySystem(collisionDetectionSystem)
@@ -95,10 +94,6 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .applyVisibilitySystem(new BlinkCachedDisplaySystem(
             positioningSystem, addUncachedCommentsSystem))
         .toEntities().of(commentsFinder)
-
-    // Preview comments
-        .applyVisibilitySystem(new AddChildSystem(player.display))
-        .toEntities().of(commentPreviewFinder)
 
         .applyTickSystem(new MoveDisplaySystem(player))
 

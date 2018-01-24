@@ -5,13 +5,12 @@ class Display<T = PIXI.DisplayObjectContainer> {
   constructor(public display: T) {
   }
 
-  getDisplayWorldBounds(this: Entity & Display<PIXI.DisplayObjectContainer>) {
-    let bounds = this.display.getLocalBounds().clone();
-    let coordinates = this.coordinates;
-    bounds.x += coordinates.x;
-    bounds.y += coordinates.y;
+  static getWorldBounds(display: PIXI.DisplayObjectContainer, relativeTo: Entity) {
+    return display.getLocalBounds().clone().offsetPoint(relativeTo.coordinates);
+  }
 
-    return bounds;
+  getDisplayWorldBounds(this: Entity & Display<PIXI.DisplayObjectContainer>) {
+    return Display.getWorldBounds(this.display, this);
   }
 }
 

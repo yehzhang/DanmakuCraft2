@@ -15,6 +15,7 @@ import Visibility from '../engine/visibility/Visibility';
 import {Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
 import Sleep from './async/Sleep';
+import Nudge from '../entitySystem/component/Nudge';
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -106,27 +107,9 @@ class Debug {
     this.movePlayerBy(Point.of(offset, offset));
   }
 
-  static set(universe: Universe) {
-    Object.assign(window, universe, {
-      universe,
-      CommentData,
-      BuffData,
-      Colors,
-      Point,
-      ChestBuilder,
-      SpeechBubbleBuilder,
-      Distance,
-      asSequence,
-      PhysicalConstants,
-      ConfigProvider,
-      Sleep,
-    });
-
-    let debug = new this(universe);
-
-    (window as any).db = debug;
-
-    return debug;
+  get preview() {
+    this.universe.commentPlacingPolicy.requestFor('测试弹幕 ABCD', 25, Colors.GOLD_NUMBER);
+    return (this.universe.commentPlacingPolicy as any)['previewDisplay'];
   }
 
   private movePlayerBy(offset: Point) {
@@ -157,6 +140,35 @@ class Debug {
     this.universe.game.time.advancedTiming = false;
 
     return true;
+  }
+
+  get hidePreview() {
+    this.universe.commentPlacingPolicy.cancelRequest();
+    return;
+  }
+
+  static set(universe: Universe) {
+    Object.assign(window, universe, {
+      universe,
+      CommentData,
+      BuffData,
+      Colors,
+      Point,
+      ChestBuilder,
+      SpeechBubbleBuilder,
+      Distance,
+      asSequence,
+      PhysicalConstants,
+      ConfigProvider,
+      Sleep,
+      Nudge,
+    });
+
+    let debug = new this(universe);
+
+    (window as any).db = debug;
+
+    return debug;
   }
 
   addComment(

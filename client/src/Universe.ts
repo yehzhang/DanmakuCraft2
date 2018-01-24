@@ -36,6 +36,7 @@ import Existence from './engine/existence/Existence';
 import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
 import Entity from './entitySystem/Entity';
 import HardCodedPreset from './preset/HardCodedPreset';
+import CommentPlacingPolicy from './environment/interface/CommentPlacingPolicy';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -58,13 +59,12 @@ class Universe {
   public lawFactory: LawFactory;
   public buffDataApplier: BuffDataApplier;
   public buffDescription: BuffDescription;
-  public commentPreviewStorage: EntityStorage<UpdatingCommentEntity>;
   public proxy: UniverseProxy;
-  public previewCommentLoader: CommentLoader;
   public visibility: Visibility;
   public existence: Existence;
   public spawnPointsStorage: EntityStorage<Entity>;
   public signsStorage: EntityStorage<SignEntity>;
+  public commentPlacingPolicy: CommentPlacingPolicy;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     this.buffDataContainer = new BuffDataContainer();
@@ -94,7 +94,6 @@ class Universe {
         this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.UPDATING_COMMENT_CHUNKS_COUNT);
     this.playersStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.chestsStorage = this.entityStorageFactory.createGlobalEntityStorage();
-    this.commentPreviewStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.spawnPointsStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.signsStorage = this.entityStorageFactory.createGlobalEntityStorage();
 
@@ -120,12 +119,6 @@ class Universe {
         this.updatingCommentsStorage.getRegister(),
         this.entityFactory,
         this.buffDataApplier);
-    this.previewCommentLoader = new CommentLoaderImpl(
-        game,
-        this.commentPreviewStorage.getRegister(),
-        this.commentPreviewStorage.getRegister(),
-        this.entityFactory,
-        this.buffDataApplier);
 
     let systemFactory = new SystemFactoryImpl(
         this.game,
@@ -143,7 +136,6 @@ class Universe {
         this.updatingCommentsStorage.getFinder(),
         this.chestsStorage,
         this.playersStorage.getFinder(),
-        this.commentPreviewStorage.getFinder(),
         this.spawnPointsStorage.getFinder(),
         this.signsStorage.getFinder(),
         this.renderer);
@@ -152,15 +144,14 @@ class Universe {
         this.commentsStorage.getFinder(),
         this.updatingCommentsStorage.getFinder());
 
-    this.proxy = new UniverseProxyImpl(
-        game,
-        new CommentPlacingPolicyImpl(
-            this.visibility.collisionDetectionSystem,
-            this.previewCommentLoader,
-            this.notifier,
-            this.buffDataContainer,
-            this.player),
-        this.notifier);
+    this.commentPlacingPolicy = new CommentPlacingPolicyImpl(
+        this.visibility.collisionDetectionSystem,
+        this.graphicsFactory,
+        this.notifier,
+        this.buffDataContainer,
+        this.player,
+        this.renderer.fixedToCameraLayer);
+    this.proxy = new UniverseProxyImpl(game, this.commentPlacingPolicy, this.notifier);
   }
 
   static genesis(): void {
