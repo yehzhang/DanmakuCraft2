@@ -3,11 +3,11 @@ const MAX_COMMENTS_COUNT = 15000;
 module.exports = {
   async find(request, response) {
     return catchServerError(response, async () => {
-      let commentsCount = parseInt(request.query.count, 10);
-      if (commentsCount) {
-        commentsCount = Math.max(Math.min(commentsCount, MAX_COMMENTS_COUNT), 0);
-      } else {
+      let commentsCount = parseInt(request.param('count'), 10);
+      if (isNaN(commentsCount)) {
         commentsCount = MAX_COMMENTS_COUNT;
+      } else {
+        commentsCount = Math.max(Math.min(commentsCount, MAX_COMMENTS_COUNT), 0);
       }
 
       let comments = await Comment.findLatestData(commentsCount);
@@ -51,7 +51,7 @@ async function catchServerError(response, callback) {
 }
 
 function parseCommentDataFrom(request) {
-  let text = request.query.text;
+  let text = request.param('text');
   // TODO sanitize invalid or sensitive characters?
   if (typeof text !== 'string') {
     throw new ParameterError('error.comment.text');
@@ -66,10 +66,10 @@ function parseCommentDataFrom(request) {
 
   return {
     text,
-    color: parseValidatedIntFrom(request.query.color, 'error.comment.color', 0, 0xffffff),
-    size: parseValidatedIntFrom(request.query.size, 'error.comment.size', 1, 72),
-    coordinateX: parseValidatedIntFrom(request.query.coordinateX, 'error.comment.coordinate'),
-    coordinateY: parseValidatedIntFrom(request.query.coordinateY, 'error.comment.coordinate'),
+    color: parseValidatedIntFrom(request.param('color'), 'error.comment.color', 0, 0xffffff),
+    size: parseValidatedIntFrom(request.param('size'), 'error.comment.size', 1, 72),
+    coordinateX: parseValidatedIntFrom(request.param('coordinateX'), 'error.comment.coordinate'),
+    coordinateY: parseValidatedIntFrom(request.param('coordinateY'), 'error.comment.coordinate'),
   };
 }
 

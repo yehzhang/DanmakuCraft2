@@ -4,7 +4,12 @@ import {
 } from '../../../../../server/api/services/response';
 
 abstract class Response<T> {
-  static from<T>(message: Partial<ResponseInterface>): Response<T> | null {
+  static from<T>(message: any): Response<T> | null {
+    if (message == null) {
+      // Could have thrown an error, but did not to keep the game running.
+      console.error('Received undefined message');
+      return null;
+    }
     if (this.isValueResponse(message)) {
       return new ValueResponse(message.value);
     }

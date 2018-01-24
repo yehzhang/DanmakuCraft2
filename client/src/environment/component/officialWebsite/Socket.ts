@@ -25,9 +25,15 @@ class Socket {
     });
   }
 
-  async get<T>(path: string): Promise<Response<T> | null> {
+  async get<T>(path: string, data: { [key: string]: string } = {}): Promise<Response<T> | null> {
+    if (__STAGE__) {
+      if (!('count' in data)) {
+        data.count = '5000';
+      }
+    }
+
     // TODO timeout
-    let message = await new Promise(resolve => this.socket.get(path, resolve));
+    let message = await new Promise(resolve => this.socket.get(path, data, resolve));
     return Response.from(message);
   }
 
