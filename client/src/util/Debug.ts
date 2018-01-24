@@ -30,8 +30,6 @@ class Debug {
     universe.render = inject(this.render.bind(this), universe.render.bind(universe));
 
     if (__DEV__) {
-      universe.player.moveSpeedBoostRatio = 10;
-    } else {
       universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
     }
 

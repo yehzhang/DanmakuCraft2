@@ -19,9 +19,6 @@ class AdapterFactory {
   }
 
   createAdapter() {
-    if (__DEV__) {
-      return this.createTestingAdapter();
-    }
     if (location.hostname.includes('bilibili')) {
       return this.createBilibiliClientAdapter();
     }

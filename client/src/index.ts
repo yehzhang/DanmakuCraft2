@@ -1,4 +1,4 @@
-if (__STAGE__) {
+if (__DEV__) {
   console.log = ((log) => {
     return function fakeLog(message: any) {
       if (message.indexOf instanceof Function && message.indexOf('Phaser') !== -1) {

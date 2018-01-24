@@ -21,37 +21,22 @@ class MainState extends Phaser.State {
       private renderables: Set<{ render(): void }> = new Set()) {
     super();
 
-    if (__STAGE__) {
-      (window as any).boot = this;
-    }
-  }
-
-  preload() {
     if (__DEV__) {
-      this.game.load.image('background', 'debug-grid-1920x1920.png');
+      (window as any).boot = this;
     }
   }
 
   async create() {
     this.configureGame();
 
-    if (__DEV__) {
-      let sprite = this.game.add.tileSprite(0, 0, 1920, 1920, 'background');
-      this.game.world.sendToBack(sprite);
-    }
-
     this.universe = this.createUniverse();
 
-    if (__STAGE__) {
+    if (__DEV__) {
       Debug.set(this.universe);
     }
 
     try {
-      if (__DEV__) {
-        await this.loadUniverseButSkipOpeningScene();
-      } else {
-        await this.loadUniverseAndShowOpeningScene();
-      }
+      await this.loadUniverseAndShowOpeningScene();
     } catch (e) {
       console.error('Error when displaying opening scene:', e);
       if (this.scene) {

@@ -5,7 +5,7 @@ import Response from './Response';
 
 const io = SailsIOJS(socketIOClient);
 io.sails.autoConnect = false;
-io.sails.environment = __STAGE__ ? 'development' : 'production';
+io.sails.environment = __DEV__ ? 'development' : 'production';
 
 class Socket {
   constructor(private socket: SailsIOJS.Socket = io.sails.connect(ConfigProvider.get().baseUrl)) {
@@ -26,7 +26,7 @@ class Socket {
   }
 
   async get<T>(path: string, data: { [key: string]: string } = {}): Promise<Response<T> | null> {
-    if (__STAGE__) {
+    if (__DEV__) {
       if (!('count' in data)) {
         data.count = '5000';
       }

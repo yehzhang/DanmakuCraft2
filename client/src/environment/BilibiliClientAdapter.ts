@@ -28,7 +28,7 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   private static canRunOnThisWebPage() {
-    if (__STAGE__) {
+    if (__DEV__) {
       return true;
     }
     return EnvironmentVariables.aid === Parameters.AID;
