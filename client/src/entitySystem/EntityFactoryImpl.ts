@@ -19,6 +19,7 @@ import {Phaser, PIXI} from '../util/alias/phaser';
 import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
 import RegisteredTimes from './component/RegisteredTimes';
 import Blink from './component/Blink';
+import Nudge from './component/Nudge';
 
 class EntityFactoryImpl implements EntityFactory {
   constructor(
@@ -54,6 +55,7 @@ class EntityFactoryImpl implements EntityFactory {
         .mix(new Display(view.display))
         .mix(new MovingAnimation(view.walkingAnimation))
         .mix(new UpdatingBuffCarrier())
+        .mix(new Nudge())
         .build();
 
     this.buffFactory.createInputControllerMover().apply(entity);

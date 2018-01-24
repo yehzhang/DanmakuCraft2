@@ -11,6 +11,7 @@ import Chest from './component/Chest';
 import {Phaser, PIXI} from '../util/alias/phaser';
 import RegisteredTimes from './component/RegisteredTimes';
 import Blink from './component/Blink';
+import Nudge from './component/Nudge';
 
 // noinspection TsLint
 export type Component = {};
@@ -30,7 +31,8 @@ export type CommentEntity =
 export type UpdatingCommentEntity = Updatable<CommentEntity>;
 
 export type Observer = MovableEntity & Display<Phaser.Sprite>;
-export type Player<T extends Component = Component> = Updatable<Observer & MovingAnimation & T>;
+export type Player<T extends Component = Component> =
+    Updatable<Observer & MovingAnimation & Nudge & T>;
 
 export type ChestEntity = StationaryEntity & Display<Phaser.Sprite> & Chest;
 
