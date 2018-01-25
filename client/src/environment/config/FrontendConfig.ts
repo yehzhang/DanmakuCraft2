@@ -1,7 +1,7 @@
 class FrontendConfig {
   constructor(
       readonly baseUrl: string,
-      readonly commentsPath: string,
+      readonly commentIdentity: string,
       readonly gameContainerId: string) {
   }
 
@@ -15,7 +15,7 @@ export default FrontendConfig;
 class FrontendConfigBuilder {
   constructor(
       private baseUrl?: string,
-      private commentsPath?: string,
+      private commentIdentity?: string,
       private gameContainerId?: string) {
   }
 
@@ -24,8 +24,8 @@ class FrontendConfigBuilder {
     return this;
   }
 
-  setBatchCommentsPath(commentsPath: string) {
-    this.commentsPath = commentsPath;
+  setCommentIdentity(commentIdentity: string) {
+    this.commentIdentity = commentIdentity;
     return this;
   }
 
@@ -37,7 +37,7 @@ class FrontendConfigBuilder {
   build(): FrontendConfig {
     return new FrontendConfig(
         this.validate('baseUrl'),
-        this.validate('commentsPath'),
+        this.validate('commentIdentity'),
         this.validate('gameContainerId'));
   }
 

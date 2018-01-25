@@ -2,9 +2,9 @@ const shortid = require('shortid');
 
 module.exports = {
   attributes: {
-    id: {
+    shortId: {
       type: 'string',
-      primaryKey: true,
+      index: true,
       defaultsTo: shortid.generate,
     },
   },

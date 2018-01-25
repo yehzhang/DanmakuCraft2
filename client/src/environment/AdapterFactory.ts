@@ -13,7 +13,7 @@ class AdapterFactory {
   private static loadConfig() {
     ConfigProvider.set(FrontendConfig.newBuilder()
         .setBaseUrl(frontend.baseUrl)
-        .setBatchCommentsPath(frontend.commentsPath)
+        .setCommentIdentity(frontend.commentIdentity)
         .setGameContainer(frontend.gameContainerId)
         .build());
   }

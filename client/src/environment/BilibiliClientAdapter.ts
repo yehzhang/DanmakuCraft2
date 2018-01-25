@@ -11,13 +11,15 @@ import InputInterceptor from './component/bilibili/InputInterceptor';
 import GameContainerFocuser from './component/bilibili/GameContainerFocuser';
 import Widgets from './component/bilibili/Widgets';
 import Socket from './component/officialWebsite/Socket';
+import Jar from './component/officialWebsite/Jar';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   constructor(
       private widgets: Widgets = new Widgets(),
       private gameContainerProvider: GameContainerProvider =
           new BilibiliContainerProvider(widgets),
-      private socket: Socket = new Socket()) {
+      private socket: Socket = new Socket(),
+      private nextCommentCreationTokenJar: Jar = new Jar()) {
     super();
 
     if (!BilibiliClientAdapter.canRunOnThisWebPage()) {
@@ -78,7 +80,12 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   onProxySet() {
     let commentProvider =
         new TextInputCommentProvider(this.universeProxy.getCommentPlacingPolicy(), this.widgets);
-    let ignored = new CommentSenderImpl(this.socket, commentProvider);
+    let ignored = new CommentSenderImpl(
+        this.socket,
+        commentProvider,
+        this.nextCommentCreationTokenJar,
+        this.universeProxy.getNotifier());
+    commentProvider.connect();
 
     let game = this.universeProxy.getGame();
     let gameContainerFocuser = new GameContainerFocuser(this.widgets);
@@ -88,7 +95,7 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   getCommentProvider() {
-    return new OfficialCommentProvider(this.socket);
+    return new OfficialCommentProvider(this.socket, this.nextCommentCreationTokenJar);
   }
 
   getGameContainerProvider() {

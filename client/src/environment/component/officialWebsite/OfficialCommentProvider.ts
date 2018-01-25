@@ -5,13 +5,15 @@ import Point from '../../../util/syntax/Point';
 import {BuffData} from '../../../entitySystem/system/buff/BuffData';
 import Queue from '../../../util/async/Queue';
 import Socket from './Socket';
-import Response from './Response';
 import {asSequence} from 'sequency';
+import {CommentCreatedData, CommentFoundData} from '../../../../../server/api/services/response';
+import Jar from './Jar';
 
 class OfficialCommentProvider implements CommentProvider {
   constructor(
       private socket: Socket,
-      private responseQueue: Queue<Response<FlatCommentData>> = new Queue()) {
+      private nextCreationTokenJar: Jar,
+      private responseQueue: Queue<FlatCommentData> = new Queue()) {
   }
 
   private static createCommentDataFrom(flatData: FlatCommentData) {
@@ -31,27 +33,32 @@ class OfficialCommentProvider implements CommentProvider {
   }
 
   connect() {
-    this.socket.on<FlatCommentData>(ConfigProvider.get().commentsPath, response => {
-      let ignored = this.responseQueue.shift(response);
+    this.socket.on<CommentCreatedData>(ConfigProvider.get().commentIdentity, createdData => {
+      this.nextCreationTokenJar.set(createdData.nextCreationToken);
+      let ignored = this.responseQueue.shift(createdData.comment);
     });
   }
 
   async getAllComments() {
-    let response = await this.socket.get<FlatCommentData[]>(ConfigProvider.get().commentsPath);
+    let response = await this.socket.get<CommentFoundData>(ConfigProvider.get().commentIdentity);
 
     if (response == null) {
       return [];
     }
 
-    return asSequence(response.apply())
+    let value = response.apply();
+
+    this.nextCreationTokenJar.set(value.nextCreationToken);
+
+    return asSequence(value.comments)
         .map(data => OfficialCommentProvider.createCommentDataFrom(data))
         .asIterable();
   }
 
   async * getNewComments() {
     while (true) {
-      let response = await this.responseQueue.unshift();
-      yield OfficialCommentProvider.createCommentDataFrom(response.apply());
+      let flatData = await this.responseQueue.unshift();
+      yield OfficialCommentProvider.createCommentDataFrom(flatData);
     }
   }
 }

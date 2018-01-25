@@ -39,25 +39,29 @@ export async function parse(filename: string) {
 }
 
 function asQueries(commentsData: BilibiliCommentData[]): string {
-  let externalUsersMapping = asSequence(commentsData)
-      .map(data => [data.userId, shortid.generate()] as [string, string])
-      .toMap();
   let dateValue = new Date().toISOString();
-  let userValues = asSequence(externalUsersMapping.values())
-      .map(id => [id, dateValue, dateValue])
+  let initialUserValue = [['UNKNOWN', dateValue, dateValue]];
+  let initialUserQuery = `INSERT INTO "user" ("shortId", "createdAt", "updatedAt") 
+      VALUES ${formatValues(initialUserValue)};`;
+
+  let externalUsersRelations = asSequence(commentsData)
+      .map(data => data.userId)
+      .distinct()
+      .map(userId => [userId, shortid.generate()] as [string, string])
       .toArray();
-  let insertUsersQuery = `
-      INSERT INTO "user" ("id", "createdAt", "updatedAt") 
+  let userValues = asSequence(externalUsersRelations)
+      .map(([shortId]) => [shortId, dateValue, dateValue])
+      .toArray();
+  let insertUsersQuery = ` INSERT INTO "user" ("shortId", "createdAt", "updatedAt") 
       VALUES ${formatValues(userValues)};`;
 
-  let externalUserValues = asSequence(externalUsersMapping.keys()).map(
-      userId => ['bilibili', externalUsersMapping.get(userId), userId, dateValue, dateValue])
+  let externalUserValues = asSequence(externalUsersRelations)
+      .mapIndexed((userIndex, [userId]) => ['bilibili', userIndex, userId, dateValue, dateValue])
       .toArray();
-  let insertExternalUsersQuery = `
-      INSERT INTO externaluser (origin, "correspondsTo", "externalId", "createdAt", "updatedAt") 
+  let insertExternalUsersQuery = `INSERT INTO externaluser (origin, "correspondsTo", "externalId", "createdAt", "updatedAt") 
       VALUES ${formatValues(externalUserValues)};`;
 
-  let commentValues = commentsData.map(data => {
+  let commentValues = commentsData.map((data, userIndex) => {
     let sentAt = moment(data.sentAt * 1000).tz('Asia/Shanghai').format();
     return [
       data.text,
@@ -67,15 +71,14 @@ function asQueries(commentsData: BilibiliCommentData[]): string {
       data.coordinateY,
       data.buffType,
       data.buffParameter,
-      externalUsersMapping.get(data.userId),
+      userIndex,
       sentAt,
       sentAt];
   });
-  let insertCommentsQuery = `
-      INSERT INTO comment (text, color, size, "coordinateX", "coordinateY", "buffType", "buffParameter", "user", "createdAt", "updatedAt") 
+  let insertCommentsQuery = `INSERT INTO comment (text, color, size, "coordinateX", "coordinateY", "buffType", "buffParameter", "user", "createdAt", "updatedAt") 
       VALUES\n${formatValues(commentValues)};`;
 
-  return [insertUsersQuery, insertExternalUsersQuery, insertCommentsQuery].join('');
+  return [initialUserQuery, insertUsersQuery, insertExternalUsersQuery, insertCommentsQuery].join('');
 }
 
 export function formatValues(rows: any[][]) {

@@ -1,5 +1,5 @@
 export const frontend: {
   baseUrl: string;
-  commentsPath: string;
+  commentIdentity: string;
   gameContainerId: string;
 };

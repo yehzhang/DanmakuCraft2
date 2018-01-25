@@ -36,23 +36,46 @@ module.exports = {
       required: true,
     },
 
+    /**
+     * @return {FlatCommentData}
+     */
     toJSON() {
-      let commentData = this.toObject();
+      let data = this.toObject();
 
-      if (commentData.buffType == null) {
-        delete commentData.buffType;
-        delete commentData.buffParameter;
+      if (data.buffType == null) {
+        delete data.buffType;
+        delete data.buffParameter;
       }
 
-      return commentData;
+      return data;
     },
   },
 
+  /**
+   * @param {int} count
+   * @return {Promise<FlatCommentData[]>}
+   */
   async findLatestData(count) {
-    return Comment.find({
+    return await Comment.find({
       select: ['text', 'color', 'size', 'coordinateX', 'coordinateY', 'buffType', 'buffParameter'],
       limit: count,
       sort: 'createdAt DESC',
     });
-  }
+  },
+
+  /**
+   * @param {object} data
+   * @return {Promise<FlatCommentData>}
+   */
+  async createAsFlatData(data) {
+    let comment = await Comment.create(data);
+
+    let flatData = comment.toJSON();
+    delete flatData.createdAt;
+    delete flatData.updatedAt;
+    delete flatData.user;
+    delete flatData.id;
+
+    return flatData;
+  },
 };

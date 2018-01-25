@@ -11,6 +11,7 @@ module.exports = {
     },
     // For users of bilibili origin, this field contains their hashed UIDs.
     externalId: {
+      index: true,
       type: 'string',
     },
   }

@@ -13,8 +13,8 @@ module.exports.policies = {
 
   CommentController: {
     '*': false,
-    create: 'isLoggedIn',
-    find: 'isLoggedIn',
+    find: ['grantNextCommentCreationToken'],
+    create: ['verifyNextCommentCreationToken', 'grantNextCommentCreationToken'],
   },
 
   // RabbitController: {

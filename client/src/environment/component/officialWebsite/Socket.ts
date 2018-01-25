@@ -15,17 +15,22 @@ class Socket {
     // };
   }
 
-  on<T>(path: string, callback: (response: Response<T>) => void) {
-    this.socket.on(path, message => {
-      let response = Response.from(message);
-      if (response == null) {
+  private static toPath(eventIdentity: string) {
+    return '/' + eventIdentity;
+  }
+
+  on<T>(eventIdentity: string, callback: (response: T) => void) {
+    this.socket.on(eventIdentity, message => {
+      if (message.data == null) {
+        console.error(`Received invalid event message: '${message}'`);
         return;
       }
-      callback(message);
+      callback(message.data);
     });
   }
 
-  async get<T>(path: string, data: { [key: string]: string } = {}): Promise<Response<T> | null> {
+  async get<T>(
+      eventIdentity: string, data: { [key: string]: any } = {}): Promise<Response<T> | null> {
     if (__DEV__) {
       if (!('count' in data)) {
         data.count = '5000';
@@ -33,13 +38,15 @@ class Socket {
     }
 
     // TODO timeout
-    let message = await new Promise(resolve => this.socket.get(path, data, resolve));
+    let message = await new Promise(
+        resolve => this.socket.get(Socket.toPath(eventIdentity), data, resolve));
     return Response.from(message);
   }
 
-  async post<T>(path: string, data: any): Promise<Response<T> | null> {
+  async post<T>(eventIdentity: string, data: { [key: string]: any }): Promise<Response<T> | null> {
     // TODO timeout
-    let message = await new Promise(resolve => this.socket.post(path, data, resolve));
+    let message = await new Promise(
+        resolve => this.socket.post(Socket.toPath(eventIdentity), data, resolve));
     return Response.from(message);
   }
 }

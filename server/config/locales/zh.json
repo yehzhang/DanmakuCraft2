@@ -5,6 +5,7 @@
   "error.comment.color": "无法识别弹幕的颜色",
   "error.comment.size": "无法识别弹幕的字号",
   "error.comment.coordinate": "无法识别弹幕的坐标",
+  "error.comment.creation.tooMany": "弹幕发的太快了",
 
   "appName": "弹幕世界2"
 }

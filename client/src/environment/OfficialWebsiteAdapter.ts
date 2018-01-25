@@ -4,9 +4,11 @@ import OfficialGameContainerProvider from './component/officialWebsite/OfficialG
 import OfficialCommentProvider from './component/officialWebsite/OfficialCommentProvider';
 import {TestingSettingsManager} from './TestingAdapter';
 import Socket from './component/officialWebsite/Socket';
+import Jar from './component/officialWebsite/Jar';
 
 class OfficialWebsiteAdapter extends BaseEnvironmentAdapter {
-  constructor(private socket: Socket = new Socket()) {
+  constructor(
+      private socket: Socket = new Socket(), private nextCommentCreationJar: Jar = new Jar()) {
     super();
   }
 
@@ -15,7 +17,7 @@ class OfficialWebsiteAdapter extends BaseEnvironmentAdapter {
   }
 
   getCommentProvider() {
-    return new OfficialCommentProvider(this.socket);
+    return new OfficialCommentProvider(this.socket, this.nextCommentCreationJar);
   }
 
   getSettingsManager(): SettingsManager {

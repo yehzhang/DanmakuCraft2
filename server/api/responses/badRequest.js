@@ -22,9 +22,9 @@ module.exports = function badRequest(data, options) {
   res.status(400);
 
   if (data === undefined) {
-    sails.log.warn('Sending 400 ("Bad Request") response');
+    sails.log.warn('Sending 400 ("Bad Request") response', req.allParams());
   } else {
-    sails.log.warn('Sending 400 ("Bad Request") response: \n', data);
+    sails.log.warn('Sending 400 ("Bad Request") response: \n', data, '\n', req.allParams());
   }
 
   // Only include errors in response if application environment

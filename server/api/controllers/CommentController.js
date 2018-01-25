@@ -1,9 +1,11 @@
 const MAX_COMMENTS_COUNT = 15000;
+const DEFAULT_USER_ID = 0; // Unknown
+const COMMENT_ROOM_ID = -1;
 
 module.exports = {
-  async find(request, response) {
-    return catchServerError(response, async () => {
-      let commentsCount = parseInt(request.param('count'), 10);
+  async find(req, res) {
+    return catchServerError(res, async () => {
+      let commentsCount = parseInt(req.param('count'), 10);
       if (isNaN(commentsCount)) {
         commentsCount = MAX_COMMENTS_COUNT;
       } else {
@@ -12,64 +14,78 @@ module.exports = {
 
       let comments = await Comment.findLatestData(commentsCount);
 
-      if (request.isSocket) {
+      if (req.isSocket) {
         // TODO watch only if there are not too many watchers already.
-        Comment.watch(request);
+        Comment.subscribe(req, [COMMENT_ROOM_ID]);
       }
 
-      return response.ok(comments);
+      return res.ok(CommentUtils.wrapAsCommentFoundData(comments, req.nextCommentCreationToken));
     });
   },
 
-  async create(request, response) {
-    return catchServerError(response, async () => {
+  async create(req, res) {
+    return catchServerError(res, async () => {
       let commentData;
       try {
-        commentData = parseCommentDataFrom(request);
+        commentData = parseCommentDataFrom(req.param('comment'));
       } catch (e) {
         if (e instanceof ParameterError) {
-          return response.badRequest(request.__(e.message));
+          return res.badRequest(req.__(e.message));
         }
         throw e;
       }
 
-      let comment = await Comment.create(commentData);
+      // let externalUserId = req.param('externalUserId');
+      // if (typeof externalUserId === 'string') {
+      //   commentData.user = findOrCreateUser(externalUserId);
+      // } else {
+      //   commentData.user = DEFAULT_USER_ID;
+      // }
 
-      Comment.publishCreate(comment);
+      commentData.user = DEFAULT_USER_ID;
 
-      return response.ok();
+      let flatData = await Comment.createAsFlatData(commentData);
+      let createdData =
+        CommentUtils.wrapAsCommentCreatedData(flatData, req.nextCommentCreationToken);
+
+      Comment.message(COMMENT_ROOM_ID, createdData);
+
+      return res.ok();
     });
   },
 };
 
-async function catchServerError(response, callback) {
+async function catchServerError(res, callback) {
   try {
     return await callback();
   } catch (e) {
-    return response.serverError(e);
+    return res.serverError(e);
   }
 }
 
-function parseCommentDataFrom(request) {
-  let text = request.param('text');
+function parseCommentDataFrom(comment) {
+  if (comment == null) {
+    throw new TypeError('Comment is not provided');
+  }
+
   // TODO sanitize invalid or sensitive characters?
-  if (typeof text !== 'string') {
+  if (typeof comment.text !== 'string') {
     throw new ParameterError('error.comment.text');
   }
-  if (text.length === 0) {
+  if (comment.text.length === 0) {
     throw new ParameterError('error.comment.text.empty');
   }
-  if (text.length > 220) {
+  if (comment.text.length > 220) {
     throw new ParameterError('error.comment.text.long');
   }
   // No need to strip whitespaces as they allow players to better format their comments.
 
   return {
-    text,
-    color: parseValidatedIntFrom(request.param('color'), 'error.comment.color', 0, 0xffffff),
-    size: parseValidatedIntFrom(request.param('size'), 'error.comment.size', 1, 72),
-    coordinateX: parseValidatedIntFrom(request.param('coordinateX'), 'error.comment.coordinate'),
-    coordinateY: parseValidatedIntFrom(request.param('coordinateY'), 'error.comment.coordinate'),
+    text: comment.text,
+    color: parseValidatedIntFrom(comment.color, 'error.comment.color', 0, 0xffffff),
+    size: parseValidatedIntFrom(comment.size, 'error.comment.size', 1, 72),
+    coordinateX: parseValidatedIntFrom(comment.coordinateX, 'error.comment.coordinate'),
+    coordinateY: parseValidatedIntFrom(comment.coordinateY, 'error.comment.coordinate'),
   };
 }
 

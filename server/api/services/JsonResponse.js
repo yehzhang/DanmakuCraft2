@@ -1,5 +1,8 @@
+const {inspect} = require('util');
+
 module.exports = {
-  wrapErrorData(reason) {
+  wrapErrorData(data) {
+    let reason = inspect(data, {depth: null});
     return new ErrorResponseData(reason);
   },
 
@@ -15,6 +18,9 @@ class ResponseData {
 }
 
 class ErrorResponseData extends ResponseData {
+  /**
+   * @param {string} reason
+   */
   constructor(reason) {
     super('rejected');
     this.reason = reason;

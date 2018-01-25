@@ -34,7 +34,6 @@ class TextInputCommentProvider implements CommentProvider {
 
       this.onCommentInput();
     });
-    this.widgets.textInput.on('focus', () => this.onCommentInput());
 
     // On font size changed
     $('.bilibili-player-video-sendbar .bilibili-player-mode-selection-row.fontsize .row-selection .selection-span')
