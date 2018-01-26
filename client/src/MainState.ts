@@ -10,6 +10,7 @@ import CommentData from './comment/CommentData';
 import AsyncIterable from './util/syntax/AsyncIterable';
 import {asSequence} from 'sequency';
 import PhysicalConstants from './PhysicalConstants';
+import IntermittentIterable from './util/async/IntermittentIterable';
 
 class MainState extends Phaser.State {
   private scene: OpeningScene | null;
@@ -101,13 +102,13 @@ class MainState extends Phaser.State {
     }
   }
 
-  private async loadUniverseButSkipOpeningScene() {
-    let commentsData = await this.loadCommentsDataAndListenToNewComments();
-    this.universe.commentLoader.loadBatch(commentsData, false);
-
-    this.universe.onTransitionScreenAllWhite();
-    this.universe.onTransitionFinished();
-  }
+  // private async loadUniverseButSkipOpeningScene() {
+  //   let commentsData = await this.loadCommentsDataAndListenToNewComments();
+  //   this.universe.commentLoader.loadBatch(commentsData, false);
+  //
+  //   this.universe.onTransitionScreenAllWhite();
+  //   this.universe.onTransitionFinished();
+  // }
 
   private async loadUniverseAndShowOpeningScene() {
     this.scene = new OpeningScene(this.universe.game, this.universe.graphicsFactory);
@@ -126,8 +127,7 @@ class MainState extends Phaser.State {
     let dataChunks = asSequence(commentsData)
         .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
         .chunk(100);
-    for (let dataChunk of dataChunks) {
-      await Sleep.moment();  // let animations play
+    for await (let dataChunk of IntermittentIterable.of(dataChunks)) {
       this.universe.commentLoader.loadBatch(dataChunk, false);
     }
 
