@@ -6,13 +6,13 @@ import Sleep from '../util/async/Sleep';
 import PhysicalConstants from '../PhysicalConstants';
 import ParticlesField from './ParticlesField';
 import GraphicsFactory from './graphics/GraphicsFactory';
+import Queue from '../util/async/Queue';
 
 class OpeningScene {
   private static readonly FOCAL_LENGTH = 10;
 
   private currentGameSize: Point;
-  private titleTextPerspective: Perspective;
-  private titleVersionPerspective: Perspective;
+  private titlePerspective: Perspective;
 
   private loadingStatusGroup: Phaser.Group;
   private loadingStatusText: Phaser.Text;
@@ -25,11 +25,13 @@ class OpeningScene {
   private earthPerspective: Perspective;
 
   private particlesField: ParticlesField;
-  private particlesFieldGroup: Phaser.Group;
   private updateParticlesField: boolean;
 
-  constructor(private game: Phaser.Game, private graphicsFactory: GraphicsFactory) {
-    this.craftRenderings();
+  constructor(
+      private game: Phaser.Game,
+      private graphicsFactory: GraphicsFactory,
+      private resizedQueue: Queue<boolean> = new Queue()) {
+    game.scale.onSizeChange.addOnce(() => resizedQueue.shift(true));
   }
 
   update() {
@@ -38,8 +40,63 @@ class OpeningScene {
     }
   }
 
-  startParticlesField() {
+  async startParticlesField(delay: number = 0) {
+    await Sleep.after(delay);
     this.updateParticlesField = true;
+  }
+
+  async craftRenderings() {
+    await this.resizedQueue.unshift();
+    this.currentGameSize = this.getCurrentGameSize();
+
+    this.backgroundGroup = this.game.add.group();
+
+    let background = this.game.add.graphics(0, 0, this.backgroundGroup);
+    background.beginFill(Colors.BLACK_NUMBER);
+    background.drawRect(0, 0, 4000, 4000);
+    background.endFill();
+
+    this.borderGroup = this.game.add.group();
+
+    let title = this.graphicsFactory.createText(Texts.forName('boot.title'), 64, Colors.GOLD);
+    title.y = this.currentGameSize.y * -0.25;
+    title.anchor.setTo(0.5);
+    this.borderGroup.add(title);
+    this.titlePerspective = new Perspective(title, 500, OpeningScene.FOCAL_LENGTH);
+    this.titlePerspective.visible = false;
+
+    this.loadingStatusGroup = this.game.add.group();
+    this.loadingStatusGroup.fixedToCamera = true;
+    this.loadingStatusGroup.cameraOffset = this.currentGameSize.clone().multiply(0.95, 0.95);
+    this.loadingStatusGroup.visible = false;
+    this.loadingStatusText =
+        this.graphicsFactory.createText(Texts.forName('boot.loading'), 18, Colors.GREY);
+    this.loadingStatusGroup.add(this.loadingStatusText);
+    this.loadingStatusText.anchor.setTo(1);
+
+    this.waitForAnyInputGroup = this.game.add.group(this.borderGroup);
+    this.waitForAnyInputGroup.visible = false;
+    let waitForAnyInputText =
+        this.graphicsFactory.createText(Texts.forName('boot.anyInput'), 24, Colors.WHITE);
+    waitForAnyInputText.anchor.setTo(0.5);
+    waitForAnyInputText.position.y = this.currentGameSize.y * 0.25;
+    this.waitForAnyInputGroup.add(waitForAnyInputText);
+
+    let earthGraphics = this.game.add.graphics(0, 0, this.borderGroup);
+    earthGraphics.beginFill(Colors.BACKGROUND_NUMBER);
+    earthGraphics.drawRect(-100, -100, 200, 200);
+    earthGraphics.endFill();
+    this.earthPerspective = new Perspective(earthGraphics, 1000, OpeningScene.FOCAL_LENGTH);
+    this.earthPerspective.visible = true;
+
+    let spriteSheetKey = this.graphicsFactory.createPixelParticleSpriteSheet();
+    this.particlesField = new ParticlesField(this.game, spriteSheetKey);
+    this.borderGroup.add(this.particlesField.display);
+
+    this.updateParticlesField = false;
+
+    this.onGameSizeChanged();
+    this.game.scale.onSizeChange.add(this.onGameSizeChanged, this);
   }
 
   cleanupWorld() {
@@ -47,7 +104,6 @@ class OpeningScene {
     this.waitForAnyInputGroup.destroy();
     this.borderGroup.destroy();
     this.backgroundGroup.destroy();
-    this.particlesFieldGroup.destroy();
 
     if (this.particlesField) {
       this.particlesField.destroy();
@@ -68,8 +124,13 @@ class OpeningScene {
 
   async approachUniverseBorder() {
     await Sleep.after(2000);
-    await this.approachTitleText();
-    await this.approachTitleVersion();
+
+    this.titlePerspective.visible = true;
+
+    let zTween = this.game.add.tween(this.titlePerspective)
+        .to({z: 0}, 3000, Phaser.Easing.Quadratic.InOut, true);
+
+    return this.waitForCompletion(zTween);
   }
 
   async approachEarthFaraway() {
@@ -87,7 +148,6 @@ class OpeningScene {
     }
 
     let ignored = this.updateLoadingStatus(Texts.forName('boot.error'));
-
 
     let blackScreen = this.game.add.graphics(0, 0, this.borderGroup);
     blackScreen.beginFill(Colors.BLACK_NUMBER);
@@ -142,9 +202,13 @@ class OpeningScene {
   }
 
   async passThroughUniverseBorder() {
-    return Promise.all([
-      this.passThroughTitle(this.titleTextPerspective),
-      this.passThroughTitle(this.titleVersionPerspective)]);
+    let zTween = this.game.add.tween(this.titlePerspective)
+        .to(
+            {z: -100},
+            4500,
+            Phaser.Easing.Quadratic.InOut,
+            true);
+    return this.waitForCompletion(zTween);
   }
 
   /**
@@ -164,115 +228,20 @@ class OpeningScene {
     return this.particlesField.approach(2000, Phaser.Easing.Linear.None);
   }
 
-  private craftRenderings() {
+  private onGameSizeChanged() {
     this.currentGameSize = this.getCurrentGameSize();
 
-    this.backgroundGroup = this.game.add.group();
-
-    let background = this.game.add.graphics(0, 0, this.backgroundGroup);
-    background.beginFill(Colors.BLACK_NUMBER);
-    background.drawRect(0, 0, 4000, 4000);
-    background.endFill();
-
-    this.borderGroup = this.game.add.group();
-
-    let titleVersionGroup = this.game.add.group(this.borderGroup);
-    titleVersionGroup.position = this.currentGameSize.clone().multiply(0.5, 0.4);
-    let titleVersion = this.graphicsFactory.createText(
-        '          ' + Texts.forName('boot.title.version'),
-        94,
-        Colors.GOLD);
-    titleVersionGroup.add(titleVersion);
-    titleVersion.anchor.setTo(0.5, 2);
-    this.titleVersionPerspective = new Perspective(
-        titleVersionGroup,
-        500,
-        OpeningScene.FOCAL_LENGTH);
-    this.titleVersionPerspective.visible = false;
-
-    let titleTextGroup = this.game.add.group(this.borderGroup);
-    titleTextGroup.position = this.currentGameSize.clone().multiply(0.5, 0.4);
-    let titleText =
-        this.graphicsFactory.createText(Texts.forName('boot.title.text'), 94, Colors.GOLD);
-    titleTextGroup.add(titleText);
-    titleText.anchor.setTo(0.5, 2);
-    this.titleTextPerspective = new Perspective(titleTextGroup, 500, OpeningScene.FOCAL_LENGTH);
-    this.titleTextPerspective.visible = false;
-
-    this.loadingStatusGroup = this.game.add.group();
-    this.loadingStatusGroup.fixedToCamera = true;
     this.loadingStatusGroup.cameraOffset = this.currentGameSize.clone().multiply(0.95, 0.95);
-    this.loadingStatusGroup.visible = false;
-    this.loadingStatusText =
-        this.graphicsFactory.createText(Texts.forName('boot.loading'), 18, Colors.GREY);
-    this.loadingStatusGroup.add(this.loadingStatusText);
-    this.loadingStatusText.anchor.setTo(1);
 
-    this.waitForAnyInputGroup = this.game.add.group(this.borderGroup);
-    this.waitForAnyInputGroup.position = this.currentGameSize.clone().multiply(0.5, 0.5);
-    this.waitForAnyInputGroup.visible = false;
-    let waitForAnyInputText =
-        this.graphicsFactory.createText(Texts.forName('boot.anyInput'), 32, Colors.WHITE);
-    this.waitForAnyInputGroup.add(waitForAnyInputText);
-    waitForAnyInputText.anchor.setTo(0.5, -3);
-
-    let earthGroup = this.game.add.group(this.borderGroup);
-    earthGroup.position = this.currentGameSize.clone().multiply(0.5, 0.5);
-    let earthGraphics = this.game.add.graphics(0, 0, earthGroup);
-    earthGraphics.beginFill(Colors.BACKGROUND_NUMBER);
-    earthGraphics.drawRect(-100, -100, 200, 200);
-    earthGraphics.endFill();
-    this.earthPerspective = new Perspective(earthGroup, 1000, OpeningScene.FOCAL_LENGTH);
-    this.earthPerspective.visible = true;
-
-    this.particlesFieldGroup = this.game.add.group(this.borderGroup);
-    this.particlesFieldGroup.position = this.currentGameSize.clone().multiply(0.5, 0.5);
-    let spriteSheetKey = this.graphicsFactory.createPixelParticleSpriteSheet();
-    this.particlesField = new ParticlesField(this.game, spriteSheetKey);
-    this.particlesFieldGroup.add(this.particlesField.display);
-
-    this.updateParticlesField = false;
-
-    this.game.scale.onSizeChange.add(this.onGameSizeChanged, this);
-  }
-
-  private onGameSizeChanged() {
-    let gameSize = this.getCurrentGameSize();
-
-    this.loadingStatusGroup.cameraOffset = gameSize.clone().multiply(0.95, 0.95);
-
-    this.borderGroup.position = gameSize.clone()
-        .subtract(this.currentGameSize.x, this.currentGameSize.y)
-        .divide(2, 2);
+    this.borderGroup.position = this.currentGameSize.clone().divide(2, 2);
 
     if (this.particlesField) {
-      this.particlesField.onGameSizeChanged(gameSize.x, gameSize.y);
+      this.particlesField.onGameSizeChanged(this.currentGameSize.x, this.currentGameSize.y);
     }
   }
 
   private getCurrentGameSize() {
     return Point.of(this.game.width, this.game.height);
-  }
-
-  private async approachTitleText() {
-    this.titleTextPerspective.visible = true;
-
-    let zTween = this.game.add.tween(this.titleTextPerspective)
-        .to({z: 100}, 2000, Phaser.Easing.Quadratic.In, true);
-    let zTween2 = this.game.add.tween(this.titleTextPerspective)
-        .to({z: 0}, 400, Phaser.Easing.Quadratic.Out);
-    zTween.chain(zTween2);
-
-    return this.waitForCompletion(zTween2);
-  }
-
-  private async approachTitleVersion() {
-    this.titleVersionPerspective.visible = true;
-
-    let zTween = this.game.add.tween(this.titleVersionPerspective)
-        .to({z: 0}, 1000, Phaser.Easing.Quadratic.InOut, true);
-
-    return this.waitForCompletion(zTween);
   }
 
   private async updateLoadingStatus(text: string) {
@@ -316,16 +285,6 @@ class OpeningScene {
     let waitForAnyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
         .to({alpha: 0}, 500, Phaser.Easing.Quadratic.Out, true);
     return this.waitForCompletion(waitForAnyInputAlphaTween);
-  }
-
-  private async passThroughTitle(perspective: Perspective) {
-    let zTween = this.game.add.tween(perspective)
-        .to(
-            {z: -100},
-            4500,
-            Phaser.Easing.Quadratic.InOut,
-            true);
-    return this.waitForCompletion(zTween);
   }
 }
 

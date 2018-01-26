@@ -112,6 +112,7 @@ class MainState extends Phaser.State {
 
   private async loadUniverseAndShowOpeningScene() {
     this.scene = new OpeningScene(this.universe.game, this.universe.graphicsFactory);
+    await this.scene.craftRenderings();
     this.updatables.add(this.scene);
 
     let commentsDataPromise = this.loadCommentsDataAndListenToNewComments();
@@ -121,7 +122,7 @@ class MainState extends Phaser.State {
       this.scene.approachUniverseBorder(),
       this.scene.approachEarthFaraway()]);
 
-    this.scene.startParticlesField();
+    let ignored = this.scene.startParticlesField(100);
 
     let commentsData = await commentsDataPromise;
     let dataChunks = asSequence(commentsData)
