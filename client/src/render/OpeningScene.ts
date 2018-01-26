@@ -88,9 +88,16 @@ class OpeningScene {
 
     let ignored = this.updateLoadingStatus(Texts.forName('boot.error'));
 
-    this.game.add.tween(this.borderGroup)
+
+    let blackScreen = this.game.add.graphics(0, 0, this.borderGroup);
+    blackScreen.beginFill(Colors.BLACK_NUMBER);
+    blackScreen.drawRect(-2000, -2000, 4000, 4000);
+    blackScreen.endFill();
+
+    blackScreen.alpha = 0;
+    this.game.add.tween(blackScreen)
         .to(
-            {alpha: 0},
+            {alpha: 1},
             2000,
             Phaser.Easing.Linear.None,
             true,

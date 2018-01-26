@@ -9,7 +9,7 @@ class ParticlesField {
       spriteSheetKey: string,
       readonly particleSpeed: number = 0.2,
       numParticles: number = 100,
-      readonly display: Phaser.SpriteBatch = game.add.spriteBatch(null),
+      readonly display: Phaser.SpriteBatch = game.make.spriteBatch(),
       private particles: Perspective[] = []) {
     if (particleSpeed <= 0) {
       throw new TypeError('Invalid observer speed');
