@@ -2,7 +2,13 @@ const {inspect} = require('util');
 
 module.exports = {
   wrapErrorData(data) {
-    let reason = inspect(data, {depth: null});
+    let reason;
+    if (typeof data === 'string') {
+      reason = data;
+    } else {
+      reason = inspect(data, {depth: null});
+    }
+
     return new ErrorResponseData(reason);
   },
 
