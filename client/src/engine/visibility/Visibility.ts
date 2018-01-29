@@ -13,7 +13,11 @@ import MoveDisplaySystem from '../../entitySystem/system/tick/MoveDisplaySystem'
 import SynchronizeLifecycleSystem from '../../entitySystem/system/visibility/SynchronizeLifecycleSystem';
 import SystemEnginesEngine from '../SystemEnginesEngine';
 import {
-  ChestEntity, CommentEntity, Player, Region, SignEntity,
+  ChestEntity,
+  CommentEntity,
+  Player,
+  Region,
+  SignEntity,
   UpdatingCommentEntity
 } from '../../entitySystem/alias';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
@@ -71,12 +75,12 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .applyTickSystem(synchronizeUpdateSystem);
 
     let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
-    let addUncachedCommentsSystem = new AddChildSystem(renderer.uncachedFloatingLayer);
+    let addUncachedCommentsSystem = new AddChildSystem(renderer.floatingLayer);
     let positioningSystem = new UnmovableDisplayPositioningSystem(player);
 
     foregroundTrackerBuilder.onRender()
         // Render
-        .applyVisibilitySystem(new AddChildSystem(renderer.cachedFloatingLayer))
+        .applyVisibilitySystem(new AddChildSystem(renderer.floatingLayer, true))
         .toEntities().of(commentsFinder)
         .applyVisibilitySystem(addUncachedCommentsSystem)
         .toEntities().of(updatingCommentsFinder)

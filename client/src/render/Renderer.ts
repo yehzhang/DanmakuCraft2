@@ -10,8 +10,6 @@ class Renderer {
       readonly playersLayer: Phaser.Group = game.make.group(),
       readonly groundLayer: PhaserDisplayContainer = new BridgingContainer(),
       readonly cachedBackgroundLayer: PhaserDisplayContainer = new BridgingContainer(),
-      readonly cachedFloatingLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer(),
-      readonly uncachedFloatingLayer: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer(),
       readonly fixedToCameraLayer: Phaser.Group = game.make.group()) {
     stage.add(cachedBackgroundLayer);
     cachedBackgroundLayer.cacheAsBitmap = true;
@@ -21,9 +19,6 @@ class Renderer {
     stage.add(playersLayer);
 
     stage.add(floatingLayer);
-    floatingLayer.addChild(cachedFloatingLayer);
-    cachedFloatingLayer.cacheAsBitmap = true;
-    floatingLayer.addChild(uncachedFloatingLayer);
 
     stage.add(fixedToCameraLayer);
     fixedToCameraLayer.fixedToCamera = true;
