@@ -5,6 +5,7 @@ const common = require('./webpack.common.js');
 console.error('Bundle in production mode.');
 
 module.exports = merge(common, {
+  devtool: 'source-map',
   plugins: [
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(false),
@@ -15,6 +16,7 @@ module.exports = merge(common, {
       output: {
         comments: false,
       },
+      sourceMap: true,
     }),
   ]
 });

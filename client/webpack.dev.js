@@ -14,11 +14,6 @@ module.exports = merge.smart(common, {
       parallel: true,
       mangle: false,
       compress: false,
-      output: {
-        beautify: false,
-        comments: false,
-        // indent_level: 2,
-      },
       sourceMap: true,
     }),
   ],

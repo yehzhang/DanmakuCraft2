@@ -31,12 +31,6 @@ class Socket {
 
   async get<T>(
       eventIdentity: string, data: { [key: string]: any } = {}): Promise<Response<T> | null> {
-    if (__DEV__) {
-      if (!('count' in data)) {
-        data.count = '5000';
-      }
-    }
-
     // TODO timeout
     let message = await new Promise(
         resolve => this.socket.get(Socket.toPath(eventIdentity), data, resolve));
