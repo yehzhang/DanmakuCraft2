@@ -22,8 +22,7 @@ class SystemFactoryImpl implements SystemFactory {
 
   createChestSystem(
       renderRadius: DynamicProvider<number>, chestRegister: EntityRegister<ChestEntity>) {
-    let spawnInterval = __DEV__ ? 1 : undefined;
-    let chestLaw = this.lawFactory.createChestLaw(this.player, renderRadius, spawnInterval);
+    let chestLaw = this.lawFactory.createChestLaw(this.player, renderRadius);
     return new ChestSystem(
         new ChestOpener(
             this.game,
@@ -32,10 +31,9 @@ class SystemFactoryImpl implements SystemFactory {
             chestLaw,
             this.notifier,
             this.buffDescription),
-        new ChestSpawner(chestRegister, this.entityFactory, chestLaw),
+        new ChestSpawner(chestRegister, this.entityFactory, chestLaw, __DEV__),
         new ChestDemolisher(chestRegister));
   }
-
 }
 
 export default SystemFactoryImpl;
