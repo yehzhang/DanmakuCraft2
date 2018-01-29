@@ -5,12 +5,12 @@ class Perspective<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
       public display: T,
       z: number,
       public focalLength: number,
-      public tweenAlpha: boolean = true,
+      public tweenAlpha: boolean = false,
+      public gravitateToCenter: boolean = false,
       public x: number = display.x,
       public y: number = display.y,
       public perspective: number = 0) {
     this.z = z;
-    this.updatePerspective();
   }
 
   get z() {
@@ -33,9 +33,14 @@ class Perspective<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
   private updatePerspective() {
     this.perspective = Math.max(this.focalLength / (this.focalLength + this.internalZ), 0);
 
-    let perspectiveSquared = this.perspective ** 2;
-    this.display.x = this.x * perspectiveSquared;
-    this.display.y = this.y * perspectiveSquared;
+    let positionPerspective;
+    if (this.gravitateToCenter) {
+      positionPerspective = this.perspective ** 2;
+    } else {
+      positionPerspective = this.perspective;
+    }
+    this.display.x = this.x * positionPerspective;
+    this.display.y = this.y * positionPerspective;
 
     this.display.scale.setTo(this.perspective);
 

@@ -62,7 +62,7 @@ class OpeningScene {
     title.y = this.currentGameSize.y * -0.25;
     title.anchor.setTo(0.5);
     this.borderGroup.add(title);
-    this.titlePerspective = new Perspective(title, 500, OpeningScene.FOCAL_LENGTH);
+    this.titlePerspective = new Perspective(title, 500, OpeningScene.FOCAL_LENGTH, true);
     this.titlePerspective.visible = false;
 
     this.loadingStatusGroup = this.game.add.group();
@@ -86,7 +86,7 @@ class OpeningScene {
     earthGraphics.beginFill(Colors.BACKGROUND_NUMBER);
     earthGraphics.drawRect(-100, -100, 200, 200);
     earthGraphics.endFill();
-    this.earthPerspective = new Perspective(earthGraphics, 1000, OpeningScene.FOCAL_LENGTH);
+    this.earthPerspective = new Perspective(earthGraphics, 1000, OpeningScene.FOCAL_LENGTH, true);
     this.earthPerspective.visible = true;
 
     let spriteSheetKey = this.graphicsFactory.createPixelParticleSpriteSheet();

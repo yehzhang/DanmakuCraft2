@@ -20,7 +20,7 @@ class ParticlesField {
       let particleDisplay = game.make.sprite(0, 0, spriteSheetKey);
       particleDisplay.position.setTo(x, y);
       particleDisplay.anchor.setTo(0.5);
-      let particle = new Perspective(particleDisplay, z, ParticlesField.FOCAL_LENGTH, false);
+      let particle = new Perspective(particleDisplay, z, ParticlesField.FOCAL_LENGTH, false, true);
 
       display.addChild(particleDisplay);
 
@@ -37,7 +37,11 @@ class ParticlesField {
 
   update() {
     for (let particle of this.particles) {
-      particle.z = (particle.z + this.particleSpeed) % ParticlesField.MAX_DISTANCE;
+      let z = particle.z + this.particleSpeed;
+      if (z >= ParticlesField.MAX_DISTANCE) {
+        z -= ParticlesField.MAX_DISTANCE;
+      }
+      particle.z = z;
     }
   }
 
