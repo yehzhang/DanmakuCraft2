@@ -3,6 +3,7 @@ import TestingAdapter from './TestingAdapter';
 import ConfigProvider from './config/ConfigProvider';
 import FrontendConfig from './config/FrontendConfig';
 import {frontend} from '../../../server/config/frontend';
+import * as local from '../../../server/config/local';
 import OfficialWebsiteAdapter from './OfficialWebsiteAdapter';
 
 class AdapterFactory {
@@ -11,10 +12,11 @@ class AdapterFactory {
   }
 
   private static loadConfig() {
+    let config = Object.assign({}, frontend, local.frontend);
     ConfigProvider.set(FrontendConfig.newBuilder()
-        .setBaseUrl(frontend.baseUrl)
-        .setCommentIdentity(frontend.commentIdentity)
-        .setGameContainer(frontend.gameContainerId)
+        .setBaseUrl(config.baseUrl)
+        .setCommentIdentity(config.commentIdentity)
+        .setGameContainer(config.gameContainerId)
         .build());
   }
 
