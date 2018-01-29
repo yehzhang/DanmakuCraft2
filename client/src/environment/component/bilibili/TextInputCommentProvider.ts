@@ -34,6 +34,12 @@ class TextInputCommentProvider implements CommentProvider {
 
       this.onCommentInput();
     });
+    this.widgets.textInput.on('focus', () => {
+      if (this.commentText) {
+        return;
+      }
+      this.commentPlacingPolicy.cancelRequest();
+    });
 
     // On font size changed
     $('.bilibili-player-video-sendbar .bilibili-player-mode-selection-row.fontsize .row-selection .selection-span')
@@ -109,6 +115,7 @@ class TextInputCommentProvider implements CommentProvider {
     }
 
     this.commentPlacingPolicy.commitRequest();
+    this.commentText = null;
 
     let ignored = this.commentDataQueue.shift(commentData);
   }

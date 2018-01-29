@@ -8,10 +8,10 @@ import BilibiliContainerProvider from './component/bilibili/BilibiliContainerPro
 import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
 import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
 import InputInterceptor from './component/bilibili/InputInterceptor';
-import GameContainerFocuser from './component/bilibili/GameContainerFocuser';
 import Widgets from './component/bilibili/Widgets';
 import Socket from './component/officialWebsite/Socket';
 import Jar from './component/officialWebsite/Jar';
+import ClickTriggeredFocuser from './component/bilibili/ClickTriggeredFocuser';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   constructor(
@@ -88,8 +88,9 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
     commentProvider.connect();
 
     let game = this.universeProxy.getGame();
-    let gameContainerFocuser = new GameContainerFocuser(this.widgets);
-    let ignored2 = new InputInterceptor(game.input.keyboard, gameContainerFocuser, this.widgets);
+    let focuser = new ClickTriggeredFocuser(
+        [this.widgets.videoFrame, this.widgets.textInput], this.widgets.videoFrame);
+    let ignored2 = new InputInterceptor(game.input.keyboard, focuser, this.widgets);
 
     // TODO Let volume bar actually controls
   }

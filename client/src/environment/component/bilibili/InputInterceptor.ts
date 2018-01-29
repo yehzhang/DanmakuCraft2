@@ -1,14 +1,14 @@
 import {Phaser} from '../../../util/alias/phaser';
-import GameContainerMonitor from './GameContainerFocuser';
 import {bindFirst} from '../../util';
 import Widgets from './Widgets';
+import ClickTriggeredFocuser from './ClickTriggeredFocuser';
 
 class InputInterceptor {
   private keyboard: KeyboardExtended;
 
   constructor(
       keyboard: Phaser.Keyboard,
-      private gameContainerFocuser: GameContainerMonitor,
+      private focuser: ClickTriggeredFocuser,
       private widgets: Widgets) {
     this.keyboard = keyboard as KeyboardExtended;
     this.interceptKeyboardInputs();
@@ -18,51 +18,46 @@ class InputInterceptor {
     window.removeEventListener('keydown', this.keyboard._onKeyDown, false);
     window.removeEventListener('keyup', this.keyboard._onKeyUp, false);
     window.removeEventListener('keypress', this.keyboard._onKeyPress, false);
+    this.handleKeyEvents($(window));
+  }
 
-    bindFirst($(window), 'keydown', event => {
+  private handleKeyEvents(target: JQuery<HTMLElement>) {
+    bindFirst(target, 'keydown', event => {
       if (event.which === Phaser.KeyCode.ENTER) {
         return;
       }
       this.interceptIfGameIsFocused(event, () => this.keyboard.processKeyDown(event));
     });
-    $(window).on('keydown', event => {
+    target.on('keydown', event => {
       if (event.which === Phaser.KeyCode.ENTER) {
         this.switchFocusBetweenGameAndText();
       }
     });
 
-    bindFirst($(window), 'keyup', event => {
+    bindFirst(target, 'keyup', event => {
       this.interceptIfGameIsFocused(event, () => this.keyboard.processKeyUp(event));
     });
-    bindFirst($(window), 'keypress', event => {
+    bindFirst(target, 'keypress', event => {
       this.interceptIfGameIsFocused(event, () => this.keyboard.processKeyPress(event));
     });
   }
 
-  private static stop(event: JQuery.Event) {
-    event.stopImmediatePropagation();
-  }
-
   private switchFocusBetweenGameAndText() {
-    if (this.gameContainerFocuser.isFocused()) {
-      this.widgets.textInput.focus();
-    } else if (this.isCommentTextInputFocused()) {
-      this.gameContainerFocuser.focus();
+    if (this.focuser.isFocused(this.widgets.videoFrame)) {
+      this.focuser.focus(this.widgets.textInput);
+    } else if (this.focuser.isFocused(this.widgets.textInput)) {
+      this.focuser.focus(this.widgets.videoFrame);
     }
   }
 
-  private isCommentTextInputFocused() {
-    return this.widgets.textInput.is(':focus');
-  }
-
   private interceptIfGameIsFocused(event: JQuery.Event, callback: (event: JQuery.Event) => void) {
-    if (!this.gameContainerFocuser.isFocused()) {
+    if (!this.focuser.isFocused(this.widgets.videoFrame)) {
       return;
     }
 
     callback(event);
 
-    InputInterceptor.stop(event);
+    event.stopImmediatePropagation();
   }
 }
 
