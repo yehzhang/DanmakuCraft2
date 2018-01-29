@@ -102,14 +102,6 @@ class MainState extends Phaser.State {
     }
   }
 
-  // private async loadUniverseButSkipOpeningScene() {
-  //   let commentsData = await this.loadCommentsDataAndListenToNewComments();
-  //   this.universe.commentLoader.loadBatch(commentsData, false);
-  //
-  //   this.universe.onTransitionScreenAllWhite();
-  //   this.universe.onTransitionFinished();
-  // }
-
   private async loadUniverseAndShowOpeningScene() {
     this.scene = new OpeningScene(this.universe.game, this.universe.graphicsFactory);
     await this.scene.craftRenderings();
@@ -124,7 +116,7 @@ class MainState extends Phaser.State {
 
     let ignored = this.scene.startParticlesField(100);
 
-    let commentsData = await commentsDataPromise;
+    let commentsData = await Sleep.orError(1.5 * Phaser.Timer.MINUTE, commentsDataPromise);
     let dataChunks = asSequence(commentsData)
         .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
         .chunk(100);
