@@ -7,7 +7,7 @@ class Queue<T> {
       private popCondition: ConditionalVariable = new ConditionalVariable()) {
   }
 
-  async shift(valueOrPromise: Promise<T> | T) {
+  async push(valueOrPromise: Promise<T> | T) {
     let value = await valueOrPromise;
     this.values.push(value);
     this.pushCondition.notify();
@@ -15,19 +15,18 @@ class Queue<T> {
     return this.popCondition.wait();
   }
 
-  async unshift(): Promise<T> {
+  async shift(): Promise<T> {
     if (this.values.length === 0) {
       await this.pushCondition.wait();
     }
 
-    let value = this.values.shift();
-    if (value == null) {
+    if (this.values.length === 0) {
       throw new TypeError('Notified but no values were available');
     }
 
     this.popCondition.notify();
 
-    return value;
+    return this.values.shift() as T;
   }
 }
 

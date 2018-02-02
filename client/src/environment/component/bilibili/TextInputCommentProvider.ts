@@ -99,7 +99,7 @@ class TextInputCommentProvider implements CommentProvider {
 
   async * getNewComments() {
     while (true) {
-      yield this.commentDataQueue.unshift();
+      yield this.commentDataQueue.shift();
     }
   }
 
@@ -117,7 +117,7 @@ class TextInputCommentProvider implements CommentProvider {
     this.commentPlacingPolicy.commitRequest();
     this.commentText = null;
 
-    let ignored = this.commentDataQueue.shift(commentData);
+    let ignored = this.commentDataQueue.push(commentData);
   }
 
   private isSendButtonDisabled() {

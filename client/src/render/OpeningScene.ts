@@ -6,7 +6,7 @@ import Sleep from '../util/async/Sleep';
 import PhysicalConstants from '../PhysicalConstants';
 import ParticlesField from './ParticlesField';
 import GraphicsFactory from './graphics/GraphicsFactory';
-import Queue from '../util/async/Queue';
+import Semaphore from '../util/async/Semaphore';
 
 class OpeningScene {
   private static readonly FOCAL_LENGTH = 10;
@@ -30,8 +30,8 @@ class OpeningScene {
   constructor(
       private game: Phaser.Game,
       private graphicsFactory: GraphicsFactory,
-      private resizedQueue: Queue<boolean> = new Queue()) {
-    game.scale.onSizeChange.addOnce(() => resizedQueue.shift(true));
+      private resizedSemaphore: Semaphore = new Semaphore(0)) {
+    game.scale.onSizeChange.addOnce(() => resizedSemaphore.release());
   }
 
   update() {
@@ -46,7 +46,7 @@ class OpeningScene {
   }
 
   async craftRenderings() {
-    await this.resizedQueue.unshift();
+    await this.resizedSemaphore.acquire();
     this.currentGameSize = this.getCurrentGameSize();
 
     this.backgroundGroup = this.game.add.group();

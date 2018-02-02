@@ -35,7 +35,7 @@ class OfficialCommentProvider implements CommentProvider {
   connect() {
     this.socket.on<CommentCreatedData>(ConfigProvider.get().commentIdentity, createdData => {
       this.nextCreationTokenJar.set(createdData.nextCreationToken);
-      let ignored = this.responseQueue.shift(createdData.comment);
+      let ignored = this.responseQueue.push(createdData.comment);
     });
   }
 
@@ -57,7 +57,7 @@ class OfficialCommentProvider implements CommentProvider {
 
   async * getNewComments() {
     while (true) {
-      let flatData = await this.responseQueue.unshift();
+      let flatData = await this.responseQueue.shift();
       yield OfficialCommentProvider.createCommentDataFrom(flatData);
     }
   }
