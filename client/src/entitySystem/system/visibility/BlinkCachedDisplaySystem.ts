@@ -12,22 +12,27 @@ type Target = Region<StationaryEntity & Display & Blink>;
 class BlinkCachedDisplaySystem implements VisibilitySystem<Target> {
   constructor(
       private positioningSystem: UnmovableDisplayPositioningSystem,
-      private addChildUncachedSystem: AddChildSystem) {
+      private addCachedChildSystem: AddChildSystem,
+      private addUncachedChildSystem: AddChildSystem) {
   }
 
   enter(region: Target) {
     for (let entity of region.container) {
       if (entity.hasBlink()) {
         if (entity.isBlinking()) {
-          this.addChildUncachedSystem.enter(entity);
+          entity.display.visible = true;
+          this.addUncachedChildSystem.enter(entity);
           this.positioningSystem.enter(entity);
         } else {
           entity.releaseBlink();
+
           AddChildToRegionSystem.adopt(entity, region);
+          this.addCachedChildSystem.enter(entity);
         }
       } else {
         if (entity.display.parent == null) {
           AddChildToRegionSystem.adopt(entity, region);
+          this.addCachedChildSystem.enter(entity);
         }
       }
     }
@@ -39,7 +44,7 @@ class BlinkCachedDisplaySystem implements VisibilitySystem<Target> {
   exit(region: Target) {
     asSequence(region.container)
         .filter(entity => entity.hasBlink())
-        .onEach(entity => this.addChildUncachedSystem.exit(entity))
+        .onEach(entity => this.addUncachedChildSystem.exit(entity))
         .filter(entity => !entity.isBlinking())
         .forEach(entity => entity.releaseBlink());
   }

@@ -12,7 +12,7 @@ import Distance from './math/Distance';
 import {NotificationPriority} from '../output/notification/Notifier';
 import ConfigProvider from '../environment/config/ConfigProvider';
 import Visibility from '../engine/visibility/Visibility';
-import {Player} from '../entitySystem/alias';
+import {DisplayableEntity, Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
 import Sleep from './async/Sleep';
 import Nudge from '../entitySystem/component/Nudge';
@@ -178,6 +178,17 @@ class Debug {
         new CommentData(25, color, text, coordinates, buffData), true);
   }
 
+  showBoundsOf(entity: DisplayableEntity) {
+    if (!this.showInfo) {
+      return;
+    }
+    this.debugInfo.addBoundsOf(entity);
+  }
+
+  hideBoundsOf(entity: DisplayableEntity) {
+    this.debugInfo.removeBoundsOf(entity);
+  }
+
   private render() {
     if (!this.showInfo) {
       return;
@@ -228,9 +239,32 @@ function inject(fun: (...args: any[]) => void, other: (...args: any[]) => void =
 }
 
 class DebugInfo {
+  private static readonly SPRITE_BOUNDS_COLORS = [
+    'rgba(0, 0, 255, 0.2)',
+    'rgba(0, 127, 127, 0.2)',
+    'rgba(0, 127, 255, 0.2)',
+    'rgba(0, 255, 0, 0.2)',
+    'rgba(0, 255, 127, 0.2)',
+    'rgba(0, 255, 255, 0.2)',
+    'rgba(127, 0, 127, 0.2)',
+    'rgba(127, 0, 255, 0.2)',
+    'rgba(127, 127, 0, 0.2)',
+    'rgba(127, 127, 255, 0.2)',
+    'rgba(127, 255, 0, 0.2)',
+    'rgba(127, 255, 127, 0.2)',
+    'rgba(255, 0, 0, 0.2)',
+    'rgba(255, 0, 127, 0.2)',
+    'rgba(255, 0, 255, 0.2)',
+    'rgba(255, 127, 0, 0.2)',
+    'rgba(255, 127, 127, 0.2)',
+    'rgba(255, 255, 0, 0.2)'];
+
   constructor(
       private game: Phaser.Game,
       private player: Player,
+      private entitiesToShowBounds: Map<DisplayableEntity, string> = new Map(),
+      private spriteBoundsColors: string[] = [...DebugInfo.SPRITE_BOUNDS_COLORS],
+      private initialCoordinates: Point = player.coordinates,
       private currentY: number = 20,
       private lineHeight: number = 18) {
   }
@@ -279,6 +313,15 @@ class DebugInfo {
   start() {
     this.currentY = 0;
 
+    for (let [entity, color] of this.entitiesToShowBounds) {
+      let bounds = entity.getDisplayWorldBounds();
+      bounds.topLeft = Phaser.Point.subtract(bounds.topLeft, this.initialCoordinates);
+      bounds.x %= PhysicalConstants.WORLD_SIZE;
+      bounds.y %= PhysicalConstants.WORLD_SIZE;
+
+      this.game.debug.rectangle(bounds, color);
+    }
+
     this.line('Player', this.player.coordinates, '', true);
     this.line(`FPS: ${this.game.time.fps}`);
     this.line(`Render radius: ${Visibility['getRenderRadius'](this.game)}`);
@@ -293,5 +336,17 @@ class DebugInfo {
 
   clear() {
     this.game.debug.reset();
+    this.entitiesToShowBounds.clear();
+  }
+
+  addBoundsOf(entity: DisplayableEntity) {
+    let color = this.spriteBoundsColors.shift() as string;
+    this.entitiesToShowBounds.set(entity, color);
+
+    this.spriteBoundsColors.push(color);
+  }
+
+  removeBoundsOf(entity: DisplayableEntity) {
+    this.entitiesToShowBounds.delete(entity);
   }
 }

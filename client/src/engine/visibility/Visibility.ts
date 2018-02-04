@@ -60,7 +60,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
     let foregroundTrackerBuilder = VisibilityEngine.newBuilder(player, renderRadius);
     foregroundTrackerBuilder.onUpdate()
-        // Update buffs
+    // Update buffs
         .applyVisibilitySystem(new UpdateSystem())
         .toEntities().of(playersFinder)
         .toChildren().of(updatingCommentsFinder)
@@ -76,11 +76,12 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
     let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
     let addUncachedCommentsSystem = new AddChildSystem(renderer.floatingLayer);
+    let addCachedCommentsSystem = new AddChildSystem(renderer.floatingLayer, true);
     let positioningSystem = new UnmovableDisplayPositioningSystem(player);
 
     foregroundTrackerBuilder.onRender()
-        // Render
-        .applyVisibilitySystem(new AddChildSystem(renderer.floatingLayer, true))
+    // Render
+        .applyVisibilitySystem(addCachedCommentsSystem)
         .toEntities().of(commentsFinder)
         .applyVisibilitySystem(addUncachedCommentsSystem)
         .toEntities().of(updatingCommentsFinder)
@@ -96,7 +97,9 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
     // Blink entities that are displayed in cached layers.
         .applyVisibilitySystem(new BlinkCachedDisplaySystem(
-            positioningSystem, addUncachedCommentsSystem))
+            positioningSystem,
+            addCachedCommentsSystem,
+            addUncachedCommentsSystem))
         .toEntities().of(commentsFinder)
 
         .applyTickSystem(new MoveDisplaySystem(player))

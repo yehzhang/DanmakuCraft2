@@ -8,7 +8,12 @@ class AddChildSystem implements VisibilitySystem<Display> {
   }
 
   enter(entity: Display) {
+    entity.display.cacheAsBitmap = this.cacheAsBitmap;
     this.container.addChild(entity.display);
+
+    if (__DEV__) {
+      (window as any).db.showBoundsOf(entity);
+    }
   }
 
   update(entity: Display) {
@@ -16,13 +21,14 @@ class AddChildSystem implements VisibilitySystem<Display> {
 
   exit(entity: Display) {
     this.container.removeChild(entity.display);
+    if (__DEV__) {
+      (window as any).db.hideBoundsOf(entity);
+    }
   }
 
   finish() {
     if (this.container.cacheAsBitmap) {
       this.container.updateCache();
-    } else if (this.cacheAsBitmap) {
-      this.container.cacheAsBitmap = true;
     }
   }
 }
