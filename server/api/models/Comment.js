@@ -31,10 +31,6 @@ module.exports = {
     buffParameter: {
       type: 'integer',
     },
-    user: {
-      model: 'user',
-      required: true,
-    },
 
     /**
      * @return {FlatCommentData}
@@ -73,7 +69,6 @@ module.exports = {
     let flatData = comment.toJSON();
     delete flatData.createdAt;
     delete flatData.updatedAt;
-    delete flatData.user;
     delete flatData.id;
 
     return flatData;

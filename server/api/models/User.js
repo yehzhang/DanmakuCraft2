@@ -7,5 +7,8 @@ module.exports = {
       index: true,
       defaultsTo: shortid.generate,
     },
+    comment: {
+      collection: 'comment',
+    }
   },
 };
