@@ -8,7 +8,11 @@ references/
 client/resources/bgm/
 server/package.json
 
-server/assets/static/build/
+server/assets/static
+
+data/comments.all.xml
+
+client/config/local.js
 
 ## Node.gitignore
 # Logs

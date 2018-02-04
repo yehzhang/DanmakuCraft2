@@ -3,7 +3,6 @@ import TestingAdapter from './TestingAdapter';
 import ConfigProvider from './config/ConfigProvider';
 import FrontendConfig from './config/FrontendConfig';
 import {frontend} from '../../../server/config/frontend';
-import * as local from '../../../server/config/local';
 import OfficialWebsiteAdapter from './OfficialWebsiteAdapter';
 
 class AdapterFactory {
@@ -12,7 +11,13 @@ class AdapterFactory {
   }
 
   private static loadConfig() {
-    let config = Object.assign({}, frontend, local.frontend);
+    let config: any = Object.assign({}, frontend);
+    if (__LOCAL__) {
+      config.baseUrl = 'https://localhost';
+    } else {
+      config.baseUrl = 'https://danmakucraft.com';
+    }
+
     ConfigProvider.set(FrontendConfig.newBuilder()
         .setBaseUrl(config.baseUrl)
         .setCommentIdentity(config.commentIdentity)

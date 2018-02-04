@@ -21,7 +21,7 @@ module.exports = {
           {
             loader: 'expose-loader',
             options: 'PIXI',
-          }
+          },
         ],
       },
       {
@@ -30,7 +30,7 @@ module.exports = {
           {
             loader: 'expose-loader',
             options: 'Phaser',
-          }
+          },
         ],
       },
       {
@@ -39,7 +39,7 @@ module.exports = {
           {
             loader: 'expose-loader',
             options: 'p2',
-          }
+          },
         ],
       },
     ],
@@ -47,6 +47,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       __WEBPACK__: JSON.stringify(true),
+      __LOCAL__: JSON.stringify(process.env.LOCAL_SERVER != null),
     }),
     WatchTimePlugin,
   ],
@@ -60,8 +61,4 @@ module.exports = {
       p2: path.join(PHASER_DIR, 'build/custom/p2.js'),
     },
   },
-  output: {
-    filename: 'bundle.js',
-    path: path.join(PACKAGE_DIR, 'build'),
-  }
 };

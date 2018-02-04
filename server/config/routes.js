@@ -3,6 +3,10 @@
  */
 module.exports.routes = {
   '/': {
-    view: 'index',
+    view: 'game',
+  },
+  '/beta': {
+    view: 'game-beta',
+    policy: 'isWorldBuilder',
   },
 };

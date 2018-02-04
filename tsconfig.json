@@ -12,7 +12,7 @@
     "downlevelIteration": true
   },
   "include": [
-    "client/src/**/*.ts",
+    "client/**/*.ts",
     "scripts/**/*.ts",
     "server/**/*.ts"
   ]
