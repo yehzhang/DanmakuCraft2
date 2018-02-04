@@ -1,23 +1,39 @@
-const {verify, NotBeforeError} = require('jsonwebtoken');
+const {verify, NotBeforeError, TokenExpiredError, JsonWebTokenError} = require('jsonwebtoken');
 
 module.exports = function (req, res, next) {
   try {
-    if (verifyRequest(req)) {
+    let result = verifyRequest(req);
+    if (result == null) {
       return next();
     }
-    return res.badRequest(req.__('error.comment.creation.tooMany'));
-  } catch(e) {
+    return res.badRequest(req.__(result));
+  } catch (e) {
     return res.serverError(e);
   }
 };
 
+/**
+ * @return {string|null}
+ */
 function verifyRequest(req) {
+  let nextCreationToken = req.param('nextCreationToken');
   try {
-    verify(req.param('nextCreationToken'), sails.config.keys.nextCommentCreation);
+    verify(
+      nextCreationToken,
+      sails.config.keys.nextCommentCreation,
+      TokenUtils.getNextCommentCreationConfig(req));
   } catch (e) {
     if (e instanceof NotBeforeError) {
-      return false;
+      return 'error.comment.creation.tooOften';
     }
+    if (e instanceof TokenExpiredError) {
+      return 'error.comment.creation.expired';
+    }
+    if (e instanceof JsonWebTokenError) {
+      return 'error.comment.creation.tokenError';
+    }
+    throw e;
   }
-  return true;
+
+  return null;
 }
