@@ -1,6 +1,9 @@
 import {
-  ErrorResponse as ErrorResponseInterface, ErrorResponseStatus, Response as ResponseInterface,
-  ValueResponse as ValueResponseInterface, ValueResponseStatus
+  ErrorResponse as ErrorResponseInterface,
+  ErrorResponseStatus,
+  Response as ResponseInterface,
+  ValueResponse as ValueResponseInterface,
+  ValueResponseStatus
 } from '../../../../../server/api/services/response';
 
 abstract class Response<T> {
@@ -32,7 +35,7 @@ abstract class Response<T> {
 
 export default Response;
 
-class ErrorResponse extends Response<never> {
+export class ErrorResponse extends Response<never> {
   constructor(private reason: string) {
     super();
   }
@@ -42,7 +45,7 @@ class ErrorResponse extends Response<never> {
   }
 }
 
-class ValueResponse<T> extends Response<T> {
+export class ValueResponse<T> extends Response<T> {
   constructor(private value: T) {
     super();
   }

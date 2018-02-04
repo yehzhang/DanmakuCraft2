@@ -2,7 +2,10 @@ class Jar<T = string> {
   constructor(private value: T | null = null) {
   }
 
-  set(value: T) {
+  set(value?: T) {
+    if (value == null) {
+      throw new TypeError('Cannot set null in the jar');
+    }
     this.value = value;
   }
 
