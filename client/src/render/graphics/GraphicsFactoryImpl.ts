@@ -9,6 +9,11 @@ import PixelParticleBuilder from './PixelParticleBuilder';
 import TextShadowStyle from '../TextShadowStyle';
 
 class GraphicsFactoryImpl implements GraphicsFactory {
+  private static readonly TEXT_SHADOW_GLOW_BLUR = 1.5;
+  private static readonly TEXT_SHADOW_GLOW_THICKNESS = 1.75;
+  private static readonly TEXT_SHADOW_DROP_BLUR = 1.5;
+  private static readonly TEXT_SHADOW_DROP_THICKNESS = 1.25;
+
   constructor(
       private game: Phaser.Game,
       private idGenerator: Phaser.RandomDataGenerator,
@@ -46,8 +51,8 @@ class GraphicsFactoryImpl implements GraphicsFactory {
     switch (textShadowStyle) {
       case TextShadowStyle.GLOW:
       case TextShadowStyle.OUTLINE:
-        textDisplay.setShadow(0, 0, Colors.BLACK, 2);
-        textDisplay.strokeThickness = 1.75;
+        textDisplay.setShadow(0, 0, Colors.BLACK, GraphicsFactoryImpl.TEXT_SHADOW_GLOW_BLUR);
+        textDisplay.strokeThickness = GraphicsFactoryImpl.TEXT_SHADOW_GLOW_THICKNESS;
         break;
         // TODO too ugly
         // case TextShadowStyle.OUTLINE:
@@ -55,8 +60,8 @@ class GraphicsFactoryImpl implements GraphicsFactory {
         //   textDisplay.strokeThickness = 2;
         //   break;
       case TextShadowStyle.DROP:
-        textDisplay.setShadow(1, 1, Colors.DARK_GREY, 1.5);
-        textDisplay.strokeThickness = 1.25;
+        textDisplay.setShadow(1, 1, Colors.DARK_GREY, GraphicsFactoryImpl.TEXT_SHADOW_DROP_BLUR);
+        textDisplay.strokeThickness = GraphicsFactoryImpl.TEXT_SHADOW_DROP_THICKNESS;
         break;
       case TextShadowStyle.NONE:
       default:
