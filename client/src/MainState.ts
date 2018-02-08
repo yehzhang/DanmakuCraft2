@@ -124,8 +124,8 @@ class MainState extends Phaser.State {
       this.universe.commentLoader.loadBatch(dataChunk, false);
     }
 
-    this.updatables.add(this.universe);
-    this.renderables.add(this.universe);
+    this.updatables.add(this.universe.engineCap);
+    this.renderables.add(this.universe.engineCap);
     // Wait for engines to initialize before starting animations.
     await Sleep.moment();
 

@@ -1,19 +1,28 @@
 import SystemEngine from './SystemEngine';
+import {asSequence} from 'sequency';
 
 class SystemEnginesEngine<T extends SystemEngine> implements SystemEngine {
   constructor(private engines: T[]) {
   }
 
-  update(time: Phaser.Time) {
+  updateBegin(time: Phaser.Time) {
     for (let engine of this.engines) {
-      engine.update(time);
+      engine.updateBegin(time);
     }
   }
 
-  render(time: Phaser.Time) {
+  updateEnd(time: Phaser.Time) {
+    asSequence(this.engines).reverse().forEach(engine => engine.updateEnd(time));
+  }
+
+  renderBegin(time: Phaser.Time) {
     for (let engine of this.engines) {
-      engine.render(time);
+      engine.renderBegin(time);
     }
+  }
+
+  renderEnd(time: Phaser.Time) {
+    asSequence(this.engines).reverse().forEach(engine => engine.renderEnd(time));
   }
 }
 

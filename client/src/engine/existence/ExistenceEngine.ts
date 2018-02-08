@@ -3,10 +3,11 @@ import EntityFinder, {ExistenceUpdatedEvent} from '../../util/entityStorage/Enti
 import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
 import Entity from '../../entitySystem/Entity';
 import {Component} from '../../entitySystem/alias';
-import {OnOrBuildClause} from './existenceEngineBuilderWrapper';
+import {OnOrBuildClause} from './existenceEngineBuilderLanguage';
 import {asSequence} from 'sequency';
+import SystemEngine from '../SystemEngine';
 
-class ExistenceEngine {
+class ExistenceEngine implements SystemEngine {
   constructor(
       private onUpdateRelations: ExistenceRelation[],
       private onRenderRelations: ExistenceRelation[]) {
@@ -16,19 +17,30 @@ class ExistenceEngine {
     return new OnOrBuildClause(new ExistenceEngineBuilder());
   }
 
-  private static tickRelations(relations: ExistenceRelation[]) {
+  private static tickRelationsBackward(relations: ExistenceRelation[]) {
     asSequence(relations).reverse().forEach(relation => relation.backwardTick());
+  }
+
+  private static tickRelationsForward(relations: ExistenceRelation[]) {
     for (let relation of relations) {
       relation.forwardTick();
     }
   }
 
-  update() {
-    ExistenceEngine.tickRelations(this.onUpdateRelations);
+  updateBegin(time: Phaser.Time) {
+    ExistenceEngine.tickRelationsForward(this.onUpdateRelations);
   }
 
-  render() {
-    ExistenceEngine.tickRelations(this.onRenderRelations);
+  updateEnd(time: Phaser.Time) {
+    ExistenceEngine.tickRelationsForward(this.onRenderRelations);
+  }
+
+  renderBegin(time: Phaser.Time) {
+    ExistenceEngine.tickRelationsBackward(this.onUpdateRelations);
+  }
+
+  renderEnd(time: Phaser.Time) {
+    ExistenceEngine.tickRelationsBackward(this.onRenderRelations);
   }
 }
 
@@ -38,8 +50,8 @@ export class ExistenceRelation<T = Component, U extends T & Entity = T & Entity>
   constructor(
       private system: ExistenceSystem<T>,
       private entityFinder: EntityFinder<U>,
-      private enteringEntities: U[][] = [],
-      private exitingEntities: U[][] = []) {
+      private enteringEntitiesList: U[][] = [],
+      private exitingEntitiesList: U[][] = []) {
     for (let entity of this.entityFinder) {
       this.system.adopt(entity);
     }
@@ -47,17 +59,17 @@ export class ExistenceRelation<T = Component, U extends T & Entity = T & Entity>
   }
 
   forwardTick() {
-    asSequence(this.enteringEntities).flatten().forEach(entity => this.system.adopt(entity));
-    this.enteringEntities.length = 0;
+    asSequence(this.enteringEntitiesList).flatten().forEach(entity => this.system.adopt(entity));
+    this.enteringEntitiesList.length = 0;
   }
 
   backwardTick() {
-    asSequence(this.exitingEntities).flatten().forEach(entity => this.system.abandon(entity));
-    this.exitingEntities.length = 0;
+    asSequence(this.exitingEntitiesList).flatten().forEach(entity => this.system.abandon(entity));
+    this.exitingEntitiesList.length = 0;
   }
 
   private onEntityExistenceUpdated(existenceUpdated: ExistenceUpdatedEvent<U>) {
-    this.enteringEntities.push(existenceUpdated.registeredEntities);
-    this.exitingEntities.push(existenceUpdated.removedEntities);
+    this.enteringEntitiesList.push(existenceUpdated.registeredEntities);
+    this.exitingEntitiesList.push(existenceUpdated.removedEntities);
   }
 }

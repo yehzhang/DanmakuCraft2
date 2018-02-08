@@ -2,30 +2,24 @@ import EntityFinder, {ExistenceUpdatedEvent} from '../../util/entityStorage/Enti
 import Entity from '../../entitySystem/Entity';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import VisibilityEngineBuilder from './VisibilityEngineBuilder';
-import {OnOrBuildClause} from './visibilityEngineBuilderWrapper';
+import {OnOrBuildClause} from './visibilityEngineBuilderLanguage';
 import Point from '../../util/syntax/Point';
 import DynamicProvider from '../../util/DynamicProvider';
 import Distance from '../../util/math/Distance';
-import {asSequence} from 'sequency';
-import TickSystem from '../../entitySystem/system/tick/TickSystem';
+import {asSequence, default as Sequence} from 'sequency';
 import SystemEngine from '../SystemEngine';
+import {Component} from '../../entitySystem/alias';
 
 /**
- * Tracks an animated entity and triggers callbacks whenever the entity moves from one region to
- * another.
- * The entity must be animated because otherwise it never updates, and thus requires no tracking.
+ * Updates visibility of entities around an entity when it moves a certain distance.
  */
-// TODO takes entityFinders / record trackers instead of data class
 class VisibilityEngine implements SystemEngine {
   constructor(
-      private trackee: Entity,
-      private samplingRadius: DynamicProvider<number>,
-      private onUpdateSystemTickers: SystemTicker[],
-      private onRenderSystemTickers: SystemTicker[],
+      private sampler: EntityFinderRecordsSampler,
       private entityFinderRecords: Array<EntityFinderRecord<Entity>>,
-      private distanceChecker: DistanceChecker,
-      private currentCoordinate: Point = trackee.coordinates.clone(),
-      private updatedRecords: Array<EntityFinderRecord<Entity>> = []) {
+      private onUpdateTickers: SystemTicker[],
+      private onRenderTickers: SystemTicker[],
+      private systemFinisher: SystemFinisher) {
   }
 
   static newBuilder(trackee: Entity, samplingRadius: DynamicProvider<number>) {
@@ -33,143 +27,92 @@ class VisibilityEngine implements SystemEngine {
     return new OnOrBuildClause(builder);
   }
 
-  private static tickSystemTickers(tickers: SystemTicker[], time: Phaser.Time) {
-    asSequence(tickers).reverse().forEach(ticker => ticker.backwardTick(time));
-    for (let ticker of tickers) {
+  private static tickSystemsForward(tickers: SystemTicker[], time: Phaser.Time) {
+    for (const ticker of tickers) {
       ticker.firstForwardTick(time);
     }
-    for (let ticker of tickers) {
-      ticker.secondForwardTick(time);
+    for (const ticker of tickers) {
+      ticker.secondForwardTick();
     }
   }
 
-  update(time: Phaser.Time) {
-    // TODO when there are more than one updates between two renders, entering and exiting entities are cleared. need to keep them until render, but should not reapply with update systems.
-    this.commitRecordsUpdate();
-
-    let nextCoordinates = this.trackee.coordinates;
-    let samplingRadius = this.samplingRadius.getValue();
-    this.updatedRecords = this.getEntityFinderRecordsToUpdate(nextCoordinates, samplingRadius)
-        .onEach(record => record.update(nextCoordinates, samplingRadius))
-        .toArray();
-
-    VisibilityEngine.tickSystemTickers(this.onUpdateSystemTickers, time);
-
-    this.samplingRadius.commitUpdate();
-    if (this.updatedRecords.length === this.entityFinderRecords.length) {
-      this.currentCoordinate.copyFrom(nextCoordinates);
-    }
+  private static tickSystemsBackward(tickers: SystemTicker[]) {
+    asSequence(tickers).reverse().forEach(ticker => ticker.backwardTick());
   }
 
-  render(time: Phaser.Time) {
-    VisibilityEngine.tickSystemTickers(this.onRenderSystemTickers, time);
-    this.commitRecordsUpdate();
+  updateBegin(time: Phaser.Time) {
+    VisibilityEngine.tickSystemsForward(this.onUpdateTickers, time);
+    this.systemFinisher.finish();
   }
 
-  private commitRecordsUpdate() {
-    for (let record of this.updatedRecords) {
-      record.commitUpdate();
-    }
-    this.updatedRecords.length = 0;
+  updateEnd(time: Phaser.Time) {
+    this.sampler.update(this.entityFinderRecords);
+    VisibilityEngine.tickSystemsBackward(this.onUpdateTickers);
   }
 
-  private getEntityFinderRecordsToUpdate(nextCoordinates: Point, samplingRadius: number) {
-    let records = asSequence(this.entityFinderRecords);
+  renderBegin(time: Phaser.Time) {
+    VisibilityEngine.tickSystemsForward(this.onRenderTickers, time);
+    this.systemFinisher.finish();
+  }
 
-    if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinate)) {
-      return records;
-    }
-
-    if (this.samplingRadius.hasUpdate()) {
-      return records;
-    }
-
-    return records.filter(record => record.shouldUpdate(nextCoordinates, samplingRadius));
+  renderEnd(time: Phaser.Time) {
+    VisibilityEngine.tickSystemsBackward(this.onRenderTickers);
   }
 }
 
 export default VisibilityEngine;
 
-// export class RecordTracker {
-//   constructor(
-//       private trackee: Entity,
-//       private samplingRadius: DynamicProvider<number>,
-//       private entityFinderRecords: Array<EntityFinderRecord<Entity>>,
-//       private distanceChecker: DistanceChecker,
-//       private currentCoordinate: Point = trackee.coordinates.clone(),
-//       private updatedRecords: Array<EntityFinderRecord<Entity>> = []) {
-//   }
-//
-//   private static tickSystemTickers(tickers: SystemTicker[], time: Phaser.Time) {
-//     asSequence(tickers).reverse().forEach(ticker => ticker.backwardTick(time));
-//     for (let ticker of tickers) {
-//       ticker.firstForwardTick(time);
-//     }
-//     for (let ticker of tickers) {
-//       ticker.secondForwardTick(time);
-//     }
-//   }
-//
-//   update(time: Phaser.Time) {
-//     // TODO when there are more than one updates between two renders, entering and exiting entities are cleared. need to keep them until render, but should not reapply by update systems.
-//     this.commitRecordsUpdate();
-//
-//     let nextCoordinates = this.trackee.coordinates;
-//     let samplingRadius = this.samplingRadius.getValue();
-//     this.updatedRecords = this.getEntityFinderRecordsToUpdate(nextCoordinates, samplingRadius)
-//         .onEach(record => record.update(nextCoordinates, samplingRadius))
-//         .toArray();
-//
-//     VisibilityEngine.tickSystemTickers(this.onUpdateSystemTickers, time);
-//
-//     this.samplingRadius.commitUpdate();
-//     if (this.updatedRecords.length === this.entityFinderRecords.length) {
-//       this.currentCoordinate.copyFrom(nextCoordinates);
-//     }
-//   }
-//
-//   render(time: Phaser.Time) {
-//     VisibilityEngine.tickSystemTickers(this.onRenderSystemTickers, time);
-//     this.commitRecordsUpdate();
-//   }
-//
-//   private commitRecordsUpdate() {
-//     for (let record of this.updatedRecords) {
-//       record.commitUpdate();
-//     }
-//     this.updatedRecords.length = 0;
-//   }
-//
-//   private getEntityFinderRecordsToUpdate(nextCoordinates: Point, samplingRadius: number) {
-//     let records = asSequence(this.entityFinderRecords);
-//
-//     if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinate)) {
-//       return records;
-//     }
-//
-//     if (this.samplingRadius.hasUpdate()) {
-//       return records;
-//     }
-//
-//     return records.filter(record => record.shouldUpdate(nextCoordinates, samplingRadius));
-//   }
-// }
+export class EntityFinderRecordsSampler {
+  constructor(
+      private trackee: Entity,
+      private samplingRadius: DynamicProvider<number>,
+      private distanceChecker: DistanceChecker,
+      private currentCoordinate: Point = trackee.coordinates.clone()) {
+  }
 
-// TODO move entities to another data class
+  update(records: Array<EntityFinderRecord<Entity>>) {
+    let nextCoordinates = this.trackee.coordinates;
+    let samplingRadius = this.samplingRadius.getValue();
+    let updatedRecordsCount = this.getEntityFinderRecordsToUpdate(records, nextCoordinates)
+        .onEach(record => record.update(nextCoordinates, samplingRadius))
+        .count(record => record.hasUpdate());
+
+    this.samplingRadius.commitUpdate();
+    if (updatedRecordsCount === records.length) {
+      this.currentCoordinate.copyFrom(nextCoordinates);
+    }
+  }
+
+  private getEntityFinderRecordsToUpdate(
+      records: Iterable<EntityFinderRecord<Entity>>, nextCoordinates: Point) {
+    const sequence = asSequence(records);
+
+    if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinate)) {
+      return sequence;
+    }
+
+    if (this.samplingRadius.hasUpdate()) {
+      return sequence;
+    }
+
+    return sequence.filter(record => record.shouldUpdate());
+  }
+}
+
 export class EntityFinderRecord<T extends Entity> {
   constructor(
       private entityFinder: EntityFinder<T>,
       private distanceChecker: DistanceChecker,
+      private enteringEntitiesList: T[][] = [],
+      private exitingEntitiesList: T[][] = [],
       public currentEntities: Set<T> = new Set(),
-      public enteringEntities: T[] = [],
-      public exitingEntities: T[] = [],
       private shouldUpdateEntities: boolean = true) {
     entityFinder.entityExistenceUpdated.add(this.onEntityUpdated, this);
   }
 
   private static leftOuterJoin<T>(set: Iterable<T>, other: Set<T>): T[] {
     let difference = [];
-    for (let element of set) {
+    for (const element of set) {
       if (!other.has(element)) {
         difference.push(element);
       }
@@ -177,22 +120,42 @@ export class EntityFinderRecord<T extends Entity> {
     return difference;
   }
 
-  shouldUpdate(nextCoordinates: Point, samplingRadius: number) {
+  shouldUpdate() {
     return this.shouldUpdateEntities;
   }
 
   update(nextCoordinates: Point, samplingRadius: number) {
     let nextEntities = new Set(this.entityFinder.listAround(nextCoordinates, samplingRadius));
-    this.enteringEntities = EntityFinderRecord.leftOuterJoin(nextEntities, this.currentEntities);
-    this.exitingEntities = EntityFinderRecord.leftOuterJoin(this.currentEntities, nextEntities);
+    const enteringEntities = EntityFinderRecord.leftOuterJoin(nextEntities, this.currentEntities);
+    const exitingEntities = EntityFinderRecord.leftOuterJoin(this.currentEntities, nextEntities);
+
     this.currentEntities = nextEntities;
+    if (enteringEntities.length > 0) {
+      this.enteringEntitiesList.push(enteringEntities);
+    }
+    if (exitingEntities.length > 0) {
+      this.exitingEntitiesList.push(exitingEntities);
+    }
 
     this.shouldUpdateEntities = false;
   }
 
-  commitUpdate() {
-    this.enteringEntities.length = 0;
-    this.exitingEntities.length = 0;
+  hasUpdate() {
+    return this.enteringEntitiesList.length > 0 || this.exitingEntitiesList.length > 0;
+  }
+
+  fetchEnteringEntities(): Sequence<T> {
+    let enteringEntitiesList = this.enteringEntitiesList;
+    this.enteringEntitiesList = [];
+
+    return asSequence(enteringEntitiesList).flatten();
+  }
+
+  fetchExitingEntities(): Sequence<T> {
+    let exitingEntitiesList = this.exitingEntitiesList;
+    this.exitingEntitiesList = [];
+
+    return asSequence(exitingEntitiesList).flatten();
   }
 
   private onEntityUpdated(existenceUpdated: ExistenceUpdatedEvent<T>) {
@@ -241,61 +204,71 @@ export class DistanceChecker {
   }
 }
 
-export interface SystemTicker {
-  backwardTick(time: Phaser.Time): void;
-
-  firstForwardTick(time: Phaser.Time): void;
-
-  secondForwardTick(time: Phaser.Time): void;
-}
-
-export class RecordSystemTicker<T, U extends T & Entity> implements SystemTicker {
+export class SystemTicker<T = Component, U extends T & Entity = T & Entity> {
   constructor(
-      private system: VisibilitySystem<T>,
+      private systems: Array<VisibilitySystem<T>>,
       private entityFinderRecord: EntityFinderRecord<U>,
+      private systemFinisher: SystemFinisher,
       private isVisibilityChanged: boolean = false) {
   }
 
   backwardTick() {
-    if (this.entityFinderRecord.exitingEntities.length > 0) {
-      for (let entity of this.entityFinderRecord.exitingEntities) {
-        this.system.exit(entity);
-      }
+    let entitiesCount = this.entityFinderRecord.fetchExitingEntities()
+        .onEach(entity => {
+          for (const system of this.systems) {
+            system.exit(entity);
+          }
+        })
+        .count();
+    if (entitiesCount > 0) {
       this.isVisibilityChanged = true;
     }
   }
 
   firstForwardTick(time: Phaser.Time) {
-    if (this.entityFinderRecord.enteringEntities.length > 0) {
-      for (let entity of this.entityFinderRecord.enteringEntities) {
-        this.system.enter(entity);
-      }
+    let entitiesCount = this.entityFinderRecord.fetchEnteringEntities()
+        .onEach(entity => {
+          for (const system of this.systems) {
+            system.enter(entity);
+          }
+        })
+        .count();
+    if (entitiesCount > 0) {
       this.isVisibilityChanged = true;
     }
-    for (let entity of this.entityFinderRecord.currentEntities) {
-      this.system.update(entity, time);
+
+    for (const entity of this.entityFinderRecord.currentEntities) {
+      for (const system of this.systems) {
+        system.update(entity, time);
+      }
     }
-  }
-
-  secondForwardTick(time: Phaser.Time) {
-    if (this.isVisibilityChanged) {
-      this.system.finish();
-      this.isVisibilityChanged = false;
-    }
-  }
-}
-
-export class TickSystemTicker implements SystemTicker {
-  constructor(private system: TickSystem) {
-  }
-
-  backwardTick(time: Phaser.Time) {
-  }
-
-  firstForwardTick(time: Phaser.Time) {
-    this.system.tick(time);
   }
 
   secondForwardTick() {
+    if (!this.isVisibilityChanged) {
+      return;
+    }
+
+    for (const system of this.systems) {
+      this.systemFinisher.add(system);
+    }
+
+    this.isVisibilityChanged = false;
+  }
+}
+
+export class SystemFinisher {
+  constructor(private systems: Set<VisibilitySystem<Component>> = new Set()) {
+  }
+
+  add(system: VisibilitySystem<Component>) {
+    this.systems.add(system);
+  }
+
+  finish() {
+    for (const system of this.systems) {
+      system.finish();
+    }
+    this.systems.clear();
   }
 }

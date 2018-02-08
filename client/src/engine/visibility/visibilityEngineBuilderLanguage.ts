@@ -1,6 +1,5 @@
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
-import TickSystem from '../../entitySystem/system/tick/TickSystem';
 import VisibilityEngineBuilder from './VisibilityEngineBuilder';
 import {Region} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
@@ -27,13 +26,8 @@ class ApplyClause {
   constructor(protected builder: VisibilityEngineBuilder, protected isOnUpdate: boolean) {
   }
 
-  applyVisibilitySystem<T>(system: VisibilitySystem<T>): ToClause<T> {
+  apply<T>(system: VisibilitySystem<T>): ToClause<T> {
     return new ToClause(this.builder, system, this.isOnUpdate);
-  }
-
-  applyTickSystem(system: TickSystem): ApplyClause {
-    this.builder.applyTickSystem(system, this.isOnUpdate);
-    return this;
   }
 }
 
@@ -67,7 +61,7 @@ class OfClause<T, U> {
   }
 
   of<V extends T & Entity>(entityFinder: EntityFinder<V>): ApplyOrToOrOfOrBuildClause<T, U> {
-    this.builder.applyVisibilitySystem(this.systemLifter.get(), entityFinder, this.isOnUpdate);
+    this.builder.apply(this.systemLifter.get(), entityFinder, this.isOnUpdate);
     return new ApplyOrToOrOfOrBuildClause(this.builder, this.systemLifter, this.isOnUpdate);
   }
 }
@@ -89,7 +83,7 @@ class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
   }
 
   and<V extends T & Entity>(entityFinder: EntityFinder<V>) {
-    this.builder.applyVisibilitySystem(this.systemLifter.get(), entityFinder, this.isOnUpdate);
+    this.builder.apply(this.systemLifter.get(), entityFinder, this.isOnUpdate);
     return this;
   }
 
@@ -131,8 +125,7 @@ class LiftVisibilitySystemSystem<T> implements VisibilitySystem<Region<T>> {
 
 class SystemLifter<T, U> {
   constructor(
-      private liftedSystem: VisibilitySystem<T>,
-      private originalSystem: VisibilitySystem<U>) {
+      private liftedSystem: VisibilitySystem<T>, private originalSystem: VisibilitySystem<U>) {
   }
 
   lifted(): SystemLifter<Region<T>, U> {

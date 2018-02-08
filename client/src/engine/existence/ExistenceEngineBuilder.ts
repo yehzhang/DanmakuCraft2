@@ -27,9 +27,6 @@ class ExistenceEngineBuilder {
   }
 
   build() {
-    if (this.onUpdateRelations.length === 0 && this.onRenderRelations.length === 0) {
-      throw new TypeError('No systems were applied');
-    }
     return new ExistenceEngine(this.onUpdateRelations, this.onRenderRelations);
   }
 }

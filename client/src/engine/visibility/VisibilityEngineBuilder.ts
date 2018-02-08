@@ -4,10 +4,13 @@ import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySys
 import DynamicProvider from '../../util/DynamicProvider';
 import PhysicalConstants from '../../PhysicalConstants';
 import VisibilityEngine, {
-  DistanceChecker, EntityFinderRecord, RecordSystemTicker, SystemTicker,
-  TickSystemTicker,
+  DistanceChecker,
+  EntityFinderRecord,
+  EntityFinderRecordsSampler,
+  SystemFinisher,
+  SystemTicker,
 } from './VisibilityEngine';
-import TickSystem from '../../entitySystem/system/tick/TickSystem';
+import {Component} from '../../entitySystem/alias';
 import {asSequence} from 'sequency';
 
 export class VisibilityEngineBuilder {
@@ -17,55 +20,67 @@ export class VisibilityEngineBuilder {
       updatingRadius: number = PhysicalConstants.ENTITY_TRACKER_UPDATE_RADIUS,
       private distanceChecker: DistanceChecker =
           new DistanceChecker(trackee, samplingRadius, updatingRadius),
-      private entityFinderRecords: Map<EntityFinder<Entity>, EntityFinderRecord<Entity>> = new Map(),
-      private onUpdateSystemTickers: SystemTicker[] = [],
-      private onRenderSystemTickers: SystemTicker[] = []) {
+      private relations: Array<VisibilityRelation<Component, Entity>> = []) {
   }
 
-  applyVisibilitySystem<T, U extends T & Entity>(
+  apply<T, U extends T & Entity>(
       system: VisibilitySystem<T>,
       entityFinder: EntityFinder<U>,
       isOnUpdate: boolean) {
-    let entityFinderRecord = this.entityFinderRecords.get(entityFinder) as EntityFinderRecord<U>;
-    if (entityFinderRecord === undefined) {
-      entityFinderRecord = new EntityFinderRecord(entityFinder, this.distanceChecker);
-      this.entityFinderRecords.set(entityFinder, entityFinderRecord);
-    }
-
-    let ticker = new RecordSystemTicker(system, entityFinderRecord);
-    this.addTicker(ticker, isOnUpdate);
-
+    this.relations.push(new VisibilityRelation(system, entityFinder, isOnUpdate));
     return this;
   }
 
-  applyTickSystem(system: TickSystem, isOnUpdate: boolean) {
-    this.addTicker(new TickSystemTicker(system), isOnUpdate);
-    return this;
+  build(): VisibilityEngine {
+    const sampler =
+        new EntityFinderRecordsSampler(this.trackee, this.samplingRadius, this.distanceChecker);
+    const systemFinisher = new SystemFinisher();
+
+    const {true: onUpdateRelations, false: onRenderRelations} =
+        asSequence(this.relations).partition(relation => relation.isOnUpdate);
+    const [onUpdateRecords, onUpdateTickers] =
+        this.structureTickers(onUpdateRelations, systemFinisher);
+    const [onRenderRecords, onRenderTickers] =
+        this.structureTickers(onRenderRelations, systemFinisher);
+    const records = asSequence(onUpdateRecords).plus(asSequence(onRenderRecords)).toArray();
+
+    return new VisibilityEngine(sampler, records, onUpdateTickers, onRenderTickers, systemFinisher);
   }
 
-  build() {
-    if (!asSequence([this.onUpdateSystemTickers, this.onUpdateSystemTickers]).any()) {
-      throw new TypeError('No systems were applied');
-    }
-    return new VisibilityEngine(
-        this.trackee,
-        this.samplingRadius,
-        this.onUpdateSystemTickers,
-        this.onRenderSystemTickers,
-        Array.from(this.entityFinderRecords.values()),
-        this.distanceChecker);
-  }
+  private structureTickers(
+      relations: Iterable<VisibilityRelation<Component, Entity>>,
+      systemFinisher: SystemFinisher): [Iterable<EntityFinderRecord<Entity>>, SystemTicker[]] {
+    const records: Map<EntityFinder<Entity>, EntityFinderRecord<Entity>> = new Map();
+    const recordToSystems: Map<EntityFinderRecord<Entity>, Array<VisibilitySystem<Component>>> = new Map();
+    for (const relation of relations) {
+      let record = records.get(relation.entityFinder);
+      if (record === undefined) {
+        record = new EntityFinderRecord(relation.entityFinder, this.distanceChecker);
+        records.set(relation.entityFinder, record);
+      }
 
-  private addTicker(ticker: SystemTicker, isOnUpdate: boolean) {
-    let tickers;
-    if (isOnUpdate) {
-      tickers = this.onUpdateSystemTickers;
-    } else {
-      tickers = this.onRenderSystemTickers;
+      let applyingSystems = recordToSystems.get(record);
+      if (applyingSystems === undefined) {
+        applyingSystems = [];
+        recordToSystems.set(record, applyingSystems);
+      }
+      applyingSystems.push(relation.system);
     }
 
-    tickers.push(ticker);
+    const tickers = asSequence(recordToSystems)
+        .map(([record, applyingSystems]) => new SystemTicker(applyingSystems, record, systemFinisher))
+        .toArray();
+
+    return [records.values(), tickers];
   }
 }
 
 export default VisibilityEngineBuilder;
+
+class VisibilityRelation<T, U extends T & Entity> {
+  constructor(
+      readonly system: VisibilitySystem<T>,
+      readonly entityFinder: EntityFinder<U>,
+      readonly isOnUpdate: boolean) {
+  }
+}

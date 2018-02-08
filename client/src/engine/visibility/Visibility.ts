@@ -9,8 +9,6 @@ import AddChildSystem from '../../entitySystem/system/visibility/AddChildSystem'
 import UnmovableDisplayPositioningSystem from '../../entitySystem/system/visibility/UnmovableDisplayPositioningSystem';
 import {Phaser} from '../../util/alias/phaser';
 import CommitMotionSystem from '../../entitySystem/system/visibility/CommitMotionSystem';
-import MoveDisplaySystem from '../../entitySystem/system/tick/MoveDisplaySystem';
-import SynchronizeLifecycleSystem from '../../entitySystem/system/visibility/SynchronizeLifecycleSystem';
 import SystemEnginesEngine from '../SystemEnginesEngine';
 import {
   ChestEntity,
@@ -27,13 +25,13 @@ import Renderer from '../../render/Renderer';
 import ContainerSystem from '../../entitySystem/system/visibility/ContainerSystem';
 import Entity from '../../entitySystem/Entity';
 import BlinkCachedDisplaySystem from '../../entitySystem/system/visibility/BlinkCachedDisplaySystem';
+import ChestSystem from '../../entitySystem/system/ChestSystem';
 
 class Visibility extends SystemEnginesEngine<VisibilityEngine> {
   constructor(
       engines: VisibilityEngine[],
       readonly collisionDetectionSystem: CollisionDetectionSystem,
-      readonly synchronizeUpdateSystem: SynchronizeLifecycleSystem,
-      readonly synchronizeRenderSystem: SynchronizeLifecycleSystem) {
+      readonly chestSystem: ChestSystem) {
     super(engines);
   }
 
@@ -53,63 +51,53 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
     let collisionDetectionSystem = new CollisionDetectionSystem();
 
-    let synchronizeUpdateSystem = new SynchronizeLifecycleSystem();
-
     let chestSystem = systemFactory.createChestSystem(renderRadius, chestsStorage.getRegister());
     let chestsFinder = chestsStorage.getFinder();
 
     let foregroundTrackerBuilder = VisibilityEngine.newBuilder(player, renderRadius);
     foregroundTrackerBuilder.onUpdate()
     // Update buffs
-        .applyVisibilitySystem(new UpdateSystem())
+        .apply(new UpdateSystem())
         .toEntities().of(playersFinder)
         .toChildren().of(updatingCommentsFinder)
 
-        .applyVisibilitySystem(collisionDetectionSystem)
+        .apply(collisionDetectionSystem)
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
 
-        .applyVisibilitySystem(chestSystem)
-        .toEntities().of(chestsFinder)
-        .applyTickSystem(chestSystem)
+        .apply(chestSystem)
+        .toEntities().of(chestsFinder);
 
-        .applyTickSystem(synchronizeUpdateSystem);
-
-    let synchronizeRenderSystem = new SynchronizeLifecycleSystem();
     let addUncachedCommentsSystem = new AddChildSystem(renderer.floatingLayer);
     let addCachedCommentsSystem = new AddChildSystem(renderer.floatingLayer, true);
     let positioningSystem = new UnmovableDisplayPositioningSystem(player);
 
     foregroundTrackerBuilder.onRender()
     // Render
-        .applyVisibilitySystem(addCachedCommentsSystem)
+        .apply(addCachedCommentsSystem)
         .toEntities().of(commentsFinder)
-        .applyVisibilitySystem(addUncachedCommentsSystem)
+        .apply(addUncachedCommentsSystem)
         .toEntities().of(updatingCommentsFinder)
-        .applyVisibilitySystem(new AddChildSystem(renderer.groundLayer))
+        .apply(new AddChildSystem(renderer.groundLayer))
         .toEntities().of(chestsFinder)
-        .applyVisibilitySystem(new AddChildSystem(renderer.playersLayer))
+        .apply(new AddChildSystem(renderer.playersLayer))
         .toEntities().of(playersFinder)
-        .applyVisibilitySystem(new AddChildSystem(renderer.cachedBackgroundLayer))
+        .apply(new AddChildSystem(renderer.cachedBackgroundLayer))
         .toEntities().of(signsFinder)
-        .applyVisibilitySystem(positioningSystem)
+        .apply(positioningSystem)
         .toEntities()
         .of(chestsFinder).and(commentsFinder).and(updatingCommentsFinder).and(signsFinder)
 
     // Blink entities that are displayed in cached layers.
-        .applyVisibilitySystem(new BlinkCachedDisplaySystem(
+        .apply(new BlinkCachedDisplaySystem(
             positioningSystem,
             addCachedCommentsSystem,
             addUncachedCommentsSystem))
         .toEntities().of(commentsFinder)
 
-        .applyTickSystem(new MoveDisplaySystem(player))
-
-        .applyVisibilitySystem(new MovingAnimationSystem())
+        .apply(new MovingAnimationSystem())
         .toEntities().of(playersFinder)
 
-        .applyTickSystem(synchronizeRenderSystem)
-
-        .applyVisibilitySystem(new CommitMotionSystem())
+        .apply(new CommitMotionSystem())
         .toEntities().of(playersFinder);
 
     let spawnPointsContainerSystem = new ContainerSystem<Entity>();
@@ -117,17 +105,16 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
     let backgroundTrackerBuilder = VisibilityEngine.newBuilder(
         player, new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS));
     backgroundTrackerBuilder.onRender()
-        .applyVisibilitySystem(spawnPointsContainerSystem)
+        .apply(spawnPointsContainerSystem)
         .toEntities().of(spawnPointsFinder)
 
-        .applyVisibilitySystem(new BackgroundColorSystem(game, spawnPointsContainerSystem))
+        .apply(new BackgroundColorSystem(game, spawnPointsContainerSystem))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder);
 
     return new this(
         [foregroundTrackerBuilder.build(), backgroundTrackerBuilder.build()],
         collisionDetectionSystem,
-        synchronizeUpdateSystem,
-        synchronizeRenderSystem);
+        chestSystem);
   }
 
   private static getRenderRadius(game: Phaser.Game) {

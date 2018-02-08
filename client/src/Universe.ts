@@ -10,7 +10,11 @@ import AdapterFactory from './environment/AdapterFactory';
 import PhysicalConstants from './PhysicalConstants';
 import BuffDataContainer from './entitySystem/system/buff/BuffDataContainer';
 import {
-  ChestEntity, CommentEntity, Player, Region, SignEntity,
+  ChestEntity,
+  CommentEntity,
+  Player,
+  Region,
+  SignEntity,
   UpdatingCommentEntity
 } from './entitySystem/alias';
 import BuffFactory from './entitySystem/system/buff/BuffFactory';
@@ -37,6 +41,9 @@ import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
 import Entity from './entitySystem/Entity';
 import HardCodedPreset from './preset/HardCodedPreset';
 import CommentPlacingPolicy from './environment/interface/CommentPlacingPolicy';
+import {default as EngineCap} from './engine/EngineCap';
+import SystemEnginesEngine from './engine/SystemEnginesEngine';
+import Tick from './engine/tick/Tick';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -65,6 +72,8 @@ class Universe {
   public spawnPointsStorage: EntityStorage<Entity>;
   public signsStorage: EntityStorage<SignEntity>;
   public commentPlacingPolicy: CommentPlacingPolicy;
+  public tick: Tick;
+  public engineCap: EngineCap;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     this.buffDataContainer = new BuffDataContainer();
@@ -143,6 +152,9 @@ class Universe {
         game,
         this.commentsStorage.getFinder(),
         this.updatingCommentsStorage.getFinder());
+    this.tick = Tick.on(this.player, this.visibility.chestSystem);
+    this.engineCap = new EngineCap(
+        new SystemEnginesEngine([this.existence, this.tick, this.visibility]), this.game.time);
 
     this.commentPlacingPolicy = new CommentPlacingPolicyImpl(
         this.visibility.collisionDetectionSystem,
@@ -183,16 +195,6 @@ class Universe {
 
   onTransitionFinished() {
     this.inputController.receiveInput();
-  }
-
-  update() {
-    this.existence.update(this.game.time);
-    this.visibility.update(this.game.time);
-  }
-
-  render() {
-    this.existence.render(this.game.time);
-    this.visibility.render(this.game.time);
   }
 
   getProxy(): UniverseProxy {

@@ -1,7 +1,11 @@
 interface SystemEngine {
-  update(time: Phaser.Time): void;
+  updateBegin(time: Phaser.Time): void;
 
-  render(time: Phaser.Time): void;
+  updateEnd(time: Phaser.Time): void;
+
+  renderBegin(time: Phaser.Time): void;
+
+  renderEnd(time: Phaser.Time): void;
 }
 
 export default SystemEngine;

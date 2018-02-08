@@ -48,13 +48,13 @@ describe('VisibilityEngineBuilder', () => {
 
     builder = new VisibilityEngineBuilder(instance(mockTrackee), new DynamicProvider(0))
         .applyTickSystem(tickSystems[0], false)
-        .applyVisibilitySystem(visibilitySystems[0], entityFinders[1], false)
+        .apply(visibilitySystems[0], entityFinders[1], false)
         .applyTickSystem(tickSystems[1], false)
-        .applyVisibilitySystem(visibilitySystems[1], entityFinders[0], false)
+        .apply(visibilitySystems[1], entityFinders[0], false)
         .applyTickSystem(tickSystems[2], true)
-        .applyVisibilitySystem(visibilitySystems[2], entityFinders[1], true)
+        .apply(visibilitySystems[2], entityFinders[1], true)
         .applyTickSystem(tickSystems[3], true)
-        .applyVisibilitySystem(visibilitySystems[3], entityFinders[0], true);
+        .apply(visibilitySystems[3], entityFinders[0], true);
   });
 
   it('should keeps system tickers in order', () => {

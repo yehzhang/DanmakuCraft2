@@ -27,16 +27,23 @@ class Debug {
       private notificationShowCounts: number = 0,
       private systems: { [systemName: string]: any } = {},
       private debugInfo: DebugInfo = new DebugInfo(universe.game, universe.player)) {
-    universe.render = inject(this.render.bind(this), universe.render.bind(universe));
+    universe.engineCap.render = ((render) => async () => {
+      await this.render();
+      await render.call(universe.engineCap);
+    })(universe.engineCap.render);
 
     if (__DEV__) {
       universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
     }
 
     asSequence(universe.visibility['engines']).flatMap(
-        engine => asSequence([engine['onUpdateSystemTickers'], engine['onRenderSystemTickers']]))
-        .plus<any>(asSequence(universe.existence['engines']).flatMap(
-            engine => asSequence([engine['onUpdateRelations'], engine['onRenderRelations']])))
+        engine => asSequence([engine['onUpdateTickers'], engine['onRenderTickers']]))
+        .plus<any>(asSequence(universe.existence['engines'])
+            .map(engine => [engine['onUpdateRelations'], engine['onRenderRelations']])
+            .flatten())
+        .plus<any>(asSequence(universe.tick['engines'])
+            .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']])
+            .flatten())
         .flatten()
         .map(systemHolder => (systemHolder as any)['system'])
         .distinct()
@@ -111,10 +118,10 @@ class Debug {
   }
 
   private movePlayerBy(offset: Point) {
-    let ignored = this.universe.visibility.synchronizeUpdateSystem.for(() => {
+    setTimeout(() => {
       this.universe.player.addToCoordinatesBy(offset);
       this.universe.player.movedOffset.add(offset.x, offset.y);
-    });
+    }, 0);
   }
 
   private getVisibleDistance() {
@@ -134,8 +141,6 @@ class Debug {
   get hideInfo() {
     this.showInfo = false;
     this.debugInfo.clear();
-
-    this.universe.game.time.advancedTiming = false;
 
     return true;
   }
@@ -189,7 +194,7 @@ class Debug {
     this.debugInfo.removeBoundsOf(entity);
   }
 
-  private render() {
+  private async render() {
     if (!this.showInfo) {
       return;
     }
@@ -229,14 +234,6 @@ class Debug {
 }
 
 export default Debug;
-
-function inject(fun: (...args: any[]) => void, other: (...args: any[]) => void = () => {
-}) {
-  return (...args: any[]) => {
-    fun.apply(null, args);
-    other.apply(null, args);
-  };
-}
 
 class DebugInfo {
   private static readonly SPRITE_BOUNDS_COLORS = [
@@ -336,7 +333,6 @@ class DebugInfo {
 
   clear() {
     this.game.debug.reset();
-    this.entitiesToShowBounds.clear();
   }
 
   addBoundsOf(entity: DisplayableEntity) {
