@@ -44,6 +44,10 @@ class HardCodedPreset implements Preset {
   }
 
   getPlayerSpawnPoint() {
+    if (__DEV__) {
+      return HardCodedPreset.WORLD_CENTER_COORDINATES.clone();
+    }
+
     let spawnPeriod = Math.floor(Date.now() / HardCodedPreset.SPAWN_POINT_CHANGE_INTERVAL);
     let spawnPointIndex = spawnPeriod % HardCodedPreset.SPAWN_POINTS.length;
     let spawnPoint = HardCodedPreset.SPAWN_POINTS[spawnPointIndex];

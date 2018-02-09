@@ -1,5 +1,6 @@
 import Point from '../util/syntax/Point';
 import PhysicalConstants from '../PhysicalConstants';
+import Rectangle from '../util/syntax/Rectangle';
 
 /**
  * Maps an arbitrary {@param coordinate} to a world coordinate.
@@ -12,11 +13,15 @@ export function toWorldCoordinate(coordinate: number, max: number): number {
 
   coordinate = ((coordinate % max) + max) % max;
 
-  if (isNaN(coordinate) || !isFinite(coordinate)) {
-    throw new TypeError('Invalid coordinate');
-  }
+  validateValue(coordinate);
 
   return coordinate;
+}
+
+export function validateValue(value: number) {
+  if (isNaN(value) || !isFinite(value)) {
+    throw new TypeError('Invalid coordinate');
+  }
 }
 
 /**
@@ -77,4 +82,33 @@ export function toWorldIntervalOffset(
   let leftOffset = toWorldCoordinateOffset(intervalBeginning, other, max);
   let rightOffset = toWorldCoordinateOffset(other, intervalEnding, max);
   return Math.max(leftOffset, rightOffset, 0);
+}
+
+/**
+ * @return bounds whose position is in the world and 0 <= width (or height) <= max
+ */
+export function toWorldBounds(bounds: Rectangle, max: number) {
+  const [x, width] = normalizeVector(bounds.x, bounds.width, max);
+  const [y, height] = normalizeVector(bounds.y, bounds.height, max);
+  return Rectangle.of(x, y, width, height);
+}
+
+function normalizeVector(coordinate: number, offset: number, max: number): [number, number] {
+  validateValue(offset);
+
+  coordinate = toWorldCoordinate(coordinate, max);
+
+  if (offset !== max && -offset !== max) {
+    offset %= max;
+  }
+  if (offset < 0) {
+    coordinate += offset;
+    offset = -offset;
+
+    if (coordinate < 0) {
+      coordinate += max;
+    }
+  }
+
+  return [coordinate, offset];
 }

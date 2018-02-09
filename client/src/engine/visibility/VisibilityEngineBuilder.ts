@@ -2,7 +2,6 @@ import Entity from '../../entitySystem/Entity';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import DynamicProvider from '../../util/DynamicProvider';
-import PhysicalConstants from '../../PhysicalConstants';
 import VisibilityEngine, {
   DistanceChecker,
   EntityFinderRecord,
@@ -17,7 +16,7 @@ export class VisibilityEngineBuilder {
   constructor(
       private trackee: Entity,
       private samplingRadius: DynamicProvider<number>,
-      updatingRadius: number = PhysicalConstants.ENTITY_TRACKER_UPDATE_RADIUS,
+      updatingRadius: number,
       private distanceChecker: DistanceChecker =
           new DistanceChecker(trackee, samplingRadius, updatingRadius),
       private relations: Array<VisibilityRelation<Component, Entity>> = []) {

@@ -1,4 +1,4 @@
-import EntityFinder, {ExistenceUpdatedEvent} from '../EntityFinder';
+import EntityFinder, {StateChanged} from '../EntityFinder';
 import Point from '../../syntax/Point';
 import Distance from '../../math/Distance';
 import {asSequence} from 'sequency';
@@ -10,7 +10,7 @@ import Display from '../../../entitySystem/component/Display';
 class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   constructor(
       private entities: Set<T>,
-      readonly entityExistenceUpdated: Phaser.Signal<ExistenceUpdatedEvent<T>>) {
+      readonly onStateChanged: Phaser.Signal<StateChanged<T>>) {
   }
 
   private static isDisplay(entity: any): entity is Display {

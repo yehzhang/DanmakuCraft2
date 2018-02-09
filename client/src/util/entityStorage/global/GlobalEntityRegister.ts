@@ -1,12 +1,11 @@
-import {ExistenceUpdatedEvent} from '../EntityFinder';
+import {StateChanged} from '../EntityFinder';
 import Iterator from '../../syntax/Iterator';
 import EntityRegister from '../EntityRegister';
 import {asSequence} from 'sequency';
 
 class GlobalEntityRegister<T> implements EntityRegister<T> {
   constructor(
-      private entities: Set<T>,
-      private entityRegistered: Phaser.Signal<ExistenceUpdatedEvent<T>>) {
+      private entities: Set<T>, private onStateChanged: Phaser.Signal<StateChanged<T>>) {
   }
 
   register(entity: T) {
@@ -16,7 +15,7 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
 
     this.entities.add(entity);
 
-    this.entityRegistered.dispatch(new ExistenceUpdatedEvent([entity]));
+    this.onStateChanged.dispatch(new StateChanged([entity]));
   }
 
   registerBatch(entities: Iterable<T>) {
@@ -28,7 +27,7 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
     if (addedEntities.length === 0) {
       return;
     }
-    this.entityRegistered.dispatch(new ExistenceUpdatedEvent(addedEntities));
+    this.onStateChanged.dispatch(new StateChanged(addedEntities));
   }
 
   deregister(entity: T) {
@@ -38,11 +37,7 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
       return;
     }
 
-    this.entityRegistered.dispatch(new ExistenceUpdatedEvent([], [entity]));
-  }
-
-  count() {
-    return this.entities.size;
+    this.onStateChanged.dispatch(new StateChanged([], [entity]));
   }
 
   [Symbol.iterator](): Iterator<T> {

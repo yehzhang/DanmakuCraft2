@@ -1,9 +1,9 @@
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
 import VisibilityEngineBuilder from './VisibilityEngineBuilder';
-import {Region} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import VisibilityEngine from './VisibilityEngine';
+import {Region} from '../../entitySystem/alias';
 
 export class OnOrBuildClause {
   constructor(protected builder: VisibilityEngineBuilder) {
@@ -100,20 +100,20 @@ class LiftVisibilitySystemSystem<T> implements VisibilitySystem<Region<T>> {
   constructor(private system: VisibilitySystem<T>) {
   }
 
-  enter(region: Region<T>) {
-    for (let entity of region.container) {
+  enter(container: Region<T>) {
+    for (let entity of container) {
       this.system.enter(entity);
     }
   }
 
-  update(region: Region<T>, time: Phaser.Time) {
-    for (let entity of region.container) {
+  update(container: Region<T>, time: Phaser.Time) {
+    for (let entity of container) {
       this.system.update(entity, time);
     }
   }
 
-  exit(region: Region<T>) {
-    for (let entity of region.container) {
+  exit(container: Region<T>) {
+    for (let entity of container) {
       this.system.exit(entity);
     }
   }

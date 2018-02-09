@@ -1,22 +1,23 @@
 import VisibilitySystem from './VisibilitySystem';
-import {DisplayableEntity, Region} from '../../alias';
+import {DisplayableEntity} from '../../alias';
 import {asSequence} from 'sequency';
 import Rectangle from '../../../util/syntax/Rectangle';
+import Container from '../../../util/entityStorage/Container';
 
 class CollisionDetectionSystem<T extends DisplayableEntity = DisplayableEntity>
-    implements VisibilitySystem<Region<T>> {
-  constructor(private currentRegions: Set<Region<T>> = new Set()) {
+    implements VisibilitySystem<Container<T>> {
+  constructor(private currentContainers: Set<Container<T>> = new Set()) {
   }
 
-  enter(region: Region<T>) {
-    this.currentRegions.add(region);
+  enter(container: Container<T>) {
+    this.currentContainers.add(container);
   }
 
-  update(region: Region<T>) {
+  update(container: Container<T>) {
   }
 
-  exit(region: Region<T>) {
-    this.currentRegions.delete(region);
+  exit(container: Container<T>) {
+    this.currentContainers.delete(container);
   }
 
   finish() {
@@ -38,9 +39,7 @@ class CollisionDetectionSystem<T extends DisplayableEntity = DisplayableEntity>
   }
 
   collidesIf(callback: (entity: DisplayableEntity) => boolean) {
-    return asSequence(this.currentRegions)
-        .flatMap(region => asSequence(region.container))
-        .any(callback);
+    return asSequence(this.currentContainers).flatten().any(callback);
   }
 }
 

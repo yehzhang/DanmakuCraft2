@@ -1,4 +1,4 @@
-import EntityFinder, {ExistenceUpdatedEvent} from '../../util/entityStorage/EntityFinder';
+import EntityFinder, {StateChanged} from '../../util/entityStorage/EntityFinder';
 import Entity from '../../entitySystem/Entity';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import VisibilityEngineBuilder from './VisibilityEngineBuilder';
@@ -9,6 +9,7 @@ import Distance from '../../util/math/Distance';
 import {asSequence, default as Sequence} from 'sequency';
 import SystemEngine from '../SystemEngine';
 import {Component} from '../../entitySystem/alias';
+import {leftOuterJoin} from '../../util/set';
 
 /**
  * Updates visibility of entities around an entity when it moves a certain distance.
@@ -22,8 +23,11 @@ class VisibilityEngine implements SystemEngine {
       private systemFinisher: SystemFinisher) {
   }
 
-  static newBuilder(trackee: Entity, samplingRadius: DynamicProvider<number>) {
-    let builder = new VisibilityEngineBuilder(trackee, samplingRadius);
+  static newBuilder(
+      trackee: Entity,
+      samplingRadius: DynamicProvider<number>,
+      updatingRadius: number) {
+    let builder = new VisibilityEngineBuilder(trackee, samplingRadius, updatingRadius);
     return new OnOrBuildClause(builder);
   }
 
@@ -67,7 +71,7 @@ export class EntityFinderRecordsSampler {
       private trackee: Entity,
       private samplingRadius: DynamicProvider<number>,
       private distanceChecker: DistanceChecker,
-      private currentCoordinate: Point = trackee.coordinates.clone()) {
+      private currentCoordinates: Point = trackee.coordinates.clone()) {
   }
 
   update(records: Array<EntityFinderRecord<Entity>>) {
@@ -79,7 +83,7 @@ export class EntityFinderRecordsSampler {
 
     this.samplingRadius.commitUpdate();
     if (updatedRecordsCount === records.length) {
-      this.currentCoordinate.copyFrom(nextCoordinates);
+      this.currentCoordinates.copyFrom(nextCoordinates);
     }
   }
 
@@ -87,7 +91,7 @@ export class EntityFinderRecordsSampler {
       records: Iterable<EntityFinderRecord<Entity>>, nextCoordinates: Point) {
     const sequence = asSequence(records);
 
-    if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinate)) {
+    if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinates)) {
       return sequence;
     }
 
@@ -103,21 +107,11 @@ export class EntityFinderRecord<T extends Entity> {
   constructor(
       private entityFinder: EntityFinder<T>,
       private distanceChecker: DistanceChecker,
-      private enteringEntitiesList: T[][] = [],
-      private exitingEntitiesList: T[][] = [],
-      public currentEntities: Set<T> = new Set(),
+      private enteringEntitiesList: Array<Iterable<T>> = [],
+      private exitingEntitiesList: Array<Iterable<T>> = [],
+      public currentEntities: ReadonlySet<T> = new Set(),
       private shouldUpdateEntities: boolean = true) {
-    entityFinder.entityExistenceUpdated.add(this.onEntityUpdated, this);
-  }
-
-  private static leftOuterJoin<T>(set: Iterable<T>, other: Set<T>): T[] {
-    let difference = [];
-    for (const element of set) {
-      if (!other.has(element)) {
-        difference.push(element);
-      }
-    }
-    return difference;
+    entityFinder.onStateChanged.add(this.onStateChanged, this);
   }
 
   shouldUpdate() {
@@ -125,17 +119,13 @@ export class EntityFinderRecord<T extends Entity> {
   }
 
   update(nextCoordinates: Point, samplingRadius: number) {
-    let nextEntities = new Set(this.entityFinder.listAround(nextCoordinates, samplingRadius));
-    const enteringEntities = EntityFinderRecord.leftOuterJoin(nextEntities, this.currentEntities);
-    const exitingEntities = EntityFinderRecord.leftOuterJoin(this.currentEntities, nextEntities);
+    const nextEntities = new Set(this.entityFinder.listAround(nextCoordinates, samplingRadius));
+    const enteringEntities = leftOuterJoin(nextEntities, this.currentEntities);
+    const exitingEntities = leftOuterJoin(this.currentEntities, nextEntities);
 
     this.currentEntities = nextEntities;
-    if (enteringEntities.length > 0) {
-      this.enteringEntitiesList.push(enteringEntities);
-    }
-    if (exitingEntities.length > 0) {
-      this.exitingEntitiesList.push(exitingEntities);
-    }
+    this.enteringEntitiesList.push(enteringEntities);
+    this.exitingEntitiesList.push(exitingEntities);
 
     this.shouldUpdateEntities = false;
   }
@@ -145,32 +135,32 @@ export class EntityFinderRecord<T extends Entity> {
   }
 
   fetchEnteringEntities(): Sequence<T> {
-    let enteringEntitiesList = this.enteringEntitiesList;
+    const enteringEntitiesList = this.enteringEntitiesList;
     this.enteringEntitiesList = [];
 
     return asSequence(enteringEntitiesList).flatten();
   }
 
   fetchExitingEntities(): Sequence<T> {
-    let exitingEntitiesList = this.exitingEntitiesList;
+    const exitingEntitiesList = this.exitingEntitiesList;
     this.exitingEntitiesList = [];
 
     return asSequence(exitingEntitiesList).flatten();
   }
 
-  private onEntityUpdated(existenceUpdated: ExistenceUpdatedEvent<T>) {
+  private onStateChanged(stateChanged: StateChanged<T>) {
     if (this.shouldUpdateEntities) {
       return;
     }
-    this.shouldUpdateEntities = this.shouldRecordUpdate(existenceUpdated);
+    this.shouldUpdateEntities = this.shouldRecordUpdate(stateChanged);
   }
 
-  private shouldRecordUpdate(existenceUpdated: ExistenceUpdatedEvent<T>) {
-    if (existenceUpdated.registeredEntities.some(
+  private shouldRecordUpdate(stateChanged: StateChanged<T>) {
+    if (stateChanged.registeredEntities.some(
             entity => this.distanceChecker.isInEnteringRadius(entity))) {
       return true;
     }
-    if (existenceUpdated.removedEntities.some(entity => this.currentEntities.has(entity))) {
+    if (stateChanged.removedEntities.some(entity => this.currentEntities.has(entity))) {
       return true;
     }
     return false;
@@ -226,18 +216,18 @@ export class SystemTicker<T = Component, U extends T & Entity = T & Entity> {
   }
 
   firstForwardTick(time: Phaser.Time) {
-    let entitiesCount = this.entityFinderRecord.fetchEnteringEntities()
+    let enteringEntities = this.entityFinderRecord.fetchEnteringEntities()
         .onEach(entity => {
           for (const system of this.systems) {
             system.enter(entity);
           }
         })
-        .count();
-    if (entitiesCount > 0) {
+        .toSet();
+    if (enteringEntities.size > 0) {
       this.isVisibilityChanged = true;
     }
 
-    for (const entity of this.entityFinderRecord.currentEntities) {
+    for (const entity of leftOuterJoin(this.entityFinderRecord.currentEntities, enteringEntities)) {
       for (const system of this.systems) {
         system.update(entity, time);
       }

@@ -119,7 +119,7 @@ class MainState extends Phaser.State {
     let commentsData = await Sleep.orError(1.5 * Phaser.Timer.MINUTE, commentsDataPromise);
     let dataChunks = asSequence(commentsData)
         .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
-        .chunk(100);
+        .chunk(20);
     for await (let dataChunk of IntermittentIterable.of(dataChunks)) {
       this.universe.commentLoader.loadBatch(dataChunk, false);
     }
@@ -127,7 +127,7 @@ class MainState extends Phaser.State {
     this.updatables.add(this.universe.engineCap);
     this.renderables.add(this.universe.engineCap);
     // Wait for engines to initialize before starting animations.
-    await Sleep.moment();
+    await Sleep.break();
 
     await Promise.all([
       this.scene.showCompletedLoadingStatus(),

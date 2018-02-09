@@ -3,13 +3,15 @@ import {Phaser} from './util/alias/phaser';
 class PhysicalConstants {
   public static readonly WORLD_SIZE = 40000;
 
-  public static readonly COMMENT_CHUNKS_COUNT = 50;
-  public static readonly UPDATING_COMMENT_CHUNKS_COUNT = 20;
-  public static readonly CHUNK_SIZE =
-      PhysicalConstants.WORLD_SIZE / PhysicalConstants.COMMENT_CHUNKS_COUNT;
-
   public static readonly BACKGROUND_SAMPLING_RADIUS = 3100;
-  public static readonly ENTITY_TRACKER_UPDATE_RADIUS = PhysicalConstants.CHUNK_SIZE;
+  public static readonly BACKGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS = 600;
+  public static readonly FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS = 200;
+
+  public static readonly COMMENT_CHUNKS_COUNT = 100;
+  public static readonly QUADTREE_MAX_DEPTH =
+      Math.floor(Math.log2(PhysicalConstants.WORLD_SIZE / PhysicalConstants.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS * 2));
+  public static readonly UPDATING_COMMENT_CHUNKS_COUNT = 100;
+  public static readonly QUADTREE_MAX_VALUES_COUNT = 7;
 
   public static readonly PLAYER_MOVE_PIXELS_PER_SECOND = 216;
 
@@ -24,7 +26,7 @@ class PhysicalConstants {
 
   public static getRenderRadius(gameWidth: number, gameHeight: number): number {
     return Math.ceil(Math.max(gameWidth, gameHeight) / 2
-        + this.ENTITY_TRACKER_UPDATE_RADIUS
+        + this.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS
         + 200); // TODO handle comments protruding from a chunk
   }
 }

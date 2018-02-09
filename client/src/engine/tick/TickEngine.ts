@@ -2,6 +2,7 @@ import SystemEngine from '../SystemEngine';
 import TickSystem from '../../entitySystem/system/tick/TickSystem';
 import {OnOrBuildClause} from './tickEngineBuilderLanguage';
 import TickEngineBuilder from './TickEngineBuilder';
+import {asSequence} from 'sequency';
 
 class TickEngine implements SystemEngine {
   constructor(private onUpdateTickers: Ticker[], private onRenderTickers: Ticker[]) {
@@ -18,9 +19,7 @@ class TickEngine implements SystemEngine {
   }
 
   updateEnd(time: Phaser.Time) {
-    for (let ticker of this.onUpdateTickers) {
-      ticker.tickEnd(time);
-    }
+    asSequence(this.onUpdateTickers).reverse().forEach(ticker => ticker.tickEnd(time));
   }
 
   renderBegin(time: Phaser.Time) {
@@ -30,9 +29,7 @@ class TickEngine implements SystemEngine {
   }
 
   renderEnd(time: Phaser.Time) {
-    for (let ticker of this.onRenderTickers) {
-      ticker.tickEnd(time);
-    }
+    asSequence(this.onRenderTickers).reverse().forEach(ticker => ticker.tickEnd(time));
   }
 }
 

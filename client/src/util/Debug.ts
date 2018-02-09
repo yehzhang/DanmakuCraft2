@@ -16,6 +16,8 @@ import {DisplayableEntity, Player} from '../entitySystem/alias';
 import {Phaser} from './alias/phaser';
 import Sleep from './async/Sleep';
 import Nudge from '../entitySystem/component/Nudge';
+import {Leaf} from './entityStorage/quadtree/Quadtree';
+import EntityFinder from './entityStorage/EntityFinder';
 
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -150,6 +152,16 @@ class Debug {
     return;
   }
 
+  get treeDepths() {
+    const depthsMap = asSequence(this.universe.commentsStorage.getFinder() as EntityFinder<Leaf<any>>)
+        .map(n => n['depth'])
+        .groupBy(n => n);
+    return asSequence(depthsMap)
+        .sortedBy(([k]) => k)
+        .map(([k, v]) => `${k}: ${v.length}`)
+        .toArray();
+  }
+
   static set(universe: Universe) {
     Object.assign(window, universe, {
       universe,
@@ -216,6 +228,12 @@ class Debug {
       }
       this.debugInfo.line('Sign', closestSign.coordinates, note);
     }
+
+    const [foregroundEngine, backgroundEngine] = this.universe.visibility['engines'];
+    this.debugInfo.line(
+        `Foreground updated at`, foregroundEngine['sampler']['currentCoordinates']);
+    this.debugInfo.line(
+        `Background updated at`, backgroundEngine['sampler']['currentCoordinates']);
 
     let previewEntity = (this.universe.proxy.getCommentPlacingPolicy() as any)['previewEntity'];
     if (previewEntity != null) {

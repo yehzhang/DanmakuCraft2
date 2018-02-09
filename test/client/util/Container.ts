@@ -34,9 +34,6 @@ describe('SetContainer', () => {
   it('container is immutable', () => {
     container.add(entities[0]);
     expect(container.count()).to.equal(0);
-
-    container.addAll(entities);
-    expect(container.count()).to.equal(0);
   });
 
   it('add() discards duplicate entities', () => {

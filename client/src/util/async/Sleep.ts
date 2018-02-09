@@ -12,6 +12,11 @@ class Sleep {
     return this.after(0);
   }
 
+  static async break() {
+    await this.moment();
+    await this.moment();
+  }
+
   static async orError<T>(duration: number, promise: Promise<T>): Promise<T> {
     let sleepPromise = this.after(duration);
     let value = await Promise.race([sleepPromise.then(() => this.TIMEOUT_VALUE), promise]);

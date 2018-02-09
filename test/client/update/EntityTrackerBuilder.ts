@@ -42,8 +42,8 @@ describe('VisibilityEngineBuilder', () => {
       mock(ChunkEntityFinder)];
     entityFinders = mockEntityFinders.map(instance);
 
-    when(mockEntityFinders[0].entityExistenceUpdated).thenReturn(new Phaser.Signal());
-    when(mockEntityFinders[1].entityExistenceUpdated).thenReturn(new Phaser.Signal());
+    when(mockEntityFinders[0].onStateChanged).thenReturn(new Phaser.Signal());
+    when(mockEntityFinders[1].onStateChanged).thenReturn(new Phaser.Signal());
     when(mockTrackee.coordinates).thenReturn(Point.origin());
 
     builder = new VisibilityEngineBuilder(instance(mockTrackee), new DynamicProvider(0))

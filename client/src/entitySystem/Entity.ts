@@ -1,8 +1,11 @@
 import {Component} from './alias';
 import Coordinates from './component/Coordinates';
+import Point from '../util/syntax/Point';
 
-abstract class Entity extends Coordinates {
-  static newBuilder<T extends Component = {}>(): EntityBuilder<T> {
+abstract class Entity implements Coordinates {
+  abstract readonly coordinates: Point;
+
+  static newBuilder(): EntityBuilder<{}> {
     return new EntityBuilder();
   }
 }

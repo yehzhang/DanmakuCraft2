@@ -1,5 +1,10 @@
 import {
-  ChestEntity, CommentEntity, Player, Region, SignEntity, StationaryEntity,
+  ChestEntity,
+  CommentEntity,
+  DisplayableRegion,
+  Player,
+  SignEntity,
+  StationaryEntity,
   UpdatingCommentEntity
 } from './alias';
 import CommentData from '../comment/CommentData';
@@ -17,7 +22,7 @@ interface EntityFactory {
   createRegion<T>(
       coordinates: Point,
       container?: ImmutableContainer<T>,
-      display?: PIXI.DisplayObjectContainer): Region<T>;
+      display?: PIXI.DisplayObjectContainer): DisplayableRegion<T>;
 
   createChest(coordinates: Point): ChestEntity;
 

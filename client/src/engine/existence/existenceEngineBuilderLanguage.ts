@@ -1,9 +1,9 @@
 import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
-import {Region} from '../../entitySystem/alias';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
 import Entity from '../../entitySystem/Entity';
 import ExistenceEngineBuilder from './ExistenceEngineBuilder';
 import ExistenceEngine from './ExistenceEngine';
+import Container from '../../util/entityStorage/Container';
 
 export class OnOrBuildClause {
   constructor(protected builder: ExistenceEngineBuilder) {
@@ -38,7 +38,7 @@ class ToClause<T> {
       private isOnUpdate: boolean) {
   }
 
-  toChildren(): OfClause<Region<T>, T> {
+  toChildren(): OfClause<Container<T>, T> {
     let systemLifter = new SystemLifter(this.system, this.system);
     return this.createOfClause(systemLifter.lifted());
   }
@@ -74,7 +74,7 @@ class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
     super(builder, isOnUpdate);
   }
 
-  toChildren(): OfClause<Region<U>, U> {
+  toChildren(): OfClause<Container<U>, U> {
     return this.createOriginalToClause().toChildren();
   }
 
@@ -96,18 +96,18 @@ class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
   }
 }
 
-class LiftExistenceSystemSystem<T> implements ExistenceSystem<Region<T>> {
+class LiftExistenceSystemSystem<T> implements ExistenceSystem<Container<T>> {
   constructor(private system: ExistenceSystem<T>) {
   }
 
-  adopt(region: Region<T>) {
-    for (let entity of region.container) {
+  adopt(region: Container<T>) {
+    for (let entity of region) {
       this.system.adopt(entity);
     }
   }
 
-  abandon(region: Region<T>) {
-    for (let entity of region.container) {
+  abandon(region: Container<T>) {
+    for (let entity of region) {
       this.system.abandon(entity);
     }
   }
@@ -119,7 +119,7 @@ class SystemLifter<T, U> {
       private originalSystem: ExistenceSystem<U>) {
   }
 
-  lifted(): SystemLifter<Region<T>, U> {
+  lifted(): SystemLifter<Container<T>, U> {
     return new SystemLifter(new LiftExistenceSystemSystem(this.liftedSystem), this.originalSystem);
   }
 

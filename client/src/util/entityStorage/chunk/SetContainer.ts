@@ -1,32 +1,23 @@
-import ImmutableContainer from '../ImmutableContainer';
 import Iterator from '../../syntax/Iterator';
+import ImmutableContainer from '../ImmutableContainer';
 
 class SetContainer<T> implements ImmutableContainer<T> {
-  constructor(private items: Set<T> = new Set()) {
+  constructor(private values: Set<T> = new Set()) {
   }
 
   add(item: T) {
-    let newItems = new Set(this.items);
+    let newItems = new Set(this.values);
     newItems.add(item);
 
     return new SetContainer(newItems);
   }
 
-  addAll(items: T[]) {
-    let newItems = new Set(this.items);
-    for (let item of items) {
-      newItems.add(item);
-    }
-
-    return new SetContainer(newItems);
-  }
-
   count() {
-    return this.items.size;
+    return this.values.size;
   }
 
   [Symbol.iterator]() {
-    return Iterator.of(this.items);
+    return Iterator.of(this.values);
   }
 }
 

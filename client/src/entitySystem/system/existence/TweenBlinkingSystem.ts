@@ -18,7 +18,6 @@ class TweenBlinkingSystem implements ExistenceSystem<Target> {
     }
 
     entity.setBlink(this.blink(entity.display));
-    entity.display.visible = false;  // so that it does not appear in cached displays.
   }
 
   abandon() {

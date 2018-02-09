@@ -7,7 +7,6 @@ import InputController from './input/InputController';
 import GraphicsFactory from './render/graphics/GraphicsFactory';
 import CommentLoader from './comment/CommentLoader';
 import AdapterFactory from './environment/AdapterFactory';
-import PhysicalConstants from './PhysicalConstants';
 import BuffDataContainer from './entitySystem/system/buff/BuffDataContainer';
 import {
   ChestEntity,
@@ -41,7 +40,7 @@ import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
 import Entity from './entitySystem/Entity';
 import HardCodedPreset from './preset/HardCodedPreset';
 import CommentPlacingPolicy from './environment/interface/CommentPlacingPolicy';
-import {default as EngineCap} from './engine/EngineCap';
+import EngineCap from './engine/EngineCap';
 import SystemEnginesEngine from './engine/SystemEnginesEngine';
 import Tick from './engine/tick/Tick';
 
@@ -86,8 +85,8 @@ class Universe {
 
     this.buffFactory = new BuffFactoryImpl(game, this.inputController, this.lawFactory);
 
-    let randomDataGenerator = new Phaser.RandomDataGenerator([new Date()]);
-    let settingsManager = adapter.getSettingsManager();
+    const randomDataGenerator = new Phaser.RandomDataGenerator([new Date()]);
+    const settingsManager = adapter.getSettingsManager();
     this.graphicsFactory = new GraphicsFactoryImpl(
         game,
         randomDataGenerator,
@@ -97,16 +96,14 @@ class Universe {
     this.entityFactory = new EntityFactoryImpl(game, this.graphicsFactory, this.buffFactory);
 
     this.entityStorageFactory = new EntityStorageFactoryImpl(this.entityFactory);
-    this.commentsStorage =
-        this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.COMMENT_CHUNKS_COUNT);
-    this.updatingCommentsStorage =
-        this.entityStorageFactory.createChunkEntityStorage(PhysicalConstants.UPDATING_COMMENT_CHUNKS_COUNT);
+    this.commentsStorage = this.entityStorageFactory.createQuadtreeEntityStorage();
+    this.updatingCommentsStorage = this.entityStorageFactory.createQuadtreeEntityStorage();
     this.playersStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.chestsStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.spawnPointsStorage = this.entityStorageFactory.createGlobalEntityStorage();
     this.signsStorage = this.entityStorageFactory.createGlobalEntityStorage();
 
-    let preset = new HardCodedPreset(this.entityFactory, this.graphicsFactory);
+    const preset = new HardCodedPreset(this.entityFactory, this.graphicsFactory);
     preset.populateSigns(this.signsStorage.getRegister());
     preset.populateSpawnPoints(
         this.spawnPointsStorage.getRegister(), this.signsStorage.getRegister());
@@ -114,7 +111,7 @@ class Universe {
     this.player = this.entityFactory.createPlayer(preset.getPlayerSpawnPoint());
     this.playersStorage.getRegister().register(this.player);
 
-    let notifierFactory = new NotifierFactoryImpl(game, this.graphicsFactory);
+    const notifierFactory = new NotifierFactoryImpl(game, this.graphicsFactory);
     this.notifier = notifierFactory.createPoppingNotifier(this.player.display);
 
     this.renderer = new Renderer(game).turnOff();
@@ -129,7 +126,7 @@ class Universe {
         this.entityFactory,
         this.buffDataApplier);
 
-    let systemFactory = new SystemFactoryImpl(
+    const systemFactory = new SystemFactoryImpl(
         this.game,
         this.lawFactory,
         this.player,
@@ -173,15 +170,15 @@ class Universe {
 
     hasGenesis = true;
 
-    let adapterFactory = new AdapterFactory();
-    let adapter = adapterFactory.createAdapter();
-    let gameContainer = adapter.getGameContainerProvider().getContainerId();
-    let game = new Phaser.Game(0, 0, Phaser.AUTO, gameContainer, null);
+    const adapterFactory = new AdapterFactory();
+    const adapter = adapterFactory.createAdapter();
+    const gameContainer = adapter.getGameContainerProvider().getContainerId();
+    const game = new Phaser.Game(0, 0, Phaser.AUTO, gameContainer, null);
 
     game.state.add('MainState', new MainState(() => {
-      let universe = new Universe(game, adapter);
+      const universe = new Universe(game, adapter);
 
-      let proxy = universe.getProxy();
+      const proxy = universe.getProxy();
       adapter.setProxy(proxy);
 
       return universe;
@@ -204,4 +201,4 @@ class Universe {
 
 export default Universe;
 
-let hasGenesis: boolean = false;
+let hasGenesis = false;

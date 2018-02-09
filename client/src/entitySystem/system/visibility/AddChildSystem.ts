@@ -27,9 +27,11 @@ class AddChildSystem implements VisibilitySystem<Display> {
   }
 
   finish() {
-    if (this.container.cacheAsBitmap) {
-      this.container.updateCache();
-    }
+    // If a display is cached it should never be updated.
+    // Uncomment this statement to update cached display anyway.
+    // if (this.container.cacheAsBitmap) {
+    //   this.container.updateCache();
+    // }
   }
 }
 

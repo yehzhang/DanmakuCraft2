@@ -1,19 +1,24 @@
-import {DisplayableEntity, Region} from '../../alias';
+import {DisplayableEntity, DisplayableRegion} from '../../alias';
 import ExistenceSystem from './ExistenceSystem';
+import {toWorldCoordinateOffset2d} from '../../../law/space';
+import PhysicalConstants from '../../../PhysicalConstants';
 
-class AddChildToRegionSystem implements ExistenceSystem<Region<DisplayableEntity>> {
-  static adopt<T extends DisplayableEntity>(entity: T, region: Region<T>) {
-    entity.display.position = entity.asOffsetTo(region.coordinates);
+class AddChildToRegionSystem implements ExistenceSystem<DisplayableRegion<DisplayableEntity>> {
+  static adopt<T extends DisplayableEntity>(entity: T, region: DisplayableRegion<T>) {
+    entity.display.position = toWorldCoordinateOffset2d(
+        entity.coordinates,
+        region.coordinates,
+        PhysicalConstants.WORLD_SIZE);
     region.display.addChild(entity.display);
   }
 
-  adopt(region: Region<DisplayableEntity>) {
-    for (let entity of region.container) {
+  adopt(region: DisplayableRegion<DisplayableEntity>) {
+    for (let entity of region) {
       AddChildToRegionSystem.adopt(entity, region);
     }
   }
 
-  abandon(region: Region<DisplayableEntity>) {
+  abandon(region: DisplayableRegion<DisplayableEntity>) {
   }
 }
 

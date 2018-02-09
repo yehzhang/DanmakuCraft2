@@ -1,4 +1,4 @@
-import {CommentEntity, Region} from '../../alias';
+import {CommentEntity} from '../../alias';
 import VisibilitySystem from './VisibilitySystem';
 import Point from '../../../util/syntax/Point';
 import Colors from '../../../render/Colors';
@@ -9,7 +9,7 @@ import {Phaser} from '../../../util/alias/phaser';
 import Entity from '../../Entity';
 import Container from '../../../util/entityStorage/Container';
 
-class BackgroundColorSystem implements VisibilitySystem<Region<CommentEntity>> {
+class BackgroundColorSystem implements VisibilitySystem<CommentEntity> {
   private baseColor: Phaser.RGBColor;
 
   constructor(
@@ -29,19 +29,15 @@ class BackgroundColorSystem implements VisibilitySystem<Region<CommentEntity>> {
         Phaser.Color.blendMultiply(rgb.b, other.b));
   }
 
-  enter(region: Region<CommentEntity>) {
-    for (let entity of region.container) {
-      this.colorMixer.add(entity.color);
-    }
+  enter(comment: CommentEntity) {
+    this.colorMixer.add(comment.color);
   }
 
-  update(region: Region<CommentEntity>) {
+  update(comment: CommentEntity) {
   }
 
-  exit(region: Region<CommentEntity>) {
-    for (let entity of region.container) {
-      this.colorMixer.remove(entity.color);
-    }
+  exit(comment: CommentEntity) {
+    this.colorMixer.remove(comment.color);
   }
 
   finish() {

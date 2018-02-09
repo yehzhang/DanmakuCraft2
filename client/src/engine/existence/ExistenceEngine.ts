@@ -1,5 +1,5 @@
 import ExistenceEngineBuilder from './ExistenceEngineBuilder';
-import EntityFinder, {ExistenceUpdatedEvent} from '../../util/entityStorage/EntityFinder';
+import EntityFinder, {StateChanged} from '../../util/entityStorage/EntityFinder';
 import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
 import Entity from '../../entitySystem/Entity';
 import {Component} from '../../entitySystem/alias';
@@ -32,11 +32,11 @@ class ExistenceEngine implements SystemEngine {
   }
 
   updateEnd(time: Phaser.Time) {
-    ExistenceEngine.tickRelationsForward(this.onRenderRelations);
+    ExistenceEngine.tickRelationsBackward(this.onUpdateRelations);
   }
 
   renderBegin(time: Phaser.Time) {
-    ExistenceEngine.tickRelationsBackward(this.onUpdateRelations);
+    ExistenceEngine.tickRelationsForward(this.onRenderRelations);
   }
 
   renderEnd(time: Phaser.Time) {
@@ -50,12 +50,12 @@ export class ExistenceRelation<T = Component, U extends T & Entity = T & Entity>
   constructor(
       private system: ExistenceSystem<T>,
       private entityFinder: EntityFinder<U>,
-      private enteringEntitiesList: U[][] = [],
-      private exitingEntitiesList: U[][] = []) {
+      private enteringEntitiesList: Array<ReadonlyArray<T>> = [],
+      private exitingEntitiesList: Array<ReadonlyArray<T>> = []) {
     for (let entity of this.entityFinder) {
       this.system.adopt(entity);
     }
-    this.entityFinder.entityExistenceUpdated.add(this.onEntityExistenceUpdated, this);
+    this.entityFinder.onStateChanged.add(this.onStateChanged, this);
   }
 
   forwardTick() {
@@ -68,8 +68,8 @@ export class ExistenceRelation<T = Component, U extends T & Entity = T & Entity>
     this.exitingEntitiesList.length = 0;
   }
 
-  private onEntityExistenceUpdated(existenceUpdated: ExistenceUpdatedEvent<U>) {
-    this.enteringEntitiesList.push(existenceUpdated.registeredEntities);
-    this.exitingEntitiesList.push(existenceUpdated.removedEntities);
+  private onStateChanged(stateChanged: StateChanged<U>) {
+    this.enteringEntitiesList.push(stateChanged.registeredEntities);
+    this.exitingEntitiesList.push(stateChanged.removedEntities);
   }
 }

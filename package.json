@@ -47,6 +47,7 @@
     "app-root-path": "^2.0.1",
     "canvas": "^1.6.9",
     "chai": "^4.1.2",
+    "chai-shallow-deep-equal": "^1.4.6",
     "expose-loader": "^0.7.3",
     "jsdom": "^11.5.1",
     "mocha": "^4.0.1",

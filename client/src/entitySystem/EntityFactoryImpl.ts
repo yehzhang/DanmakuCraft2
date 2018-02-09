@@ -1,5 +1,5 @@
 import EntityFactory from './EntityFactory';
-import {Region, UpdatingCommentEntity} from './alias';
+import {UpdatingCommentEntity} from './alias';
 import CommentData from '../comment/CommentData';
 import Comment from './component/Comment';
 import Entity from './Entity';
@@ -13,7 +13,6 @@ import MovingAnimation from './component/MovingAnimation';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import Point from '../util/syntax/Point';
 import SetContainer from '../util/entityStorage/chunk/SetContainer';
-import ContainerHolder from './component/ContainerHolder';
 import Chest from './component/Chest';
 import {Phaser, PIXI} from '../util/alias/phaser';
 import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
@@ -32,9 +31,9 @@ class EntityFactoryImpl implements EntityFactory {
       coordinates: Point,
       container: ImmutableContainer<T> = new SetContainer<T>(),
       display: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
-    return Entity.newBuilder<Region<T>>()
+    return Entity.newBuilder()
         .mix(new ImmutableCoordinates(coordinates))
-        .mix(new ContainerHolder(container))
+        .mix(container)
         .mix(new Display(display))
         .build();
   }

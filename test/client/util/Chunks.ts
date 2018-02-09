@@ -96,21 +96,21 @@ describe('Chunks', () => {
 
   it('listChunksInBounds() works', () => {
     expect(chunks.listChunksInBounds(Rectangle.empty())).to.deep.equal([]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, 0, 1))).to.deep.equal([]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, 1, 0))).to.deep.equal([]);
+    expect(chunks.listChunksInBounds(Rectangle.sized(0, 1))).to.deep.equal([]);
+    expect(chunks.listChunksInBounds(Rectangle.sized(1, 0))).to.deep.equal([]);
 
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, 1, 1))).to.have.members([chunkAt(0, 0)]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, 2, 2))).to.have.members([chunkAt(0, 0)]);
+    expect(chunks.listChunksInBounds(Rectangle.sized(1, 1))).to.have.members([chunkAt(0, 0)]);
+    expect(chunks.listChunksInBounds(Rectangle.sized(2, 2))).to.have.members([chunkAt(0, 0)]);
 
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, CHUNKS_SIZE - 1, 1)))
+    expect(chunks.listChunksInBounds(Rectangle.sized(CHUNKS_SIZE - 1, 1)))
         .to.have.members([chunkAt(0, 0)]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, 1, CHUNKS_SIZE - 1)))
+    expect(chunks.listChunksInBounds(Rectangle.sized(1, CHUNKS_SIZE - 1)))
         .to.have.members([chunkAt(0, 0)]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, CHUNKS_SIZE, 1)))
+    expect(chunks.listChunksInBounds(Rectangle.sized(CHUNKS_SIZE, 1)))
         .to.have.members([chunkAt(0, 0), chunkAt(1, 0)]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, 1, CHUNKS_SIZE)))
+    expect(chunks.listChunksInBounds(Rectangle.sized(1, CHUNKS_SIZE)))
         .to.have.members([chunkAt(0, 0), chunkAt(0, 1)]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, CHUNKS_SIZE, CHUNKS_SIZE)))
+    expect(chunks.listChunksInBounds(Rectangle.sized(CHUNKS_SIZE, CHUNKS_SIZE)))
         .to.have.members([chunkAt(0, 0), chunkAt(0, 1), chunkAt(1, 0), chunkAt(1, 1)]);
 
     expect(chunks.listChunksInBounds(Rectangle.of(1, 0, CHUNKS_SIZE - 1, 1)))
@@ -120,9 +120,9 @@ describe('Chunks', () => {
     expect(chunks.listChunksInBounds(Rectangle.of(CHUNKS_SIZE, 0, 1, 1)))
         .to.have.members([chunkAt(1, 0)]);
 
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, CHUNKS_SIZE * 2 - 1, CHUNKS_SIZE)))
+    expect(chunks.listChunksInBounds(Rectangle.sized(CHUNKS_SIZE * 2 - 1, CHUNKS_SIZE)))
         .to.have.members([chunkAt(0, 0), chunkAt(0, 1), chunkAt(1, 0), chunkAt(1, 1)]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, CHUNKS_SIZE * 2, CHUNKS_SIZE))).to.have
+    expect(chunks.listChunksInBounds(Rectangle.sized(CHUNKS_SIZE * 2, CHUNKS_SIZE))).to.have
         .members([
           chunkAt(0, 0),
           chunkAt(0, 1),
@@ -130,7 +130,7 @@ describe('Chunks', () => {
           chunkAt(1, 1),
           chunkAt(2, 0),
           chunkAt(2, 1)]);
-    expect(chunks.listChunksInBounds(Rectangle.of(0, 0, CHUNKS_SIZE * 2, CHUNKS_SIZE * 2))).to.have
+    expect(chunks.listChunksInBounds(Rectangle.sized(CHUNKS_SIZE * 2, CHUNKS_SIZE * 2))).to.have
         .members([
           chunkAt(0, 0),
           chunkAt(0, 1),
@@ -210,12 +210,12 @@ describe('Chunks', () => {
   });
 
   it('listChunksInBounds() validates arguments', () => {
-    expect(() => chunks.listChunksInBounds(Rectangle.of(0, 0, -1, 0))).to.throw();
-    expect(() => chunks.listChunksInBounds(Rectangle.of(0, 0, 0, -1))).to.throw();
+    expect(() => chunks.listChunksInBounds(Rectangle.sized(-1, 0))).to.throw();
+    expect(() => chunks.listChunksInBounds(Rectangle.sized(0, -1))).to.throw();
 
     expect(() => chunks.listChunksInBounds(
-        Rectangle.of(0, 0, PhysicalConstants.WORLD_SIZE + 1, 1))).to.throw();
+        Rectangle.sized(PhysicalConstants.WORLD_SIZE + 1, 1))).to.throw();
     expect(() => chunks.listChunksInBounds(
-        Rectangle.of(0, 0, PhysicalConstants.WORLD_SIZE + 1, 0))).to.throw();
+        Rectangle.sized(PhysicalConstants.WORLD_SIZE + 1, 0))).to.throw();
   });
 });

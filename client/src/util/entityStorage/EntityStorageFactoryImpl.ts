@@ -1,8 +1,7 @@
 import EntityStorageFactory from './EntityStorageFactory';
 import Point from '../syntax/Point';
 import EntityFactory from '../../entitySystem/EntityFactory';
-import {Region, StationaryEntity} from '../../entitySystem/alias';
-import EntityStorage from './EntityStorage';
+import {DisplayableRegion, Region, StationaryEntity} from '../../entitySystem/alias';
 import ChunkEntityRegister from './chunk/ChunkEntityRegister';
 import Chunks from './chunk/Chunks';
 import ChunkEntityFinder from './chunk/ChunkEntityFinder';
@@ -10,45 +9,48 @@ import EntityStorageImpl from './EntityStorageImpl';
 import PhysicalConstants from '../../PhysicalConstants';
 import GlobalEntityRegister from './global/GlobalEntityRegister';
 import GlobalEntityFinder from './global/GlobalEntityFinder';
-import {ExistenceUpdatedEvent} from './EntityFinder';
+import {StateChanged} from './EntityFinder';
 import {Phaser} from '../alias/phaser';
 import Entity from '../../entitySystem/Entity';
+import QuadTreeEntityRegister from './quadtree/QuadtreeEntityRegister';
+import QuadTreeEntityFinder from './quadtree/QuadtreeEntityFinder';
+import Quadtree from './quadtree/Quadtree';
 
 class EntityStorageFactoryImpl implements EntityStorageFactory {
   constructor(private entityFactory: EntityFactory) {
   }
 
   createChunkEntityStorage<T extends StationaryEntity>(
-      chunksCount: number): EntityStorage<T, Region<T>> {
+      chunksCount: number = PhysicalConstants.COMMENT_CHUNKS_COUNT) {
     chunksCount = Math.floor(chunksCount);
     if (!(chunksCount > 0)) {
       throw new TypeError('Invalid chunks count');
     }
 
-    let chunks = this.createChunks<T>(chunksCount);
-    let entityUpdated = new Phaser.Signal<ExistenceUpdatedEvent<Region<T>>>();
-    let entityRegister = new ChunkEntityRegister<T>(chunks, entityUpdated, this.entityFactory);
+    const chunks = this.createChunks<T>(chunksCount);
+    const onStateChanged = new Phaser.Signal<StateChanged<DisplayableRegion<T>>>();
+    const entityRegister = new ChunkEntityRegister<T>(chunks, onStateChanged, this.entityFactory);
 
-    let entityFinder = new ChunkEntityFinder(chunks, entityUpdated);
-
-    return new EntityStorageImpl(entityRegister, entityFinder);
-  }
-
-  createGlobalEntityStorage<T extends Entity>(): EntityStorage<T> {
-    let entities: Set<T> = new Set();
-    let entityUpdated = new Phaser.Signal<ExistenceUpdatedEvent<T>>();
-    let entityRegister = new GlobalEntityRegister(entities, entityUpdated);
-
-    let entityFinder = new GlobalEntityFinder(entities, entityUpdated);
+    const entityFinder = new ChunkEntityFinder(chunks, onStateChanged);
 
     return new EntityStorageImpl(entityRegister, entityFinder);
   }
 
-  createChunks<T>(chunksCount: number): Chunks<Region<T>> {
-    let chunkSize = PhysicalConstants.WORLD_SIZE / chunksCount;
+  createGlobalEntityStorage<T extends Entity>() {
+    const entities: Set<T> = new Set();
+    const onStateChanged = new Phaser.Signal<StateChanged<T>>();
+    const entityRegister = new GlobalEntityRegister(entities, onStateChanged);
 
-    let chunks = [];
-    let coordinates = Point.origin();
+    const entityFinder = new GlobalEntityFinder(entities, onStateChanged);
+
+    return new EntityStorageImpl(entityRegister, entityFinder);
+  }
+
+  createChunks<T>(chunksCount: number = PhysicalConstants.COMMENT_CHUNKS_COUNT): Chunks<DisplayableRegion<T>> {
+    const chunkSize = PhysicalConstants.WORLD_SIZE / chunksCount;
+
+    const chunks = [];
+    const coordinates = Point.origin();
     for (let y = 0; y < chunksCount; y++) {
       coordinates.y = y * chunkSize;
       let chunksRow = [];
@@ -62,6 +64,18 @@ class EntityStorageFactoryImpl implements EntityStorageFactory {
     }
 
     return new Chunks(chunks, chunkSize);
+  }
+
+  createQuadtreeEntityStorage<T extends StationaryEntity>(
+      maxValuesCount: number = PhysicalConstants.QUADTREE_MAX_VALUES_COUNT,
+      maxDepth: number = PhysicalConstants.QUADTREE_MAX_DEPTH) {
+    const tree = Quadtree.empty<T>(maxValuesCount, maxDepth);
+    const onStateChanged = new Phaser.Signal<StateChanged<Region<T>>>();
+    const entityRegister = new QuadTreeEntityRegister(tree, onStateChanged);
+
+    const entityFinder = new QuadTreeEntityFinder(tree, onStateChanged);
+
+    return new EntityStorageImpl(entityRegister, entityFinder);
   }
 }
 

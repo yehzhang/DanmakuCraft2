@@ -1,7 +1,7 @@
-import Coordinates from './Coordinates';
 import {throwNominalTypePlaceholderError} from '../../util/nominalType';
+import CoordinatesBase from './CoordinatesBase';
 
-class ImmutableCoordinates extends Coordinates {
+class ImmutableCoordinates extends CoordinatesBase {
   __ImmutableCoordinates__() {
     return throwNominalTypePlaceholderError();
   }
