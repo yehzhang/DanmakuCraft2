@@ -2,7 +2,6 @@ import socketIOClient = require('socket.io-client');
 import SailsIOJS = require('sails.io.js');
 import ConfigProvider from '../../config/ConfigProvider';
 import Response, {ErrorResponse} from './Response';
-import Texts from '../../../render/Texts';
 
 const io = SailsIOJS(socketIOClient);
 io.sails.autoConnect = false;
@@ -31,7 +30,7 @@ class Socket {
     try {
       this.checkConnection();
     } catch {
-      return new ErrorResponse(Texts.forName('main.socket.connectBroken'));
+      return new ErrorResponse('Failed to establish socket connection.');
     }
 
     let message = await new Promise(
@@ -43,7 +42,7 @@ class Socket {
     try {
       this.checkConnection();
     } catch {
-      return new ErrorResponse(Texts.forName('main.socket.connectBroken'));
+      return new ErrorResponse('Failed to establish socket connection.');
     }
 
     let message = await new Promise(
