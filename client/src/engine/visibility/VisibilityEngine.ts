@@ -75,13 +75,16 @@ export class EntityFinderRecordsSampler {
   }
 
   update(records: Array<EntityFinderRecord<Entity>>) {
-    let nextCoordinates = this.trackee.coordinates;
-    let samplingRadius = this.samplingRadius.getValue();
-    let updatedRecordsCount = this.getEntityFinderRecordsToUpdate(records, nextCoordinates)
+    const nextCoordinates = this.trackee.coordinates;
+    const samplingRadius = this.samplingRadius.getValue();
+    const updatedRecordsCount = this.getEntityFinderRecordsToUpdate(records, nextCoordinates)
         .onEach(record => record.update(nextCoordinates, samplingRadius))
         .count(record => record.hasUpdate());
 
-    this.samplingRadius.commitUpdate();
+    if (this.samplingRadius.hasUpdate()) {
+      this.distanceChecker.updateDistance(samplingRadius);
+      this.samplingRadius.commitUpdate();
+    }
     if (updatedRecordsCount === records.length) {
       this.currentCoordinates.copyFrom(nextCoordinates);
     }
@@ -107,6 +110,7 @@ export class EntityFinderRecord<T extends Entity> {
   constructor(
       private entityFinder: EntityFinder<T>,
       private distanceChecker: DistanceChecker,
+      private currentCoordinates: Point = Point.origin(),
       private enteringEntitiesList: Array<Iterable<T>> = [],
       private exitingEntitiesList: Array<Iterable<T>> = [],
       public currentEntities: ReadonlySet<T> = new Set(),
@@ -126,6 +130,8 @@ export class EntityFinderRecord<T extends Entity> {
     this.currentEntities = nextEntities;
     this.enteringEntitiesList.push(enteringEntities);
     this.exitingEntitiesList.push(exitingEntities);
+
+    this.currentCoordinates.copyFrom(nextCoordinates);
 
     this.shouldUpdateEntities = false;
   }
@@ -157,7 +163,7 @@ export class EntityFinderRecord<T extends Entity> {
 
   private shouldRecordUpdate(stateChanged: StateChanged<T>) {
     if (stateChanged.registeredEntities.some(
-            entity => this.distanceChecker.isInEnteringRadius(entity))) {
+            entity => this.distanceChecker.isInEnteringRadius(this.currentCoordinates, entity))) {
       return true;
     }
     if (stateChanged.removedEntities.some(entity => this.currentEntities.has(entity))) {
@@ -171,26 +177,18 @@ export class DistanceChecker {
   private enteringDistance: Distance;
 
   constructor(
-      private trackee: Entity,
-      private samplingRadius: DynamicProvider<number>,
+      samplingRadius: number,
       private updatingRadius: number,
       readonly updatingDistance: Distance = new Distance(updatingRadius)) {
-    this.updateDistance();
+    this.updateDistance(samplingRadius);
   }
 
-  isInEnteringRadius(entity: Entity) {
-    if (this.samplingRadius.hasUpdate()) {
-      this.updateDistance();
-    }
-    return this.isInDistance(this.enteringDistance, entity);
+  isInEnteringRadius(currentCoordinates: Point, entity: Entity) {
+    return this.enteringDistance.isClose(currentCoordinates, entity.coordinates);
   }
 
-  private updateDistance() {
-    this.enteringDistance = new Distance(this.samplingRadius.getValue() + this.updatingRadius);
-  }
-
-  private isInDistance(distance: Distance, entity: Entity) {
-    return distance.isClose(this.trackee.coordinates, entity.coordinates);
+  updateDistance(samplingRadius: number) {
+    this.enteringDistance = new Distance(samplingRadius + this.updatingRadius);
   }
 }
 

@@ -43,7 +43,7 @@ class Debug {
         .plus<any>(asSequence(universe.existence['engines'])
             .map(engine => [engine['onUpdateRelations'], engine['onRenderRelations']])
             .flatten())
-        .plus<any>(asSequence(universe.tick['engines'])
+        .plus<any>(asSequence([universe.tick.beforeVisibility, universe.tick.afterVisibility])
             .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']])
             .flatten())
         .flatten()

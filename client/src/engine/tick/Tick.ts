@@ -1,16 +1,23 @@
-import SystemEnginesEngine from '../SystemEnginesEngine';
 import TickEngine from './TickEngine';
 import MoveDisplaySystem from '../../entitySystem/system/tick/MoveDisplaySystem';
 import {Player} from '../../entitySystem/alias';
 import ChestSystem from '../../entitySystem/system/ChestSystem';
 
-class Tick extends SystemEnginesEngine<TickEngine> {
-  static on(player: Player, chestSystem: ChestSystem) {
-    let tickEngineBuilder = TickEngine.newBuilder();
-    tickEngineBuilder.onUpdate().apply(chestSystem).atEnd();
-    tickEngineBuilder.onRender().apply(new MoveDisplaySystem(player)).atBegin();
+class Tick {
+  constructor(
+      readonly beforeVisibility: TickEngine, readonly afterVisibility: TickEngine) {
+  }
 
-    return new this([tickEngineBuilder.build()]);
+  static on(player: Player, chestSystem: ChestSystem) {
+    const beforeVisibilityBuilder = TickEngine.newBuilder();
+
+    beforeVisibilityBuilder.onRender().apply(new MoveDisplaySystem(player)).atEnter();
+
+    beforeVisibilityBuilder.onUpdate().apply(chestSystem).atEnter();
+
+    const afterVisibilityBuilder = TickEngine.newBuilder();
+
+    return new this(beforeVisibilityBuilder.build(), afterVisibilityBuilder.build());
   }
 }
 

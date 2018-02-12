@@ -18,7 +18,7 @@ export class VisibilityEngineBuilder {
       private samplingRadius: DynamicProvider<number>,
       updatingRadius: number,
       private distanceChecker: DistanceChecker =
-          new DistanceChecker(trackee, samplingRadius, updatingRadius),
+          new DistanceChecker(samplingRadius.getValue(), updatingRadius),
       private relations: Array<VisibilityRelation<Component, Entity>> = []) {
   }
 
@@ -67,7 +67,8 @@ export class VisibilityEngineBuilder {
     }
 
     const tickers = asSequence(recordToSystems)
-        .map(([record, applyingSystems]) => new SystemTicker(applyingSystems, record, systemFinisher))
+        .map(([record, applyingSystems]) =>
+            new SystemTicker(applyingSystems, record, systemFinisher))
         .toArray();
 
     return [records.values(), tickers];

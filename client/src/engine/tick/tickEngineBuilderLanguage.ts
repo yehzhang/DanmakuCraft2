@@ -32,13 +32,13 @@ class AtClause {
   constructor(private builder: TickEngineBuilder, private isOnUpdate: boolean, private system: TickSystem) {
   }
 
-  atBegin(): OnOrBuildClause {
-    this.builder.apply(new EndTicker(this.system), this.isOnUpdate);
+  atEnter(): OnOrBuildClause {
+    this.builder.apply(new BeginTicker(this.system), this.isOnUpdate);
     return new ApplyOrOnOrBuildClause(this.builder, this.isOnUpdate);
   }
 
-  atEnd(): OnOrBuildClause {
-    this.builder.apply(new BeginTicker(this.system), this.isOnUpdate);
+  atExit(): OnOrBuildClause {
+    this.builder.apply(new EndTicker(this.system), this.isOnUpdate);
     return new ApplyOrOnOrBuildClause(this.builder, this.isOnUpdate);
   }
 }

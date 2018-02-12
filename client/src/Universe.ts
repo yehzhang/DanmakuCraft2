@@ -151,7 +151,12 @@ class Universe {
         this.updatingCommentsStorage.getFinder());
     this.tick = Tick.on(this.player, this.visibility.chestSystem);
     this.engineCap = new EngineCap(
-        new SystemEnginesEngine([this.existence, this.tick, this.visibility]), this.game.time);
+        new SystemEnginesEngine([
+          this.existence,
+          this.tick.beforeVisibility,
+          this.visibility,
+          this.tick.afterVisibility]),
+        this.game.time);
 
     this.commentPlacingPolicy = new CommentPlacingPolicyImpl(
         this.visibility.collisionDetectionSystem,

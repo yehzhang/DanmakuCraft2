@@ -36,10 +36,6 @@ class AddCachedChildBlinkSystem implements VisibilitySystem<Target> {
 
     this.addUncachedChildSystem.exit(entity);
 
-    // if (entity.isBlinking()) {
-    //   return;
-    // }
-
     entity.releaseBlink();
   }
 
