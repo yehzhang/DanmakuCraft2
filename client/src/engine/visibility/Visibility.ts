@@ -84,7 +84,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .apply(new AddChildSystem(renderer.playersLayer))
         .toEntities().of(playersFinder)
 
-        .apply(new AddChildSystem(renderer.cachedBackgroundLayer))
+        .apply(new AddChildSystem(renderer.backgroundLayer, true))
         .toEntities().of(signsFinder)
 
         .apply(new UnmovableDisplayPositioningSystem(player))

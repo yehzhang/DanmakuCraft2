@@ -2,6 +2,12 @@ import {Phaser, PIXI} from '../util/alias/phaser';
 import Display from '../entitySystem/component/Display';
 import Point from '../util/syntax/Point';
 
+/**
+ * Holds layers of displays and manages their order.
+ * Children added to a higher layer will appear on the top of children added to a lower layer.
+ *
+ * Never cache layer. Instead, cache child displays individually.
+ */
 class Renderer {
   constructor(
       private game: Phaser.Game,
@@ -9,10 +15,9 @@ class Renderer {
       readonly floatingLayer: PhaserDisplayContainer = new BridgingContainer(),
       readonly playersLayer: Phaser.Group = game.make.group(),
       readonly groundLayer: PhaserDisplayContainer = new BridgingContainer(),
-      readonly cachedBackgroundLayer: PhaserDisplayContainer = new BridgingContainer(),
+      readonly backgroundLayer: PhaserDisplayContainer = new BridgingContainer(),
       readonly fixedToCameraLayer: Phaser.Group = game.make.group()) {
-    stage.add(cachedBackgroundLayer);
-    cachedBackgroundLayer.cacheAsBitmap = true;
+    stage.add(backgroundLayer);
 
     stage.add(groundLayer);
 
