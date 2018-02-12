@@ -4,7 +4,13 @@ module.exports = function (req, res, next) {
     '127.0.0.1',
     ...sails.config.roles.getUserIps('builder'),
   ];
-  if (allowedIps.includes(req.ip)) {
+
+  let ip = req.ip;
+  if (ip.startsWith('::ffff:')) {
+    ip = ip.substr('::ffff:'.length);
+  }
+
+  if (allowedIps.includes(ip)) {
     return next();
   }
 
