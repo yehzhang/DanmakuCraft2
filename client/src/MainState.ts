@@ -119,7 +119,7 @@ class MainState extends Phaser.State {
     let commentsData = await Sleep.orError(1.5 * Phaser.Timer.MINUTE, commentsDataPromise);
     let dataChunks = asSequence(commentsData)
         .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
-        .chunk(20);
+        .chunk(50);
     for await (let dataChunk of IntermittentIterable.of(dataChunks)) {
       this.universe.commentLoader.loadBatch(dataChunk, false);
     }

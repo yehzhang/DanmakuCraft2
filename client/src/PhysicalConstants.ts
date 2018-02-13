@@ -3,7 +3,7 @@ import {Phaser} from './util/alias/phaser';
 class PhysicalConstants {
   public static readonly WORLD_SIZE = 40000;
 
-  public static readonly BACKGROUND_SAMPLING_RADIUS = 3100;
+  public static readonly BACKGROUND_SAMPLING_RADIUS = 2000;
   public static readonly BACKGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS = 600;
   public static readonly FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS = 200;
 
@@ -17,7 +17,7 @@ class PhysicalConstants {
 
   public static readonly COMMENT_BLINK_DURATION_MS = 150;
 
-  public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS = 200;
+  public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS = 230;
   public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION = 15;
   public static readonly BACKGROUND_TRANSITION_DURATION_MS = 3 * Phaser.Timer.SECOND;
 
