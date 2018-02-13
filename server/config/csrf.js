@@ -1,19 +1,8 @@
 /**
- * Cross-Site Request Forgery Protection Settings
- * (sails.config.csrf)
- *
- * CSRF tokens are like a tracking chip.  While a session tells the server that a user
- * "is who they say they are", a csrf token tells the server "you are where you say you are".
+ * Cross-Site Request Forgery Protection Settings (sails.config.csrf)
  *
  * When enabled, all non-GET requests to the Sails server must be accompanied by
  * a special token, identified as the '_csrf' parameter.
- *
- * This option protects your Sails app against cross-site request forgery (or CSRF) attacks.
- * A would-be attacker needs not only a user's session cookie, but also this timestamped,
- * secret CSRF token, which is refreshed/granted when the user visits a URL on your app's domain.
- *
- * This allows us to have certainty that our users' requests haven't been hijacked,
- * and that the requests they're making are intentional and legitimate.
  *
  * This token has a short-lived expiration timeline, and must be acquired by either:
  *
@@ -33,23 +22,12 @@
  * Enabling this option requires managing the token in your front-end app.
  * For traditional web apps, it's as easy as passing the data from a view into a form action.
  * In AJAX/Socket-heavy apps, just send a GET request to the /csrfToken route to get a valid token.
- *
- * For more information on CSRF, check out:
- * http://en.wikipedia.org/wiki/Cross-site_request_forgery
- *
- * For more information on this configuration file, including info on CSRF + CORS, see:
- * http://sailsjs.org/documentation/reference/configuration/sails-config-csrf
- *
  */
 
-/****************************************************************************
-*                                                                           *
-* By default, Sails' built-in CSRF protection is disabled.                  *
-* To enable CSRF protection with usual settings, set this to `true`.        *
-* Or for more flexibility, specify a dictionary with any of the properties  *
-* described in the Sails reference documentation (see link above).          *
-*                                                                           *
-****************************************************************************/
+// No need to enable for creation of comment as it is already protected by sendNextCommentToken.
+module.exports.csrf = false;
 
-// TODO enable
-// module.exports.csrf = false;
+// module.exports.csrf = {
+//   csrf: true,
+//   grantTokenViaAjax: true,
+// };

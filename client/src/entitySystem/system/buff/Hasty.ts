@@ -4,7 +4,7 @@ import PhysicalConstants from '../../../PhysicalConstants';
 
 class Hasty extends TimedBuff<Motion> {
   constructor(private boostBoostRatioRatio: number = PhysicalConstants.HASTY_BOOST_RATIO) {
-    super(180); // TODO too long?
+    super(PhysicalConstants.CHEST_SPAWN_INTERVAL * 0.9);
   }
 
   protected set(motion: Motion) {
