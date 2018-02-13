@@ -3,9 +3,9 @@ import {NotifierView} from '../../render/graphics/GraphicsFactory';
 import ConditionalVariable from '../../util/async/ConditionalVariable';
 import {NotificationPriority} from './Notifier';
 import {Phaser} from '../../util/alias/phaser';
+import PhysicalConstants from '../../PhysicalConstants';
 
 class PoppingNotifier extends BaseNotifier {
-  private static readonly BUBBLE_DISPLAY_DURATION = 5 * Phaser.Timer.SECOND;
   private static readonly SPEECH_BOX_POP_HEIGHT = 10;
 
   constructor(
@@ -84,7 +84,7 @@ class PoppingNotifier extends BaseNotifier {
     }
   }
 
-  private async pause(duration: number = PoppingNotifier.BUBBLE_DISPLAY_DURATION) {
+  private async pause(duration: number = PhysicalConstants.NOTIFIER_BUBBLE_DISPLAY_DURATION) {
     let sleepEvent = this.game.time.events.add(duration, () => {
       this.skipPauseCondition.notifyAll();
     });

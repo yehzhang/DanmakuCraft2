@@ -5,6 +5,7 @@ import Notifier from '../../output/notification/Notifier';
 import Texts from '../../render/Texts';
 import {TypeState} from 'typestate';
 import Input from '../../input/Input';
+import PhysicalConstants from '../../PhysicalConstants';
 
 enum TutorialStates {
   START,
@@ -85,7 +86,7 @@ class TutorialSystem implements TickSystem {
     });
 
     fsm.on(TutorialStates.MOVEMENT_KEYS_SECOND, async () => {
-      await this.sleep(6 * Phaser.Timer.SECOND);
+      await this.sleep(PhysicalConstants.NOTIFIER_BUBBLE_DISPLAY_DURATION + Phaser.Timer.SECOND);
       if (this.areControllerKeysPressed) {
         this.nextState = TutorialStates.COMMENT_KEYS;
       } else {
@@ -98,7 +99,7 @@ class TutorialSystem implements TickSystem {
       this.settingsManager.setSetting(
           TutorialSystem.SETTINGS_OPTION, TutorialStates.MOVEMENT_KEYS_FINAL);
 
-      await this.sleep(10 * Phaser.Timer.SECOND);
+      await this.sleep(PhysicalConstants.NOTIFIER_BUBBLE_DISPLAY_DURATION + 5 * Phaser.Timer.SECOND);
       if (!this.areControllerKeysPressed) {
         this.notifier.send(Texts.forName('main.tutorial.movement.final'));
       }
@@ -109,7 +110,9 @@ class TutorialSystem implements TickSystem {
     fsm.on(TutorialStates.COMMENT_KEYS, async () => {
       this.settingsManager.setSetting(TutorialSystem.SETTINGS_OPTION, TutorialStates.COMMENT_KEYS);
 
-      await this.sleep(__DEV__ ? 5 * Phaser.Timer.SECOND : 5 * Phaser.Timer.MINUTE);
+      await this.sleep(__DEV__
+          ? PhysicalConstants.NOTIFIER_BUBBLE_DISPLAY_DURATION + Phaser.Timer.SECOND
+          : 5 * Phaser.Timer.MINUTE);
       if (!this.isEnterPressed) {
         this.notifier.send(Texts.forName('main.tutorial.comment'));
       }

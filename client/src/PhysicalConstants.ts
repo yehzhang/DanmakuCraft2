@@ -24,6 +24,8 @@ class PhysicalConstants {
   public static readonly CHEST_SPAWN_INTERVAL = 120;
   public static readonly HASTY_BOOST_RATIO = 1.4;
 
+  public static readonly NOTIFIER_BUBBLE_DISPLAY_DURATION = 6 * Phaser.Timer.SECOND;
+
   public static getRenderRadius(gameWidth: number, gameHeight: number): number {
     return Math.ceil(Math.max(gameWidth, gameHeight) / 2
         + this.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS
