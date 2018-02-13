@@ -3,6 +3,11 @@ import {PresetSettingsOptions, SettingsOption} from '../../interface/SettingsMan
 import TextShadowStyle from '../../../render/TextShadowStyle';
 
 class LocalStorageSettingsManager extends BaseSettingsManager {
+  private static readonly TEXT_SHADOW_STYLE_MAPPING = new Map()
+      .set(0, TextShadowStyle.GLOW)
+      .set(1, TextShadowStyle.OUTLINE)
+      .set(2, TextShadowStyle.DROP);
+
   protected loadSetting<T>(option: SettingsOption<T>): T {
     if (!window.localStorage) {
       throw new TypeError(`Failed to load setting '${option.toPublicOptionKey()}' because localStorage is not available`);
@@ -23,34 +28,45 @@ class LocalStorageSettingsManager extends BaseSettingsManager {
     localStorage.setItem(option.toPublicOptionKey(), JSON.stringify(value));
   }
 
-  protected loadPresetSettings(presetSettings: Map<PresetSettingsOptions, any>) {
+  private static getPresetSettings(): { [key: string]: any } | null {
     if (!window.localStorage) {
-      return;
+      return null;
     }
 
     const playerSettings = localStorage.getItem('bilibili_player_settings');
     if (playerSettings == null) {
-      return;
+      return null;
     }
 
     const settingsConfig = JSON.parse(playerSettings).setting_config;
     if (settingsConfig == null) {
-      return;
+      return null;
     }
 
-    const fontFamily = settingsConfig['fontfamily'];
-    if (fontFamily && fontFamily instanceof String) {
-      presetSettings.set(PresetSettingsOptions.FONT_FAMILY, fontFamily);
-    }
+    return settingsConfig;
+  }
 
-    const fontBorder = settingsConfig['fontborder'];
-    if ((fontFamily && fontBorder instanceof String) || fontBorder instanceof Number) {
-      const textShadowIndex = Number(fontBorder);
-      const textShadowStyle = TextShadowStyle[textShadowIndex];
-      if (textShadowStyle != null) {
-        presetSettings.set(PresetSettingsOptions.TEXT_SHADOW, textShadowStyle);
+  protected loadPresetSettings(presetSettings: Map<PresetSettingsOptions, any>) {
+    const settings = LocalStorageSettingsManager.getPresetSettings();
+
+    let fontFamily;
+    if (settings && typeof settings['fontfamily'] === 'string') {
+      fontFamily = settings['fontfamily'];
+    } else {
+      fontFamily = PresetSettingsOptions.FONT_FAMILY.getDefaultValue();
+    }
+    presetSettings.set(PresetSettingsOptions.FONT_FAMILY, fontFamily);
+
+    let textShadowStyle = PresetSettingsOptions.TEXT_SHADOW.getDefaultValue();
+    if (settings) {
+      const textShadowStyleIndex = Number(settings['fontborder']);
+      const parsedTextShadowStyle =
+          LocalStorageSettingsManager.TEXT_SHADOW_STYLE_MAPPING.get(textShadowStyleIndex);
+      if (parsedTextShadowStyle != null) {
+        textShadowStyle = parsedTextShadowStyle;
       }
     }
+    presetSettings.set(PresetSettingsOptions.TEXT_SHADOW, textShadowStyle);
   }
 }
 
