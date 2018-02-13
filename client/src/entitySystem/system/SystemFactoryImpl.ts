@@ -8,6 +8,9 @@ import ChestSystem, {ChestDemolisher, ChestOpener, ChestSpawner} from './ChestSy
 import DynamicProvider from '../../util/DynamicProvider';
 import EntityFactory from '../EntityFactory';
 import EntityRegister from '../../util/entityStorage/EntityRegister';
+import TutorialSystem from '../../engine/tick/TutorialSystem';
+import SettingsManager from '../../environment/interface/SettingsManager';
+import Input from '../../input/Input';
 
 class SystemFactoryImpl implements SystemFactory {
   constructor(
@@ -17,7 +20,9 @@ class SystemFactoryImpl implements SystemFactory {
       private buffDataApplier: BuffDataApplier,
       private buffDescription: BuffDescription,
       private notifier: Notifier,
-      private entityFactory: EntityFactory) {
+      private entityFactory: EntityFactory,
+      private settingsManager: SettingsManager,
+      private input: Input) {
   }
 
   createChestSystem(
@@ -33,6 +38,17 @@ class SystemFactoryImpl implements SystemFactory {
             this.buffDescription),
         new ChestSpawner(chestRegister, this.entityFactory, chestLaw, __DEV__),
         new ChestDemolisher(chestRegister));
+  }
+
+  createTutorialSystem() {
+    const timer = this.game.time.create(false);
+    timer.start();
+
+    return new TutorialSystem(
+        timer,
+        this.settingsManager,
+        this.notifier,
+        this.input);
   }
 }
 

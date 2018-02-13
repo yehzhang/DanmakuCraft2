@@ -1,30 +1,54 @@
 import BaseSettingsManager from '../BaseSettingsManager';
-import {SettingsOptions} from '../../interface/SettingsManager';
+import {PresetSettingsOptions, SettingsOption} from '../../interface/SettingsManager';
 import TextShadowStyle from '../../../render/TextShadowStyle';
 
 class LocalStorageSettingsManager extends BaseSettingsManager {
-  protected loadSettings() {
-    let playerSettings = localStorage.getItem('bilibili_player_settings');
+  protected loadSetting<T>(option: SettingsOption<T>): T {
+    if (!window.localStorage) {
+      throw new TypeError(`Failed to load setting '${option.toPublicOptionKey()}' because localStorage is not available`);
+    }
+
+    const item = localStorage.getItem(option.toPublicOptionKey());
+    if (item == null) {
+      return option.getDefaultValue();
+    }
+    return JSON.parse(item);
+  }
+
+  protected persistSetting<T>(option: SettingsOption<T>, value: T) {
+    if (!window.localStorage) {
+      console.error(`Failed to persist setting '${option.toPublicOptionKey()}' because localStorage is not available`);
+      return;
+    }
+    localStorage.setItem(option.toPublicOptionKey(), JSON.stringify(value));
+  }
+
+  protected loadPresetSettings(presetSettings: Map<PresetSettingsOptions, any>) {
+    if (!window.localStorage) {
+      return;
+    }
+
+    const playerSettings = localStorage.getItem('bilibili_player_settings');
     if (playerSettings == null) {
       return;
     }
 
-    let settingsConfig = JSON.parse(playerSettings).setting_config;
+    const settingsConfig = JSON.parse(playerSettings).setting_config;
     if (settingsConfig == null) {
       return;
     }
 
-    let fontFamily = settingsConfig['fontfamily'];
+    const fontFamily = settingsConfig['fontfamily'];
     if (fontFamily && fontFamily instanceof String) {
-      this.settings.set(SettingsOptions.FONT_FAMILY, fontFamily);
+      presetSettings.set(PresetSettingsOptions.FONT_FAMILY, fontFamily);
     }
 
-    let fontBorder = settingsConfig['fontborder'];
+    const fontBorder = settingsConfig['fontborder'];
     if ((fontFamily && fontBorder instanceof String) || fontBorder instanceof Number) {
-      let textShadowIndex = Number(fontBorder);
-      let textShadowStyle = TextShadowStyle[textShadowIndex];
+      const textShadowIndex = Number(fontBorder);
+      const textShadowStyle = TextShadowStyle[textShadowIndex];
       if (textShadowStyle != null) {
-        this.settings.set(SettingsOptions.TEXT_SHADOW, textShadowStyle);
+        presetSettings.set(PresetSettingsOptions.TEXT_SHADOW, textShadowStyle);
       }
     }
   }

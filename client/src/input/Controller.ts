@@ -7,4 +7,3 @@ export default interface Controller {
 
   readonly moveDown: boolean;
 }
-

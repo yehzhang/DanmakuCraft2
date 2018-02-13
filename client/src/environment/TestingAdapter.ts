@@ -1,4 +1,4 @@
-import SettingsManager from './interface/SettingsManager';
+import SettingsManager, {SettingsOption} from './interface/SettingsManager';
 import CommentProvider from './interface/CommentProvider';
 import GameContainerProvider from './interface/GameContainerProvider';
 import CommentData from '../comment/CommentData';
@@ -44,6 +44,13 @@ export class TestingCommentProvider implements CommentProvider {
 }
 
 export class TestingSettingsManager extends BaseSettingsManager {
-  protected loadSettings() {
+  protected loadSetting<T>(option: SettingsOption<T>): T {
+    return option.getDefaultValue();
+  }
+
+  protected persistSetting<T>(option: SettingsOption<T>, value: T) {
+  }
+
+  protected loadPresetSettings() {
   }
 }

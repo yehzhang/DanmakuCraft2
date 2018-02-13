@@ -1,35 +1,41 @@
-import SettingsManager, {SettingsOption, SettingsOptions} from '../interface/SettingsManager';
+import SettingsManager, {PresetSettingsOptions, SettingsOption} from '../interface/SettingsManager';
 import {isLinux} from '../util';
 import TextShadowStyle from '../../render/TextShadowStyle';
 
 abstract class BaseSettingsManager implements SettingsManager {
-  private static readonly DEFAULT_SETTINGS: Map<SettingsOptions, any> = new Map()
-      .set(SettingsOptions.FONT_FAMILY, (isLinux()
+  private static readonly DEFAULT_PRESET_SETTINGS: Map<PresetSettingsOptions, any> = new Map()
+      .set(PresetSettingsOptions.FONT_FAMILY, (isLinux()
           ? `'Noto Sans CJK SC DemiLight'`
           : `SimHei, 'Microsoft JhengHei', YaHei`) + ', Arial, Helvetica, sans-serif')
-      .set(SettingsOptions.TEXT_SHADOW, TextShadowStyle.GLOW);
+      .set(PresetSettingsOptions.TEXT_SHADOW, TextShadowStyle.GLOW);
 
-  constructor(protected settings: Map<SettingsOptions, any> =
-                  new Map(BaseSettingsManager.DEFAULT_SETTINGS)) {
-    this.loadSettings();
+  constructor(private presetSettings: Map<PresetSettingsOptions, any> = new Map(BaseSettingsManager.DEFAULT_PRESET_SETTINGS)) {
+    this.loadPresetSettings(presetSettings);
   }
 
   getSetting<T>(option: SettingsOption<T>): T {
-    let setting = this.settings.get(option);
-    if (setting === undefined) {
-      throw new TypeError('Unknown settings option');
+    let setting = this.presetSettings.get(option);
+    if (setting !== undefined) {
+      return setting;
     }
-    return setting;
+
+    return this.loadSetting(option);
   }
 
   setSetting<T>(option: SettingsOption<T>, value: T): void {
-    if (!this.settings.has(option)) {
-      throw new TypeError('Unknown settings option');
+    switch (option as any) {
+      case PresetSettingsOptions.TEXT_SHADOW:
+      case PresetSettingsOptions.FONT_FAMILY:
+        throw new TypeError('Not implemented');
     }
-    this.settings.set(option, value);
+    this.persistSetting(option, value);
   }
 
-  protected abstract loadSettings(): void;
+  protected abstract loadPresetSettings(presetSettings: Map<PresetSettingsOptions, any>): void;
+
+  protected abstract loadSetting<T>(option: SettingsOption<T>): T;
+
+  protected abstract persistSetting<T>(option: SettingsOption<T>, value: T): void;
 }
 
 export default BaseSettingsManager;

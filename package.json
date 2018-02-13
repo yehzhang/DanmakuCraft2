@@ -95,6 +95,7 @@
     "socket.io-client": "^2.0.4",
     "ts-node": "^4.0.2",
     "typescript": "^2.6.1",
-    "typescript-collections": "^1.2.5"
+    "typescript-collections": "^1.2.5",
+    "typestate": "^1.0.5"
   }
 }

@@ -23,7 +23,7 @@ import EntityFactoryImpl from './entitySystem/EntityFactoryImpl';
 import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
 import EntityStorage from './util/entityStorage/EntityStorage';
 import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
-import {SettingsOptions} from './environment/interface/SettingsManager';
+import {PresetSettingsOptions} from './environment/interface/SettingsManager';
 import GraphicsFactoryImpl from './render/graphics/GraphicsFactoryImpl';
 import LawFactoryImpl from './law/LawFactoryImpl';
 import LawFactory from './law/LawFactory';
@@ -43,6 +43,7 @@ import CommentPlacingPolicy from './environment/interface/CommentPlacingPolicy';
 import EngineCap from './engine/EngineCap';
 import SystemEnginesEngine from './engine/SystemEnginesEngine';
 import Tick from './engine/tick/Tick';
+import PhaserInput from './input/PhaserInput';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -73,11 +74,13 @@ class Universe {
   public commentPlacingPolicy: CommentPlacingPolicy;
   public tick: Tick;
   public engineCap: EngineCap;
+  public input: PhaserInput;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     this.buffDataContainer = new BuffDataContainer();
 
-    this.inputController = new InputController(game).ignoreInput();
+    this.input = new PhaserInput(game);
+    this.inputController = new InputController(game, this.input).ignoreInput();
 
     this.lawFactory = new LawFactoryImpl();
 
@@ -90,8 +93,8 @@ class Universe {
     this.graphicsFactory = new GraphicsFactoryImpl(
         game,
         randomDataGenerator,
-        settingsManager.getSetting(SettingsOptions.FONT_FAMILY),
-        settingsManager.getSetting(SettingsOptions.TEXT_SHADOW));
+        settingsManager.getSetting(PresetSettingsOptions.FONT_FAMILY),
+        settingsManager.getSetting(PresetSettingsOptions.TEXT_SHADOW));
 
     this.entityFactory = new EntityFactoryImpl(game, this.graphicsFactory, this.buffFactory);
 
@@ -133,7 +136,9 @@ class Universe {
         this.buffDataApplier,
         this.buffDescription,
         this.notifier,
-        this.entityFactory);
+        this.entityFactory,
+        settingsManager,
+        this.input);
     this.visibility = Visibility.on(
         game,
         this.player,
@@ -149,7 +154,7 @@ class Universe {
         game,
         this.commentsStorage.getFinder(),
         this.updatingCommentsStorage.getFinder());
-    this.tick = Tick.on(this.player, this.visibility.chestSystem);
+    this.tick = Tick.on(this.player, this.visibility.chestSystem, systemFactory);
     this.engineCap = new EngineCap(
         new SystemEnginesEngine([
           this.existence,
@@ -197,6 +202,7 @@ class Universe {
 
   onTransitionFinished() {
     this.inputController.receiveInput();
+    this.tick.tutorialSystem.start();
   }
 
   getProxy(): UniverseProxy {
