@@ -271,11 +271,11 @@ class OpeningScene {
     return new Promise<void>(resolve => {
       resolveRef = resolve;
       this.game.input.onDown.add(resolve);
-      this.game.input.keyboard.onPressCallback = resolve;
+      this.game.input.keyboard.onDownCallback = resolve;
     })
         .then(() => {
           this.game.input.onDown.remove(resolveRef);
-          this.game.input.keyboard.onPressCallback = null as any;
+          this.game.input.keyboard.onDownCallback = null as any;
         });
   }
 
