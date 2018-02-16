@@ -5,14 +5,14 @@ dist/
 build/
 .rpt2_cache/
 references/
-client/resources/bgm/
 server/package.json
 
+data/comments/
+data/audio/background/
+data/audio/depot/
+
 server/assets/static
-
-data/comments.all.xml
-
-client/config/local.js
+server/assets/audio/
 
 ## Node.gitignore
 # Logs

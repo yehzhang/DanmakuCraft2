@@ -11,6 +11,8 @@ import AsyncIterable from './util/syntax/AsyncIterable';
 import {asSequence} from 'sequency';
 import PhysicalConstants from './PhysicalConstants';
 import IntermittentIterable from './util/async/IntermittentIterable';
+import ConfigProvider from './environment/config/ConfigProvider';
+import spriteSheet = require('../../data/audio/background_sprite.json');
 
 class MainState extends Phaser.State {
   private scene: OpeningScene | null;
@@ -47,13 +49,13 @@ class MainState extends Phaser.State {
   }
 
   update() {
-    for (let updatable of this.updatables) {
+    for (const updatable of this.updatables) {
       updatable.update();
     }
   }
 
   render() {
-    for (let renderable of this.renderables) {
+    for (const renderable of this.renderables) {
       renderable.render();
     }
   }
@@ -84,22 +86,48 @@ class MainState extends Phaser.State {
     // Make tiny television less blurry
     // However, it looks too ugly when zoomed if turned on
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
+
+    this.game.load.baseURL = ConfigProvider.get().baseUrl;
+
+    this.game.sound.muteOnPause = false;
   }
 
   private async loadCommentsDataAndListenToNewComments() {
-    let commentProvider = this.universe.adapter.getCommentProvider();
-    let commentsData = await commentProvider.getAllComments();
+    const commentProvider = this.universe.adapter.getCommentProvider();
+    const commentsData = await commentProvider.getAllComments();
 
-    let ignored = this.loadCommentsAsync(commentProvider.getNewComments(), true);
+    const ignored = this.loadComments(commentProvider.getNewComments(), true);
     commentProvider.connect();
 
     return commentsData;
   }
 
-  private async loadCommentsAsync(commentsData: AsyncIterable<CommentData>, blink: boolean) {
-    for await (let commentData of commentsData) {
+  private async loadComments(commentsData: AsyncIterable<CommentData>, blink: boolean) {
+    for await (const commentData of commentsData) {
       this.universe.commentLoader.load(commentData, blink);
     }
+  }
+
+  private async loadAudios() {
+    const audioKey = this.universe.randomDataGenerator.uuid();
+    this.game.load.audiosprite(audioKey, spriteSheet.resources, undefined, spriteSheet);
+
+    await new Promise((resolve, reject) => {
+      const onFileCompleted = (progress: number, fileKey: string, success: boolean) => {
+        if (fileKey !== audioKey) {
+          return;
+        }
+        if (success) {
+          resolve();
+        } else {
+          reject('Failed to audios');
+        }
+      };
+      this.game.load.onFileComplete.add(onFileCompleted as any);
+    });
+
+    const audioSprite = this.game.add.audioSprite(audioKey);
+    this.universe.backgroundMusicPlayer.setSprite(audioSprite);
   }
 
   private async loadUniverseAndShowOpeningScene() {
@@ -107,20 +135,23 @@ class MainState extends Phaser.State {
     await this.scene.craftRenderings();
     this.updatables.add(this.scene);
 
-    let commentsDataPromise = this.loadCommentsDataAndListenToNewComments();
+    const dataPromise = Promise.all([
+      this.loadCommentsDataAndListenToNewComments(),
+      this.loadAudios()]);
+    this.game.load.start();
 
     await Promise.all([
       this.scene.showLoadingStatus(),
       this.scene.approachUniverseBorder(),
       this.scene.approachEarthFaraway()]);
 
-    let ignored = this.scene.startParticlesField(100);
+    const ignored = this.scene.startParticlesField(100);
 
-    let commentsData = await Sleep.orError(1.5 * Phaser.Timer.MINUTE, commentsDataPromise);
-    let dataChunks = asSequence(commentsData)
+    const [commentsData] = await Sleep.orError(0.75 * Phaser.Timer.MINUTE, dataPromise);
+    const dataChunks = asSequence(commentsData)
         .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
         .chunk(50);
-    for await (let dataChunk of IntermittentIterable.of(dataChunks)) {
+    for await (const dataChunk of IntermittentIterable.of(dataChunks)) {
       this.universe.commentLoader.loadBatch(dataChunk, false);
     }
 
@@ -138,7 +169,7 @@ class MainState extends Phaser.State {
       this.scene.approachParticlesField(),
       this.scene.approachEarth()]);
 
-    let timeoutPromise = Sleep.after(2 * Phaser.Timer.SECOND);
+    const timeoutPromise = Sleep.after(2 * Phaser.Timer.SECOND);
 
     this.scene.cleanupWorld();
     this.updatables.delete(this.scene);

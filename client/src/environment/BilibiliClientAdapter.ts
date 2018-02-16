@@ -78,21 +78,41 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   }
 
   onProxySet() {
-    let commentProvider =
+    // Setup receiving and sending of new comments.
+    const commentProvider =
         new TextInputCommentProvider(this.universeProxy.getCommentPlacingPolicy(), this.widgets);
-    let ignored = new CommentSenderImpl(
+    const ignored = new CommentSenderImpl(
         this.socket,
         commentProvider,
         this.nextCommentCreationTokenJar,
         this.universeProxy.getNotifier());
     commentProvider.connect();
 
-    let game = this.universeProxy.getGame();
-    let focuser = new ClickTriggeredFocuser(
+    // Manages focus of widgets and game.
+    const game = this.universeProxy.getGame();
+    const focuser = new ClickTriggeredFocuser(
         [this.widgets.videoFrame, this.widgets.textInput], this.widgets.videoFrame);
-    let ignored2 = new InputInterceptor(game.input.keyboard, focuser, this.widgets);
+    const ignored2 = new InputInterceptor(game.input.keyboard, focuser, this.widgets);
 
-    // TODO Let volume bar actually controls
+    this.updateVolume();
+    const updateVolume = () => setTimeout(this.updateVolume(), 0);
+    this.widgets.volumeButton.children().click(updateVolume).on('wheel', updateVolume);
+  }
+
+  private updateVolume() {
+    const volumeText = this.widgets.volumeText.text();
+    let volume = parseInt(volumeText, 10) / 100;
+
+    if (!(volume >= 0 && volume <= 1)) {
+      console.error('Failed to parse volume', volumeText);
+      if (volume < 0) {
+        volume = 0;
+      } else {
+        volume = 1;
+      }
+    }
+
+    this.universeProxy.getBackgroundMusicPlayer().setVolume(volume);
   }
 
   getCommentProvider() {

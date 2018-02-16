@@ -21,8 +21,9 @@
     "server:link": "cd server; ln -s ../node_modules node_modules; ln -s ../package.json package.json; cd assets/static/; ln -s ../../../build/dev dev; ln -s ../../../build/prod prod; cd ../../..",
     "server:unlink": "rm -f server/node_modules server/package.json server/assets/static/*",
     "db:terminal": "sudo su postgres -c 'psql -d danmakucraft_2'",
-    "script:populate:all": "ts-node scripts/populateDatabase.ts data/comments.all.xml > build/comments.sql",
-    "script:populate:partial": "ts-node scripts/populateDatabase.ts data/comments.all.xml 16000 > build/comments.partial.sql"
+    "script:populate:all": "ts-node scripts/populateDatabase.ts data/comments/all.xml > build/comments.sql",
+    "script:populate:partial": "ts-node scripts/populateDatabase.ts data/comments/all.xml 16000 > build/comments.partial.sql",
+    "script:build:audio": "node node_modules/audiosprite/cli.js -b 192 -v 6 -o server/assets/audio/background_sprite -u audio data/audio/background/* && mv server/assets/audio/background_sprite.json data/audio/"
   },
   "repository": {
     "type": "git",
@@ -45,6 +46,7 @@
     "@types/socket.io-client": "^1.4.32",
     "@types/xml2js": "^0.4.2",
     "app-root-path": "^2.0.1",
+    "audiosprite": "^0.7.0",
     "canvas": "^1.6.9",
     "chai": "^4.1.2",
     "chai-shallow-deep-equal": "^1.4.6",

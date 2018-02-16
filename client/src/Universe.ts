@@ -44,6 +44,8 @@ import EngineCap from './engine/EngineCap';
 import SystemEnginesEngine from './engine/SystemEnginesEngine';
 import Tick from './engine/tick/Tick';
 import PhaserInput from './input/PhaserInput';
+import BackgroundMusicPlayer from './output/audio/BackgroundMusicPlayer';
+import BackgroundMusicPlayerImpl from './output/audio/BackgroundMusicPlayerImpl';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -75,6 +77,9 @@ class Universe {
   public tick: Tick;
   public engineCap: EngineCap;
   public input: PhaserInput;
+  public randomDataGenerator: Phaser.RandomDataGenerator;
+  public backgroundMusicPlayer: BackgroundMusicPlayer;
+  public timer: Phaser.Timer;
 
   private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
     this.buffDataContainer = new BuffDataContainer();
@@ -88,11 +93,16 @@ class Universe {
 
     this.buffFactory = new BuffFactoryImpl(game, this.inputController, this.lawFactory);
 
-    const randomDataGenerator = new Phaser.RandomDataGenerator([new Date()]);
+    this.timer = game.time.create(false);
+    this.timer.start();
+
+    this.backgroundMusicPlayer = new BackgroundMusicPlayerImpl(this.timer);
+
+    this.randomDataGenerator = new Phaser.RandomDataGenerator([new Date()]);
     const settingsManager = adapter.getSettingsManager();
     this.graphicsFactory = new GraphicsFactoryImpl(
         game,
-        randomDataGenerator,
+        this.randomDataGenerator,
         settingsManager.getSetting(PresetSettingsOptions.FONT_FAMILY),
         settingsManager.getSetting(PresetSettingsOptions.TEXT_SHADOW));
 
@@ -138,6 +148,7 @@ class Universe {
         this.notifier,
         this.entityFactory,
         settingsManager,
+        this.timer,
         this.input);
     this.visibility = Visibility.on(
         game,
@@ -170,7 +181,11 @@ class Universe {
         this.buffDataContainer,
         this.player,
         this.renderer.fixedToCameraLayer);
-    this.proxy = new UniverseProxyImpl(game, this.commentPlacingPolicy, this.notifier);
+    this.proxy = new UniverseProxyImpl(
+        game,
+        this.commentPlacingPolicy,
+        this.notifier,
+        this.backgroundMusicPlayer);
   }
 
   static genesis(): void {
@@ -202,6 +217,7 @@ class Universe {
 
   onTransitionFinished() {
     this.inputController.receiveInput();
+    this.backgroundMusicPlayer.start();
     this.tick.tutorialSystem.start();
   }
 

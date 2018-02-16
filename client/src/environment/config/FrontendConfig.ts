@@ -20,7 +20,12 @@ class FrontendConfigBuilder {
   }
 
   setBaseUrl(baseUrl: string) {
+    if (!baseUrl.endsWith('/')) {
+      baseUrl += '/';
+    }
+
     this.baseUrl = baseUrl;
+
     return this;
   }
 

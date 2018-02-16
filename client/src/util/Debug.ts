@@ -162,6 +162,11 @@ class Debug {
         .toArray();
   }
 
+  get mute() {
+    this.universe.backgroundMusicPlayer.setVolume(0);
+    return;
+  }
+
   static set(universe: Universe) {
     Object.assign(window, universe, {
       universe,

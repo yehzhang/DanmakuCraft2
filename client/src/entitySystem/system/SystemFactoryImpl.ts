@@ -22,6 +22,7 @@ class SystemFactoryImpl implements SystemFactory {
       private notifier: Notifier,
       private entityFactory: EntityFactory,
       private settingsManager: SettingsManager,
+      private timer: Phaser.Timer,
       private input: Input) {
   }
 
@@ -41,11 +42,8 @@ class SystemFactoryImpl implements SystemFactory {
   }
 
   createTutorialSystem() {
-    const timer = this.game.time.create(false);
-    timer.start();
-
     return new TutorialSystem(
-        timer,
+        this.timer,
         this.settingsManager,
         this.notifier,
         this.input);
