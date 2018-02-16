@@ -58,19 +58,4 @@ module.exports = {
       sort: 'createdAt DESC',
     });
   },
-
-  /**
-   * @param {object} data
-   * @return {Promise<FlatCommentData>}
-   */
-  async createAsFlatData(data) {
-    let comment = await Comment.create(data);
-
-    let flatData = comment.toJSON();
-    delete flatData.createdAt;
-    delete flatData.updatedAt;
-    delete flatData.id;
-
-    return flatData;
-  },
 };

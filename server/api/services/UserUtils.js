@@ -1,22 +1,55 @@
 const CRC32 = require('crc-32');
 
+const DEFAULT_USER_ID = 1;
+
 module.exports = {
+  /**
+   * @param {string} userId
+   * @returns {string}
+   */
   hash(userId) {
-    let hash = CRC32.str('2174443') >>> 0;
+    const hash = CRC32.str(userId) >>> 0;
     return hash.toString(16);
   },
 
   /**
    * @param {UserData} userData
-   * @return {Promise<number>} user.id
+   * @return Promise<User>
    */
   async findOrCreate(userData) {
-    // TODO handle official origin
     if (userData.origin === 'bilibili') {
-      let externalUserId = UserUtils.hash(userData.id);
-      let externalUser = External.find({origin: userData.origin, externalUserId});
-    } else {
-      throw new TypeError('Invalid user origin');
+      const externalUserId = UserUtils.hash(userData.id);
+      const externalUser = await ExternalUser.findOne({
+        origin: userData.origin,
+        externalId: externalUserId,
+      });
+      if (externalUser == null) {
+        const user = await User.create();
+
+        await ExternalUser.create({
+          origin: userData.origin,
+          externalId: externalUserId,
+          correspondsTo: user,
+        });
+
+        return user;
+      }
+
+      return await User.findOne({id: externalUser.correspondsTo});
     }
+    // TODO handle official origin
+
+    const users = await User.findOne({id: UserUtils.getDefaultId()});
+    if (users.length === 0) {
+      throw new TypeError('Default user not found');
+    }
+    return users[0];
+  },
+
+  /**
+   * @returns {number}
+   */
+  getDefaultId() {
+    return DEFAULT_USER_ID;
   }
 };

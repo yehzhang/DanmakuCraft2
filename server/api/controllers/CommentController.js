@@ -1,5 +1,4 @@
 const MAX_COMMENTS_COUNT = 15000;
-const DEFAULT_USER_ID = 0; // Unknown
 const COMMENT_ROOM_ID = -1;
 
 module.exports = {
@@ -12,7 +11,7 @@ module.exports = {
         commentsCount = Math.max(Math.min(commentsCount, MAX_COMMENTS_COUNT), 0);
       }
 
-      let comments = await Comment.findLatestData(commentsCount);
+      const comments = await Comment.findLatestData(commentsCount);
 
       if (req.isSocket) {
         // TODO watch only if there are not too many watchers already.
@@ -35,20 +34,16 @@ module.exports = {
         throw e;
       }
 
-      // let externalUserId = req.param('externalUserId');
-      // if (typeof externalUserId === 'string') {
-      //   commentData.user = findOrCreateUser(externalUserId);
-      // } else {
-      //   commentData.user = DEFAULT_USER_ID;
-      // }
+      const user = await UserUtils.findOrCreate(req.param('user'));
 
-      commentData.user = DEFAULT_USER_ID;
+      const comment = await Comment.create(commentData);
 
-      let flatData = await Comment.createAsFlatData(commentData);
-      let createdData =
-        CommentUtils.wrapAsCommentCreatedData(flatData, req.nextCommentCreationToken);
+      user.comment.add(comment);
+      user.save();
 
-      Comment.message(COMMENT_ROOM_ID, createdData);
+      const commentCreatedData =
+        CommentUtils.wrapAsCommentCreatedData(comment, req.nextCommentCreationToken);
+      Comment.message(COMMENT_ROOM_ID, commentCreatedData);
 
       return res.ok();
     });
@@ -97,7 +92,7 @@ function parseValidatedIntFrom(string, errorMessage, minValue, maxValue) {
     minValue = -Infinity;
   }
 
-  let value = parseInt(string, 10);
+  const value = parseInt(string, 10);
   if (value >= minValue && value <= maxValue) {
     return value;
   }
