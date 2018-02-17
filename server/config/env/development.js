@@ -23,7 +23,8 @@ module.exports = {
     shortcuts: true,
   },
   models: {
-    migrate: 'drop'
+    connection: 'localDevPostgresqlServer',
+    migrate: 'drop',
   },
   port: 443,
   ssl,

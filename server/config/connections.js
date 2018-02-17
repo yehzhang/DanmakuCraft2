@@ -66,10 +66,17 @@ module.exports.connections = {
   *                                                                          *
   *                                                                          *
   ***************************************************************************/
+  localDevPostgresqlServer: {
+    adapter: 'sails-postgresql',
+    host: 'localhost',
+    port: 5432,
+    database: 'danmakucraft_2_dev',
+  },
+
   localPostgresqlServer: {
     adapter: 'sails-postgresql',
     host: 'localhost',
     port: 5432,
     database: 'danmakucraft_2',
-  }
+  },
 };
