@@ -23,7 +23,7 @@ class PhysicalConstants {
   public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION = 15;
   public static readonly BACKGROUND_TRANSITION_DURATION_MS = 3 * Phaser.Timer.SECOND;
 
-  public static readonly CHEST_SPAWN_INTERVAL = 120;
+  public static readonly CHEST_SPAWN_INTERVAL = 9 * Phaser.Timer.MINUTE; // Almost decides the pickup rate.
   public static readonly HASTY_BOOST_RATIO = 1.4;
 
   public static readonly NOTIFIER_BUBBLE_DISPLAY_DURATION = 6 * Phaser.Timer.SECOND;

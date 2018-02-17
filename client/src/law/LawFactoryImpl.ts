@@ -45,7 +45,7 @@ class LawFactoryImpl implements LawFactory {
         .build();
 
     let spawnIntervalStrategy = Chain.total(this.baseGenerator)
-        .pipe(Normal.capped(gaussian(0, spawnInterval / 2)))
+        .pipe(Normal.capped(gaussian(0, spawnInterval / 4)))
         .pipe(Scaler.to(0, spawnInterval * 2))
         .build();
 
@@ -71,6 +71,7 @@ class LawFactoryImpl implements LawFactory {
     let pauseIntervalStrategy = Chain.total(this.baseGenerator)
         .pipe(Normal.capped(gaussian(0, 5)))
         .pipe(Scaler.to(4, 7))
+        .pipe(Const.of(interval => interval * Phaser.Timer.SECOND))
         .build();
     return new ColorTransitionLaw(speedStrategy, pauseStrategy, pauseIntervalStrategy);
   }

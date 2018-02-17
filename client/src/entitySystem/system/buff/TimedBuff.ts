@@ -5,14 +5,11 @@ import {Phaser} from '../../../util/alias/phaser';
 abstract class TimedBuff<T extends Component> extends BaseUpdatingBuff<T> {
   static readonly MAX_LIFETIME = Infinity;
 
-  private maxLifetime: number;
-
   constructor(
-      maxLifetimeSecond: number,
+      private maxLifetime: number,
       private lifetime: number = 0,
       private hasUnset: boolean = false) {
     super();
-    this.maxLifetime = maxLifetimeSecond;
   }
 
   apply(entity: Updatable<T>) {
@@ -27,7 +24,7 @@ abstract class TimedBuff<T extends Component> extends BaseUpdatingBuff<T> {
       return;
     }
 
-    this.lifetime += time.physicsElapsed;
+    this.lifetime += time.physicsElapsedMS;
 
     if (this.isExpired()) {
       this.unset(component);

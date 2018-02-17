@@ -136,7 +136,7 @@ export class ChestSpawner {
 
   spawnIfAppropriate(time: Phaser.Time) {
     if (this.hasSchedule) {
-      this.spawnInterval -= time.physicsElapsed;
+      this.spawnInterval -= time.physicsElapsedMS;
       if (this.spawnInterval > 0) {
         return;
       }

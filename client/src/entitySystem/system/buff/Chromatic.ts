@@ -68,7 +68,7 @@ export class BouncingColorTransition implements ColorTransition {
   }
 
   tick(time: Phaser.Time) {
-    this.pauseInterval -= time.physicsElapsed * UPDATE_SKIP_PERIOD;
+    this.pauseInterval -= time.physicsElapsedMS * UPDATE_SKIP_PERIOD;
     if (this.pauseInterval > 0) {
       return;
     }
