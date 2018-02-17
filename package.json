@@ -21,9 +21,10 @@
     "server:link": "cd server; ln -s ../node_modules node_modules; ln -s ../package.json package.json; cd assets/static/; ln -s ../../../build/dev dev; ln -s ../../../build/prod prod; cd ../../..",
     "server:unlink": "rm -f server/node_modules server/package.json server/assets/static/*",
     "db:terminal": "sudo su postgres -c 'psql -d danmakucraft_2'",
-    "script:populate:all": "ts-node scripts/populateDatabase.ts data/comments/all.xml > build/comments.sql",
-    "script:populate:partial": "ts-node scripts/populateDatabase.ts data/comments/all.xml 16000 > build/comments.partial.sql",
-    "script:build:audio": "node node_modules/audiosprite/cli.js -b 192 -v 6 -o server/assets/audio/background_sprite -u audio data/audio/background/* && mv server/assets/audio/background_sprite.json data/audio/"
+    "db:terminal:dev": "sudo su postgres -c 'psql -d danmakucraft_2_dev'",
+    "script:db:populate": "ts-node scripts/populateDatabase.ts data/comments/all.xml > build/comments.sql",
+    "script:db:populate:partial": "ts-node scripts/populateDatabase.ts data/comments/all.xml 16000 > build/comments.partial.sql",
+    "script:audio:build": "node node_modules/audiosprite/cli.js -b 192 -v 6 -o server/assets/audio/background_sprite -u audio data/audio/background/* && mv server/assets/audio/background_sprite.json data/audio/"
   },
   "repository": {
     "type": "git",

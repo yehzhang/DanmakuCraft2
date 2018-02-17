@@ -21,10 +21,10 @@ async function asPromise<T>(
 }
 
 export async function parse(filename: string) {
-  let data = await asPromise(readFile.bind(null, filename));
-  let xmlData = await asPromise<any>(parseString.bind(null, data));
-  let commentsErrors = new Map();
-  let commentsData = xmlData.i.d
+  const data = await asPromise(readFile.bind(null, filename));
+  const xmlData = await asPromise<any>(parseString.bind(null, data));
+  const commentsErrors = new Map();
+  const commentsData = xmlData.i.d
       .map((commentElement: any) => {
         if (!commentElement._ || !commentElement.$) {
           return null;
@@ -51,30 +51,28 @@ export async function parse(filename: string) {
 }
 
 function asQueries(commentsData: BilibiliCommentData[]): string {
-  let dateValue = new Date().toISOString();
-  let initialUserValue = [['UNKNOWN', dateValue, dateValue]];
-  let initialUserQuery = `INSERT INTO "user" ("shortId", "createdAt", "updatedAt") 
+  const dateValue = new Date().toISOString();
+  const initialUserValue = [['UNKNOWN', dateValue, dateValue]];
+  const initialUserQuery = `INSERT INTO "user" ("shortId", "createdAt", "updatedAt") 
       VALUES ${formatValues(initialUserValue)};`;
 
-  let externalUsersRelations = asSequence(commentsData)
+  const userRelations = asSequence(commentsData)
       .map(data => data.userId)
       .distinct()
-      .map(userId => [userId, shortid.generate()] as [string, string])
+      .mapIndexed(
+          (index, externalId) => new UserRelation(externalId, shortid.generate(), index + 2))
       .toArray();
-  let userValues = asSequence(externalUsersRelations)
-      .map(([shortId]) => [shortId, dateValue, dateValue])
-      .toArray();
-  let insertUsersQuery = ` INSERT INTO "user" ("shortId", "createdAt", "updatedAt") 
+  const userValues = userRelations.map(relation => [relation.userId, dateValue, dateValue]);
+  const insertUsersQuery = ` INSERT INTO "user" ("shortId", "createdAt", "updatedAt") 
       VALUES ${formatValues(userValues)};`;
 
-  let externalUserValues = asSequence(externalUsersRelations)
-      .mapIndexed((userIndex, [userId]) => ['bilibili', userIndex, userId, dateValue, dateValue])
-      .toArray();
-  let insertExternalUsersQuery = `INSERT INTO externaluser (origin, "correspondsTo", "externalId", "createdAt", "updatedAt") 
+  const externalUserValues = userRelations.map(
+      relation => ['bilibili', relation.userIndex, relation.externalId, dateValue, dateValue]);
+  const insertExternalUsersQuery = `INSERT INTO externaluser (origin, "correspondsTo", "externalId", "createdAt", "updatedAt") 
       VALUES ${formatValues(externalUserValues)};`;
 
-  let commentValues = commentsData.map(data => {
-    let sentAt = moment(data.sentAt * 1000).tz('Asia/Shanghai').format();
+  const commentValues = commentsData.map(data => {
+    const sentAt = moment(data.sentAt * 1000).tz('Asia/Shanghai').format();
     return [
       data.text,
       data.color,
@@ -86,14 +84,14 @@ function asQueries(commentsData: BilibiliCommentData[]): string {
       sentAt,
       sentAt];
   });
-  let insertCommentsQuery = `INSERT INTO comment (text, color, size, "coordinateX", "coordinateY", "buffType", "buffParameter", "createdAt", "updatedAt") 
+  const insertCommentsQuery = `INSERT INTO comment (text, color, size, "coordinateX", "coordinateY", "buffType", "buffParameter", "createdAt", "updatedAt") 
       VALUES\n${formatValues(commentValues)};`;
 
-  let externalUsersMapping = new Map(externalUsersRelations.map(
-      ([userId], userIndex) => [userId, userIndex] as [string, number]));
-  let userCommentValues = commentsData.map(
+  const externalUsersMapping = new Map(userRelations.map(
+      relation => [relation.externalId, relation.userIndex] as [string, number]));
+  const userCommentValues = commentsData.map(
       (data, commentIndex) => [externalUsersMapping.get(data.userId), commentIndex]);
-  let insertUserCommentsQuery = `INSERT INTO comment_comment_comment__user_comment (user_comment, comment_comment_comment) 
+  const insertUserCommentsQuery = `INSERT INTO comment_comment_comment__user_comment (user_comment, comment_comment_comment) 
       VALUES\n${formatValues(userCommentValues)};`;
 
   return [
@@ -102,6 +100,11 @@ function asQueries(commentsData: BilibiliCommentData[]): string {
     insertExternalUsersQuery,
     insertCommentsQuery,
     insertUserCommentsQuery].join('');
+}
+
+class UserRelation {
+  constructor(readonly externalId: string, readonly userId: string, readonly userIndex: number) {
+  }
 }
 
 export function formatValues(rows: any[][]) {
@@ -117,7 +120,7 @@ export function formatValues(rows: any[][]) {
 }
 
 async function main() {
-  let path = process.argv[2];
+  const path = process.argv[2];
   if (!path) {
     throw new TypeError('Invalid path');
   }
@@ -127,10 +130,9 @@ async function main() {
     count = Infinity;
   }
 
-  let commentsData = await parse(path);
-  commentsData = commentsData.slice(0, count);
-  let query = asQueries(commentsData);
+  const commentsData = await parse(path);
+  const query = asQueries(commentsData.slice(0, count));
   console.log(query);
 }
 
-let ignored = main();
+const ignored = main();
