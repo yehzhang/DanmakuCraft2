@@ -4,11 +4,12 @@ const webpack = require('webpack');
 const path = require('path');
 
 const PACKAGE_DIR = require('app-root-path').toString();
+const LOCAL = process.env.LOCAL_SERVER != null;
 
 console.error('Bundle in development mode.');
 
 module.exports = merge.smart(common, {
-  devtool: 'cheap-module-eval-source-map',
+  devtool: LOCAL ? 'cheap-module-eval-source-map' : 'source-map',
   plugins: [
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(true),
