@@ -11,8 +11,9 @@ module.exports = {
       expiresIn: sails.config.parameters.nextCommentCreation.tokenExpiresIn,
       // TODO
       // jwtid: shortid.generate(),
-      issuer: `${req.host || ''}@${sails.config.parameters.serverInstanceId}`,
-      audience: req.ip || '__UNKNOWN__',
+
+      // issuer: `${req.host || '__UNKNOWN_REQ_HOST__'}@${sails.config.parameters.serverInstanceId}`,
+      // audience: req.ip || '__UNKNOWN_REQ_IP__',
     };
   }
 };
