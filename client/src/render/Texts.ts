@@ -9,7 +9,7 @@ class Texts {
     'main.tutorial.movement.first': '注意到我身子底下两个凸起了吗？那是我的腿',
     'main.tutorial.movement.second': '我可是会走路的哦',
     'main.tutorial.movement.final': '按方向键移动', // TODO update for pointer
-    'main.tutorial.comment': '你看见了什么？按回车来告诉这个世界',
+    'main.tutorial.comment': '快捷键：按回车开始发弹幕',
 
     'main.buff.description.none': '我捡到了……一团空气',
     'main.buff.description.chromatic': '下一条弹幕一定会很绚丽',
