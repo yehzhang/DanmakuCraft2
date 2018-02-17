@@ -2,6 +2,7 @@ import socketIOClient = require('socket.io-client');
 import SailsIOJS = require('sails.io.js');
 import ConfigProvider from '../../config/ConfigProvider';
 import Response, {ErrorResponse} from './Response';
+import Sleep from '../../../util/async/Sleep';
 
 const io = SailsIOJS(socketIOClient);
 io.sails.autoConnect = false;
@@ -28,9 +29,9 @@ class Socket {
   async get<T>(
       eventIdentity: string, data: { [key: string]: any } = {}): Promise<Response<T> | null> {
     try {
-      this.checkConnection();
-    } catch {
-      return new ErrorResponse('Failed to establish socket connection.');
+      await this.checkConnection();
+    } catch (e) {
+      return new ErrorResponse(`Failed to establish socket connection for '${e}'.`);
     }
 
     let message = await new Promise(
@@ -40,9 +41,9 @@ class Socket {
 
   async post<T>(eventIdentity: string, data: { [key: string]: any }): Promise<Response<T> | null> {
     try {
-      this.checkConnection();
-    } catch {
-      return new ErrorResponse('Failed to establish socket connection.');
+      await this.checkConnection();
+    } catch (e) {
+      return new ErrorResponse(`Failed to establish socket connection for '${e}'.`);
     }
 
     let message = await new Promise(
@@ -50,11 +51,23 @@ class Socket {
     return Response.from(message);
   }
 
-  private checkConnection() {
+  private async checkConnection() {
     if (this.socket.isConnected()) {
       return;
     }
-    this.socket.reconnect();
+
+    if (!this.socket.isConnecting()) {
+      this.socket.reconnect();
+      return;
+    }
+
+    for (let i = 0; i < 50; i++) {
+      await Sleep.after(0.1 * Phaser.Timer.SECOND);
+      if (this.socket.isConnected()) {
+        return;
+      }
+    }
+    throw new TypeError('Timed out while waiting for connecting');
   }
 }
 
