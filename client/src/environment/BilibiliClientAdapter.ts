@@ -2,8 +2,6 @@ import OfficialCommentProvider from './component/officialWebsite/OfficialComment
 import GameContainerProvider from './interface/GameContainerProvider';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 import TextInputCommentProvider from './component/bilibili/TextInputCommentProvider';
-import EnvironmentVariables from './component/bilibili/EnvironmentVariables';
-import Parameters from './component/bilibili/Parameters';
 import BilibiliContainerProvider from './component/bilibili/BilibiliContainerProvider';
 import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
 import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
@@ -22,19 +20,7 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
       private socket: Socket = new Socket(),
       private nextCommentCreationTokenJar: Jar = new Jar()) {
     super();
-
-    if (!BilibiliClientAdapter.canRunOnThisWebPage()) {
-      throw new Error('Script cannot run on this page');
-    }
-
     this.disablePlayerControls();
-  }
-
-  private static canRunOnThisWebPage() {
-    if (__DEV__) {
-      return true;
-    }
-    return EnvironmentVariables.aid === Parameters.AID;
   }
 
   private disablePlayerControls() {
