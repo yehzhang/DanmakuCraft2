@@ -12,6 +12,7 @@ import Widgets from './component/bilibili/Widgets';
 import Socket from './component/officialWebsite/Socket';
 import Jar from './component/officialWebsite/Jar';
 import ClickTriggeredFocuser from './component/bilibili/ClickTriggeredFocuser';
+import {bindFirst} from './util';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   constructor(
@@ -26,7 +27,7 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
       throw new Error('Script cannot run on this page');
     }
 
-    BilibiliClientAdapter.disablePlayerControls();
+    this.disablePlayerControls();
   }
 
   private static canRunOnThisWebPage() {
@@ -36,7 +37,7 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
     return EnvironmentVariables.aid === Parameters.AID;
   }
 
-  private static disablePlayerControls() {
+  private disablePlayerControls() {
     // Disable progress bar.
     $('.bilibili-player-video-control .bilibili-player-video-progress-bar .bpui-slider-tracker-wrp')
         .off();
@@ -63,6 +64,9 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
 
     // Disable keyboard controls to the video player.
     $(window).off('keydown');
+
+    // Disable context menu of the player.
+    bindFirst($(window), 'contextmenu', e => e.stopImmediatePropagation());
 
     // Player controls not disabled: volume, widescreen, and fullscreen.
 
