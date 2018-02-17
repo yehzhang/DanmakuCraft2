@@ -13,6 +13,8 @@ class PhysicalConstants {
   public static readonly UPDATING_COMMENT_CHUNKS_COUNT = 100;
   public static readonly QUADTREE_MAX_VALUES_COUNT = 7;
 
+  public static readonly MAX_UPDATING_COMMENTS_COUNT = 500;
+
   public static readonly PLAYER_MOVE_PIXELS_PER_SECOND = 216;
 
   public static readonly COMMENT_BLINK_DURATION_MS = 150;

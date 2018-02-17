@@ -108,6 +108,24 @@ class MainState extends Phaser.State {
     }
   }
 
+  private async loadCommentsInitial(commentsData: Iterable<CommentData>) {
+    const commentsDataArray = Array.from(commentsData);
+
+    // Refrain from loading too many updating comments.
+    asSequence(commentsDataArray).filter(commentData => commentData.buffData != null)
+        .drop(PhysicalConstants.MAX_UPDATING_COMMENTS_COUNT)
+        .forEach(commentData => (commentData as any).buffData = null);
+    await Sleep.moment();
+
+    const dataChunks = asSequence(commentsDataArray)
+        .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
+        .chunk(50);
+    for await (const dataChunk of IntermittentIterable.of(dataChunks)) {
+      this.universe.commentLoader.loadBatch(dataChunk, false);
+    }
+    await Sleep.moment();
+  }
+
   private async loadAudios() {
     const audioKey = this.universe.randomDataGenerator.uuid();
     this.game.load.audiosprite(audioKey, spriteSheet.resources, undefined, spriteSheet);
@@ -148,12 +166,7 @@ class MainState extends Phaser.State {
     const ignored = this.scene.startParticlesField(100);
 
     const [commentsData] = await Sleep.orError(0.75 * Phaser.Timer.MINUTE, dataPromise);
-    const dataChunks = asSequence(commentsData)
-        .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
-        .chunk(50);
-    for await (const dataChunk of IntermittentIterable.of(dataChunks)) {
-      this.universe.commentLoader.loadBatch(dataChunk, false);
-    }
+    await this.loadCommentsInitial(commentsData);
 
     this.updatables.add(this.universe.engineCap);
     this.renderables.add(this.universe.engineCap);
