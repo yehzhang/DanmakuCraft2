@@ -49,24 +49,18 @@ class LocalStorageSettingsManager extends BaseSettingsManager {
   protected loadPresetSettings(presetSettings: Map<PresetSettingsOptions, any>) {
     const settings = LocalStorageSettingsManager.getPresetSettings();
 
-    let fontFamily;
     if (settings && typeof settings['fontfamily'] === 'string') {
-      fontFamily = settings['fontfamily'];
-    } else {
-      fontFamily = PresetSettingsOptions.FONT_FAMILY.getDefaultValue();
+      presetSettings.set(PresetSettingsOptions.FONT_FAMILY, settings['fontfamily']);
     }
-    presetSettings.set(PresetSettingsOptions.FONT_FAMILY, fontFamily);
 
-    let textShadowStyle = PresetSettingsOptions.TEXT_SHADOW.getDefaultValue();
     if (settings) {
       const textShadowStyleIndex = Number(settings['fontborder']);
-      const parsedTextShadowStyle =
+      const textShadowStyle =
           LocalStorageSettingsManager.TEXT_SHADOW_STYLE_MAPPING.get(textShadowStyleIndex);
-      if (parsedTextShadowStyle != null) {
-        textShadowStyle = parsedTextShadowStyle;
+      if (textShadowStyle != null) {
+        presetSettings.set(PresetSettingsOptions.TEXT_SHADOW, textShadowStyle);
       }
     }
-    presetSettings.set(PresetSettingsOptions.TEXT_SHADOW, textShadowStyle);
   }
 }
 
