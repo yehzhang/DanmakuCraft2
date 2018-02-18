@@ -1,0 +1,47 @@
+<div class="container text-center">
+  <!--Banner-->
+  <div>
+    <div class="row">
+      <h1 class="col title"><%= __('view.index.prepping') %></h1>
+    </div>
+    <div class="row">
+      <p class="col description"><%= __('view.index.publish') %></p>
+    </div>
+  </div>
+
+  <div>
+    <!--Meanwhile-->
+    <div class="row">
+      <p class="col paragraph text-left"><%= __('view.index.beforeThat') %></p>
+    </div>
+
+    <!--Cards-->
+    <div class="row cards">
+      <div class="col-md inner-header">
+        <!--TODO src-->
+        <a>
+          <h2><%= __('view.index.playAtBilibili.title') %></h2>
+          <p class="description"><%= __('view.index.playAtBilibili.description') %></p>
+        </a>
+      </div>
+
+      <div class="col-md inner-header">
+        <div>
+          <h2 class=""><%= __('view.index.github.title') %></h2>
+          <iframe
+            src="https://ghbtns.com/github-btn.html?user=yehzhang&repo=danmakucraft2&type=star&count=false&size=large"
+            frameborder="0" scrolling="0" width="75px" height="30px"></iframe>
+        </div>
+        <p class="description"><%= __('view.index.github.description') %></p>
+      </div>
+
+      <div class="col-md inner-header">
+        <h2><%= __('view.index.share.title') %></h2>
+        <!--TODO src-->
+        <p class="inner-paragraph">
+          <a><%= __('view.index.share.howTo.1') %></a><%= __('view.index.share.howTo.2') %></p>
+        <p class="description"><%= __('view.index.share.description') %></p>
+      </div>
+    </div>
+  </div>
+</div>

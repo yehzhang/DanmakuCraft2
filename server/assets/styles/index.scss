@@ -1,0 +1,62 @@
+@import "../../../node_modules/bootstrap/scss/functions";
+@import "../../../node_modules/bootstrap/scss/variables";
+@import "../../../node_modules/bootstrap/scss/mixins";
+@import "../../../node_modules/bootstrap/scss/utilities/spacing";
+
+body {
+  background-color: #F6F9FA;
+  font-family: // Safari for OS X and iOS (San Francisco)
+    -apple-system,
+      // Chrome < 56 for OS X (San Francisco)
+    BlinkMacSystemFont,
+      // Mac
+    "Helvetica Neue",
+      // Chinese
+    'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei',
+      // Windows
+    "Segoe UI",
+      // Android
+    "Roboto",
+      // Basic web fallback
+    Helvetica, Arial, sans-serif,
+      // Emoji fonts
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.game-container {
+  // TODO increase width when screen is small or on mobile.
+  //@width: 60vw;
+  //width: @width;
+  //height: @width * 0.618;
+
+  $box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05), 0 3px 6px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: $box-shadow;
+  -webkit-box-shadow: $box-shadow;
+  box-shadow: $box-shadow;
+}
+
+.title {
+  @extend .mt-3;
+  @extend .mt-md-5;
+}
+
+.paragraph {
+  @extend .mt-3;
+  @extend .mt-md-4;
+}
+
+.description {
+  @extend .paragraph;
+
+  color: #5c5855;
+}
+
+.inner-header {
+  @extend .mb-3;
+  @extend .mb-md-4;
+}
+
+.inner-paragraph {
+  @extend .mt-3;
+  @extend .mb-1;
+}

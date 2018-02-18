@@ -1,9 +1,13 @@
 /**
- * Route Mappings (sails.config.routes)
+ * sails.config.routes
  */
 module.exports.routes = {
   '/': {
+    view: 'index',
+  },
+  '/game': {
     view: 'game',
+    policy: 'isWorldBuilder',
   },
   '/beta': {
     view: 'game-beta',

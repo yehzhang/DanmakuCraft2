@@ -13,6 +13,7 @@ data/audio/depot/
 
 server/assets/static
 server/assets/audio/
+server/.sass-cache
 
 ## Node.gitignore
 # Logs
