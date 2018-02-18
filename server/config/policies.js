@@ -17,6 +17,10 @@ module.exports.policies = {
     create: ['verifyNextCommentCreationToken', 'grantNextCommentCreationToken'],
   },
 
+  ProtectedFilesController: {
+    '*': ['isWorldBuilder'],
+  },
+
   // RabbitController: {
   //   // Apply the `false` policy as the default for all actions, preventing all accesses.
   //   '*': false,

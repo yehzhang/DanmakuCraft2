@@ -3,7 +3,7 @@ const COMMENT_ROOM_ID = -1;
 
 module.exports = {
   async find(req, res) {
-    return catchServerError(res, async () => {
+    return ControllerUtils.catchServerError(res, async () => {
       let commentsCount = parseInt(req.param('count'), 10);
       if (isNaN(commentsCount)) {
         commentsCount = MAX_COMMENTS_COUNT;
@@ -23,7 +23,7 @@ module.exports = {
   },
 
   async create(req, res) {
-    return catchServerError(res, async () => {
+    return ControllerUtils.catchServerError(res, async () => {
       let commentData;
       try {
         commentData = parseCommentDataFrom(req.param('comment'));
@@ -49,14 +49,6 @@ module.exports = {
     });
   },
 };
-
-async function catchServerError(res, callback) {
-  try {
-    return await callback();
-  } catch (e) {
-    return res.serverError(e);
-  }
-}
 
 function parseCommentDataFrom(comment) {
   if (comment == null) {

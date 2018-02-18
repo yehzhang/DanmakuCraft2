@@ -9,4 +9,5 @@ module.exports.routes = {
     view: 'game-beta',
     policy: 'isWorldBuilder',
   },
+  '/static/dev/*': 'ProtectedFilesController.download',
 };
