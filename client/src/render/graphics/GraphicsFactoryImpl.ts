@@ -14,6 +14,8 @@ class GraphicsFactoryImpl implements GraphicsFactory {
   private static readonly TEXT_SHADOW_DROP_BLUR = 1.5;
   private static readonly TEXT_SHADOW_DROP_THICKNESS = 1.25;
 
+  private static readonly DEFAULT_FONT_WEIGHT = 'normal';
+
   constructor(
       private game: Phaser.Game,
       private idGenerator: Phaser.RandomDataGenerator,
@@ -42,11 +44,12 @@ class GraphicsFactoryImpl implements GraphicsFactory {
         0,
         text,
         {
-          font: fontFamily,
+          fontWeight: GraphicsFactoryImpl.DEFAULT_FONT_WEIGHT,
           fontSize: size,
           fill: color,
           maxLines
         });
+    textDisplay.font = fontFamily;  // Too lame to parse quoted font-family.
 
     switch (textShadowStyle) {
       case TextShadowStyle.GLOW:
