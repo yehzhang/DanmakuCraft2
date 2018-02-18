@@ -138,7 +138,7 @@ class MainState extends Phaser.State {
         if (success) {
           resolve();
         } else {
-          reject('Failed to audios');
+          reject('Failed to load audios');
         }
       };
       this.game.load.onFileComplete.add(onFileCompleted as any);
