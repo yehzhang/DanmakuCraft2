@@ -24,10 +24,12 @@ body {
 }
 
 .game-container {
+  margin: 0 auto;
+
   // TODO increase width when screen is small or on mobile.
-  //@width: 60vw;
-  //width: @width;
-  //height: @width * 0.618;
+  $box-shadow: 60vw;
+  width: $box-shadow;
+  height: $box-shadow * 0.618;
 
   $box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05), 0 3px 6px rgba(0, 0, 0, 0.05);
   -moz-box-shadow: $box-shadow;
