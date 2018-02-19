@@ -90,7 +90,7 @@ function asQueries(commentsData: BilibiliCommentData[]): string {
   const externalUsersMapping = new Map(userRelations.map(
       relation => [relation.externalId, relation.userIndex] as [string, number]));
   const userCommentValues = commentsData.map(
-      (data, commentIndex) => [externalUsersMapping.get(data.userId), commentIndex]);
+      (data, commentIndex) => [externalUsersMapping.get(data.userId), commentIndex + 1]);
   const insertUserCommentsQuery = `INSERT INTO comment_comment_comment__user_comment (user_comment, comment_comment_comment) 
       VALUES\n${formatValues(userCommentValues)};`;
 
