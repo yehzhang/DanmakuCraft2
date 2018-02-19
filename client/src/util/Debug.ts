@@ -19,6 +19,9 @@ import Nudge from '../entitySystem/component/Nudge';
 import {Leaf} from './entityStorage/quadtree/Quadtree';
 import EntityFinder from './entityStorage/EntityFinder';
 
+/**
+ * Usage: in console, type db.comment, db.chest, etc.
+ */
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
   private static readonly DEFAULT_COMMENT_COLOR = Colors.WHITE_NUMBER;
@@ -34,9 +37,7 @@ class Debug {
       await render.call(universe.engineCap);
     })(universe.engineCap.render);
 
-    if (__DEV__) {
-      universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
-    }
+    const ignored = this.walk;
 
     asSequence(universe.visibility['engines']).flatMap(
         engine => asSequence([engine['onUpdateTickers'], engine['onRenderTickers']]))
@@ -149,7 +150,7 @@ class Debug {
 
   get hidePreview() {
     this.universe.commentPlacingPolicy.cancelRequest();
-    return;
+    return true;
   }
 
   get treeDepths() {
@@ -164,7 +165,17 @@ class Debug {
 
   get mute() {
     this.universe.backgroundMusicPlayer.setVolume(0);
-    return;
+    return true;
+  }
+
+  get fly() {
+    this.universe.player.moveSpeedBoostRatio = 5;
+    return true;
+  }
+
+  get walk() {
+    this.universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
+    return true;
   }
 
   static set(universe: Universe) {

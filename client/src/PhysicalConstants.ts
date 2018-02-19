@@ -1,7 +1,7 @@
 import {Phaser} from './util/alias/phaser';
 
 class PhysicalConstants {
-  public static readonly WORLD_SIZE = 40000;
+  public static readonly WORLD_SIZE = 42000;
 
   public static readonly BACKGROUND_SAMPLING_RADIUS = 2000;
   public static readonly BACKGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS = 600;
