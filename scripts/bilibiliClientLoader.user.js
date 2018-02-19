@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         《弹幕世界2》 B 站客户端
+// @name         《弹幕世界2》 B 站启动器
 // @namespace    danmakucraft.com
 // @version      0.1
 // @description  在 B 站播放器内玩《弹幕世界2》。
