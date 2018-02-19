@@ -7,6 +7,7 @@
 // @match        *://www.bilibili.com/video/av19771370/
 // @grant        none
 // @run-at       document-idle
+// @license      AGPL-3.0+
 // ==/UserScript==
 
 (function () {
