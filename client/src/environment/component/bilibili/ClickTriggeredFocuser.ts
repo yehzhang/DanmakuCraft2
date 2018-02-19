@@ -5,7 +5,10 @@ class ClickTriggeredFocuser {
 
   constructor(
       trackingWidgets: Iterable<JQuery<HTMLElement>>,
-      private focusee: JQuery<HTMLElement> | null = null) {
+      private focusee: JQuery<HTMLElement> | null = null,
+      private isSettingFocusee: boolean = false) {
+    $(window).focusin(e => this.focusee = $(e.target));
+
     this.elements = new Set(trackingWidgets);
     for (let element of this.elements) {
       this.track(element);
@@ -32,10 +35,13 @@ class ClickTriggeredFocuser {
       throw new TypeError('Widget is not tracked');
     }
 
-    this.focusee = element;
-
     ClickTriggeredFocuser.clearAllOtherFocuses();
+
+    this.isSettingFocusee = true;
     element.focus();
+    this.isSettingFocusee = false;
+
+    this.focusee = element;
   }
 
   unfocus() {
@@ -51,6 +57,10 @@ class ClickTriggeredFocuser {
   private track(element: JQuery<HTMLElement>) {
     element.on('click', () => this.focus(element));
     bindFirst(element, 'focusin', event => {
+      if (this.isSettingFocusee) {
+        return;
+      }
+
       if (this.focusee === element) {
         return;
       }
