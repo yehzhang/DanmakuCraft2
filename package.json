@@ -10,7 +10,7 @@
     "clean": "npm run client:clean",
     "test": "npm run client:test",
     "client:build:dev": "webpack --watch --config client/webpack.dev.js",
-    "client:build:dev:local": "LOCAL_SERVER=true webpack --watch --config client/webpack.dev.js",
+    "client:build:dev:local": "rm -rf build/dev/* && LOCAL_SERVER=true webpack --watch --config client/webpack.dev.js",
     "client:build:prod": "webpack --watch --config client/webpack.prod.js",
     "client:build:analyze": "webpack --config client/webpack.prod.js --json >> build/bundle.json",
     "client:clean": "rm -rf dist build",
