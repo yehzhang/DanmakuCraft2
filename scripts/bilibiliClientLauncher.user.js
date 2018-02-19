@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         《弹幕世界2》 B 站启动器
 // @namespace    danmakucraft.com
-// @version      0.1
+// @version      0.2
 // @description  在 B 站播放器内玩《弹幕世界2》：https://www.bilibili.com/video/av19771370/。官网：https://danmakucraft.com
 // @author       yehzhang
 // @match        *://www.bilibili.com/video/av19771370/
