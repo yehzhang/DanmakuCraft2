@@ -9,8 +9,8 @@ import PixelParticleBuilder from './PixelParticleBuilder';
 import TextShadowStyle from '../TextShadowStyle';
 
 class GraphicsFactoryImpl implements GraphicsFactory {
-  private static readonly TEXT_SHADOW_GLOW_BLUR = 1.5;
-  private static readonly TEXT_SHADOW_GLOW_THICKNESS = 1.75;
+  private static readonly TEXT_SHADOW_GLOW_BLUR = 2;
+  private static readonly TEXT_SHADOW_GLOW_THICKNESS = .75;
   private static readonly TEXT_SHADOW_DROP_BLUR = 1.5;
   private static readonly TEXT_SHADOW_DROP_THICKNESS = 1.25;
 
