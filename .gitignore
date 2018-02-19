@@ -10,6 +10,7 @@ server/package.json
 data/comments/
 data/audio/background/
 data/audio/depot/
+data/release/
 
 server/assets/static
 server/assets/audio/
