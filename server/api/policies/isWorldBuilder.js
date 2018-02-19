@@ -10,7 +10,7 @@ module.exports = function (req, res, next) {
     ip = ip.substr('::ffff:'.length);
   }
 
-  if (allowedIps.includes(ip)) {
+  if (ip.startsWith('192.168.') || allowedIps.includes(ip)) {
     return next();
   }
 
