@@ -24,9 +24,10 @@ class InputInterceptor {
   private handleKeyEvents(target: JQuery<HTMLElement>) {
     bindFirst(target, 'keydown', event => {
       if (event.which === Phaser.KeyCode.ENTER) {
-        return;
+        this.keyboard.processKeyDown(event);
+      } else {
+        this.interceptIfGameIsFocused(event, () => this.keyboard.processKeyDown(event));
       }
-      this.interceptIfGameIsFocused(event, () => this.keyboard.processKeyDown(event));
     });
     target.on('keydown', event => {
       if (event.which === Phaser.KeyCode.ENTER) {
