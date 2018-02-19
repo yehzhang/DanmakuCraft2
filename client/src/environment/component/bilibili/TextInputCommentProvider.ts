@@ -115,7 +115,6 @@ class TextInputCommentProvider implements CommentProvider {
     }
 
     this.commentPlacingPolicy.commitRequest();
-    this.commentText = null;
 
     let ignored = this.commentDataQueue.push(commentData);
   }
