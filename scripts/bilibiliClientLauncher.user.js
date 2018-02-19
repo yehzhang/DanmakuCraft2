@@ -15,6 +15,7 @@
   var loadGame = function () {
     var scriptElement = document.createElement('script');
     scriptElement.src = 'https://danmakucraft.com/static/prod/bundle.js';
+    scriptElement.src += '?nonsense=' + Math.random();
 
     var bodyElement = document.querySelector('body');
     bodyElement.appendChild(scriptElement);
