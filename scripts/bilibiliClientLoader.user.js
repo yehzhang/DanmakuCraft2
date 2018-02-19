@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  在 B 站播放器内玩《弹幕世界2》。
 // @author       yehzhang
-// @match        *://www.bilibili.com/video/av*/  // TODO match only the real aid
+// @match        *://www.bilibili.com/video/av19771370/
 // @grant        none
 // @run-at       document-idle
 // ==/UserScript==
