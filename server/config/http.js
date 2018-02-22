@@ -42,8 +42,13 @@ module.exports.http = {
     ],
 
     redirectToNonWww(req, res, next) {
-      if (req.host.startsWith(WWW_HOSTNAME_PREFIX)) {
-        let url = `${req.protocol}://${req.host.slice(WWW_HOSTNAME_PREFIX.length)}${req.path}`;
+      if (typeof req.host === 'string') {
+        if (req.host.startsWith(WWW_HOSTNAME_PREFIX)) {
+          const url = `${req.protocol}://${req.host.slice(WWW_HOSTNAME_PREFIX.length)}${req.path}`;
+          return res.redirect(301, url);
+        }
+      } else {
+        const url = `${req.protocol}://danmakucraft.com${req.path}`;
         return res.redirect(301, url);
       }
       return next();
