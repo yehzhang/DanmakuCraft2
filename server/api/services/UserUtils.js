@@ -19,18 +19,16 @@ module.exports = {
   async findOrCreate(userData) {
     if (userData.origin === 'bilibili') {
       const externalUserId = UserUtils.hash(userData.id);
-      const externalUser = await ExternalUser.findOne({
+      const externalUser = await ExternalUser.findOrCreate({
         origin: userData.origin,
         externalId: externalUserId,
       });
-      if (externalUser == null) {
+
+      if (externalUser.correspondsTo == null) {
         const user = await User.create();
 
-        await ExternalUser.create({
-          origin: userData.origin,
-          externalId: externalUserId,
-          correspondsTo: user,
-        });
+        externalUser.correspondsTo = user;
+        await externalUser.save();
 
         return user;
       }
