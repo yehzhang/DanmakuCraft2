@@ -5,6 +5,7 @@ import {
   ValueResponse as ValueResponseInterface,
   ValueResponseStatus
 } from '../../../../../server/api/services/response';
+import Texts from '../../../render/Texts';
 
 abstract class Response<T> {
   static from<T>(message: any): Response<T> | null {
@@ -17,7 +18,13 @@ abstract class Response<T> {
       return new ValueResponse(message.value);
     }
     if (this.isErrorResponse(message)) {
-      return new ErrorResponse(message.reason);
+      let reason;
+      if (message.reason == null) {
+        reason = Texts.forName('main.error.server');
+      } else {
+        reason = message.reason;
+      }
+      return new ErrorResponse(reason);
     }
     return null;
   }

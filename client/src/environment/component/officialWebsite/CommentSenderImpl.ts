@@ -22,7 +22,7 @@ class CommentSenderImpl implements CommentSender {
       try {
         await this.send(commentData);
       } catch (e) {
-        console.error('Error while sending a comment', e);
+        console.error('Error while sending a comment:', e);
         this.notifier.send(e.message);
       }
     }

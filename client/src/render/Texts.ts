@@ -16,6 +16,8 @@ class Texts {
     'main.buff.description.hasty': '现在我健步如飞了！',
 
     'main.comment.insert.collision': '和别的弹幕靠的太近了',
+
+    'main.error.server': '通讯被干扰，请刷新或稍后再试',
   };
 
   static forName(name: string): string {

@@ -5,7 +5,7 @@ export const ErrorResponseStatus = 'rejected';
 
 export interface ErrorResponse {
   readonly status: 'resolved';
-  readonly reason: string;
+  readonly reason?: string;
 }
 
 export interface ValueResponse {
