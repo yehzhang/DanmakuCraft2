@@ -13,35 +13,18 @@ module.exports = {
   },
 
   /**
-   * @param {UserData} userData
+   * @param {UserData?} userData
    * @return Promise<User>
    */
   async findOrCreate(userData) {
-    if (userData.origin === 'bilibili') {
-      const externalUserId = UserUtils.hash(userData.id);
-      const externalUser = await ExternalUser.findOrCreate({
-        origin: userData.origin,
-        externalId: externalUserId,
-      });
-
-      if (externalUser.correspondsTo == null) {
-        const user = await User.create();
-
-        externalUser.correspondsTo = user;
-        await externalUser.save();
-
-        return user;
+    if (userData != null) {
+      if (userData.origin === 'bilibili' && userData.id != null) {
+        return await findOrCreateBilibiliUser(userData);
       }
-
-      return await User.findOne({id: externalUser.correspondsTo});
+      // TODO handle official origin
     }
-    // TODO handle official origin
 
-    const users = await User.findOne({id: UserUtils.getDefaultId()});
-    if (users.length === 0) {
-      throw new TypeError('Default user not found');
-    }
-    return users[0];
+    return await findDefaultUser();
   },
 
   /**
@@ -49,5 +32,53 @@ module.exports = {
    */
   getDefaultId() {
     return DEFAULT_USER_ID;
-  }
+  },
 };
+
+/**
+ * @param {UserData} userData
+ * @returns {Promise<User>}
+ */
+async function findOrCreateBilibiliUser(userData) {
+  const externalUserId = UserUtils.hash(userData.id);
+  let externalUser = await ExternalUser.findOne({
+    origin: userData.origin,
+    externalId: externalUserId,
+  });
+
+  if (externalUser == null) {
+    const user = await User.create();
+    try {
+      externalUser = await ExternalUser.create({
+        origin: userData.origin,
+        externalId: externalUserId,
+        correspondsTo: user,
+      });
+    } catch (error) {
+      await user.destroy({id: user.id});
+
+      // ExternalUser has probably been created in another request.
+      externalUser = await ExternalUser.findOne({
+        origin: userData.origin,
+        externalId: externalUserId,
+      });
+      if (externalUser == null) {
+        throw error;
+      }
+    }
+  }
+
+  // TODO why is externalUser.correspondsTo an id number instead of entity?
+  return await User.findOne({id: externalUser.correspondsTo});
+}
+
+/**
+ * @returns {Promise<User>}
+ */
+async function findDefaultUser() {
+  const user = await User.findOne({id: UserUtils.getDefaultId()});
+  if (user === null) {
+    throw new TypeError('Default user not found');
+  }
+  return user;
+}
