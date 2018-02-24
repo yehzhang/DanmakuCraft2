@@ -39,7 +39,7 @@ module.exports = {
       const comment = await Comment.create(commentData);
 
       user.comment.add(comment);
-      user.save();
+      const ignored = user.save();
 
       const commentCreatedData =
         CommentUtils.wrapAsCommentCreatedData(comment, req.nextCommentCreationToken);
