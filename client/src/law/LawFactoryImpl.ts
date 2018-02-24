@@ -32,7 +32,7 @@ class LawFactoryImpl implements LawFactory {
   createChestLaw(
       trackee: Entity,
       renderRadius: DynamicProvider<number>,
-      spawnInterval: number = PhysicalConstants.CHEST_SPAWN_INTERVAL) {
+      spawnInterval: number = PhysicalConstants.CHEST_SPAWN_COOLDOWN) {
     let spawnLocationStrategy = Chain.total(this.baseGenerator)
         .pipe(Scaler.to(0, Phaser.Math.PI2))
         .pipe(Const.of(azimuth => {
