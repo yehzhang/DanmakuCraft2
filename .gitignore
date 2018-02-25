@@ -12,7 +12,8 @@ data/audio/depot/
 data/release/
 
 server/assets/static
-server/assets/audio/
+server/assets/audio/*
+!server/assets/audio/background_sprite.mp3
 server/.sass-cache
 server/package.json
 server/package-lock.json
