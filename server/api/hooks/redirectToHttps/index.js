@@ -20,7 +20,7 @@ module.exports = function redirectToHttps(sails) {
         disabled: false,
 
         // listen for all connected hostname
-        hostname: '0.0.0.0',
+        hostname: sails.config.hostname,
 
         // port to listen
         port: undefined,
@@ -85,14 +85,6 @@ function startServer(sails, cb) {
 }
 
 function redirectToHttps(req, res) {
-  let host = req.headers.host;
-  if (typeof host === 'string') {
-    // Strip off the port number.
-    host = host.replace(/:.+/, '');
-  } else {
-    host = 'danmakucraft.com';
-  }
-
   let port;
   if (sails.config.port === 443) {
     port = '';
@@ -110,7 +102,7 @@ function redirectToHttps(req, res) {
     path = '';
   }
 
-  const location = `https://${host}${port}${path}`;
+  const location = `https://${sails.config.hostname}${port}${path}`;
 
   res.writeHead(301, {'Location': location});
   res.end();

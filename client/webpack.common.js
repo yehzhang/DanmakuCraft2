@@ -61,4 +61,8 @@ module.exports = {
       p2: path.join(PHASER_DIR, 'build/custom/p2.js'),
     },
   },
+  output: {
+    filename: 'bundle.js',
+    path: path.join(PACKAGE_DIR, 'build'),
+  },
 };

@@ -1,4 +1,5 @@
 export const frontend: {
-  commentIdentity: string;
-  gameContainerId: string;
+  readonly commentIdentity: string;
+  readonly gameContainerId: string;
+  readonly baseUrl: string;
 };

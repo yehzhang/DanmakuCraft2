@@ -1,13 +1,14 @@
 const shortid = require('shortid');
 
-module.exports.parameters = {
-  bundleFileUrl: '/static/prod/bundle.js',
-  betaBundleFileUrl: '/static/dev/bundle.js',
-
+module.exports = {
   nextCommentCreation: {
     interval: 2,
     tokenExpiresIn: "1 day",
   },
 
   serverInstanceId: shortid.generate(),
+
+  hostname: 'danmakucraft.com',
+
+  bundleFileUrl: '/static/prod/bundle.js',
 };

@@ -9,4 +9,9 @@ module.exports = {
     cert: readFileSync('/etc/letsencrypt/live/danmakucraft.com/fullchain.pem'),
     key: readFileSync('/etc/letsencrypt/live/danmakucraft.com/privkey.pem'),
   },
+
+  models: {
+    // see `sails.config.connections`
+    connection: 'localPostgresqlServer',
+  },
 };

@@ -40,11 +40,11 @@ module.exports.http = {
     ],
 
     redirectToNonSubDomain(req, res, next) {
-      if (['localhost', '127.0.0.1'].includes(req.host)) {
+      if (!NetUtils.isDanmakucraftHostname(req)) {
         return next();
       }
 
-      const url = `${req.protocol}://danmakucraft.com${req.path}`;
+      const url = `${req.protocol}://${sails.config.hostname}${req.path}`;
       return res.redirect(301, url);
     },
 

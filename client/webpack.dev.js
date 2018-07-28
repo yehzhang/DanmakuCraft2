@@ -1,9 +1,7 @@
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
 const webpack = require('webpack');
-const path = require('path');
 
-const PACKAGE_DIR = require('app-root-path').toString();
 const LOCAL = process.env.LOCAL_SERVER != null;
 
 console.error('Bundle in development mode.');
@@ -21,8 +19,4 @@ module.exports = merge.smart(common, {
       sourceMap: true,
     }),
   ],
-  output: {
-    filename: 'bundle.js',
-    path: path.join(PACKAGE_DIR, 'build/dev'),
-  },
 });
