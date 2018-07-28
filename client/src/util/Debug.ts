@@ -311,6 +311,9 @@ class Debug {
     this.debugInfo.line(
         `Background updated at`, backgroundEngine['sampler']['currentCoordinates']);
 
+    this.debugInfo.line(
+        `Lightness count: ${this.systems.backgroundColorSystem.colorMixer.lightnessCounter}`);
+
     let previewEntity = (this.universe.proxy.getCommentPlacingPolicy() as any)['previewEntity'];
     if (previewEntity != null) {
       this.universe.game.debug.spriteBounds(previewEntity.display);
@@ -416,7 +419,7 @@ class DebugInfo {
     this.line('Player', this.player.coordinates, '', true);
     this.line(`FPS: ${this.game.time.fps}`);
     this.line(`Render radius: ${getRenderRadius(this.game)}`);
-    this.line(`Camera focus`, this.game.camera.position, undefined, true);
+    this.line('Camera focus', this.game.camera.position, undefined, true);
 
     return this;
   }

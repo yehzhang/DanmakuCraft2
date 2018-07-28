@@ -1,12 +1,15 @@
-import ExistenceEngineBuilder from './ExistenceEngineBuilder';
-import EntityFinder, {StateChanged} from '../../util/entityStorage/EntityFinder';
-import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
-import Entity from '../../entitySystem/Entity';
-import {Component} from '../../entitySystem/alias';
-import {OnOrBuildClause} from './existenceEngineBuilderLanguage';
 import {asSequence} from 'sequency';
+import {Component} from '../../entitySystem/alias';
+import Entity from '../../entitySystem/Entity';
+import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
+import EntityFinder, {StateChanged} from '../../util/entityStorage/EntityFinder';
 import SystemEngine from '../SystemEngine';
+import ExistenceEngineBuilder from './ExistenceEngineBuilder';
+import {OnOrBuildClause} from './existenceEngineBuilderLanguage';
 
+/**
+ * Applies systems to entities every time they are registered or deregistered.
+ */
 class ExistenceEngine implements SystemEngine {
   constructor(
       private onUpdateRelations: ExistenceRelation[],

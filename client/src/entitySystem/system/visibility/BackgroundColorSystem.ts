@@ -1,43 +1,37 @@
-import {CommentEntity} from '../../alias';
-import VisibilitySystem from './VisibilitySystem';
-import Point from '../../../util/syntax/Point';
-import Colors from '../../../render/Colors';
-import PhysicalConstants from '../../../PhysicalConstants';
 import {Bag} from 'typescript-collections';
-import Polar from '../../../util/math/Polar';
+import PhysicalConstants from '../../../PhysicalConstants';
+import Colors from '../../../render/Colors';
 import {Phaser} from '../../../util/alias/phaser';
-import Entity from '../../Entity';
 import Container from '../../../util/entityStorage/Container';
+import Polar from '../../../util/math/Polar';
+import Point from '../../../util/syntax/Point';
+import {CommentEntity} from '../../alias';
+import Entity from '../../Entity';
+import VisibilitySystem from './VisibilitySystem';
 
 class BackgroundColorSystem implements VisibilitySystem<CommentEntity> {
-  private baseColor: Phaser.RGBColor;
+  private static readonly MAX_RGB_VALUE = 255;
+  private readonly baseColor: Phaser.RGBColor;
 
   constructor(
-      private game: Phaser.Game,
-      private currentSpawnPoints: Container<Entity>,
-      private transitionDuration: number = PhysicalConstants.BACKGROUND_TRANSITION_DURATION_MS,
-      private colorMixer: ColorMixer = new ColorMixer(),
+      private readonly game: Phaser.Game,
+      private readonly currentSpawnPoints: Container<Entity>,
+      private readonly maxTransitionDuration: number = 6 * Phaser.Timer.SECOND,
+      private readonly colorMixer: ColorMixer = new ColorMixer(),
       baseColor: number = Colors.BACKGROUND_NUMBER,
       private colorTween: Phaser.Tween | null = null) {
     this.baseColor = Phaser.Color.getRGB(baseColor);
   }
 
-  private static blendColors(rgb: Phaser.RGBColor, other: Phaser.RGBColor): number {
-    return Phaser.Color.getColor(
-        Phaser.Color.blendMultiply(rgb.r, other.r),
-        Phaser.Color.blendMultiply(rgb.g, other.g),
-        Phaser.Color.blendMultiply(rgb.b, other.b));
-  }
-
   enter(comment: CommentEntity) {
-    this.colorMixer.add(comment.color);
+    this.colorMixer.add(comment.color, comment.isRegisteredAfterGenesis());
   }
 
   update(comment: CommentEntity) {
   }
 
   exit(comment: CommentEntity) {
-    this.colorMixer.remove(comment.color);
+    this.colorMixer.remove(comment.color, comment.isRegisteredAfterGenesis());
   }
 
   finish() {
@@ -45,7 +39,7 @@ class BackgroundColorSystem implements VisibilitySystem<CommentEntity> {
       this.colorTween.stop();
     }
 
-    let color = this.getBackgroundColor();
+    const color = this.getBackgroundColor();
     this.colorTween = this.buildBackgroundColorTween(color);
     this.colorTween.start();
   }
@@ -55,93 +49,130 @@ class BackgroundColorSystem implements VisibilitySystem<CommentEntity> {
       return Colors.BACKGROUND_NUMBER;
     }
 
-    let hsl = this.colorMixer.getMixedColor();
-    let colorMask = Phaser.Color.HSLtoRGB(hsl.h, hsl.s, hsl.l);
-    return BackgroundColorSystem.blendColors(colorMask, this.baseColor);
+    const hsl = this.colorMixer.getMixedColor();
+    const colorMask = Phaser.Color.HSLtoRGB(hsl.h, hsl.s, hsl.l);
+    return blendColors(colorMask, this.baseColor);
   }
 
   private buildBackgroundColorTween(targetColor: number): Phaser.Tween {
     // Tweens the color in RGB.
-    let currColorObj = Phaser.Color.getRGB(this.game.stage.backgroundColor);
-    let targetColorObj = Phaser.Color.getRGB(targetColor);
-    let colorTween = this.game.add.tween(currColorObj).to(targetColorObj, this.transitionDuration);
+    const currentColorObj = Phaser.Color.getRGB(this.game.stage.backgroundColor);
+    const targetColorObj = Phaser.Color.getRGB(targetColor);
+    const transitionDuration = this.getTransitionDuration(currentColorObj, targetColorObj);
+    const colorTween = this.game.add.tween(currentColorObj).to(targetColorObj, transitionDuration);
 
     colorTween.onUpdateCallback(() => {
       this.game.stage.backgroundColor =
-          Phaser.Color.getColor(currColorObj.r, currColorObj.g, currColorObj.b);
+          Phaser.Color.getColor(currentColorObj.r, currentColorObj.g, currentColorObj.b);
     });
 
     return colorTween;
   }
-}
 
-export default BackgroundColorSystem;
+  private getTransitionDuration(
+      currentColorObj: Phaser.RGBColor,
+      targetColorObj: Phaser.RGBColor) {
+    const maxColorDistance = Math.max(
+        Math.abs(currentColorObj.r - targetColorObj.r),
+        Math.abs(currentColorObj.g - targetColorObj.g),
+        Math.abs(currentColorObj.b - targetColorObj.b));
+    const transitionDurationPercent =
+        Phaser.Math.percent(maxColorDistance, BackgroundColorSystem.MAX_RGB_VALUE);
+    return this.maxTransitionDuration * transitionDurationPercent;
+  }
+}
 
 /**
  * Produces a color between black and white based on mixed colors.
  */
 export class ColorMixer {
+
   constructor(
-      private maxMixedSaturation: number = 0.5,
-      private colorsCountToReachMaxSaturation: number =
+      private readonly maxMixedSaturation: number = 0.5,
+      private readonly countBrightColorsToReachMaxLightness: number = 7,
+      private readonly colorsCountToReachMaxSaturation: number =
           PhysicalConstants.BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION,
-      private colorsCountPadding: number = 2,
-      private colorsCountToReachMaxLightness: number =
+      private readonly colorsCountToReachMaxLightness: number =
           PhysicalConstants.BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS,
-      private rgbsCounter: Bag<number> = new Bag()) {
+      private lightnessCounter: number = 0,
+      private readonly rgbsCounter: Bag<number> = new Bag()) {
   }
 
-  private static getRatio(value: number, max: number) {
-    return Math.min(value, max) / max;
+  add(rgb: number, isBright: boolean) {
+    this.rgbsCounter.add(rgb);
+    this.lightnessCounter =
+        Math.max(this.lightnessCounter + this.getEffectiveLightnessWeight(isBright), 0);
   }
 
-  add(rgb: number, nCopies?: number) {
-    this.rgbsCounter.add(rgb, nCopies);
-  }
-
-  remove(rgb: number, nCopies?: number) {
-    this.rgbsCounter.remove(rgb, nCopies);
+  remove(rgb: number, isBright: boolean) {
+    this.rgbsCounter.remove(rgb);
+    this.lightnessCounter =
+        Math.max(this.lightnessCounter - this.getEffectiveLightnessWeight(isBright), 0);
   }
 
   getMixedColor(): HSL {
-    let mixingRgbs = this.rgbsCounter.toSet().toArray();
-    let colorsCount = mixingRgbs.map(color => this.rgbsCounter.count(color))
-        .reduce((colorCount, other) => colorCount + other, 0);
+    const [hue, saturation] = this.getHueAndSaturation();
+    const lightness = this.getLightness();
+    return new HSL(hue, saturation, lightness);
+  }
 
-    // Set hue and saturation.
-    let hueCoordinates = Point.origin();
-    let tempHueCoordinates = Point.origin();
-    for (let rgb of mixingRgbs) {
-      let rgbObject = Phaser.Color.getRGB(rgb);
-      let hslObject = Phaser.Color.RGBtoHSL(rgbObject.r, rgbObject.g, rgbObject.b);
+  private getEffectiveLightnessWeight(isBright: boolean) {
+    if (isBright) {
+      return this.colorsCountToReachMaxLightness / this.countBrightColorsToReachMaxLightness;
+    }
+    return 1;
+  }
+
+  private getHueAndSaturation() {
+    const mixingRgbs = this.rgbsCounter.toSet().toArray();
+    const hueCoordinates = Point.origin();
+    const tempHueCoordinates = Point.origin();
+    for (const rgb of mixingRgbs) {
+      const rgbObject = Phaser.Color.getRGB(rgb);
+      const hslObject = Phaser.Color.RGBtoHSL(rgbObject.r, rgbObject.g, rgbObject.b);
       tempHueCoordinates.setToPolar(hslObject.h * Phaser.Math.PI2, hslObject.s);
 
-      let colorCount = this.rgbsCounter.count(rgb);
+      const colorCount = this.rgbsCounter.count(rgb);
       tempHueCoordinates.multiply(colorCount, colorCount);
 
       hueCoordinates.add(tempHueCoordinates.x, tempHueCoordinates.y);
     }
+
+    const colorsCount = mixingRgbs.map(color => this.rgbsCounter.count(color))
+        .reduce((colorCount, other) => colorCount + other, 0);
     if (colorsCount > 0) {
       hueCoordinates.divide(colorsCount, colorsCount);
     }
 
-    let [azimuth, radius] = Polar.from(hueCoordinates);
-    let colorsRatioForSaturation =
-        ColorMixer.getRatio(colorsCount, this.colorsCountToReachMaxSaturation);
-    let saturation = Math.min(radius * colorsRatioForSaturation, this.maxMixedSaturation);
+    const [azimuth, radius] = Polar.from(hueCoordinates);
+    const colorsPercentForSaturation =
+        Phaser.Math.percent(colorsCount, this.colorsCountToReachMaxSaturation);
+    const saturation = Math.min(radius * colorsPercentForSaturation, this.maxMixedSaturation);
 
-    let hue = azimuth / Phaser.Math.PI2;
+    const hue = azimuth / Phaser.Math.PI2;
 
-    // Set lightness.
-    let colorsRatioForLightness = ColorMixer.getRatio(
-        colorsCount + this.colorsCountPadding, this.colorsCountToReachMaxLightness);
-    let lightness = Phaser.Easing.Quadratic.Out(colorsRatioForLightness);
-
-    return new HSL(hue, saturation, lightness);
+    return [hue, saturation];
   }
+
+  private getLightness() {
+    const lightness = Phaser.Math.percent(
+        this.lightnessCounter + this.colorsCountToReachMaxLightness * 0.01,
+        Math.max(this.colorsCountToReachMaxLightness, 1));
+    // Makes it as dark as possible, so that the effect of a newly-sent comment is salient.
+    return Phaser.Easing.Cubic.Out(lightness);
+  }
+}
+
+function blendColors(rgb: Phaser.RGBColor, other: Phaser.RGBColor): number {
+  return Phaser.Color.getColor(
+      Phaser.Color.blendMultiply(rgb.r, other.r),
+      Phaser.Color.blendMultiply(rgb.g, other.g),
+      Phaser.Color.blendMultiply(rgb.b, other.b));
 }
 
 export class HSL {
   constructor(public h: number, public s: number, public l: number) {
   }
 }
+
+export default BackgroundColorSystem;

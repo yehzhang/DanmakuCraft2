@@ -1,18 +1,18 @@
-import EntityFinder, {StateChanged} from '../../util/entityStorage/EntityFinder';
+import {asSequence, default as Sequence} from 'sequency';
+import {Component} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
+import DynamicProvider from '../../util/DynamicProvider';
+import EntityFinder, {StateChanged} from '../../util/entityStorage/EntityFinder';
+import Distance from '../../util/math/Distance';
+import {leftOuterJoin} from '../../util/set';
+import Point from '../../util/syntax/Point';
+import SystemEngine from '../SystemEngine';
 import VisibilityEngineBuilder from './VisibilityEngineBuilder';
 import {OnOrBuildClause} from './visibilityEngineBuilderLanguage';
-import Point from '../../util/syntax/Point';
-import DynamicProvider from '../../util/DynamicProvider';
-import Distance from '../../util/math/Distance';
-import {asSequence, default as Sequence} from 'sequency';
-import SystemEngine from '../SystemEngine';
-import {Component} from '../../entitySystem/alias';
-import {leftOuterJoin} from '../../util/set';
 
 /**
- * Updates visibility of entities around an entity when it moves a certain distance.
+ * Applies systems to all entities around an entity if it has moved a certain distance.
  */
 class VisibilityEngine implements SystemEngine {
   constructor(

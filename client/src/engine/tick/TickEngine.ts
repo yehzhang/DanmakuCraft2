@@ -1,9 +1,12 @@
-import SystemEngine from '../SystemEngine';
-import TickSystem from '../../entitySystem/system/tick/TickSystem';
-import {OnOrBuildClause} from './tickEngineBuilderLanguage';
-import TickEngineBuilder from './TickEngineBuilder';
 import {asSequence} from 'sequency';
+import TickSystem from '../../entitySystem/system/tick/TickSystem';
+import SystemEngine from '../SystemEngine';
+import TickEngineBuilder from './TickEngineBuilder';
+import {OnOrBuildClause} from './tickEngineBuilderLanguage';
 
+/**
+ * Applies systems to all entities around an entity every tick.
+ */
 class TickEngine implements SystemEngine {
   constructor(private onUpdateTickers: Ticker[], private onRenderTickers: Ticker[]) {
   }

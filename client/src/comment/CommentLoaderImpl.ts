@@ -1,12 +1,13 @@
-import CommentLoader from './CommentLoader';
-import EntityRegister from '../util/entityStorage/EntityRegister';
-import EntityFactory from '../entitySystem/EntityFactory';
-import BuffDataApplier from '../entitySystem/system/buff/BuffDataApplier';
-import {CommentEntity, UpdatingCommentEntity} from '../entitySystem/alias';
-import CommentData from './CommentData';
-import {BuffData} from '../entitySystem/system/buff/BuffData';
-import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
 import {asSequence} from 'sequency';
+import {CommentEntity, UpdatingCommentEntity} from '../entitySystem/alias';
+import RegisteredTimes from '../entitySystem/component/RegisteredTimes';
+import UpdatingBuffCarrier from '../entitySystem/component/UpdatingBuffCarrier';
+import EntityFactory from '../entitySystem/EntityFactory';
+import {BuffData} from '../entitySystem/system/buff/BuffData';
+import BuffDataApplier from '../entitySystem/system/buff/BuffDataApplier';
+import EntityRegister from '../util/entityStorage/EntityRegister';
+import CommentData from './CommentData';
+import CommentLoader from './CommentLoader';
 
 class CommentLoaderImpl implements CommentLoader {
   constructor(
@@ -40,7 +41,7 @@ class CommentLoaderImpl implements CommentLoader {
 
     if (!blink) {
       asSequence([comments, updatingComments]).flatten()
-          .forEach(comment => comment.registeredTimes = Infinity);
+          .forEach(comment => comment.registeredTimes = RegisteredTimes.MAX);
     }
 
     return comments;
@@ -57,7 +58,7 @@ class CommentLoaderImpl implements CommentLoader {
     }
 
     if (!blink) {
-      comment.registeredTimes = Infinity;
+      comment.registeredTimes = RegisteredTimes.MAX;
     }
 
     return comment;

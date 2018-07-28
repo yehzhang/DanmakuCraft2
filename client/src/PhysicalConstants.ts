@@ -19,8 +19,7 @@ class PhysicalConstants {
   public static readonly COMMENT_BLINK_DURATION_MS = 150;
 
   public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_LIGHTNESS = 230;
-  public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION = 15;
-  public static readonly BACKGROUND_TRANSITION_DURATION_MS = 3 * Phaser.Timer.SECOND;
+  public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION = 10;
 
   // Almost decides pickup rate of chests.
   public static readonly CHEST_SPAWN_COOLDOWN = 7 * Phaser.Timer.MINUTE;

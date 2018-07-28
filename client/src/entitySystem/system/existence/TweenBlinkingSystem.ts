@@ -1,4 +1,4 @@
-import {PIXI} from '../../../util/alias/phaser';
+import {Phaser, PIXI} from '../../../util/alias/phaser';
 import Blink from '../../component/Blink';
 import Display from '../../component/Display';
 import RegisteredTimes from '../../component/RegisteredTimes';
@@ -12,12 +12,10 @@ class TweenBlinkingSystem implements ExistenceSystem<Target> {
   constructor(private game: Phaser.Game) {
   }
 
-  async adopt(entity: Target) {
-    if (!entity.isFirstTimeRegistered()) {
-      return;
+  adopt(entity: Target) {
+    if (entity.isNew()) {
+      entity.setBlink(this.blink(entity.display));
     }
-
-    entity.setBlink(this.blink(entity.display));
   }
 
   abandon() {
