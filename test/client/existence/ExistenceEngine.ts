@@ -5,8 +5,8 @@ import Entity from '../../../client/src/entitySystem/Entity';
 import AddChildToRegionSystem from '../../../client/src/entitySystem/system/existence/AddChildToRegionSystem';
 import ExistenceSystem from '../../../client/src/entitySystem/system/existence/ExistenceSystem';
 import {Phaser} from '../../../client/src/util/alias/phaser';
-import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
 import EntityFinder, {StateChanged} from '../../../client/src/util/entityStorage/EntityFinder';
+import QuadTreeEntityFinder from '../../../client/src/util/entityStorage/quadtree/QuadtreeEntityFinder';
 import Iterator from '../../../client/src/util/syntax/Iterator';
 
 describe('ExistenceEngine', () => {
@@ -100,7 +100,7 @@ describe('ExistenceRelation', () => {
     enteringEntities = [mockEnteringEntities.map(instance)];
     const mockExitingEntities = [mock(Entity), mock(Entity)];
     exitingEntities = [mockExitingEntities.map(instance)];
-    mockEntityFinder = mock(ChunkEntityFinder);
+    mockEntityFinder = mock(QuadTreeEntityFinder);
     entityFinder = instance(mockEntityFinder);
     entityFinder[Symbol.iterator] = () => Iterator.of([]);
 

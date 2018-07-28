@@ -1,11 +1,8 @@
-import {DisplayableRegion, StationaryEntity} from '../../entitySystem/alias';
+import {StationaryEntity} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import EntityFactory from '../../entitySystem/EntityFactory';
 import PhysicalConstants from '../../PhysicalConstants';
 import {Phaser} from '../alias/phaser';
-import ChunkEntityFinder from './chunk/ChunkEntityFinder';
-import ChunkEntityRegister from './chunk/ChunkEntityRegister';
-import Chunks from './chunk/Chunks';
 import {StateChanged} from './EntityFinder';
 import EntityStorageFactory from './EntityStorageFactory';
 import EntityStorageImpl from './EntityStorageImpl';
@@ -17,23 +14,6 @@ import QuadTreeEntityRegister from './quadtree/QuadtreeEntityRegister';
 
 class EntityStorageFactoryImpl implements EntityStorageFactory {
   constructor(private readonly entityFactory: EntityFactory) {
-  }
-
-  createChunkEntityStorage<T extends StationaryEntity>(
-      chunksCount: number = PhysicalConstants.COMMENT_CHUNKS_COUNT) {
-    chunksCount = Math.floor(chunksCount);
-    if (!(chunksCount > 0)) {
-      throw new TypeError('Invalid chunks count');
-    }
-
-    const chunks = Chunks.create<DisplayableRegion<T>>(
-        point => this.entityFactory.createRegion(point), chunksCount);
-    const onStateChanged = new Phaser.Signal<StateChanged<DisplayableRegion<T>>>();
-    const entityRegister = new ChunkEntityRegister<T>(chunks, onStateChanged, this.entityFactory);
-
-    const entityFinder = new ChunkEntityFinder(chunks, onStateChanged);
-
-    return new EntityStorageImpl(entityRegister, entityFinder);
   }
 
   createGlobalEntityStorage<T extends Entity>() {

@@ -4,8 +4,8 @@ import VisibilityEngine, {DistanceChecker, EntityFinderRecord, SystemTicker, Tic
 import Entity from '../../../client/src/entitySystem/Entity';
 import {Phaser} from '../../../client/src/util/alias/phaser';
 import DynamicProvider from '../../../client/src/util/DynamicProvider';
-import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
 import EntityFinder, {StateChanged} from '../../../client/src/util/entityStorage/EntityFinder';
+import QuadTreeEntityFinder from '../../../client/src/util/entityStorage/quadtree/QuadtreeEntityFinder';
 import Distance from '../../../client/src/util/math/Distance';
 import Point from '../../../client/src/util/syntax/Point';
 
@@ -161,7 +161,7 @@ xdescribe('EntityFinderRecord', () => {
   beforeEach(() => {
     entityExistenceUpdated = new Phaser.Signal();
 
-    mockEntityFinder = mock(ChunkEntityFinder);
+    mockEntityFinder = mock(QuadTreeEntityFinder);
     when(mockEntityFinder.listAround(anything(), anything())).thenReturn([]);
     when(mockEntityFinder.onStateChanged).thenReturn(entityExistenceUpdated);
 
