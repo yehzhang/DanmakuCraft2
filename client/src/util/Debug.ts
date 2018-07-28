@@ -1,26 +1,25 @@
-import Universe from '../Universe';
-import Colors from '../render/Colors';
+import {asSequence} from 'sequency';
 import CommentData from '../comment/CommentData';
+import {getRenderRadius} from '../engine/visibility/Visibility';
+import {DisplayableEntity, Player} from '../entitySystem/alias';
+import Nudge from '../entitySystem/component/Nudge';
 import {BuffData, BuffType} from '../entitySystem/system/buff/BuffData';
+import ConfigProvider from '../environment/config/ConfigProvider';
+import {toWorldCoordinateOffset2d} from '../law/space';
+import {NotificationPriority} from '../output/notification/Notifier';
+import PhysicalConstants from '../PhysicalConstants';
+import HardCodedPreset from '../preset/HardCodedPreset';
+import Colors from '../render/Colors';
 import ChestBuilder from '../render/graphics/ChestBuilder';
 import SpeechBubbleBuilder from '../render/graphics/SpeechBubbleBuilder';
-import Point from './syntax/Point';
-import PhysicalConstants from '../PhysicalConstants';
-import {toWorldCoordinateOffset2d} from '../law/space';
-import {asSequence} from 'sequency';
-import Distance from './math/Distance';
-import {NotificationPriority} from '../output/notification/Notifier';
-import ConfigProvider from '../environment/config/ConfigProvider';
-import Visibility from '../engine/visibility/Visibility';
-import {DisplayableEntity, Player} from '../entitySystem/alias';
+import Universe from '../Universe';
 import {Phaser} from './alias/phaser';
 import Sleep from './async/Sleep';
-import Nudge from '../entitySystem/component/Nudge';
-import {Leaf} from './entityStorage/quadtree/Quadtree';
-import EntityFinder from './entityStorage/EntityFinder';
+import Distance from './math/Distance';
+import Point from './syntax/Point';
 
 /**
- * Usage: in console, type db.comment, db.chest, etc.
+ * Usage: in browser console, enter `d.comment`, `d.chest`, etc.
  */
 class Debug {
   private static readonly DEFAULT_COMMENT_TEXT = '测试弹幕';
@@ -28,7 +27,7 @@ class Debug {
 
   constructor(
       private universe: Universe,
-      public showInfo: boolean = true,
+      public shouldShowInfo: boolean = true,
       private notificationShowCounts: number = 0,
       private systems: { [systemName: string]: any } = {},
       private debugInfo: DebugInfo = new DebugInfo(universe.game, universe.player)) {
@@ -37,18 +36,26 @@ class Debug {
       await render.call(universe.engineCap);
     })(universe.engineCap.render);
 
-    const ignored = this.walk;
-
-    asSequence(universe.visibility['engines']).flatMap(
-        engine => asSequence([engine['onUpdateTickers'], engine['onRenderTickers']]))
-        .plus<any>(asSequence(universe.existence['engines'])
-            .map(engine => [engine['onUpdateRelations'], engine['onRenderRelations']])
-            .flatten())
-        .plus<any>(asSequence([universe.tick.beforeVisibility, universe.tick.afterVisibility])
-            .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']])
-            .flatten())
+    asSequence(universe.visibility['engines'])
+        .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']])
+        .plus<any[]>(asSequence(universe.existence['engines'])
+            .map(engine => [engine['onUpdateRelations'], engine['onRenderRelations']]))
+        .plus<any[]>(asSequence([universe.tick.beforeVisibility, universe.tick.afterVisibility])
+            .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']]))
         .flatten()
-        .map(systemHolder => (systemHolder as any)['system'])
+        .flatten()
+        .flatMap((systemHolder: any) => {
+          if (systemHolder.hasOwnProperty('systems')) {
+            return asSequence(systemHolder.systems);
+          }
+          return asSequence([systemHolder]);
+        })
+        .map((systemHolder: any) => {
+          while (systemHolder.hasOwnProperty('system')) {
+            systemHolder = systemHolder.system;
+          }
+          return systemHolder;
+        })
         .distinct()
         .forEach(system => {
           let systemName = system.constructor.name;
@@ -65,6 +72,15 @@ class Debug {
         });
 
     universe.game.time.advancedTiming = true;
+
+    this.applyGameState();
+  }
+
+  get hideInfo() {
+    this.shouldShowInfo = false;
+    this.debugInfo.clear();
+
+    return true;
   }
 
   get chest() {
@@ -141,10 +157,13 @@ class Debug {
     return this.universe.notifier;
   }
 
-  get hideInfo() {
-    this.showInfo = false;
-    this.debugInfo.clear();
+  get showInfo() {
+    this.shouldShowInfo = true;
+    return true;
+  }
 
+  get fly() {
+    this.universe.player.moveSpeedBoostRatio = 20;
     return true;
   }
 
@@ -153,28 +172,18 @@ class Debug {
     return true;
   }
 
-  get treeDepths() {
-    const depthsMap = asSequence(this.universe.commentsStorage.getFinder() as EntityFinder<Leaf<any>>)
-        .map(n => n['depth'])
-        .groupBy(n => n);
-    return asSequence(depthsMap)
-        .sortedBy(([k]) => k)
-        .map(([k, v]) => `${k}: ${v.length}`)
-        .toArray();
-  }
+  // get treeDepths() {
+  //   const depthsMap = asSequence(this.universe.commentsStorage.getFinder() as
+  // EntityFinder<Leaf<any>>) .map(n => n['depth']) .groupBy(n => n); return asSequence(depthsMap)
+  // .sortedBy(([k]) => k) .map(([k, v]) => `${k}: ${v.length}`) .toArray(); }
 
   get mute() {
     this.universe.backgroundMusicPlayer.setVolume(0);
     return true;
   }
 
-  get fly() {
+  get run() {
     this.universe.player.moveSpeedBoostRatio = 5;
-    return true;
-  }
-
-  get walk() {
-    this.universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
     return true;
   }
 
@@ -197,9 +206,21 @@ class Debug {
 
     let debug = new this(universe);
 
-    (window as any).db = debug;
+    (window as any).d = debug;
 
     return debug;
+  }
+
+  get walk() {
+    this.universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
+    return true;
+  }
+
+  showBoundsOf(entity: DisplayableEntity) {
+    if (!this.shouldShowInfo) {
+      return;
+    }
+    this.debugInfo.addBoundsOf(entity);
   }
 
   addComment(
@@ -211,11 +232,50 @@ class Debug {
         new CommentData(25, color, text, coordinates, buffData), true);
   }
 
-  showBoundsOf(entity: DisplayableEntity) {
-    if (!this.showInfo) {
-      return;
+  private applyGameState() {
+    const gameState = {
+      player: {
+        movementStyle: 'walk',
+        coordinates: HardCodedPreset['WORLD_CENTER_COORDINATES'] as Point | null,
+      },
+      backgroundAudio: {
+        muted: false,
+      },
+    };
+    location.hash.slice(1).split('&').forEach(param => {
+      const [key, value] = param.split('=');
+      switch (key) {
+        case 'walk':
+        case 'run':
+        case 'fly':
+          gameState.player.movementStyle = key;
+          break;
+        case 'coordinates':
+          gameState.player.coordinates = new Phaser.Point(...value.split(',').map(Number));
+          break;
+        case 'defaultCoordinates':
+          gameState.player.coordinates = null;
+          break;
+        case 'mute':
+          gameState.backgroundAudio.muted = true;
+          break;
+        default:
+          break;
+      }
+    });
+
+    const ignored = (this as any)[gameState.player.movementStyle];
+
+    if (gameState.player.coordinates != null) {
+      this.universe.player.addToCoordinatesBy(toWorldCoordinateOffset2d(
+          gameState.player.coordinates,
+          this.universe.player.coordinates,
+          PhysicalConstants.WORLD_SIZE));
     }
-    this.debugInfo.addBoundsOf(entity);
+
+    if (gameState.backgroundAudio.muted) {
+      const ignored2 = this.mute;
+    }
   }
 
   hideBoundsOf(entity: DisplayableEntity) {
@@ -223,7 +283,7 @@ class Debug {
   }
 
   private async render() {
-    if (!this.showInfo) {
+    if (!this.shouldShowInfo) {
       return;
     }
 
@@ -355,7 +415,7 @@ class DebugInfo {
 
     this.line('Player', this.player.coordinates, '', true);
     this.line(`FPS: ${this.game.time.fps}`);
-    this.line(`Render radius: ${Visibility['getRenderRadius'](this.game)}`);
+    this.line(`Render radius: ${getRenderRadius(this.game)}`);
     this.line(`Camera focus`, this.game.camera.position, undefined, true);
 
     return this;

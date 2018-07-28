@@ -1,20 +1,20 @@
-import ColorTransitionLaw from './ColorTransitionLaw';
-import DataGenerator from '../util/dataGenerator/DataGenerator';
-import LawFactory from './LawFactory';
-import Const from '../util/dataGenerator/Const';
-import Weighted from '../util/dataGenerator/Weighted';
-import Chain from '../util/dataGenerator/Chain';
 import * as gaussian from 'gaussian';
-import {BuffData, BuffType} from '../entitySystem/system/buff/BuffData';
-import ChestLaw from './ChestLaw';
-import Point from '../util/syntax/Point';
-import SimpleDataGenerator from '../util/dataGenerator/SimpleDataGenerator';
-import Scaler from '../util/dataGenerator/Scaler';
-import Normal from '../util/dataGenerator/Normal';
-import PhysicalConstants from '../PhysicalConstants';
 import Entity from '../entitySystem/Entity';
-import DynamicProvider from '../util/DynamicProvider';
+import {BuffData, BuffType} from '../entitySystem/system/buff/BuffData';
+import PhysicalConstants from '../PhysicalConstants';
+import Chain from '../util/dataGenerator/Chain';
+import Const from '../util/dataGenerator/Const';
+import DataGenerator from '../util/dataGenerator/DataGenerator';
+import Normal from '../util/dataGenerator/Normal';
+import Scaler from '../util/dataGenerator/Scaler';
+import SimpleDataGenerator from '../util/dataGenerator/SimpleDataGenerator';
 import Threshold from '../util/dataGenerator/Threshold';
+import Weighted from '../util/dataGenerator/Weighted';
+import DynamicProvider from '../util/DynamicProvider';
+import Point from '../util/syntax/Point';
+import ChestLaw from './ChestLaw';
+import ColorTransitionLaw from './ColorTransitionLaw';
+import LawFactory from './LawFactory';
 
 class LawFactoryImpl implements LawFactory {
   constructor(
@@ -33,23 +33,23 @@ class LawFactoryImpl implements LawFactory {
       trackee: Entity,
       renderRadius: DynamicProvider<number>,
       spawnInterval: number = PhysicalConstants.CHEST_SPAWN_COOLDOWN) {
-    let spawnLocationStrategy = Chain.total(this.baseGenerator)
+    const spawnLocationStrategy = Chain.total(this.baseGenerator)
         .pipe(Scaler.to(0, Phaser.Math.PI2))
         .pipe(Const.of(azimuth => {
           // Must be in render radius. Otherwise, chest may not be entered, and thus not exited and
           // demolished. Minus one for miserable floating point number arithmetic.
-          let radius = renderRadius.getValue() - 1;
-          let offset = Point.ofPolar(azimuth, radius);
+          const radius = renderRadius.getValue() - 1;
+          const offset = Point.ofPolar(azimuth, radius);
           return Phaser.Point.add(trackee.coordinates, offset);
         }))
         .build();
 
-    let spawnIntervalStrategy = Chain.total(this.baseGenerator)
+    const spawnIntervalStrategy = Chain.total(this.baseGenerator)
         .pipe(Normal.capped(gaussian(0, spawnInterval / 4)))
         .pipe(Scaler.to(0, spawnInterval * 2))
         .build();
 
-    let buffStrategy = Chain.total(this.baseGenerator)
+    const buffStrategy = Chain.total(this.baseGenerator)
         .pipe(Weighted.newBuilder<BuffData>()
             .add(new BuffData(BuffType.NONE), 1)
             .add(new BuffData(BuffType.CHROMATIC), 2)
@@ -61,14 +61,14 @@ class LawFactoryImpl implements LawFactory {
   }
 
   private createColorTransitionLawInstance() {
-    let speedStrategy = Chain.total(this.baseGenerator)
+    const speedStrategy = Chain.total(this.baseGenerator)
         .pipe(Normal.capped(gaussian(0, 5)))
         .pipe(Scaler.to(0, 5))
         .build();
-    let pauseStrategy = Chain.total(this.baseGenerator)
+    const pauseStrategy = Chain.total(this.baseGenerator)
         .pipe(Threshold.smallerThan(0.003))
         .build();
-    let pauseIntervalStrategy = Chain.total(this.baseGenerator)
+    const pauseIntervalStrategy = Chain.total(this.baseGenerator)
         .pipe(Normal.capped(gaussian(0, 5)))
         .pipe(Scaler.to(4, 7))
         .pipe(Const.of(interval => interval * Phaser.Timer.SECOND))

@@ -1,16 +1,16 @@
-import Preset from './Preset';
-import Point from '../util/syntax/Point';
-import EntityFactory from '../entitySystem/EntityFactory';
-import Entity from '../entitySystem/Entity';
-import Colors from '../render/Colors';
-import EntityRegister from '../util/entityStorage/EntityRegister';
 import {SignEntity} from '../entitySystem/alias';
+import Entity from '../entitySystem/Entity';
+import EntityFactory from '../entitySystem/EntityFactory';
+import Colors from '../render/Colors';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import Chain from '../util/dataGenerator/Chain';
-import Scaler from '../util/dataGenerator/Scaler';
-import SimpleDataGenerator from '../util/dataGenerator/SimpleDataGenerator';
 import Const from '../util/dataGenerator/Const';
 import Joining from '../util/dataGenerator/Joining';
+import Scaler from '../util/dataGenerator/Scaler';
+import SimpleDataGenerator from '../util/dataGenerator/SimpleDataGenerator';
+import EntityRegister from '../util/entityStorage/EntityRegister';
+import Point from '../util/syntax/Point';
+import Preset from './Preset';
 
 class PresetPoint<T> {
   constructor(readonly x: number, readonly y: number, readonly data: T) {
@@ -44,10 +44,6 @@ class HardCodedPreset implements Preset {
   }
 
   getPlayerSpawnPoint() {
-    if (__DEV__) {
-      return HardCodedPreset.WORLD_CENTER_COORDINATES.clone();
-    }
-
     let spawnPeriod = Math.floor(Date.now() / HardCodedPreset.SPAWN_POINT_CHANGE_INTERVAL);
     let spawnPointIndex = spawnPeriod % HardCodedPreset.SPAWN_POINTS.length;
     let spawnPoint = HardCodedPreset.SPAWN_POINTS[spawnPointIndex];

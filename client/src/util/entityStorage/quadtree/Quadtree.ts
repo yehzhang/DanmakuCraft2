@@ -1,15 +1,15 @@
-import Entity from '../../../entitySystem/Entity';
-import Iterator from '../../syntax/Iterator';
 import {asSequence} from 'sequency';
-import Rectangle from '../../syntax/Rectangle';
-import Point from '../../syntax/Point';
-import Consumer from '../../syntax/Consumer';
-import PhysicalConstants from '../../../PhysicalConstants';
-import {toWorldBounds} from '../../../law/space';
-import ImmutableContainer from '../ImmutableContainer';
-import ImmutableCoordinates from '../../../entitySystem/component/ImmutableCoordinates';
 import {Region} from '../../../entitySystem/alias';
+import ImmutableCoordinates from '../../../entitySystem/component/ImmutableCoordinates';
+import Entity from '../../../entitySystem/Entity';
+import {toWorldBounds} from '../../../law/space';
+import PhysicalConstants from '../../../PhysicalConstants';
 import {leftOuterJoin} from '../../set';
+import Consumer from '../../syntax/Consumer';
+import Iterator from '../../syntax/Iterator';
+import Point from '../../syntax/Point';
+import Rectangle from '../../syntax/Rectangle';
+import ImmutableContainer from '../ImmutableContainer';
 
 class Quadtree<T extends Entity> implements Iterable<T> {
   constructor(private root: Tree<T>) {
@@ -21,13 +21,13 @@ class Quadtree<T extends Entity> implements Iterable<T> {
     return new this(root);
   }
 
-  listLeavesIn(bounds: Rectangle): Iterable<Region<T>> {
+  listIn(bounds: Rectangle): Iterable<T> {
     bounds = toWorldBounds(bounds, PhysicalConstants.WORLD_SIZE);
     return asSequence([
-      this.root.listLeavesIn(bounds),
-      this.root.listLeavesIn(bounds.offset(-PhysicalConstants.WORLD_SIZE, 0)),
-      this.root.listLeavesIn(bounds.offset(0, -PhysicalConstants.WORLD_SIZE)),
-      this.root.listLeavesIn(bounds.offset(PhysicalConstants.WORLD_SIZE, 0))])
+      this.root.listIn(bounds),
+      this.root.listIn(bounds.offset(-PhysicalConstants.WORLD_SIZE, 0)),
+      this.root.listIn(bounds.offset(0, -PhysicalConstants.WORLD_SIZE)),
+      this.root.listIn(bounds.offset(PhysicalConstants.WORLD_SIZE, 0))])
         .flatten()
         .asIterable();
   }
@@ -75,7 +75,7 @@ class Quadtree<T extends Entity> implements Iterable<T> {
 export default Quadtree;
 
 export interface Tree<T extends Entity> extends ImmutableContainer<T> {
-  listLeavesIn(bounds: Rectangle): Iterable<Leaf<T>>;
+  listIn(bounds: Rectangle): Iterable<T>;
 
   add(value: T, addedLeaves?: Set<Leaf<T>>, removedLeaves?: Set<Leaf<T>>): Tree<T>;
 
@@ -97,14 +97,14 @@ export class Node<T extends Entity> implements Tree<T> {
     return asSequence(this.children).map(child => child.count()).sum();
   }
 
-  listLeavesIn(bounds: Rectangle) {
+  listIn(bounds: Rectangle) {
     if (!this.bounds.intersects(bounds)) {
       return [];
     }
 
     bounds = bounds.clone();
     return asSequence(this.children)
-        .map(tree => tree.listLeavesIn(bounds))
+        .map(tree => tree.listIn(bounds))
         .flatten()
         .asIterable();
   }
@@ -154,11 +154,19 @@ export class Leaf<T extends Entity> extends ImmutableCoordinates implements Tree
     }
   }
 
-  listLeavesIn(bounds: Rectangle) {
+  listIn(bounds: Rectangle) {
+    if (this.values.size === 0) {
+      return [];
+    }
     if (!this.bounds.intersects(bounds)) {
       return [];
     }
-    return [this];
+    return asSequence(this)
+        .filter(value => {
+          const coordinates = value.coordinates;
+          return bounds.contains(coordinates.x, coordinates.y);
+        })
+        .asIterable();
   }
 
   add(value: T, addedLeaves?: Set<Leaf<T>>, removedLeaves?: Set<Leaf<T>>): Tree<T> {

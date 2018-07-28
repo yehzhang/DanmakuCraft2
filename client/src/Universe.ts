@@ -1,51 +1,44 @@
-import EnvironmentAdapter from './environment/interface/EnvironmentAdapter';
-import UniverseProxy from './environment/interface/UniverseProxy';
-import MainState from './MainState';
-import Notifier from './output/notification/Notifier';
-import Renderer from './render/Renderer';
-import InputController from './input/InputController';
-import GraphicsFactory from './render/graphics/GraphicsFactory';
 import CommentLoader from './comment/CommentLoader';
-import AdapterFactory from './environment/AdapterFactory';
-import BuffDataContainer from './entitySystem/system/buff/BuffDataContainer';
-import {
-  ChestEntity,
-  CommentEntity,
-  Player,
-  Region,
-  SignEntity,
-  UpdatingCommentEntity
-} from './entitySystem/alias';
-import BuffFactory from './entitySystem/system/buff/BuffFactory';
-import EntityFactory from './entitySystem/EntityFactory';
-import BuffFactoryImpl from './entitySystem/system/buff/BuffFactoryImpl';
-import EntityFactoryImpl from './entitySystem/EntityFactoryImpl';
-import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
-import EntityStorage from './util/entityStorage/EntityStorage';
-import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
-import {PresetSettingsOptions} from './environment/interface/SettingsManager';
-import GraphicsFactoryImpl from './render/graphics/GraphicsFactoryImpl';
-import LawFactoryImpl from './law/LawFactoryImpl';
-import LawFactory from './law/LawFactory';
-import BuffDataApplier from './entitySystem/system/buff/BuffDataApplier';
-import BuffDescription from './entitySystem/system/buff/BuffDescription';
-import UniverseProxyImpl from './environment/component/gameWorld/UniverseProxyImpl';
-import NotifierFactoryImpl from './output/notification/NotifierFactoryImpl';
 import CommentLoaderImpl from './comment/CommentLoaderImpl';
-import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentPlacingPolicyImpl';
-import Visibility from './engine/visibility/Visibility';
-import {Phaser} from './util/alias/phaser';
-import Existence from './engine/existence/Existence';
-import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
-import Entity from './entitySystem/Entity';
-import HardCodedPreset from './preset/HardCodedPreset';
-import CommentPlacingPolicy from './environment/interface/CommentPlacingPolicy';
 import EngineCap from './engine/EngineCap';
+import Existence from './engine/existence/Existence';
 import SystemEnginesEngine from './engine/SystemEnginesEngine';
 import Tick from './engine/tick/Tick';
+import Visibility from './engine/visibility/Visibility';
+import {ChestEntity, CommentEntity, Player, SignEntity, UpdatingCommentEntity} from './entitySystem/alias';
+import Entity from './entitySystem/Entity';
+import EntityFactory from './entitySystem/EntityFactory';
+import EntityFactoryImpl from './entitySystem/EntityFactoryImpl';
+import BuffDataApplier from './entitySystem/system/buff/BuffDataApplier';
+import BuffDataContainer from './entitySystem/system/buff/BuffDataContainer';
+import BuffDescription from './entitySystem/system/buff/BuffDescription';
+import BuffFactory from './entitySystem/system/buff/BuffFactory';
+import BuffFactoryImpl from './entitySystem/system/buff/BuffFactoryImpl';
+import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
+import AdapterFactory from './environment/AdapterFactory';
+import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentPlacingPolicyImpl';
+import UniverseProxyImpl from './environment/component/gameWorld/UniverseProxyImpl';
+import CommentPlacingPolicy from './environment/interface/CommentPlacingPolicy';
+import EnvironmentAdapter from './environment/interface/EnvironmentAdapter';
+import {PresetSettingsOptions} from './environment/interface/SettingsManager';
+import UniverseProxy from './environment/interface/UniverseProxy';
+import InputController from './input/InputController';
 import PhaserInput from './input/PhaserInput';
+import LawFactory from './law/LawFactory';
+import LawFactoryImpl from './law/LawFactoryImpl';
+import MainState from './MainState';
 import BackgroundMusicPlayer from './output/audio/BackgroundMusicPlayer';
 import BackgroundMusicPlayerImpl from './output/audio/BackgroundMusicPlayerImpl';
+import Notifier from './output/notification/Notifier';
+import NotifierFactoryImpl from './output/notification/NotifierFactoryImpl';
+import HardCodedPreset from './preset/HardCodedPreset';
+import GraphicsFactory from './render/graphics/GraphicsFactory';
+import GraphicsFactoryImpl from './render/graphics/GraphicsFactoryImpl';
+import Renderer from './render/Renderer';
+import {Phaser} from './util/alias/phaser';
+import EntityStorage from './util/entityStorage/EntityStorage';
+import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
+import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -54,14 +47,14 @@ class Universe {
   public inputController: InputController;
   public renderer: Renderer;
   public commentLoader: CommentLoader;
-  public commentsStorage: EntityStorage<CommentEntity, Region<CommentEntity>>;
+  public commentsStorage: EntityStorage<CommentEntity>;
   public notifier: Notifier;
   public buffDataContainer: BuffDataContainer;
   public player: Player;
   public buffFactory: BuffFactory;
   public entityFactory: EntityFactory;
   public graphicsFactory: GraphicsFactory;
-  public updatingCommentsStorage: EntityStorage<UpdatingCommentEntity, Region<UpdatingCommentEntity>>;
+  public updatingCommentsStorage: EntityStorage<UpdatingCommentEntity>;
   public playersStorage: EntityStorage<Player>;
   public entityStorageFactory: EntityStorageFactory;
   public chestsStorage: EntityStorage<ChestEntity>;

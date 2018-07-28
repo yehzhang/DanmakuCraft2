@@ -1,10 +1,13 @@
-import VisibilitySystem from './VisibilitySystem';
-import {DisplayableEntity, StationaryEntity} from '../../alias';
-import Point from '../../../util/syntax/Point';
-import Display from '../../component/Display';
 import {toWorldCoordinateOffset2d} from '../../../law/space';
 import PhysicalConstants from '../../../PhysicalConstants';
+import Point from '../../../util/syntax/Point';
+import {DisplayableEntity, StationaryEntity} from '../../alias';
+import Display from '../../component/Display';
+import VisibilitySystem from './VisibilitySystem';
 
+/**
+ * Positions displays relative to the anchor, taking into consideration of the borderless world.
+ */
 class UnmovableDisplayPositioningSystem implements VisibilitySystem<StationaryEntity & Display> {
   constructor(private anchor: DisplayableEntity) {
   }

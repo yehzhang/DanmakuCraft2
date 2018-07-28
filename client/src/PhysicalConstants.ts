@@ -7,10 +7,9 @@ class PhysicalConstants {
   public static readonly BACKGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS = 600;
   public static readonly FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS = 200;
 
-  public static readonly COMMENT_CHUNKS_COUNT = 100;
+  public static readonly COMMENT_CHUNKS_COUNT = 50;
   public static readonly QUADTREE_MAX_DEPTH =
       Math.floor(Math.log2(PhysicalConstants.WORLD_SIZE / PhysicalConstants.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS * 2));
-  public static readonly UPDATING_COMMENT_CHUNKS_COUNT = 100;
   public static readonly QUADTREE_MAX_VALUES_COUNT = 7;
 
   public static readonly MAX_UPDATING_COMMENTS_COUNT = 500;
@@ -23,7 +22,9 @@ class PhysicalConstants {
   public static readonly BACKGROUND_COLORS_COUNT_TO_REACH_MAX_SATURATION = 15;
   public static readonly BACKGROUND_TRANSITION_DURATION_MS = 3 * Phaser.Timer.SECOND;
 
-  public static readonly CHEST_SPAWN_COOLDOWN = 7 * Phaser.Timer.MINUTE; // Almost decides the pickup rate.
+  // Almost decides pickup rate of chests.
+  public static readonly CHEST_SPAWN_COOLDOWN = 7 * Phaser.Timer.MINUTE;
+
   public static readonly HASTY_BOOST_RATIO = 1.4;
 
   public static readonly NOTIFIER_BUBBLE_DISPLAY_DURATION = 6 * Phaser.Timer.SECOND;

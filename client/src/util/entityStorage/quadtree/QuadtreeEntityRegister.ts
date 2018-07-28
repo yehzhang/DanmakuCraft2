@@ -1,14 +1,15 @@
-import EntityRegister from '../EntityRegister';
-import Quadtree from './Quadtree';
+import {asSequence} from 'sequency';
 import {Region, StationaryEntity} from '../../../entitySystem/alias';
-import {StateChanged} from '../EntityFinder';
 import Iterator from '../../syntax/Iterator';
 import Provider from '../../syntax/Provider';
+import {StateChanged} from '../EntityFinder';
+import EntityRegister from '../EntityRegister';
+import Quadtree from './Quadtree';
 
 class QuadTreeEntityRegister<T extends StationaryEntity> implements EntityRegister<T> {
   constructor(
       private tree: Quadtree<T>,
-      private onStateChanged: Phaser.Signal<StateChanged<Region<T>>>) {
+      private onStateChanged: Phaser.Signal<StateChanged<T>>) {
   }
 
   register(entity: T) {
@@ -23,15 +24,16 @@ class QuadTreeEntityRegister<T extends StationaryEntity> implements EntityRegist
     this.dispatchUpdatesOfChunks(() => this.tree.remove(entity));
   }
 
+  [Symbol.iterator]() {
+    return Iterator.of(this.tree);
+  }
+
   private dispatchUpdatesOfChunks(provider: Provider<[Iterable<Region<T>>, Iterable<Region<T>>]>) {
-    const [addedChunks, removedChunks] = provider().map(chunks => Array.from(chunks));
+    const [addedChunks, removedChunks] =
+        provider().map(chunks => asSequence(chunks).flatten().toArray());
     if (addedChunks.length > 0 || removedChunks.length > 0) {
       this.onStateChanged.dispatch(new StateChanged(addedChunks, removedChunks));
     }
-  }
-
-  [Symbol.iterator]() {
-    return Iterator.of(this.tree);
   }
 }
 

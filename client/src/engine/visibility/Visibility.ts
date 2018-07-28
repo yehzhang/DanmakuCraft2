@@ -1,31 +1,26 @@
-import VisibilityEngine from './VisibilityEngine';
-import MovingAnimationSystem from '../../entitySystem/system/visibility/MovingAnimationSystem';
-import CollisionDetectionSystem from '../../entitySystem/system/visibility/CollisionDetectionSystem';
-import PhysicalConstants from '../../PhysicalConstants';
-import UpdateSystem from '../../entitySystem/system/visibility/UpdateSystem';
-import DynamicProvider from '../../util/DynamicProvider';
-import BackgroundColorSystem from '../../entitySystem/system/visibility/BackgroundColorSystem';
-import AddChildSystem from '../../entitySystem/system/visibility/AddChildSystem';
-import UnmovableDisplayPositioningSystem from '../../entitySystem/system/visibility/UnmovableDisplayPositioningSystem';
-import {Phaser} from '../../util/alias/phaser';
-import CommitMotionSystem from '../../entitySystem/system/visibility/CommitMotionSystem';
-import SystemEnginesEngine from '../SystemEnginesEngine';
-import {
-  ChestEntity,
-  CommentEntity,
-  Player,
-  Region,
-  SignEntity,
-  UpdatingCommentEntity
-} from '../../entitySystem/alias';
-import EntityFinder from '../../util/entityStorage/EntityFinder';
-import SystemFactory from '../../entitySystem/system/SystemFactory';
-import EntityStorage from '../../util/entityStorage/EntityStorage';
-import Renderer from '../../render/Renderer';
-import ContainerSystem from '../../entitySystem/system/visibility/ContainerSystem';
+import {ChestEntity, CommentEntity, Player, SignEntity, UpdatingCommentEntity} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import ChestSystem from '../../entitySystem/system/ChestSystem';
-import AddCachedChildBlinkSystem from '../../entitySystem/system/visibility/AddCachedChildBlinkSystem';
+import SystemFactory from '../../entitySystem/system/SystemFactory';
+import BackgroundColorSystem from '../../entitySystem/system/visibility/BackgroundColorSystem';
+import BlinkSupportedRenderSystem from '../../entitySystem/system/visibility/BlinkSupportedRenderSystem';
+import CachedChunksRenderSystem from '../../entitySystem/system/visibility/CachedChunksRenderSystem';
+import CachedRenderSystem from '../../entitySystem/system/visibility/CachedRenderSystem';
+import CollisionDetectionSystem from '../../entitySystem/system/visibility/CollisionDetectionSystem';
+import CommitMotionSystem from '../../entitySystem/system/visibility/CommitMotionSystem';
+import ContainerSystem from '../../entitySystem/system/visibility/ContainerSystem';
+import MovingAnimationSystem from '../../entitySystem/system/visibility/MovingAnimationSystem';
+import RenderSystem from '../../entitySystem/system/visibility/RenderSystem';
+import UnmovableDisplayPositioningSystem from '../../entitySystem/system/visibility/UnmovableDisplayPositioningSystem';
+import UpdateSystem from '../../entitySystem/system/visibility/UpdateSystem';
+import PhysicalConstants from '../../PhysicalConstants';
+import Renderer from '../../render/Renderer';
+import {Phaser} from '../../util/alias/phaser';
+import DynamicProvider from '../../util/DynamicProvider';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
+import EntityStorage from '../../util/entityStorage/EntityStorage';
+import SystemEnginesEngine from '../SystemEnginesEngine';
+import VisibilityEngine from './VisibilityEngine';
 
 class Visibility extends SystemEnginesEngine<VisibilityEngine> {
   constructor(
@@ -39,30 +34,29 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
       game: Phaser.Game,
       player: Player,
       systemFactory: SystemFactory,
-      commentsFinder: EntityFinder<Region<CommentEntity>>,
-      updatingCommentsFinder: EntityFinder<Region<UpdatingCommentEntity>>,
+      commentsFinder: EntityFinder<CommentEntity>,
+      updatingCommentsFinder: EntityFinder<UpdatingCommentEntity>,
       chestsStorage: EntityStorage<ChestEntity>,
       playersFinder: EntityFinder<Player>,
       spawnPointsFinder: EntityFinder<Entity>,
       signsFinder: EntityFinder<SignEntity>,
       renderer: Renderer) {
-    let renderRadius = new DynamicProvider(this.getRenderRadius(game));
-    game.scale.onSizeChange.add(() => renderRadius.update(this.getRenderRadius(game)));
+    const renderRadius = new DynamicProvider(getRenderRadius(game));
+    game.scale.onSizeChange.add(() => renderRadius.update(getRenderRadius(game)));
 
-    let collisionDetectionSystem = new CollisionDetectionSystem();
+    const collisionDetectionSystem = new CollisionDetectionSystem();
 
-    let chestSystem = systemFactory.createChestSystem(renderRadius, chestsStorage.getRegister());
-    let chestsFinder = chestsStorage.getFinder();
+    const chestSystem = systemFactory.createChestSystem(renderRadius, chestsStorage.getRegister());
+    const chestsFinder = chestsStorage.getFinder();
 
-    let foregroundTrackerBuilder = VisibilityEngine.newBuilder(
+    const foregroundTrackerBuilder = VisibilityEngine.newBuilder(
         player,
         renderRadius,
         PhysicalConstants.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS);
     foregroundTrackerBuilder.onUpdate()
     // Update buffs
         .apply(new UpdateSystem())
-        .toEntities().of(playersFinder)
-        .toChildren().of(updatingCommentsFinder)
+        .toEntities().of(playersFinder).and(updatingCommentsFinder)
 
         .apply(collisionDetectionSystem)
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
@@ -70,26 +64,31 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .apply(chestSystem)
         .toEntities().of(chestsFinder);
 
+    const positioningSystem = new UnmovableDisplayPositioningSystem(player);
     foregroundTrackerBuilder.onRender()
     // Render
-        .apply(new AddCachedChildBlinkSystem(renderer.floatingLayer))
-        .toChildren().of(commentsFinder)
+        .apply(new BlinkSupportedRenderSystem(
+            renderer.floatingLayer,
+            new CachedChunksRenderSystem(renderer.floatingLayer, positioningSystem),
+            new RenderSystem(renderer.floatingLayer),
+            positioningSystem))
+        .toEntities().of(commentsFinder)
 
-        .apply(new AddChildSystem(renderer.floatingLayer, true))
-        .toChildren().of(updatingCommentsFinder)
+        .apply(new RenderSystem(renderer.floatingLayer))
+        .toEntities().of(updatingCommentsFinder)
 
-        .apply(new AddChildSystem(renderer.groundLayer))
+        .apply(new RenderSystem(renderer.groundLayer))
         .toEntities().of(chestsFinder)
 
-        .apply(new AddChildSystem(renderer.playersLayer))
+        .apply(new RenderSystem(renderer.playersLayer))
         .toEntities().of(playersFinder)
 
-        .apply(new AddChildSystem(renderer.backgroundLayer, true))
+        .apply(new CachedRenderSystem(renderer.backgroundLayer))
         .toEntities().of(signsFinder)
 
-        .apply(new UnmovableDisplayPositioningSystem(player))
-        .toChildren().of(commentsFinder).and(updatingCommentsFinder)
-        .toEntities().of(chestsFinder).and(signsFinder)
+        .apply(positioningSystem)
+        .toEntities()
+        .of(updatingCommentsFinder).and(chestsFinder).and(signsFinder)
 
         .apply(new MovingAnimationSystem())
         .toEntities().of(playersFinder)
@@ -97,9 +96,9 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .apply(new CommitMotionSystem())
         .toEntities().of(playersFinder);
 
-    let spawnPointsContainerSystem = new ContainerSystem<Entity>();
+    const spawnPointsContainerSystem = new ContainerSystem<Entity>();
 
-    let backgroundTrackerBuilder = VisibilityEngine.newBuilder(
+    const backgroundTrackerBuilder = VisibilityEngine.newBuilder(
         player,
         new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS),
         PhysicalConstants.BACKGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS);
@@ -108,17 +107,17 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .toEntities().of(spawnPointsFinder)
 
         .apply(new BackgroundColorSystem(game, spawnPointsContainerSystem))
-        .toChildren().of(commentsFinder).and(updatingCommentsFinder);
+        .toEntities().of(commentsFinder).and(updatingCommentsFinder);
 
     return new this(
         [foregroundTrackerBuilder.build(), backgroundTrackerBuilder.build()],
         collisionDetectionSystem,
         chestSystem);
   }
+}
 
-  private static getRenderRadius(game: Phaser.Game) {
-    return PhysicalConstants.getRenderRadius(game.width, game.height);
-  }
+export function getRenderRadius(game: Phaser.Game) {
+  return PhysicalConstants.getRenderRadius(game.width, game.height);
 }
 
 export default Visibility;

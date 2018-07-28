@@ -1,9 +1,9 @@
-import Point from '../../syntax/Point';
+import {asSequence} from 'sequency';
 import {toWorldCoordinate, toWorldCoordinate2d, validateRadius} from '../../../law/space';
 import PhysicalConstants from '../../../PhysicalConstants';
-import {asSequence} from 'sequency';
-import Iterator from '../../syntax/Iterator';
 import {Phaser} from '../../alias/phaser';
+import Iterator from '../../syntax/Iterator';
+import Point from '../../syntax/Point';
 
 class Chunks<T> implements Iterable<T> {
   constructor(private chunks: T[][], readonly chunkSize: number) {
@@ -19,6 +19,28 @@ class Chunks<T> implements Iterable<T> {
     if (chunks[0].length !== chunks.length) {
       throw new TypeError('Chunks are not square-shaped');
     }
+  }
+
+  static create<T>(
+      createChunk: (point: Point) => T,
+      chunksCount: number = PhysicalConstants.COMMENT_CHUNKS_COUNT): Chunks<T> {
+    const chunkSize = PhysicalConstants.WORLD_SIZE / chunksCount;
+
+    const chunks = [];
+    const coordinates = Point.origin();
+    for (let y = 0; y < chunksCount; y++) {
+      coordinates.y = y * chunkSize;
+      let chunksRow = [];
+
+      for (let x = 0; x < chunksCount; x++) {
+        coordinates.x = x * chunkSize;
+        chunksRow.push(createChunk(coordinates));
+      }
+
+      chunks.push(chunksRow);
+    }
+
+    return new Chunks(chunks, chunkSize);
   }
 
   private get chunksSide() {

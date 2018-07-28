@@ -1,23 +1,23 @@
-import ExistenceEngine from './ExistenceEngine';
-import SystemEnginesEngine from '../SystemEnginesEngine';
-import EntityFinder from '../../util/entityStorage/EntityFinder';
-import {CommentEntity, Region, UpdatingCommentEntity} from '../../entitySystem/alias';
-import TweenBlinkingSystem from '../../entitySystem/system/existence/TweenBlinkingSystem';
+import {CommentEntity, UpdatingCommentEntity} from '../../entitySystem/alias';
 import IncrementRegisteredTimesSystem from '../../entitySystem/system/existence/IncrementRegisteredTimesSystem';
+import TweenBlinkingSystem from '../../entitySystem/system/existence/TweenBlinkingSystem';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
+import SystemEnginesEngine from '../SystemEnginesEngine';
+import ExistenceEngine from './ExistenceEngine';
 
 class Existence extends SystemEnginesEngine<ExistenceEngine> {
   static on(
       game: Phaser.Game,
-      commentsFinder: EntityFinder<Region<CommentEntity>>,
-      updatingCommentsFinder: EntityFinder<Region<UpdatingCommentEntity>>) {
+      commentsFinder: EntityFinder<CommentEntity>,
+      updatingCommentsFinder: EntityFinder<UpdatingCommentEntity>) {
     const existenceEngineBuilder = ExistenceEngine.newBuilder();
     existenceEngineBuilder.onUpdate()
         .apply(new IncrementRegisteredTimesSystem())
-        .toChildren().of(commentsFinder).and(updatingCommentsFinder);
+        .toEntities().of(commentsFinder).and(updatingCommentsFinder);
 
     existenceEngineBuilder.onRender()
         .apply(new TweenBlinkingSystem(game))
-        .toChildren().of(commentsFinder).and(updatingCommentsFinder)
+        .toEntities().of(commentsFinder).and(updatingCommentsFinder)
 
         .build();
 

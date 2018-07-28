@@ -1,8 +1,8 @@
-import ExistenceSystem from './ExistenceSystem';
-import Display from '../../component/Display';
 import {PIXI} from '../../../util/alias/phaser';
-import RegisteredTimes from '../../component/RegisteredTimes';
 import Blink from '../../component/Blink';
+import Display from '../../component/Display';
+import RegisteredTimes from '../../component/RegisteredTimes';
+import ExistenceSystem from './ExistenceSystem';
 
 type Target = Display<PIXI.DisplayObject> & RegisteredTimes & Blink;
 
@@ -13,7 +13,7 @@ class TweenBlinkingSystem implements ExistenceSystem<Target> {
   }
 
   async adopt(entity: Target) {
-    if (entity.registeredTimes > 1) {
+    if (!entity.isFirstTimeRegistered()) {
       return;
     }
 
@@ -26,7 +26,8 @@ class TweenBlinkingSystem implements ExistenceSystem<Target> {
   private blink(display: PIXI.DisplayObject) {
     return this.game.add.tween(display)
         .to(
-            {alpha: 0}, TweenBlinkingSystem.BLINK_DURATION / 2,
+            {alpha: 0},
+            TweenBlinkingSystem.BLINK_DURATION / 2,
             Phaser.Easing.Linear.None,
             true,
             0,
