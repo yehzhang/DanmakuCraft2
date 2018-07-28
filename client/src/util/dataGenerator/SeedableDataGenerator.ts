@@ -1,7 +1,7 @@
 import DataGenerator from './DataGenerator';
 
 class SeedableDataGenerator implements DataGenerator {
-  constructor(private dataGenerator: Phaser.RandomDataGenerator) {
+  constructor(private readonly dataGenerator: Phaser.RandomDataGenerator) {
   }
 
   next() {

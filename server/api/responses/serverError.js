@@ -13,14 +13,14 @@
  */
 
 module.exports = function serverError(data, options) {
-  let req = this.req;
-  let res = this.res;
-  let sails = req._sails;
+  const req = this.req;
+  const res = this.res;
+  const sails = req._sails;
 
   res.status(500);
 
   // Log error to console
-  if (data !== undefined) {
+  if (data != null) {
     sails.log.error('Sending 500 ("Server Error") response: \n', data);
   } else {
     sails.log.error('Sending empty 500 ("Server Error") response');

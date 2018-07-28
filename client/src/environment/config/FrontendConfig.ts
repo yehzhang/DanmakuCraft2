@@ -47,7 +47,7 @@ class FrontendConfigBuilder {
   }
 
   validate(fieldName: keyof FrontendConfig): any {
-    let field = (this as any)[fieldName];
+    const field = (this as any)[fieldName];
     if (field == null) {
       throw new TypeError(`Field ${fieldName} is missing`);
     }

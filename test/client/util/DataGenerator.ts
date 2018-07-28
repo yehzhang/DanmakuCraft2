@@ -1,5 +1,5 @@
-import Scaler from '../../../client/src/util/dataGenerator/Scaler';
 import {expect} from 'chai';
+import Scaler from '../../../client/src/util/dataGenerator/Scaler';
 import Weighted from '../../../client/src/util/dataGenerator/Weighted';
 
 const epsilon = 0.000001;
@@ -7,7 +7,7 @@ const epsilon = 0.000001;
 describe('Scaler', () => {
   describe('should work correctly when between is called', () => {
     it('on the range [0, 1]', () => {
-      let scaler = Scaler.to(0, 1);
+      const scaler = Scaler.to(0, 1);
 
       expect(scaler.transform(0)).to.equal(0);
       expect(scaler.transform(0.1)).to.equal(0.1);
@@ -16,7 +16,7 @@ describe('Scaler', () => {
     });
 
     it('on the range [-1, 1]', () => {
-      let scaler = Scaler.to(-1, 1);
+      const scaler = Scaler.to(-1, 1);
 
       expect(scaler.transform(0)).to.equal(-1);
       expect(scaler.transform(0.1)).to.equal(-0.8);
@@ -25,7 +25,7 @@ describe('Scaler', () => {
     });
 
     it('on the range [-10.5, 20.1]', () => {
-      let scaler = Scaler.to(-10.5, 20.1);
+      const scaler = Scaler.to(-10.5, 20.1);
 
       expect(scaler.transform(0)).to.equal(-10.5);
       expect(scaler.transform(0.1)).to.be.closeTo(-7.44, epsilon);
@@ -36,7 +36,7 @@ describe('Scaler', () => {
 
   describe('should work correctly when map is called', () => {
     it('from [0, 1] to [-2, 2]', () => {
-      let scaler = Scaler.map(0, 1, -2, 2);
+      const scaler = Scaler.map(0, 1, -2, 2);
 
       expect(scaler.transform(0)).to.equal(-2);
       expect(scaler.transform(0.1)).to.equal(-1.6);
@@ -45,7 +45,7 @@ describe('Scaler', () => {
     });
 
     it('from [-2, 2] to [0, 1]', () => {
-      let scaler = Scaler.map(-2, 2, 0, 1);
+      const scaler = Scaler.map(-2, 2, 0, 1);
 
       expect(scaler.transform(-2)).to.equal(0);
       expect(scaler.transform(-1.5)).to.equal(0.125);
@@ -59,7 +59,7 @@ describe('Scaler', () => {
 describe('Weighted', () => {
   describe('Builder should work', () => {
     it('for simple case', () => {
-      let weighted = Weighted.newBuilder()
+      const weighted = Weighted.newBuilder()
           .add(1, 1)
           .add(2, 2)
           .add(4, 4)
@@ -73,7 +73,7 @@ describe('Weighted', () => {
   });
 
   it('should work for simple case', () => {
-    let weighted = Weighted.newBuilder()
+    const weighted = Weighted.newBuilder()
         .add(1, 1)
         .add(2, 2)
         .add(4, 4)

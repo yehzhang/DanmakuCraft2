@@ -1,7 +1,7 @@
 import DataTransformer from './DataTransformer';
 
 class Clamper implements DataTransformer {
-  constructor(private min: number, private max: number) {
+  constructor(private readonly min: number, private readonly max: number) {
   }
 
   transform(data: number) {

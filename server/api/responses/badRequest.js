@@ -15,13 +15,13 @@
  * ```
  */
 module.exports = function badRequest(data, options) {
-  let req = this.req;
-  let res = this.res;
-  let sails = req._sails;
+  const req = this.req;
+  const res = this.res;
+  const sails = req._sails;
 
   res.status(400);
 
-  if (data === undefined) {
+  if (data == null) {
     sails.log.warn('Sending 400 ("Bad Request") response', req.allParams());
   } else {
     sails.log.warn('Sending 400 ("Bad Request") response: \n', data, '\n', req.allParams());

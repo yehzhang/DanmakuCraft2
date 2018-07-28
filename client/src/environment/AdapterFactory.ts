@@ -1,28 +1,13 @@
+import {frontend} from '../../../server/config/frontend';
 import BilibiliClientAdapter from './BilibiliClientAdapter';
-import TestingAdapter from './TestingAdapter';
 import ConfigProvider from './config/ConfigProvider';
 import FrontendConfig from './config/FrontendConfig';
-import {frontend} from '../../../server/config/frontend';
 import OfficialWebsiteAdapter from './OfficialWebsiteAdapter';
+import TestingAdapter from './TestingAdapter';
 
 class AdapterFactory {
   constructor() {
-    AdapterFactory.loadConfig();
-  }
-
-  private static loadConfig() {
-    let config: any = Object.assign({}, frontend);
-    if (__LOCAL__) {
-      config.baseUrl = 'https://localhost';
-    } else {
-      config.baseUrl = 'https://danmakucraft.com';
-    }
-
-    ConfigProvider.set(FrontendConfig.newBuilder()
-        .setBaseUrl(config.baseUrl)
-        .setCommentIdentity(config.commentIdentity)
-        .setGameContainer(config.gameContainerId)
-        .build());
+    loadConfig();
   }
 
   createAdapter() {
@@ -43,6 +28,21 @@ class AdapterFactory {
   createOfficialAdapter() {
     return new OfficialWebsiteAdapter();
   }
+}
+
+function loadConfig() {
+  const config: any = Object.assign({}, frontend);
+  if (__LOCAL__) {
+    config.baseUrl = 'https://localhost';
+  } else {
+    config.baseUrl = 'https://danmakucraft.com';
+  }
+
+  ConfigProvider.set(FrontendConfig.newBuilder()
+      .setBaseUrl(config.baseUrl)
+      .setCommentIdentity(config.commentIdentity)
+      .setGameContainer(config.gameContainerId)
+      .build());
 }
 
 export default AdapterFactory;

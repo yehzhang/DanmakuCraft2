@@ -1,9 +1,9 @@
-import Notifier, {NotificationPriority} from './Notifier';
 import MessageProvider from './MessageProvider';
+import Notifier, {NotificationPriority} from './Notifier';
 
 abstract class BaseNotifier implements Notifier {
   sendFrom(provider: MessageProvider, priority?: NotificationPriority) {
-    let message = provider.getMessage();
+    const message = provider.getMessage();
     if (!message) {
       return;
     }

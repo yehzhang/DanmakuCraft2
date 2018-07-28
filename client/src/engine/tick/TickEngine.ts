@@ -8,7 +8,9 @@ import {OnOrBuildClause} from './tickEngineBuilderLanguage';
  * Applies systems to all entities around an entity every tick.
  */
 class TickEngine implements SystemEngine {
-  constructor(private onUpdateTickers: Ticker[], private onRenderTickers: Ticker[]) {
+  constructor(
+      private readonly onUpdateTickers: Ticker[],
+      private readonly onRenderTickers: Ticker[]) {
   }
 
   static newBuilder() {
@@ -16,7 +18,7 @@ class TickEngine implements SystemEngine {
   }
 
   updateBegin(time: Phaser.Time) {
-    for (let ticker of this.onUpdateTickers) {
+    for (const ticker of this.onUpdateTickers) {
       ticker.tickBegin(time);
     }
   }
@@ -26,7 +28,7 @@ class TickEngine implements SystemEngine {
   }
 
   renderBegin(time: Phaser.Time) {
-    for (let ticker of this.onRenderTickers) {
+    for (const ticker of this.onRenderTickers) {
       ticker.tickBegin(time);
     }
   }
@@ -45,7 +47,7 @@ export interface Ticker {
 }
 
 export class BeginTicker implements Ticker {
-  constructor(private system: TickSystem) {
+  constructor(private readonly system: TickSystem) {
   }
 
   tickBegin(time: Phaser.Time) {
@@ -57,7 +59,7 @@ export class BeginTicker implements Ticker {
 }
 
 export class EndTicker implements Ticker {
-  constructor(private system: TickSystem) {
+  constructor(private readonly system: TickSystem) {
   }
 
   tickBegin(time: Phaser.Time) {

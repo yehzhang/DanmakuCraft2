@@ -11,9 +11,9 @@
  *          - pass string to render specified view
  */
 module.exports = function sendOK(data, options) {
-  let req = this.req;
-  let res = this.res;
-  let sails = req._sails;
+  const req = this.req;
+  const res = this.res;
+  const sails = req._sails;
 
   sails.log.silly('res.ok() :: Sending 200 ("OK") response');
 
@@ -34,8 +34,7 @@ module.exports = function sendOK(data, options) {
   if (!(viewData instanceof Error) && 'object' == typeof viewData) {
     try {
       viewData = require('util').inspect(data, {depth: null});
-    }
-    catch (e) {
+    } catch (e) {
       viewData = undefined;
     }
   }

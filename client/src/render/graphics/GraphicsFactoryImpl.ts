@@ -1,12 +1,12 @@
-import TinyTelevisionBuilder from './TinyTelevisionBuilder';
 import Comment from '../../entitySystem/component/Comment';
-import Colors from '../Colors';
-import GraphicsFactory, {NotifierView, PlayerView} from './GraphicsFactory';
-import ChestBuilder from './ChestBuilder';
-import SpeechBubbleBuilder from './SpeechBubbleBuilder';
 import Point from '../../util/syntax/Point';
-import PixelParticleBuilder from './PixelParticleBuilder';
+import Colors from '../Colors';
 import TextShadowStyle from '../TextShadowStyle';
+import ChestBuilder from './ChestBuilder';
+import GraphicsFactory, {NotifierView, PlayerView} from './GraphicsFactory';
+import PixelParticleBuilder from './PixelParticleBuilder';
+import SpeechBubbleBuilder from './SpeechBubbleBuilder';
+import TinyTelevisionBuilder from './TinyTelevisionBuilder';
 
 class GraphicsFactoryImpl implements GraphicsFactory {
   private static readonly TEXT_SHADOW_GLOW_BLUR = 2;
@@ -26,8 +26,8 @@ class GraphicsFactoryImpl implements GraphicsFactory {
   }
 
   createTextFromComment(comment: Comment) {
-    let color = Phaser.Color.getWebRGB(comment.color);
-    let text = this.createText(comment.text, comment.size, color);
+    const color = Phaser.Color.getWebRGB(comment.color);
+    const text = this.createText(comment.text, comment.size, color);
     text.anchor.setTo(0.5);
     return text;
   }
@@ -39,7 +39,7 @@ class GraphicsFactoryImpl implements GraphicsFactory {
       fontFamily: string = this.fontFamily,
       textShadowStyle: TextShadowStyle = this.textShadowStyle,
       maxLines: number = 0) {
-    let textDisplay = this.game.make.text(
+    const textDisplay = this.game.make.text(
         0,
         0,
         text,
@@ -78,10 +78,10 @@ class GraphicsFactoryImpl implements GraphicsFactory {
     if (this.tinyTelevisionSpriteSheet == null) {
       this.tinyTelevisionSpriteSheet = this.createTinyTelevisionSpriteSheet();
     }
-    let sprite = this.createSprite(this.tinyTelevisionSpriteSheet);
+    const sprite = this.createSprite(this.tinyTelevisionSpriteSheet);
     sprite.anchor.setTo(0.5, 0.7);
 
-    let walkingAnimation = sprite.animations.add('', undefined, 12, true);
+    const walkingAnimation = sprite.animations.add('', undefined, 12, true);
 
     return new PlayerView(sprite, walkingAnimation);
   }
@@ -94,12 +94,12 @@ class GraphicsFactoryImpl implements GraphicsFactory {
   }
 
   createSpeechBubble() {
-    let speechBubble = new SpeechBubbleBuilder(this.game, this.idGenerator)
+    const speechBubble = new SpeechBubbleBuilder(this.game, this.idGenerator)
         .pushFrame(0).withScale(1.7).withShadow()
         .toGraphics();
 
     const TEXT_BOUNDS_WIDTH = 165;
-    let textField = this.createText('', 18, Colors.BLACK, undefined, TextShadowStyle.NONE, 4)
+    const textField = this.createText('', 18, Colors.BLACK, undefined, TextShadowStyle.NONE, 4)
         .setTextBounds(0, 0, TEXT_BOUNDS_WIDTH, 120);
     textField.fontWeight = 'bold';
     textField.wordWrap = true;
@@ -113,15 +113,15 @@ class GraphicsFactoryImpl implements GraphicsFactory {
   }
 
   createWorldCenterSign(size: number, color: string) {
-    let container = new PIXI.DisplayObjectContainer();
-    let upArrow = this.createText('⬆', 94, color);
-    let downArrow = this.createText('⬇', 94, color);
-    let leftArrow = this.createText('⬅', 94, color);
+    const container = new PIXI.DisplayObjectContainer();
+    const upArrow = this.createText('⬆', 94, color);
+    const downArrow = this.createText('⬇', 94, color);
+    const leftArrow = this.createText('⬅', 94, color);
 
-    let rightArrow = this.createText('⬅', 94, color);
+    const rightArrow = this.createText('⬅', 94, color);
     rightArrow.scale.x = -1;
 
-    let bullet = this.createText('•', 94 / 2, color);
+    const bullet = this.createText('•', 94 / 2, color);
 
     container.addChild(bullet);
     bullet.anchor.setTo(0.5);
@@ -146,7 +146,7 @@ class GraphicsFactoryImpl implements GraphicsFactory {
   }
 
   createWorldOriginSign(size: number, color: string) {
-    let display = this.createText('O ', 94, color);
+    const display = this.createText('O ', 94, color);
     display.addFontStyle('italic', 0);
 
     return display;
@@ -174,7 +174,7 @@ class GraphicsFactoryImpl implements GraphicsFactory {
   }
 
   private createSprite(spriteSheet: string, initialFrameIndex: number | string = 0) {
-    let sprite = this.game.make.sprite(0, 0, spriteSheet, initialFrameIndex);
+    const sprite = this.game.make.sprite(0, 0, spriteSheet, initialFrameIndex);
 
     sprite.anchor.setTo(0.5);
 

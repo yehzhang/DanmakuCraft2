@@ -1,7 +1,7 @@
 import SystemEngine from './SystemEngine';
 
 class EngineCap {
-  constructor(private engine: SystemEngine, private time: Phaser.Time) {
+  constructor(private readonly engine: SystemEngine, private readonly time: Phaser.Time) {
   }
 
   update() {

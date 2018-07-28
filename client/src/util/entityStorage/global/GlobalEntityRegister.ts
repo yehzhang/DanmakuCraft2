@@ -1,11 +1,12 @@
-import {StateChanged} from '../EntityFinder';
-import Iterator from '../../syntax/Iterator';
-import EntityRegister from '../EntityRegister';
 import {asSequence} from 'sequency';
+import Iterator from '../../syntax/Iterator';
+import {StateChanged} from '../EntityFinder';
+import EntityRegister from '../EntityRegister';
 
 class GlobalEntityRegister<T> implements EntityRegister<T> {
   constructor(
-      private entities: Set<T>, private onStateChanged: Phaser.Signal<StateChanged<T>>) {
+      private readonly entities: Set<T>,
+      private readonly onStateChanged: Phaser.Signal<StateChanged<T>>) {
   }
 
   register(entity: T) {
@@ -19,7 +20,7 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
   }
 
   registerBatch(entities: Iterable<T>) {
-    let addedEntities = asSequence(entities)
+    const addedEntities = asSequence(entities)
         .filter(entity => !this.entities.has(entity))
         .onEach(entity => this.entities.add(entity))
         .toArray();
@@ -31,7 +32,7 @@ class GlobalEntityRegister<T> implements EntityRegister<T> {
   }
 
   deregister(entity: T) {
-    let isEntityDeleted = this.entities.delete(entity);
+    const isEntityDeleted = this.entities.delete(entity);
     if (!isEntityDeleted) {
       console.error('Entity was not registered', entity);
       return;

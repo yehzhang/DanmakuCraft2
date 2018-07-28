@@ -1,11 +1,11 @@
-import Controller from './Controller';
 import {Phaser} from '../util/alias/phaser';
+import Controller from './Controller';
 import Input from './Input';
 
 class InputController implements Controller {
   constructor(
       game: Phaser.Game,
-      private input: Input,
+      private readonly input: Input,
       private isGameFocused: boolean = true,
       private isReceivingInput: boolean = true) {
     game.onBlur.add(() => this.isGameFocused = false);

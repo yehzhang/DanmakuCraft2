@@ -1,10 +1,10 @@
 import {readFile} from 'fs';
+import {asSequence} from 'sequency';
 import {parseString} from 'xml2js';
 import CommentDataUtil, {BilibiliCommentData} from './CommentDataUtil';
-import {asSequence} from 'sequency';
+import moment = require('moment-timezone');
 // @ts-ignore
 import escape = require('pg-escape');
-import moment = require('moment-timezone');
 import shortid = require('shortid');
 
 async function asPromise<T>(
@@ -33,7 +33,7 @@ export async function parse(filename: string) {
           return CommentDataUtil.parseFromXmlLine(commentElement.$.p, commentElement._);
         } catch (e) {
           let commentsErrorCount = commentsErrors.get(e.message);
-          if (commentsErrorCount === undefined) {
+          if (commentsErrorCount == null) {
             commentsErrorCount = 1;
           } else {
             commentsErrorCount++;

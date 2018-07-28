@@ -1,5 +1,5 @@
-import PhysicalConstants from '../../../client/src/PhysicalConstants';
 import {expect} from 'chai';
+import PhysicalConstants from '../../../client/src/PhysicalConstants';
 import Chunks from '../../../client/src/util/entityStorage/chunk/Chunks';
 import Point from '../../../client/src/util/syntax/Point';
 import Rectangle from '../../../client/src/util/syntax/Rectangle';
@@ -44,9 +44,9 @@ describe('Chunks', () => {
 
   it('iteration works', () => {
     let chunkIndex = 0;
-    for (let chunk of chunks) {
-      let x = chunkIndex % CHUNKS_COUNT;
-      let y = Math.floor(chunkIndex / CHUNKS_COUNT);
+    for (const chunk of chunks) {
+      const x = chunkIndex % CHUNKS_COUNT;
+      const y = Math.floor(chunkIndex / CHUNKS_COUNT);
       expect(chunk).to.equal(chunkAt(x, y));
 
       chunkIndex++;
@@ -95,9 +95,9 @@ describe('Chunks', () => {
   });
 
   it('listChunksInBounds() works', () => {
-    expect(chunks.listChunksInBounds(Rectangle.empty())).to.deep.equal([]);
-    expect(chunks.listChunksInBounds(Rectangle.sized(0, 1))).to.deep.equal([]);
-    expect(chunks.listChunksInBounds(Rectangle.sized(1, 0))).to.deep.equal([]);
+    expect(chunks.listChunksInBounds(Rectangle.empty())).to.be.empty;
+    expect(chunks.listChunksInBounds(Rectangle.sized(0, 1))).to.be.empty;
+    expect(chunks.listChunksInBounds(Rectangle.sized(1, 0))).to.be.empty;
 
     expect(chunks.listChunksInBounds(Rectangle.sized(1, 1))).to.have.members([chunkAt(0, 0)]);
     expect(chunks.listChunksInBounds(Rectangle.sized(2, 2))).to.have.members([chunkAt(0, 0)]);

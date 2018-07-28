@@ -1,25 +1,19 @@
+import {asSequence} from 'sequency';
+import {Component} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
-import EntityFinder from '../../util/entityStorage/EntityFinder';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import DynamicProvider from '../../util/DynamicProvider';
-import VisibilityEngine, {
-  DistanceChecker,
-  EntityFinderRecord,
-  EntityFinderRecordsSampler,
-  SystemFinisher,
-  SystemTicker,
-} from './VisibilityEngine';
-import {Component} from '../../entitySystem/alias';
-import {asSequence} from 'sequency';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
+import VisibilityEngine, {DistanceChecker, EntityFinderRecord, EntityFinderRecordsSampler, SystemFinisher, SystemTicker} from './VisibilityEngine';
 
 export class VisibilityEngineBuilder {
   constructor(
-      private trackee: Entity,
-      private samplingRadius: DynamicProvider<number>,
+      private readonly trackee: Entity,
+      private readonly samplingRadius: DynamicProvider<number>,
       updatingRadius: number,
-      private distanceChecker: DistanceChecker =
+      private readonly distanceChecker: DistanceChecker =
           new DistanceChecker(samplingRadius.getValue(), updatingRadius),
-      private relations: Array<VisibilityRelation<Component, Entity>> = []) {
+      private readonly relations: Array<VisibilityRelation<Component, Entity>> = []) {
   }
 
   apply<T, U extends T & Entity>(
@@ -53,13 +47,13 @@ export class VisibilityEngineBuilder {
     const recordToSystems: Map<EntityFinderRecord<Entity>, Array<VisibilitySystem<Component>>> = new Map();
     for (const relation of relations) {
       let record = records.get(relation.entityFinder);
-      if (record === undefined) {
+      if (!record) {
         record = new EntityFinderRecord(relation.entityFinder, this.distanceChecker);
         records.set(relation.entityFinder, record);
       }
 
       let applyingSystems = recordToSystems.get(record);
-      if (applyingSystems === undefined) {
+      if (!applyingSystems) {
         applyingSystems = [];
         recordToSystems.set(record, applyingSystems);
       }

@@ -1,7 +1,7 @@
-import PermanentlyUpdatingBuff from './PermanentlyUpdatingBuff';
-import {UpdatingCommentEntity} from '../../alias';
 import ColorTransitionLaw from '../../../law/ColorTransitionLaw';
 import {Phaser} from '../../../util/alias/phaser';
+import {UpdatingCommentEntity} from '../../alias';
+import PermanentlyUpdatingBuff from './PermanentlyUpdatingBuff';
 
 const UPDATE_SKIP_PERIOD = 2;
 
@@ -28,7 +28,7 @@ class Chromatic extends PermanentlyUpdatingBuff<UpdatingCommentEntity> {
     this.greenTransition.tick(time);
     this.blueTransition.tick(time);
 
-    let color = Phaser.Color.RGBtoString(
+    const color = Phaser.Color.RGBtoString(
         this.redTransition.getValue(),
         this.greenTransition.getValue(),
         this.blueTransition.getValue());
@@ -60,7 +60,9 @@ export class BouncingColorTransition implements ColorTransition {
   }
 
   private static getRandomValue() {
-    return Phaser.Math.between(this.MIN_VALUE, this.MAX_VALUE);
+    return Phaser.Math.between(
+        BouncingColorTransition.MIN_VALUE,
+        BouncingColorTransition.MAX_VALUE);
   }
 
   getValue() {

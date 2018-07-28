@@ -29,7 +29,7 @@ class Quadtree<T extends Entity> implements Iterable<T> {
       this.root.listIn(bounds.offset(0, -PhysicalConstants.WORLD_SIZE)),
       this.root.listIn(bounds.offset(PhysicalConstants.WORLD_SIZE, 0))])
         .flatten()
-        .asIterable();
+        .toArray();
   }
 
   add(value: T): [Iterable<Region<T>>, Iterable<Region<T>>] {
@@ -52,6 +52,10 @@ class Quadtree<T extends Entity> implements Iterable<T> {
     });
   }
 
+  [Symbol.iterator]() {
+    return Iterator.of(this.root);
+  }
+
   private collectUpdatesOfLeaves(
       callback: (
           addedLeaves: Set<Leaf<T>>,
@@ -65,10 +69,6 @@ class Quadtree<T extends Entity> implements Iterable<T> {
     const filteredRemovedLeaves = leftOuterJoin(removedLeaves, addedLeaves);
 
     return [filteredAddedLeaves, filteredRemovedLeaves];
-  }
-
-  [Symbol.iterator]() {
-    return Iterator.of(this.root);
   }
 }
 
@@ -87,7 +87,7 @@ export class Node<T extends Entity> implements Tree<T> {
    * @param {Array<Tree<T>>} children [topLeft, topRight, bottomLeft, bottomRight]
    * @param {Rectangle} bounds
    */
-  constructor(private children: Array<Tree<T>>, private bounds: Rectangle) {
+  constructor(private readonly children: Array<Tree<T>>, private readonly bounds: Rectangle) {
     if (children.length !== 4) {
       throw new TypeError('Invalid number of children');
     }
@@ -101,12 +101,10 @@ export class Node<T extends Entity> implements Tree<T> {
     if (!this.bounds.intersects(bounds)) {
       return [];
     }
-
-    bounds = bounds.clone();
     return asSequence(this.children)
         .map(tree => tree.listIn(bounds))
         .flatten()
-        .asIterable();
+        .toArray();
   }
 
   add(value: T, addedLeaves?: Set<Leaf<T>>, removedLeaves?: Set<Leaf<T>>): Tree<T> {
@@ -143,11 +141,11 @@ export class Node<T extends Entity> implements Tree<T> {
 
 export class Leaf<T extends Entity> extends ImmutableCoordinates implements Tree<T> {
   constructor(
-      private bounds: Rectangle,
-      private maxDepth: number,
-      private maxValuesCount: number,
-      private depth: number = 0,
-      private values: Set<T> = new Set()) {
+      private readonly bounds: Rectangle,
+      private readonly maxDepth: number,
+      private readonly maxValuesCount: number,
+      private readonly depth: number = 0,
+      private readonly values: Set<T> = new Set()) {
     super(Point.of(bounds.centerX, bounds.centerY));
     if (!(maxValuesCount > 0)) {
       throw new TypeError(`Invalid 'maxValuesCount'`);
@@ -166,7 +164,7 @@ export class Leaf<T extends Entity> extends ImmutableCoordinates implements Tree
           const coordinates = value.coordinates;
           return bounds.contains(coordinates.x, coordinates.y);
         })
-        .asIterable();
+        .toArray();
   }
 
   add(value: T, addedLeaves?: Set<Leaf<T>>, removedLeaves?: Set<Leaf<T>>): Tree<T> {

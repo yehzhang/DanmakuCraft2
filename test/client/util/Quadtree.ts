@@ -28,10 +28,10 @@ describe('Quadtree.Leaf', () => {
 
   it('listLeavesIn() should return itself if it is in the bounds.', () => {
     const leaves1 = leaf.add(entities[0]).listIn(Rectangle.sized(1));
-    expect(leaves1).to.shallowDeepEqual([leaf]);
+    expect(leaves1).to.shallowDeepEqual([entities[0]]);
 
     const leaves2 = leaf.listIn(Rectangle.empty());
-    expect(leaves2).to.deep.equal([]);
+    expect(leaves2).to.be.empty;
   });
 
   it('add() should return a new leaf containing the added value.', () => {
@@ -109,7 +109,7 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('add() should not keep created leaves if the entity is already added.', () => {
-    let addedLeaves: Set<Leaf<Entity>> = new Set();
+    const addedLeaves: Set<Leaf<Entity>> = new Set();
     leaf.add(entities[0]).add(entities[0], addedLeaves);
 
     expect(addedLeaves).to.be.empty;
@@ -143,14 +143,14 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('remove() should keep created leaves.', () => {
-    let addedLeaves: Set<Leaf<Entity>> = new Set();
+    const addedLeaves: Set<Leaf<Entity>> = new Set();
     const newLeaf1 = leaf.add(entities[0]).remove(entities[0], addedLeaves);
 
     expect(addedLeaves).to.deep.equal(new Set([newLeaf1]));
   });
 
   it('remove() should keep replaced leaves.', () => {
-    let removedLeaves: Set<Leaf<Entity>> = new Set();
+    const removedLeaves: Set<Leaf<Entity>> = new Set();
     const newLeaf1 = leaf.add(entities[0]);
     newLeaf1.remove(entities[0], undefined, removedLeaves);
 
@@ -158,7 +158,7 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('remove() should not keep replaced leaves if the entity has not been added.', () => {
-    let removedLeaves: Set<Leaf<Entity>> = new Set();
+    const removedLeaves: Set<Leaf<Entity>> = new Set();
     leaf.remove(entities[0], undefined, removedLeaves);
 
     expect(removedLeaves).to.be.empty;
@@ -193,8 +193,7 @@ describe('Quadtree.Node', () => {
     expect(Array.from(listedLeaves)).to.have.members([leaves[0], leaves[1]]);
   });
 
-  xit('listLeavesIn() should delegate to all children.', () => {
-    // TODO asSequence is not mapping?
+  it('listLeavesIn() should delegate to all children.', () => {
     node.listIn(Rectangle.sized(100));
 
     verify(mockLeaves[0].listIn(anything())).once();

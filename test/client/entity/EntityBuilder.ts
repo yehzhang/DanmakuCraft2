@@ -9,14 +9,14 @@ describe('EntityBuilder', () => {
   });
 
   it('mixes an empty object with anything', () => {
-    let result = entityBuilder.mix({}).mix({}).build();
+    const result = entityBuilder.mix({}).mix({}).build();
     expect(result).to.deep.equal({});
   });
 
   it('mixes plain objects', () => {
-    let fn = () => {
+    const fn = () => {
     };
-    let actual = entityBuilder
+    const actual = entityBuilder
         .mix({
           b: false,
           a: 1,
@@ -38,7 +38,7 @@ describe('EntityBuilder', () => {
       f = fn;
     }
 
-    let expected = new Mixed();
+    const expected = new Mixed();
 
     expect(actual).to.deep.equal(expected);
   });
@@ -64,8 +64,8 @@ describe('EntityBuilder', () => {
       }
     }
 
-    let actual: any = entityBuilder.mix(new A()).mix(new C()).build();
-    let actualObject = {
+    const actual: any = entityBuilder.mix(new A()).mix(new C()).build();
+    const actualObject = {
       b: actual.b,
       a: actual.a,
       e: actual.e,
@@ -123,24 +123,24 @@ describe('EntityBuilder', () => {
       }
     }
 
-    let actual = entityBuilder.mix(new A()).mix(new B()).mix(new C()).build();
+    const actual = entityBuilder.mix(new A()).mix(new B()).mix(new C()).build();
 
     class Expected {
       a = 1;
       b = [];
     }
 
-    let basePrototype = Object.assign({
+    const basePrototype = Object.assign({
       constructor: A.prototype.constructor,
     }, Expected.prototype);
-    let expectedPrototype = Object.create(basePrototype, {
+    const expectedPrototype = Object.create(basePrototype, {
       c: Object.getOwnPropertyDescriptor(A.prototype, 'c'),
       d: Object.getOwnPropertyDescriptor(B.prototype, 'd'),
       e: Object.getOwnPropertyDescriptor(C.prototype, 'e'),
     } as any);
     Object.assign(Expected.prototype, expectedPrototype);
 
-    let expected = new Expected();
+    const expected = new Expected();
 
     expect(actual).to.deep.equal(expected);
   });
@@ -168,17 +168,17 @@ describe('EntityBuilder', () => {
     class B {
     }
 
-    let b: any = new B();
-    let symbolB = Symbol('B');
+    const b: any = new B();
+    const symbolB = Symbol('B');
     b[symbolB] = 2;
 
-    let actual = entityBuilder.mix(new A()).mix(b).build();
+    const actual = entityBuilder.mix(new A()).mix(b).build();
 
     class Mixed {
       [Symbol.iterator] = 1;
     }
 
-    let expected: any = new Mixed();
+    const expected: any = new Mixed();
 
     expected[symbolB] = 2;
 

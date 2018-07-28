@@ -18,7 +18,7 @@ import LawFactory from './LawFactory';
 
 class LawFactoryImpl implements LawFactory {
   constructor(
-      private baseGenerator: DataGenerator = new SimpleDataGenerator(),
+      private readonly baseGenerator: DataGenerator = new SimpleDataGenerator(),
       private colorTransitionLawInstance: ColorTransitionLaw | null = null) {
   }
 

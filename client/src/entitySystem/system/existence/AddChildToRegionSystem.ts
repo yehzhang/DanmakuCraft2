@@ -1,7 +1,7 @@
-import {DisplayableEntity, DisplayableRegion} from '../../alias';
-import ExistenceSystem from './ExistenceSystem';
 import {toWorldCoordinateOffset2d} from '../../../law/space';
 import PhysicalConstants from '../../../PhysicalConstants';
+import {DisplayableEntity, DisplayableRegion} from '../../alias';
+import ExistenceSystem from './ExistenceSystem';
 
 class AddChildToRegionSystem implements ExistenceSystem<DisplayableRegion<DisplayableEntity>> {
   static adopt<T extends DisplayableEntity>(entity: T, region: DisplayableRegion<T>) {
@@ -13,7 +13,7 @@ class AddChildToRegionSystem implements ExistenceSystem<DisplayableRegion<Displa
   }
 
   adopt(region: DisplayableRegion<DisplayableEntity>) {
-    for (let entity of region) {
+    for (const entity of region) {
       AddChildToRegionSystem.adopt(entity, region);
     }
   }

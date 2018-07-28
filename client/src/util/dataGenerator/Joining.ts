@@ -1,7 +1,7 @@
 import DataGenerator from './DataGenerator';
 
 class Joining<TAll> implements DataGenerator<TAll[]> {
-  constructor(private generators: Array<DataGenerator<TAll>>) {
+  constructor(private readonly generators: Array<DataGenerator<TAll>>) {
   }
 
   static of<TAll>(...generators: Array<DataGenerator<TAll>>): Joining<TAll> {

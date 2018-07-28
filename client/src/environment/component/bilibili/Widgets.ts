@@ -1,4 +1,4 @@
-let builtInWindow = window;
+const builtInWindow = window;
 
 class Widgets {
   constructor(

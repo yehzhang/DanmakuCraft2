@@ -1,9 +1,9 @@
-import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
-import EntityFinder from '../../util/entityStorage/EntityFinder';
 import Entity from '../../entitySystem/Entity';
-import ExistenceEngineBuilder from './ExistenceEngineBuilder';
-import ExistenceEngine from './ExistenceEngine';
+import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
 import Container from '../../util/entityStorage/Container';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
+import ExistenceEngine from './ExistenceEngine';
+import ExistenceEngineBuilder from './ExistenceEngineBuilder';
 
 export class OnOrBuildClause {
   constructor(protected builder: ExistenceEngineBuilder) {
@@ -39,12 +39,12 @@ class ToClause<T> {
   }
 
   toChildren(): OfClause<Container<T>, T> {
-    let systemLifter = new SystemLifter(this.system, this.system);
+    const systemLifter = new SystemLifter(this.system, this.system);
     return this.createOfClause(systemLifter.lifted());
   }
 
   toEntities(): OfClause<T, T> {
-    let systemLifter = new SystemLifter(this.system, this.system);
+    const systemLifter = new SystemLifter(this.system, this.system);
     return this.createOfClause(systemLifter);
   }
 
@@ -101,13 +101,13 @@ class LiftExistenceSystemSystem<T> implements ExistenceSystem<Container<T>> {
   }
 
   adopt(region: Container<T>) {
-    for (let entity of region) {
+    for (const entity of region) {
       this.system.adopt(entity);
     }
   }
 
   abandon(region: Container<T>) {
-    for (let entity of region) {
+    for (const entity of region) {
       this.system.abandon(entity);
     }
   }

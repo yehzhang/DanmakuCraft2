@@ -9,7 +9,7 @@ import Quadtree from './Quadtree';
 
 class QuadTreeEntityFinder<T extends Entity> implements EntityFinder<T> {
   constructor(
-      private tree: Quadtree<T>,
+      private readonly tree: Quadtree<T>,
       readonly onStateChanged: Phaser.Signal<StateChanged<T>>) {
   }
 

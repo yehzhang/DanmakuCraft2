@@ -1,8 +1,8 @@
-import DataTransformer from './DataTransformer';
 import {asSequence} from 'sequency';
+import DataTransformer from './DataTransformer';
 
 class Weighted<T> implements DataTransformer<number, T> {
-  constructor(private entries: Array<WeightedEntry<T>>) {
+  constructor(private readonly entries: Array<WeightedEntry<T>>) {
   }
 
   static newBuilder<T>(): WeightedBuilder<T> {
@@ -22,7 +22,9 @@ class WeightedEntry<T> {
 }
 
 class WeightedBuilder<T> {
-  constructor(private entries: Array<WeightedEntry<T>> = [], private weightSum: number = 0) {
+  constructor(
+      private readonly entries: Array<WeightedEntry<T>> = [],
+      private weightSum: number = 0) {
   }
 
   add(item: T, weight: number): this {
@@ -37,7 +39,7 @@ class WeightedBuilder<T> {
       throw new Error('No item was added');
     }
 
-    let normalizedEntries =
+    const normalizedEntries =
         this.entries.map(entry => new WeightedEntry(entry.item, entry.weightSum / this.weightSum));
     return new Weighted(normalizedEntries);
   }

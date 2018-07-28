@@ -1,14 +1,14 @@
+import Chain from './Chain';
 import DataTransformer from './DataTransformer';
 import Scaler from './Scaler';
-import Chain from './Chain';
 
 abstract class Capped {
   static between(
       minInput: number,
       maxInput: number,
       transformer: DataTransformer): DataTransformer {
-    let minOutput = transformer.transform(minInput);
-    let maxOutput = transformer.transform(maxInput);
+    const minOutput = transformer.transform(minInput);
+    const maxOutput = transformer.transform(maxInput);
     return Chain.partial()
         .pipe(Scaler.to(minInput, maxInput))
         .pipe(transformer)
@@ -17,8 +17,8 @@ abstract class Capped {
   }
 
   static by(transformerInputLimit: number, transformer: DataTransformer): DataTransformer {
-    let minInput = transformerInputLimit;
-    let maxInput = 1 - transformerInputLimit;
+    const minInput = transformerInputLimit;
+    const maxInput = 1 - transformerInputLimit;
     return this.between(minInput, maxInput, transformer);
   }
 }

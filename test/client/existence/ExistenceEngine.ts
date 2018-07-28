@@ -1,16 +1,13 @@
-import {
-  default as ExistenceEngine,
-  ExistenceRelation
-} from '../../../client/src/engine/existence/ExistenceEngine';
-import EntityFinder, {StateChanged} from '../../../client/src/util/entityStorage/EntityFinder';
-import ExistenceSystem from '../../../client/src/entitySystem/system/existence/ExistenceSystem';
-import Entity from '../../../client/src/entitySystem/Entity';
-import {anything, instance, mock, resetCalls, verify, when} from 'ts-mockito';
-import AddChildToRegionSystem from '../../../client/src/entitySystem/system/existence/AddChildToRegionSystem';
-import Iterator from '../../../client/src/util/syntax/Iterator';
 import {expect} from 'chai';
-import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
+import {anything, instance, mock, resetCalls, verify, when} from 'ts-mockito';
+import {default as ExistenceEngine, ExistenceRelation} from '../../../client/src/engine/existence/ExistenceEngine';
+import Entity from '../../../client/src/entitySystem/Entity';
+import AddChildToRegionSystem from '../../../client/src/entitySystem/system/existence/AddChildToRegionSystem';
+import ExistenceSystem from '../../../client/src/entitySystem/system/existence/ExistenceSystem';
 import {Phaser} from '../../../client/src/util/alias/phaser';
+import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
+import EntityFinder, {StateChanged} from '../../../client/src/util/entityStorage/EntityFinder';
+import Iterator from '../../../client/src/util/syntax/Iterator';
 
 describe('ExistenceEngine', () => {
   let engine: ExistenceEngine;
@@ -99,9 +96,9 @@ describe('ExistenceRelation', () => {
 
   beforeEach(() => {
     mockSystem = mock(AddChildToRegionSystem);
-    let mockEnteringEntities = [mock(Entity), mock(Entity)];
+    const mockEnteringEntities = [mock(Entity), mock(Entity)];
     enteringEntities = [mockEnteringEntities.map(instance)];
-    let mockExitingEntities = [mock(Entity), mock(Entity)];
+    const mockExitingEntities = [mock(Entity), mock(Entity)];
     exitingEntities = [mockExitingEntities.map(instance)];
     mockEntityFinder = mock(ChunkEntityFinder);
     entityFinder = instance(mockEntityFinder);
@@ -155,10 +152,10 @@ describe('ExistenceRelation', () => {
   });
 
   it('should update on signal.', () => {
-    let signal: Phaser.Signal<StateChanged<Entity>> = new Phaser.Signal();
+    const signal: Phaser.Signal<StateChanged<Entity>> = new Phaser.Signal();
     when(mockEntityFinder.onStateChanged).thenReturn(signal);
 
-    let relation2 = new ExistenceRelation(instance(mockSystem), entityFinder);
+    const relation2 = new ExistenceRelation(instance(mockSystem), entityFinder);
     signal.dispatch(
         new StateChanged(enteringEntities[0], exitingEntities[0]));
 

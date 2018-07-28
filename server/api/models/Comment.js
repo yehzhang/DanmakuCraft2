@@ -36,7 +36,7 @@ module.exports = {
      * @return {FlatCommentData}
      */
     toJSON() {
-      let data = this.toObject();
+      const data = this.toObject();
 
       if (data.buffType == null) {
         delete data.buffType;

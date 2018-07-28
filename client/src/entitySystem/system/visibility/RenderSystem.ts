@@ -3,7 +3,7 @@ import Display from '../../component/Display';
 import VisibilitySystem from './VisibilitySystem';
 
 class RenderSystem implements VisibilitySystem<Display> {
-  constructor(private layer: PIXI.DisplayObjectContainer) {
+  constructor(private readonly layer: PIXI.DisplayObjectContainer) {
   }
 
   enter(entity: Display) {

@@ -1,20 +1,16 @@
-import EntityFinder, {StateChanged} from '../EntityFinder';
-import Point from '../../syntax/Point';
-import Distance from '../../math/Distance';
 import {asSequence} from 'sequency';
-import Iterator from '../../syntax/Iterator';
-import {Phaser} from '../../alias/phaser';
-import Entity from '../../../entitySystem/Entity';
 import Display from '../../../entitySystem/component/Display';
+import Entity from '../../../entitySystem/Entity';
+import {Phaser} from '../../alias/phaser';
+import Distance from '../../math/Distance';
+import Iterator from '../../syntax/Iterator';
+import Point from '../../syntax/Point';
+import EntityFinder, {StateChanged} from '../EntityFinder';
 
 class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   constructor(
-      private entities: Set<T>,
+      private readonly entities: Set<T>,
       readonly onStateChanged: Phaser.Signal<StateChanged<T>>) {
-  }
-
-  private static isDisplay(entity: any): entity is Display {
-    return entity.hasOwnProperty('display');
   }
 
   listAround(coordinates: Point, radius: number): Iterable<T> {
@@ -22,10 +18,10 @@ class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
       return [];
     }
 
-    let distance = new Distance(radius);
+    const distance = new Distance(radius);
     return asSequence(this.entities)
         .filter(entity => {
-          if (GlobalEntityFinder.isDisplay(entity)) {
+          if (isDisplay(entity)) {
             return distance.isDisplayClose(entity, coordinates);
           }
           return distance.isClose(entity.coordinates, coordinates);
@@ -36,6 +32,10 @@ class GlobalEntityFinder<T extends Entity> implements EntityFinder<T> {
   [Symbol.iterator]() {
     return Iterator.of(this.entities);
   }
+}
+
+function isDisplay(entity: any): entity is Display {
+  return entity.hasOwnProperty('display');
 }
 
 export default GlobalEntityFinder;

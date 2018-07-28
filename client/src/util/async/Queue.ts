@@ -2,13 +2,13 @@ import ConditionalVariable from './ConditionalVariable';
 
 class Queue<T> {
   constructor(
-      private values: T[] = [],
-      private pushCondition: ConditionalVariable = new ConditionalVariable(),
-      private popCondition: ConditionalVariable = new ConditionalVariable()) {
+      private readonly values: T[] = [],
+      private readonly pushCondition: ConditionalVariable = new ConditionalVariable(),
+      private readonly popCondition: ConditionalVariable = new ConditionalVariable()) {
   }
 
   async push(valueOrPromise: Promise<T> | T) {
-    let value = await valueOrPromise;
+    const value = await valueOrPromise;
     this.values.push(value);
     this.pushCondition.notify();
 

@@ -1,15 +1,15 @@
+import GraphicsFactory from '../../render/graphics/GraphicsFactory';
+import {Phaser} from '../../util/alias/phaser';
+import Point from '../../util/syntax/Point';
 import NotifierFactory from './NotifierFactory';
 import PoppingNotifier from './PoppingNotifier';
-import GraphicsFactory from '../../render/graphics/GraphicsFactory';
-import Point from '../../util/syntax/Point';
-import {Phaser} from '../../util/alias/phaser';
 
 class NotifierFactoryImpl implements NotifierFactory {
   constructor(private game: Phaser.Game, private graphicsFactory: GraphicsFactory) {
   }
 
   createPoppingNotifier(speakerDisplay: PIXI.DisplayObjectContainer) {
-    let view = this.graphicsFactory.createSpeechBubble();
+    const view = this.graphicsFactory.createSpeechBubble();
 
     speakerDisplay.addChild(view.speechBox);
     view.speechBox.position = Point.of(-47, -185);

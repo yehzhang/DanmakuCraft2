@@ -16,9 +16,8 @@ class BuffDataContainer {
   }
 
   pop(): void {
-    let buff = this.buffDatas.shift();
-
-    if (buff == null) {
+    const buff = this.buffDatas.shift();
+    if (!buff) {
       throw new Error('No buff data available');
     }
   }

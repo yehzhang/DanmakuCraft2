@@ -10,17 +10,13 @@ class ClickTriggeredFocuser {
     $(window).focusin(e => this.focusee = $(e.target));
 
     this.elements = new Set(trackingWidgets);
-    for (let element of this.elements) {
+    for (const element of this.elements) {
       this.track(element);
     }
 
     if (focusee != null) {
       this.focus(focusee);
     }
-  }
-
-  private static clearAllOtherFocuses() {
-    return $(':focus').blur();
   }
 
   isFocused(element: JQuery<HTMLElement>) {
@@ -35,7 +31,7 @@ class ClickTriggeredFocuser {
       throw new TypeError('Widget is not tracked');
     }
 
-    ClickTriggeredFocuser.clearAllOtherFocuses();
+    clearAllOtherFocuses();
 
     this.isSettingFocusee = true;
     element.focus();
@@ -70,6 +66,10 @@ class ClickTriggeredFocuser {
       setImmediate(() => element.blur());
     });
   }
+}
+
+function clearAllOtherFocuses() {
+  return $(':focus').blur();
 }
 
 export default ClickTriggeredFocuser;

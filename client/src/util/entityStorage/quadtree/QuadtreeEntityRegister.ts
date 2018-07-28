@@ -8,8 +8,8 @@ import Quadtree from './Quadtree';
 
 class QuadTreeEntityRegister<T extends StationaryEntity> implements EntityRegister<T> {
   constructor(
-      private tree: Quadtree<T>,
-      private onStateChanged: Phaser.Signal<StateChanged<T>>) {
+      private readonly tree: Quadtree<T>,
+      private readonly onStateChanged: Phaser.Signal<StateChanged<T>>) {
   }
 
   register(entity: T) {

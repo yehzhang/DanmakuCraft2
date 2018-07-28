@@ -40,15 +40,17 @@ class HardCodedPreset implements Preset {
   private static readonly SPAWN_POINT_CHANGE_INTERVAL = 5 * Phaser.Timer.MINUTE + 17 * Phaser.Timer.SECOND;
   private static readonly SPAWN_COORDINATE_MAX_OFFSET = 675;
 
-  constructor(private entityFactory: EntityFactory, private graphicsFactory: GraphicsFactory) {
+  constructor(
+      private readonly entityFactory: EntityFactory,
+      private readonly graphicsFactory: GraphicsFactory) {
   }
 
   getPlayerSpawnPoint() {
-    let spawnPeriod = Math.floor(Date.now() / HardCodedPreset.SPAWN_POINT_CHANGE_INTERVAL);
-    let spawnPointIndex = spawnPeriod % HardCodedPreset.SPAWN_POINTS.length;
-    let spawnPoint = HardCodedPreset.SPAWN_POINTS[spawnPointIndex];
+    const spawnPeriod = Math.floor(Date.now() / HardCodedPreset.SPAWN_POINT_CHANGE_INTERVAL);
+    const spawnPointIndex = spawnPeriod % HardCodedPreset.SPAWN_POINTS.length;
+    const spawnPoint = HardCodedPreset.SPAWN_POINTS[spawnPointIndex];
 
-    let randomOffsets = Chain.total(Joining.of(
+    const randomOffsets = Chain.total(Joining.of(
         Chain.total(new SimpleDataGenerator()).pipe(Scaler.to(0, Phaser.Math.PI2)).build(),
         Chain.total(new SimpleDataGenerator())
             .pipe(Scaler.to(0, HardCodedPreset.SPAWN_COORDINATE_MAX_OFFSET ** 2))
@@ -62,25 +64,25 @@ class HardCodedPreset implements Preset {
 
   populateSpawnPoints(
       pointsRegister: EntityRegister<Entity>, signsRegister: EntityRegister<SignEntity>) {
-    for (let point of HardCodedPreset.SPAWN_POINTS) {
-      let pointEntity = this.entityFactory.createPointEntity(point.coordinates);
+    for (const point of HardCodedPreset.SPAWN_POINTS) {
+      const pointEntity = this.entityFactory.createPointEntity(point.coordinates);
       pointsRegister.register(pointEntity);
 
-      let display =
+      const display =
           this.graphicsFactory.createText(point.data, HardCodedPreset.SIGN_SIZE, Colors.GOLD);
       display.anchor.setTo(0.5);
-      let signEntity = this.entityFactory.createSignEntity(pointEntity.coordinates, display);
+      const signEntity = this.entityFactory.createSignEntity(pointEntity.coordinates, display);
       signsRegister.register(signEntity);
     }
   }
 
   populateSigns(signsRegister: EntityRegister<SignEntity>) {
-    let worldCenter = this.entityFactory.createSignEntity(
+    const worldCenter = this.entityFactory.createSignEntity(
         HardCodedPreset.WORLD_CENTER_COORDINATES,
         this.graphicsFactory.createWorldCenterSign(HardCodedPreset.SIGN_SIZE, Colors.GOLD));
     signsRegister.register(worldCenter);
 
-    let worldOrigin = this.entityFactory.createSignEntity(
+    const worldOrigin = this.entityFactory.createSignEntity(
         HardCodedPreset.WORLD_ORIGIN_COORDINATES,
         this.graphicsFactory.createWorldOriginSign(HardCodedPreset.SIGN_SIZE, Colors.GOLD));
     signsRegister.register(worldOrigin);

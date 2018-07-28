@@ -1,8 +1,8 @@
+import {expect} from 'chai';
 import {instance, mock} from 'ts-mockito';
-import ImmutableContainer from '../../../client/src/util/entityStorage/ImmutableContainer';
 import Entity from '../../../client/src/entitySystem/Entity';
 import SetContainer from '../../../client/src/util/entityStorage/chunk/SetContainer';
-import {expect} from 'chai';
+import ImmutableContainer from '../../../client/src/util/entityStorage/ImmutableContainer';
 
 describe('SetContainer', () => {
   let mockEntities: Entity[];
@@ -49,7 +49,7 @@ describe('SetContainer', () => {
     container = container.add(entities[2]);
 
     let entitiesIndex = 0;
-    for (let entity of container) {
+    for (const entity of container) {
       expect(entity).to.equal(entities[entitiesIndex]);
       entitiesIndex++;
     }

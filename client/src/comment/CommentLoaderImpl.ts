@@ -11,22 +11,22 @@ import CommentLoader from './CommentLoader';
 
 class CommentLoaderImpl implements CommentLoader {
   constructor(
-      private game: Phaser.Game,
-      private commentsRegister: EntityRegister<CommentEntity>,
-      private updatingCommentsRegister: EntityRegister<UpdatingCommentEntity>,
-      private entityFactory: EntityFactory,
-      private buffDataApplier: BuffDataApplier) {
+      private readonly game: Phaser.Game,
+      private readonly commentsRegister: EntityRegister<CommentEntity>,
+      private readonly updatingCommentsRegister: EntityRegister<UpdatingCommentEntity>,
+      private readonly entityFactory: EntityFactory,
+      private readonly buffDataApplier: BuffDataApplier) {
   }
 
   loadBatch(commentsData: Iterable<CommentData>, blink?: boolean): CommentEntity[] {
-    let comments = [];
-    let updatingComments = [];
-    for (let commentData of commentsData) {
+    const comments = [];
+    const updatingComments = [];
+    for (const commentData of commentsData) {
       if (commentData.buffData == null) {
-        let comment = this.entityFactory.createCommentEntity(commentData);
+        const comment = this.entityFactory.createCommentEntity(commentData);
         comments.push(comment);
       } else {
-        let comment = this.createUpdatingCommentEntity(commentData, commentData.buffData);
+        const comment = this.createUpdatingCommentEntity(commentData, commentData.buffData);
         updatingComments.push(comment);
       }
     }
@@ -76,7 +76,7 @@ class CommentLoaderImpl implements CommentLoader {
   }
 
   private createUpdatingCommentEntity(commentData: CommentData, buffData: BuffData) {
-    let comment = this.entityFactory.createUpdatingCommentEntity(commentData);
+    const comment = this.entityFactory.createUpdatingCommentEntity(commentData);
     this.buffDataApplier.activateOnComment(buffData, comment);
     return comment;
   }

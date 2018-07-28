@@ -1,7 +1,7 @@
 import DataTransformer from './DataTransformer';
 
 class Const<T, U> implements DataTransformer<T, U> {
-  constructor(private callback: (data: T) => U) {
+  constructor(private readonly callback: (data: T) => U) {
   }
 
   static of<T, U>(callback: (data: T) => U): DataTransformer<T, U> {

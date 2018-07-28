@@ -1,11 +1,11 @@
-import Colors from '../../../render/Colors';
-import CommentPlacingPolicy from '../../interface/CommentPlacingPolicy';
 import CommentData from '../../../comment/CommentData';
+import Colors from '../../../render/Colors';
+import {Phaser} from '../../../util/alias/phaser';
+import Queue from '../../../util/async/Queue';
+import CommentPlacingPolicy from '../../interface/CommentPlacingPolicy';
 import CommentProvider from '../../interface/CommentProvider';
 import {bindFirst} from '../../util';
-import {Phaser} from '../../../util/alias/phaser';
 import Widgets from './Widgets';
-import Queue from '../../../util/async/Queue';
 
 class TextInputCommentProvider implements CommentProvider {
   private static readonly DEFAULT_COMMENT_SIZE = 25;
@@ -44,7 +44,7 @@ class TextInputCommentProvider implements CommentProvider {
     // On font size changed
     $('.bilibili-player-video-sendbar .bilibili-player-mode-selection-row.fontsize .row-selection .selection-span')
         .on('click', event => {
-          let value = event.currentTarget.getAttribute('data-value');
+          const value = event.currentTarget.getAttribute('data-value');
           if (!value) {
             return;
           }
@@ -55,7 +55,7 @@ class TextInputCommentProvider implements CommentProvider {
 
     // On color changed
     this.widgets.colorPalette.on('click', event => {
-      let value = event.target.getAttribute('data-color');
+      const value = event.target.getAttribute('data-color');
       if (!value) {
         return;
       }
@@ -64,7 +64,7 @@ class TextInputCommentProvider implements CommentProvider {
       this.onCommentInput();
     });
     this.widgets.colorInput.on('change', event => {
-      let value = (event.target as HTMLInputElement).value;
+      const value = (event.target as HTMLInputElement).value;
       this.updateCommentColor(value);
 
       this.onCommentInput();
@@ -86,7 +86,7 @@ class TextInputCommentProvider implements CommentProvider {
     throw new TypeError('This operation is not supported');
   }
 
-  private requestForPlacingComment() {
+  private requestForPlacingComment(): CommentData | null {
     if (!this.commentText) {
       this.commentPlacingPolicy.cancelRequest();
       return null;
@@ -108,15 +108,15 @@ class TextInputCommentProvider implements CommentProvider {
       return null;
     }
 
-    let commentData = this.requestForPlacingComment();
-    if (commentData == null) {
+    const commentData = this.requestForPlacingComment();
+    if (!commentData) {
       event.stopImmediatePropagation();
       return;
     }
 
     this.commentPlacingPolicy.commitRequest();
 
-    let ignored = this.commentDataQueue.push(commentData);
+    const ignored = this.commentDataQueue.push(commentData);
   }
 
   private isSendButtonDisabled() {

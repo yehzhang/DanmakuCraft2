@@ -6,12 +6,12 @@ import Iterator from '../../syntax/Iterator';
 import Point from '../../syntax/Point';
 
 class Chunks<T> implements Iterable<T> {
-  constructor(private chunks: T[][], readonly chunkSize: number) {
+  constructor(private readonly chunks: T[][], readonly chunkSize: number) {
     if (chunkSize <= 0) {
       throw new TypeError('Invalid chunk size');
     }
 
-    let chunksWidths = new Set(chunks.map(chunksRow => chunksRow.length));
+    const chunksWidths = new Set(chunks.map(chunksRow => chunksRow.length));
     if (chunksWidths.size !== 1) {
       throw new TypeError('Invalid chunks dimension');
     }
@@ -30,7 +30,7 @@ class Chunks<T> implements Iterable<T> {
     const coordinates = Point.origin();
     for (let y = 0; y < chunksCount; y++) {
       coordinates.y = y * chunkSize;
-      let chunksRow = [];
+      const chunksRow = [];
 
       for (let x = 0; x < chunksCount; x++) {
         coordinates.x = x * chunkSize;
@@ -48,12 +48,12 @@ class Chunks<T> implements Iterable<T> {
   }
 
   getChunkByCoordinates(coordinates: Point) {
-    let chunkCoordinates = this.toInteriorChunkCoordinates(coordinates);
+    const chunkCoordinates = this.toInteriorChunkCoordinates(coordinates);
     return this.getChunkByInteriorChunkCoordinates(chunkCoordinates.x, chunkCoordinates.y);
   }
 
   replaceChunkByCoordinates(coordinates: Point, chunk: T) {
-    let chunkCoordinates = this.toInteriorChunkCoordinates(coordinates);
+    const chunkCoordinates = this.toInteriorChunkCoordinates(coordinates);
     this.setChunkByInteriorChunkCoordinates(chunkCoordinates.x, chunkCoordinates.y, chunk);
   }
 
@@ -69,9 +69,9 @@ class Chunks<T> implements Iterable<T> {
       return [];
     }
 
-    let topLeft = this.toInteriorChunkCoordinates(bounds.topLeft);
+    const topLeft = this.toInteriorChunkCoordinates(bounds.topLeft);
 
-    let bottomRight = this.toInteriorChunkCoordinates(bounds.bottomRight);
+    const bottomRight = this.toInteriorChunkCoordinates(bounds.bottomRight);
     if (topLeft.y > bottomRight.y) {
       bottomRight.y += this.chunksSide;
     } else if (topLeft.y === bottomRight.y && !(bounds.height < this.chunkSize)) {
@@ -83,7 +83,7 @@ class Chunks<T> implements Iterable<T> {
       bottomRight.x += this.chunksSide - 1;  // world-wide bounds
     }
 
-    let chunks = [];
+    const chunks = [];
     for (let y = topLeft.y; y <= bottomRight.y; y++) {
       for (let x = topLeft.x; x <= bottomRight.x; x++) {
         chunks.push(this.getChunkByChunkCoordinates(x, y));

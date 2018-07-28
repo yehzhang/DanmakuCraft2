@@ -1,22 +1,22 @@
-import TickSystem from './tick/TickSystem';
-import {ChestEntity} from '../alias';
-import VisibilitySystem from './visibility/VisibilitySystem';
-import BuffDataApplier from './buff/BuffDataApplier';
+import {asSequence} from 'sequency';
 import ChestLaw from '../../law/ChestLaw';
 import Notifier, {NotificationPriority} from '../../output/notification/Notifier';
-import BuffDescription from './buff/BuffDescription';
-import EntityFactory from '../EntityFactory';
-import Point from '../../util/syntax/Point';
 import EntityRegister from '../../util/entityStorage/EntityRegister';
 import Distance from '../../util/math/Distance';
+import Point from '../../util/syntax/Point';
+import {ChestEntity} from '../alias';
 import Entity from '../Entity';
-import {asSequence} from 'sequency';
+import EntityFactory from '../EntityFactory';
+import BuffDataApplier from './buff/BuffDataApplier';
+import BuffDescription from './buff/BuffDescription';
+import TickSystem from './tick/TickSystem';
+import VisibilitySystem from './visibility/VisibilitySystem';
 
 class ChestSystem implements TickSystem, VisibilitySystem<ChestEntity> {
   constructor(
-      private chestOpener: ChestOpener,
-      private chestSpawner: ChestSpawner,
-      private chestDemolisher: ChestDemolisher) {
+      private readonly chestOpener: ChestOpener,
+      private readonly chestSpawner: ChestSpawner,
+      private readonly chestDemolisher: ChestDemolisher) {
   }
 
   tick(time: Phaser.Time) {
@@ -65,7 +65,7 @@ export class ChestOpener {
       return false;
     }
 
-    let ignored = this.open(chest);
+    const ignored = this.open(chest);
 
     return true;
   }
@@ -79,21 +79,21 @@ export class ChestOpener {
 
     await this.playChestShakingAnimation(chest);
 
-    let buffData = this.law.buffStrategy.next();
+    const buffData = this.law.buffStrategy.next();
     this.buffDataApplier.activate(buffData);
 
     this.notifier.send(this.buffDescription.for(buffData), NotificationPriority.SKIP);
   }
 
   private async playChestShakingAnimation(chest: ChestEntity) {
-    let tweenX = this.game.add.tween(chest.display)
+    const tweenX = this.game.add.tween(chest.display)
         .to(
             {x: chest.display.x - ChestOpener.CHEST_SHAKING_DISTANCE / 2},
             ChestOpener.CHEST_SHAKING_TIME_MS / 2,
             Phaser.Easing.Quadratic.InOut,
             true);
 
-    let tweenX2 = this.game.add.tween(chest.display)
+    const tweenX2 = this.game.add.tween(chest.display)
         .to(
             {x: chest.display.x + ChestOpener.CHEST_SHAKING_DISTANCE},
             ChestOpener.CHEST_SHAKING_TIME_MS,
@@ -103,7 +103,7 @@ export class ChestOpener {
             5,
             true);
 
-    let tweenX3 = this.game.add.tween(chest.display)
+    const tweenX3 = this.game.add.tween(chest.display)
         .to(
             {x: chest.display.x},
             ChestOpener.CHEST_SHAKING_TIME_MS / 2,
@@ -156,7 +156,7 @@ export class ChestSpawner {
   }
 
   private spawnAt(coordinates: Point) {
-    let chest = this.entityFactory.createChest(coordinates);
+    const chest = this.entityFactory.createChest(coordinates);
     this.chestsRegister.register(chest);
     return chest;
   }

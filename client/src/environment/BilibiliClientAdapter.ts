@@ -1,15 +1,15 @@
-import OfficialCommentProvider from './component/officialWebsite/OfficialCommentProvider';
-import GameContainerProvider from './interface/GameContainerProvider';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
-import TextInputCommentProvider from './component/bilibili/TextInputCommentProvider';
 import BilibiliContainerProvider from './component/bilibili/BilibiliContainerProvider';
-import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
-import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
-import InputInterceptor from './component/bilibili/InputInterceptor';
-import Widgets from './component/bilibili/Widgets';
-import Socket from './component/officialWebsite/Socket';
-import Jar from './component/officialWebsite/Jar';
 import ClickTriggeredFocuser from './component/bilibili/ClickTriggeredFocuser';
+import InputInterceptor from './component/bilibili/InputInterceptor';
+import LocalStorageSettingsManager from './component/bilibili/LocalStorageSettingsManager';
+import TextInputCommentProvider from './component/bilibili/TextInputCommentProvider';
+import Widgets from './component/bilibili/Widgets';
+import CommentSenderImpl from './component/officialWebsite/CommentSenderImpl';
+import Jar from './component/officialWebsite/Jar';
+import OfficialCommentProvider from './component/officialWebsite/OfficialCommentProvider';
+import Socket from './component/officialWebsite/Socket';
+import GameContainerProvider from './interface/GameContainerProvider';
 import {bindFirst} from './util';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
@@ -92,7 +92,6 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
   private updateVolume() {
     const volumeText = this.widgets.volumeText.text();
     let volume = parseInt(volumeText, 10) / 100;
-
     if (!(volume >= 0 && volume <= 1)) {
       console.error('Failed to parse volume', volumeText);
       if (volume < 0) {

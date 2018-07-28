@@ -1,9 +1,9 @@
-import BaseNotifier from './BaseNotifier';
-import {NotifierView} from '../../render/graphics/GraphicsFactory';
-import ConditionalVariable from '../../util/async/ConditionalVariable';
-import {NotificationPriority} from './Notifier';
-import {Phaser} from '../../util/alias/phaser';
 import PhysicalConstants from '../../PhysicalConstants';
+import {NotifierView} from '../../render/graphics/GraphicsFactory';
+import {Phaser} from '../../util/alias/phaser';
+import ConditionalVariable from '../../util/async/ConditionalVariable';
+import BaseNotifier from './BaseNotifier';
+import {NotificationPriority} from './Notifier';
 
 class PoppingNotifier extends BaseNotifier {
   private static readonly SPEECH_BOX_POP_HEIGHT = 10;
@@ -15,11 +15,11 @@ class PoppingNotifier extends BaseNotifier {
       private skipPauseCondition: ConditionalVariable = new ConditionalVariable(),
       private notificationQueue: Notification[] = []) {
     super();
-    let ignored = this.createMessageListener();
+    const ignored = this.createMessageListener();
   }
 
   send(message: string, priority: NotificationPriority = NotificationPriority.NORMAL) {
-    let notification = new Notification(message, priority);
+    const notification = new Notification(message, priority);
     if (priority === NotificationPriority.OVERRIDE) {
       if (this.notificationQueue.length > 0
           && this.notificationQueue[0].priority === NotificationPriority.OVERRIDE) {
@@ -38,7 +38,7 @@ class PoppingNotifier extends BaseNotifier {
   }
 
   private async hideBubble() {
-    let tweenBubble = this.game.add.tween(this.view.speechBox).to(
+    const tweenBubble = this.game.add.tween(this.view.speechBox).to(
         {y: this.view.speechBox.y + PoppingNotifier.SPEECH_BOX_POP_HEIGHT},
         70,
         Phaser.Easing.Quadratic.In,
@@ -57,7 +57,7 @@ class PoppingNotifier extends BaseNotifier {
     this.view.textField.text = this.characterWrap(message);
 
     this.view.speechBox.visible = true;
-    let tweenBubble = this.game.add.tween(this.view.speechBox).to(
+    const tweenBubble = this.game.add.tween(this.view.speechBox).to(
         {y: this.view.speechBox.y - PoppingNotifier.SPEECH_BOX_POP_HEIGHT},
         70,
         Phaser.Easing.Quadratic.Out,
@@ -75,7 +75,7 @@ class PoppingNotifier extends BaseNotifier {
     // noinspection InfiniteLoopJS
     while (true) {
       while (this.notificationQueue.length > 0) {
-        let notification = this.notificationQueue.shift() as Notification;
+        const notification = this.notificationQueue.shift() as Notification;
         await this.showBubble(notification.message);
         await this.pause();
         await this.hideBubble();
@@ -85,7 +85,7 @@ class PoppingNotifier extends BaseNotifier {
   }
 
   private async pause(duration: number = PhysicalConstants.NOTIFIER_BUBBLE_DISPLAY_DURATION) {
-    let sleepEvent = this.game.time.events.add(duration, () => {
+    const sleepEvent = this.game.time.events.add(duration, () => {
       this.skipPauseCondition.notifyAll();
     });
 
@@ -95,11 +95,11 @@ class PoppingNotifier extends BaseNotifier {
   }
 
   private characterWrap(message: string): string {
-    let wrappedCharacters = [];
+    const wrappedCharacters = [];
 
     let testingText = '';
-    let text = this.game.make.text(0, 0, testingText);
-    for (let character of message) {
+    const text = this.game.make.text(0, 0, testingText);
+    for (const character of message) {
       if (/\s/.test(character)) {
         testingText = '';
       } else {

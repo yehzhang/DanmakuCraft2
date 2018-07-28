@@ -1,5 +1,5 @@
-import Point from '../util/syntax/Point';
 import PhysicalConstants from '../PhysicalConstants';
+import Point from '../util/syntax/Point';
 import Rectangle from '../util/syntax/Rectangle';
 
 /**
@@ -28,8 +28,8 @@ export function validateValue(value: number) {
  * 2-dimensional version of {@link toWorldCoordinate}.
  */
 export function toWorldCoordinate2d(coordinates: Point, max: number): Point {
-  let x = toWorldCoordinate(coordinates.x, max);
-  let y = toWorldCoordinate(coordinates.y, max);
+  const x = toWorldCoordinate(coordinates.x, max);
+  const y = toWorldCoordinate(coordinates.y, max);
   return Point.of(x, y);
 }
 
@@ -42,7 +42,7 @@ export function toWorldCoordinateOffset(coordinate: number, other: number, max: 
   coordinate = toWorldCoordinate(coordinate, max);
   other = toWorldCoordinate(other, max);
 
-  let offset = coordinate - other;
+  const offset = coordinate - other;
 
   let wrappingOffset;
   if (coordinate < other) {
@@ -62,8 +62,8 @@ export function toWorldCoordinateOffset(coordinate: number, other: number, max: 
  * 2-dimensional version of {@link toWorldCoordinateOffset}.
  */
 export function toWorldCoordinateOffset2d(coordinates: Point, other: Point, max: number): Point {
-  let offsetX = toWorldCoordinateOffset(coordinates.x, other.x, max);
-  let offsetY = toWorldCoordinateOffset(coordinates.y, other.y, max);
+  const offsetX = toWorldCoordinateOffset(coordinates.x, other.x, max);
+  const offsetY = toWorldCoordinateOffset(coordinates.y, other.y, max);
   return Point.of(offsetX, offsetY);
 }
 
@@ -79,8 +79,8 @@ export function toWorldIntervalOffset(
     intervalEnding: number,
     other: number,
     max: number) {
-  let leftOffset = toWorldCoordinateOffset(intervalBeginning, other, max);
-  let rightOffset = toWorldCoordinateOffset(other, intervalEnding, max);
+  const leftOffset = toWorldCoordinateOffset(intervalBeginning, other, max);
+  const rightOffset = toWorldCoordinateOffset(other, intervalEnding, max);
   return Math.max(leftOffset, rightOffset, 0);
 }
 

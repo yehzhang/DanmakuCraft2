@@ -1,12 +1,12 @@
-import SystemEngine from './SystemEngine';
 import {asSequence} from 'sequency';
+import SystemEngine from './SystemEngine';
 
 class SystemEnginesEngine<T extends SystemEngine> implements SystemEngine {
-  constructor(private engines: T[]) {
+  constructor(private readonly engines: T[]) {
   }
 
   updateBegin(time: Phaser.Time) {
-    for (let engine of this.engines) {
+    for (const engine of this.engines) {
       engine.updateBegin(time);
     }
   }
@@ -16,7 +16,7 @@ class SystemEnginesEngine<T extends SystemEngine> implements SystemEngine {
   }
 
   renderBegin(time: Phaser.Time) {
-    for (let engine of this.engines) {
+    for (const engine of this.engines) {
       engine.renderBegin(time);
     }
   }

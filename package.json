@@ -15,7 +15,7 @@
     "client:build:local:prod": "rm -rf build/* && LOCAL_SERVER=true webpack --watch --config client/webpack.prod.js",
     "client:build:analyze": "webpack --config client/webpack.prod.js --json >> build/bundle.json",
     "client:clean": "rm -rf dist build",
-    "client:test": "mocha test/client/**/*.ts",
+    "client:test": "mocha --watch test/client/**/*.ts",
     "server:debug": "node debug server/app.js",
     "server:start:dev": "npm run server:link && node server/app.js",
     "server:start:prod": "npm run server:link && sudo node server/app.js --prod",

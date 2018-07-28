@@ -1,16 +1,16 @@
-import SystemFactory from './SystemFactory';
-import {ChestEntity, Player} from '../alias';
-import BuffDescription from './buff/BuffDescription';
-import BuffDataApplier from './buff/BuffDataApplier';
-import LawFactory from '../../law/LawFactory';
-import Notifier from '../../output/notification/Notifier';
-import ChestSystem, {ChestDemolisher, ChestOpener, ChestSpawner} from './ChestSystem';
-import DynamicProvider from '../../util/DynamicProvider';
-import EntityFactory from '../EntityFactory';
-import EntityRegister from '../../util/entityStorage/EntityRegister';
 import TutorialSystem from '../../engine/tick/TutorialSystem';
 import SettingsManager from '../../environment/interface/SettingsManager';
 import Input from '../../input/Input';
+import LawFactory from '../../law/LawFactory';
+import Notifier from '../../output/notification/Notifier';
+import DynamicProvider from '../../util/DynamicProvider';
+import EntityRegister from '../../util/entityStorage/EntityRegister';
+import {ChestEntity, Player} from '../alias';
+import EntityFactory from '../EntityFactory';
+import BuffDataApplier from './buff/BuffDataApplier';
+import BuffDescription from './buff/BuffDescription';
+import ChestSystem, {ChestDemolisher, ChestOpener, ChestSpawner} from './ChestSystem';
+import SystemFactory from './SystemFactory';
 
 class SystemFactoryImpl implements SystemFactory {
   constructor(
@@ -28,7 +28,7 @@ class SystemFactoryImpl implements SystemFactory {
 
   createChestSystem(
       renderRadius: DynamicProvider<number>, chestRegister: EntityRegister<ChestEntity>) {
-    let chestLaw = this.lawFactory.createChestLaw(this.player, renderRadius);
+    const chestLaw = this.lawFactory.createChestLaw(this.player, renderRadius);
     return new ChestSystem(
         new ChestOpener(
             this.game,

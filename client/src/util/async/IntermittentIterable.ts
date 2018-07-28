@@ -3,7 +3,7 @@ import Sleep from './Sleep';
 
 class IntermittentIterable {
   static async * of<T>(values: Iterable<T>): AsyncIterable<T> {
-    for (let value of values) {
+    for (const value of values) {
       await Sleep.moment();
       yield value;
     }

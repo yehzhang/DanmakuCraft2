@@ -1,7 +1,9 @@
 import TickEngine, {Ticker} from './TickEngine';
 
 class TickEngineBuilder {
-  constructor(private onUpdateTickers: Ticker[] = [], private onRenderTickers: Ticker[] = []) {
+  constructor(
+      private readonly onUpdateTickers: Ticker[] = [],
+      private readonly onRenderTickers: Ticker[] = []) {
   }
 
   apply(ticker: Ticker, onUpdate: boolean) {

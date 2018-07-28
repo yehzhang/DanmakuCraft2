@@ -5,6 +5,7 @@ import {DisplayableEntity, Player} from '../entitySystem/alias';
 import Nudge from '../entitySystem/component/Nudge';
 import {BuffData, BuffType} from '../entitySystem/system/buff/BuffData';
 import ConfigProvider from '../environment/config/ConfigProvider';
+import {PresetSettingsOptions} from '../environment/interface/SettingsManager';
 import {toWorldCoordinateOffset2d} from '../law/space';
 import {NotificationPriority} from '../output/notification/Notifier';
 import PhysicalConstants from '../PhysicalConstants';
@@ -26,11 +27,11 @@ class Debug {
   private static readonly DEFAULT_COMMENT_COLOR = Colors.WHITE_NUMBER;
 
   constructor(
-      private universe: Universe,
+      private readonly universe: Universe,
       public shouldShowInfo: boolean = true,
       private notificationShowCounts: number = 0,
-      private systems: { [systemName: string]: any } = {},
-      private debugInfo: DebugInfo = new DebugInfo(universe.game, universe.player)) {
+      private readonly systems: { [systemName: string]: any } = {},
+      private readonly debugInfo: DebugInfo = new DebugInfo(universe.game, universe.player)) {
     universe.engineCap.render = ((render) => async () => {
       await this.render();
       await render.call(universe.engineCap);
@@ -58,16 +59,16 @@ class Debug {
         })
         .distinct()
         .forEach(system => {
-          let systemName = system.constructor.name;
-          systemName = systemName.charAt(0).toLowerCase() + systemName.slice(1);
-          if (systems.hasOwnProperty(systemName)) {
-            if (systems[systemName] instanceof Array) {
-              systems[systemName].push(system);
+          const systemName = system.constructor.name;
+          const normalizedName = systemName.charAt(0).toLowerCase() + systemName.slice(1);
+          if (systems.hasOwnProperty(normalizedName)) {
+            if (systems[normalizedName] instanceof Array) {
+              systems[normalizedName].push(system);
             } else {
-              systems[systemName] = [systems[systemName], system];
+              systems[normalizedName] = [systems[normalizedName], system];
             }
           } else {
-            systems[systemName] = system;
+            systems[normalizedName] = system;
           }
         });
 
@@ -84,7 +85,7 @@ class Debug {
   }
 
   get chest() {
-    let chestCoordinates = this.universe.player.coordinates.clone().add(0, -100);
+    const chestCoordinates = this.universe.player.coordinates.clone().add(0, -100);
     return this.systems.chestSystem['chestSpawner']['spawnAt'](chestCoordinates);
   }
 
@@ -101,7 +102,7 @@ class Debug {
   }
 
   get currentEntities() {
-    let distance = this.getVisibleDistance();
+    const distance = this.getVisibleDistance();
     return asSequence(this.universe.visibility['engines'])
         .map(engine => engine['entityFinderRecords'])
         .flatten()
@@ -112,7 +113,7 @@ class Debug {
   }
 
   get currentDisplays() {
-    let distance = this.getVisibleDistance();
+    const distance = this.getVisibleDistance();
     return asSequence(this.universe.renderer['stage'].children as PIXI.DisplayObjectContainer[])
         .map(child => child.children)
         .flatten()
@@ -201,10 +202,11 @@ class Debug {
       PhysicalConstants,
       ConfigProvider,
       Sleep,
+      PresetSettingsOptions,
       Nudge,
     });
 
-    let debug = new this(universe);
+    const debug = new this(universe);
 
     (window as any).d = debug;
 
@@ -293,7 +295,7 @@ class Debug {
         .forEach(
             chest => this.debugInfo.line('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
 
-    let closestSign = asSequence(this.universe.signsStorage.getFinder())
+    const closestSign = asSequence(this.universe.signsStorage.getFinder())
         .minBy(sign => Distance.roughlyOf(sign.coordinates, this.universe.player.coordinates));
     if (closestSign) {
       let note;
@@ -314,7 +316,7 @@ class Debug {
     this.debugInfo.line(
         `Lightness count: ${this.systems.backgroundColorSystem.colorMixer.lightnessCounter}`);
 
-    let previewEntity = (this.universe.proxy.getCommentPlacingPolicy() as any)['previewEntity'];
+    const previewEntity = (this.universe.proxy.getCommentPlacingPolicy() as any)['previewEntity'];
     if (previewEntity != null) {
       this.universe.game.debug.spriteBounds(previewEntity.display);
     }
@@ -354,23 +356,13 @@ class DebugInfo {
     'rgba(255, 255, 0, 0.2)'];
 
   constructor(
-      private game: Phaser.Game,
-      private player: Player,
-      private entitiesToShowBounds: Map<DisplayableEntity, string> = new Map(),
-      private spriteBoundsColors: string[] = [...DebugInfo.SPRITE_BOUNDS_COLORS],
-      private initialCoordinates: Point = player.coordinates,
+      private readonly game: Phaser.Game,
+      private readonly player: Player,
+      private readonly entitiesToShowBounds: Map<DisplayableEntity, string> = new Map(),
+      private readonly spriteBoundsColors: string[] = [...DebugInfo.SPRITE_BOUNDS_COLORS],
+      private readonly initialCoordinates: Point = player.coordinates,
       private currentY: number = 20,
-      private lineHeight: number = 18) {
-  }
-
-  private static getDirection(offset: number, tolerance: number = 200) {
-    if (Math.abs(offset) < tolerance) {
-      return 0;
-    }
-    if (offset > 0) {
-      return 1;
-    }
-    return 2;
+      private readonly lineHeight: number = 18) {
   }
 
   line(text: string, coordinates?: Point, note?: string, disableNavigation?: boolean) {
@@ -378,21 +370,21 @@ class DebugInfo {
       text = `${text}(${note})`;
     }
 
-    if (coordinates !== undefined) {
+    if (coordinates) {
       coordinates = coordinates.clone().floor();
 
       let navigation;
       if (disableNavigation) {
         navigation = '';
       } else {
-        let offset = toWorldCoordinateOffset2d(
+        const offset = toWorldCoordinateOffset2d(
             this.player.coordinates,
             coordinates,
             PhysicalConstants.WORLD_SIZE);
-        let horizontalDirection = DebugInfo.getDirection(offset.x);
-        let verticalDirection = DebugInfo.getDirection(offset.y);
-        let direction = '•←→↑↖↗↓↙↘'.charAt(horizontalDirection + verticalDirection * 3);
-        let distance = Math.round(offset.getMagnitude());
+        const horizontalDirection = getDirection(offset.x);
+        const verticalDirection = getDirection(offset.y);
+        const direction = '•←→↑↖↗↓↙↘'.charAt(horizontalDirection + verticalDirection * 3);
+        const distance = Math.round(offset.getMagnitude());
         navigation = ` ${direction} (${distance})`;
       }
 
@@ -407,8 +399,8 @@ class DebugInfo {
   start() {
     this.currentY = 0;
 
-    for (let [entity, color] of this.entitiesToShowBounds) {
-      let bounds = entity.getDisplayWorldBounds();
+    for (const [entity, color] of this.entitiesToShowBounds) {
+      const bounds = entity.getDisplayWorldBounds();
       bounds.topLeft = Phaser.Point.subtract(bounds.topLeft, this.initialCoordinates);
       bounds.x %= PhysicalConstants.WORLD_SIZE;
       bounds.y %= PhysicalConstants.WORLD_SIZE;
@@ -433,7 +425,7 @@ class DebugInfo {
   }
 
   addBoundsOf(entity: DisplayableEntity) {
-    let color = this.spriteBoundsColors.shift() as string;
+    const color = this.spriteBoundsColors.shift() as string;
     this.entitiesToShowBounds.set(entity, color);
 
     this.spriteBoundsColors.push(color);
@@ -442,4 +434,14 @@ class DebugInfo {
   removeBoundsOf(entity: DisplayableEntity) {
     this.entitiesToShowBounds.delete(entity);
   }
+}
+
+function getDirection(offset: number, tolerance: number = 200) {
+  if (Math.abs(offset) < tolerance) {
+    return 0;
+  }
+  if (offset > 0) {
+    return 1;
+  }
+  return 2;
 }

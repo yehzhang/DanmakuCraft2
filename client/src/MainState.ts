@@ -1,17 +1,17 @@
+import {asSequence} from 'sequency';
+import CommentData from './comment/CommentData';
+import ConfigProvider from './environment/config/ConfigProvider';
+import PhysicalConstants from './PhysicalConstants';
+import Colors from './render/Colors';
+import OpeningScene from './render/OpeningScene';
 import Universe from './Universe';
 import {Phaser} from './util/alias/phaser';
-import Sleep from './util/async/Sleep';
-import OpeningScene from './render/OpeningScene';
-import Colors from './render/Colors';
-import Rectangle from './util/syntax/Rectangle';
-import Provider from './util/syntax/Provider';
-import Debug from './util/Debug';
-import CommentData from './comment/CommentData';
-import AsyncIterable from './util/syntax/AsyncIterable';
-import {asSequence} from 'sequency';
-import PhysicalConstants from './PhysicalConstants';
 import IntermittentIterable from './util/async/IntermittentIterable';
-import ConfigProvider from './environment/config/ConfigProvider';
+import Sleep from './util/async/Sleep';
+import Debug from './util/Debug';
+import AsyncIterable from './util/syntax/AsyncIterable';
+import Provider from './util/syntax/Provider';
+import Rectangle from './util/syntax/Rectangle';
 import spriteSheet = require('../../data/audio/background_sprite.json');
 
 class MainState extends Phaser.State {
@@ -19,9 +19,9 @@ class MainState extends Phaser.State {
   private universe: Universe;
 
   constructor(
-      private createUniverse: Provider<Universe>,
-      private updatables: Set<{ update(): void }> = new Set(),
-      private renderables: Set<{ render(): void }> = new Set()) {
+      private readonly createUniverse: Provider<Universe>,
+      private readonly updatables: Set<{ update(): void }> = new Set(),
+      private readonly renderables: Set<{ render(): void }> = new Set()) {
     super();
 
     if (__DEV__) {
@@ -76,14 +76,14 @@ class MainState extends Phaser.State {
 
     this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
 
-    // Let camera following with lerp actually focus.
+    // Makes camera lerp precisely.
     this.game.camera.roundPx = false;
 
-    // Make tiny television less blurry
+    // Makes tiny television less blurry
     // When combined with the option above, however, some fixed-to-camera displays convulse.
     // this.game.renderer.renderSession.roundPixels = true;
 
-    // Make tiny television less blurry
+    // Makes tiny television less blurry
     // However, it looks too ugly when zoomed if turned on
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 

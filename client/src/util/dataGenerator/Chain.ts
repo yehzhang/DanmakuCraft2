@@ -2,7 +2,7 @@ import DataGenerator from './DataGenerator';
 import DataTransformer from './DataTransformer';
 
 class Chain<T, U> {
-  constructor(protected pipers: Array<DataTransformer<any>>) {
+  constructor(protected readonly pipers: Array<DataTransformer<any>>) {
   }
 
   static total<T = number>(generator: DataGenerator<T>): GeneratorChainBuilder<T, T> {
@@ -21,7 +21,7 @@ class Chain<T, U> {
 export default Chain;
 
 class TransformerChainBuilder<T, U> {
-  constructor(private pipers: Array<DataTransformer<any>> = []) {
+  constructor(private readonly pipers: Array<DataTransformer<any>> = []) {
   }
 
   pipe<V>(piper: DataTransformer<U, V>): TransformerChainBuilder<T, V> {
@@ -35,7 +35,8 @@ class TransformerChainBuilder<T, U> {
 
 class GeneratorChainBuilder<T, U> {
   constructor(
-      private generator: DataGenerator<T>, private pipers: Array<DataTransformer<any>> = []) {
+      private readonly generator: DataGenerator<T>,
+      private readonly pipers: Array<DataTransformer<any>> = []) {
   }
 
   pipe<V>(piper: DataTransformer<U, V>): GeneratorChainBuilder<T, V> {
@@ -54,7 +55,7 @@ class TransformerChain<T, U> extends Chain<T, U> implements DataTransformer<T, U
 }
 
 class GeneratorChain<T, U> extends Chain<T, U> implements DataGenerator<U> {
-  constructor(private generator: DataGenerator<T>, pipers: Array<DataTransformer<any>>) {
+  constructor(private readonly generator: DataGenerator<T>, pipers: Array<DataTransformer<any>>) {
     super(pipers);
   }
 

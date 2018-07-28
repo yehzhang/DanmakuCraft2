@@ -1,12 +1,12 @@
-import CommentSender from '../../interface/CommentSender';
-import CommentData from '../../../comment/CommentData';
-import CommentProvider from '../../interface/CommentProvider';
-import ConfigProvider from '../../config/ConfigProvider';
-import Socket from './Socket';
 import {CreationRequestData} from '../../../../../server/api/services/request';
-import Jar from './Jar';
-import EnvironmentVariables from '../bilibili/EnvironmentVariables';
+import CommentData from '../../../comment/CommentData';
 import Notifier from '../../../output/notification/Notifier';
+import ConfigProvider from '../../config/ConfigProvider';
+import CommentProvider from '../../interface/CommentProvider';
+import CommentSender from '../../interface/CommentSender';
+import EnvironmentVariables from '../bilibili/EnvironmentVariables';
+import Jar from './Jar';
+import Socket from './Socket';
 
 class CommentSenderImpl implements CommentSender {
   constructor(
@@ -14,11 +14,11 @@ class CommentSenderImpl implements CommentSender {
       private provider: CommentProvider,
       private nextCreationTokenJar: Jar,
       private notifier: Notifier) {
-    let ignored = this.start();
+    const ignored = this.start();
   }
 
   async start() {
-    for await (let commentData of this.provider.getNewComments()) {
+    for await (const commentData of this.provider.getNewComments()) {
       try {
         await this.send(commentData);
       } catch (e) {
@@ -29,7 +29,7 @@ class CommentSenderImpl implements CommentSender {
   }
 
   async send(commentData: CommentData): Promise<void> {
-    let creationRequestData: CreationRequestData = {
+    const creationRequestData: CreationRequestData = {
       comment: commentData.flatten(),
       user: {
         origin: 'bilibili',
@@ -37,12 +37,13 @@ class CommentSenderImpl implements CommentSender {
       },
       nextCreationToken: this.nextCreationTokenJar.get(),
     };
-    let response = await this.socket.post(ConfigProvider.get().commentIdentity, creationRequestData);
+    const response = await this.socket.post(
+        ConfigProvider.get().commentIdentity,
+        creationRequestData);
 
-    if (response == null) {
+    if (!response) {
       return;
     }
-
     response.apply();
   }
 }

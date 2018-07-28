@@ -11,7 +11,7 @@ module.exports.roles = {
     if (this.groups[group] == null) {
       throw new TypeError('Invalid group');
     }
-    let groupNames = new Set(this.groups[group]);
+    const groupNames = new Set(this.groups[group]);
     return this.userProfiles.filter(profile => groupNames.has(profile.name));
   },
 

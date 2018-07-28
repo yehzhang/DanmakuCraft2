@@ -1,12 +1,12 @@
-import Colors from './Colors';
+import PhysicalConstants from '../PhysicalConstants';
+import Semaphore from '../util/async/Semaphore';
+import Sleep from '../util/async/Sleep';
 import Point from '../util/syntax/Point';
+import Colors from './Colors';
+import GraphicsFactory from './graphics/GraphicsFactory';
+import ParticlesField from './ParticlesField';
 import Perspective from './Perspective';
 import Texts from './Texts';
-import Sleep from '../util/async/Sleep';
-import PhysicalConstants from '../PhysicalConstants';
-import ParticlesField from './ParticlesField';
-import GraphicsFactory from './graphics/GraphicsFactory';
-import Semaphore from '../util/async/Semaphore';
 
 class OpeningScene {
   private static readonly FOCAL_LENGTH = 10;
@@ -51,14 +51,14 @@ class OpeningScene {
 
     this.backgroundGroup = this.game.add.group();
 
-    let background = this.game.add.graphics(0, 0, this.backgroundGroup);
+    const background = this.game.add.graphics(0, 0, this.backgroundGroup);
     background.beginFill(Colors.BLACK_NUMBER);
     background.drawRect(0, 0, 4000, 4000);
     background.endFill();
 
     this.borderGroup = this.game.add.group();
 
-    let title = this.graphicsFactory.createText(Texts.forName('boot.title'), 64, Colors.GOLD);
+    const title = this.graphicsFactory.createText(Texts.forName('boot.title'), 64, Colors.GOLD);
     title.y = this.currentGameSize.y * -0.25;
     title.anchor.setTo(0.5);
     this.borderGroup.add(title);
@@ -76,20 +76,20 @@ class OpeningScene {
 
     this.waitForAnyInputGroup = this.game.add.group(this.borderGroup);
     this.waitForAnyInputGroup.visible = false;
-    let waitForAnyInputText =
+    const waitForAnyInputText =
         this.graphicsFactory.createText(Texts.forName('boot.anyInput'), 24, Colors.WHITE);
     waitForAnyInputText.anchor.setTo(0.5);
     waitForAnyInputText.position.y = this.currentGameSize.y * 0.25;
     this.waitForAnyInputGroup.add(waitForAnyInputText);
 
-    let earthGraphics = this.game.add.graphics(0, 0, this.borderGroup);
+    const earthGraphics = this.game.add.graphics(0, 0, this.borderGroup);
     earthGraphics.beginFill(Colors.BACKGROUND_NUMBER);
     earthGraphics.drawRect(-100, -100, 200, 200);
     earthGraphics.endFill();
     this.earthPerspective = new Perspective(earthGraphics, 1000, OpeningScene.FOCAL_LENGTH, true);
     this.earthPerspective.visible = true;
 
-    let spriteSheetKey = this.graphicsFactory.createPixelParticleSpriteSheet();
+    const spriteSheetKey = this.graphicsFactory.createPixelParticleSpriteSheet();
     this.particlesField = new ParticlesField(this.game, spriteSheetKey);
     this.borderGroup.add(this.particlesField.display);
 
@@ -116,7 +116,7 @@ class OpeningScene {
     this.loadingStatusGroup.visible = true;
 
     this.loadingStatusGroup.alpha = 0;
-    let statusAlphaTween = this.game.add.tween(this.loadingStatusGroup)
+    const statusAlphaTween = this.game.add.tween(this.loadingStatusGroup)
         .to({alpha: 1}, 2000, Phaser.Easing.Linear.None, true);
 
     return this.waitForCompletion(statusAlphaTween);
@@ -127,7 +127,7 @@ class OpeningScene {
 
     this.titlePerspective.visible = true;
 
-    let zTween = this.game.add.tween(this.titlePerspective)
+    const zTween = this.game.add.tween(this.titlePerspective)
         .to({z: 0}, 3000, Phaser.Easing.Quadratic.InOut, true);
 
     return this.waitForCompletion(zTween);
@@ -136,20 +136,20 @@ class OpeningScene {
   async approachEarthFaraway() {
     this.earthPerspective.visible = true;
 
-    let zTween = this.game.add.tween(this.earthPerspective)
+    const zTween = this.game.add.tween(this.earthPerspective)
         .to({z: 100}, 5000, Phaser.Easing.Quadratic.InOut, true);
 
     return this.waitForCompletion(zTween);
   }
 
   showFailedLoadingStatus() {
-    if (this.loadingStatusGroup == null) {
+    if (!this.loadingStatusGroup) {
       return;
     }
 
-    let ignored = this.updateLoadingStatus(Texts.forName('boot.error'));
+    const ignored = this.updateLoadingStatus(Texts.forName('boot.error'));
 
-    let blackScreen = this.game.add.graphics(0, 0, this.borderGroup);
+    const blackScreen = this.game.add.graphics(0, 0, this.borderGroup);
     blackScreen.beginFill(Colors.BLACK_NUMBER);
     blackScreen.drawRect(-2000, -2000, 4000, 4000);
     blackScreen.endFill();
@@ -178,12 +178,12 @@ class OpeningScene {
   }
 
   async waitForUniverseBorderOpen() {
-    let onAnyInputPromise = this.listenOnAnyInput();
+    const onAnyInputPromise = this.listenOnAnyInput();
 
     this.waitForAnyInputGroup.visible = true;
 
     this.waitForAnyInputGroup.alpha = 1;
-    let anyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
+    const anyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
         .to(
             {alpha: 0},
             PhysicalConstants.COMMENT_BLINK_DURATION_MS,
@@ -202,7 +202,7 @@ class OpeningScene {
   }
 
   async passThroughUniverseBorder() {
-    let zTween = this.game.add.tween(this.titlePerspective)
+    const zTween = this.game.add.tween(this.titlePerspective)
         .to(
             {z: -100},
             4500,
@@ -245,7 +245,7 @@ class OpeningScene {
   }
 
   private async updateLoadingStatus(text: string) {
-    let loadingStatusAlphaTween = this.game.add.tween(this.loadingStatusGroup)
+    const loadingStatusAlphaTween = this.game.add.tween(this.loadingStatusGroup)
         .to(
             {alpha: 0},
             300,
@@ -256,7 +256,7 @@ class OpeningScene {
       this.loadingStatusText.text = text;
     });
 
-    let loadingStatusAlphaTween2 = this.game.add.tween(this.loadingStatusGroup)
+    const loadingStatusAlphaTween2 = this.game.add.tween(this.loadingStatusGroup)
         .to(
             {alpha: 1},
             300,
@@ -284,7 +284,7 @@ class OpeningScene {
   }
 
   private async hideWaitingForAnyInput() {
-    let waitForAnyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
+    const waitForAnyInputAlphaTween = this.game.add.tween(this.waitForAnyInputGroup)
         .to({alpha: 0}, 500, Phaser.Easing.Quadratic.Out, true);
     return this.waitForCompletion(waitForAnyInputAlphaTween);
   }

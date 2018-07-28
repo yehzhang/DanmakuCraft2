@@ -4,13 +4,13 @@ const COMMENT_ROOM_ID = -1;
 module.exports = {
   async find(req, res) {
     return ControllerUtils.catchServerError(res, async () => {
-      let commentsCount = parseInt(req.param('count'), 10);
-      if (isNaN(commentsCount)) {
+      const rawCommentsCount = parseInt(req.param('count'), 10);
+      let commentsCount;
+      if (isNaN(rawCommentsCount)) {
         commentsCount = MAX_COMMENTS_COUNT;
       } else {
-        commentsCount = Math.max(Math.min(commentsCount, MAX_COMMENTS_COUNT), 0);
+        commentsCount = Math.max(Math.min(rawCommentsCount, MAX_COMMENTS_COUNT), 0);
       }
-
       const comments = await Comment.findLatestData(commentsCount);
 
       if (req.isSocket) {

@@ -1,8 +1,8 @@
-import Queue from './Queue';
 import {range} from 'sequency';
+import Queue from './Queue';
 
 class Semaphore {
-  constructor(value: number = 1, private queue: Queue<void> = new Queue()) {
+  constructor(value: number = 1, private readonly queue: Queue<void> = new Queue()) {
     range(0, value).forEach(() => queue.push(undefined));
   }
 
@@ -11,7 +11,7 @@ class Semaphore {
   }
 
   release() {
-    let ignored = this.queue.push(undefined);
+    const ignored = this.queue.push(undefined);
   }
 }
 

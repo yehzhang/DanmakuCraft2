@@ -2,7 +2,7 @@ const {verify, NotBeforeError, TokenExpiredError, JsonWebTokenError} = require('
 
 module.exports = function (req, res, next) {
   try {
-    let result = verifyRequest(req);
+    const result = verifyRequest(req);
     if (result == null) {
       return next();
     }
@@ -16,7 +16,7 @@ module.exports = function (req, res, next) {
  * @return {string|null}
  */
 function verifyRequest(req) {
-  let nextCreationToken = req.param('nextCreationToken');
+  const nextCreationToken = req.param('nextCreationToken');
   try {
     verify(
       nextCreationToken,

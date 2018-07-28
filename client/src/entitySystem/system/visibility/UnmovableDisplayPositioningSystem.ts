@@ -9,7 +9,7 @@ import VisibilitySystem from './VisibilitySystem';
  * Positions displays relative to the anchor, taking into consideration of the borderless world.
  */
 class UnmovableDisplayPositioningSystem implements VisibilitySystem<StationaryEntity & Display> {
-  constructor(private anchor: DisplayableEntity) {
+  constructor(private readonly anchor: DisplayableEntity) {
   }
 
   enter(entity: StationaryEntity & Display) {

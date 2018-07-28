@@ -1,11 +1,11 @@
+import {TypeState} from 'typestate';
 import TickSystem from '../../entitySystem/system/tick/TickSystem';
 import SettingsManager, {SettingsOption} from '../../environment/interface/SettingsManager';
-import {Phaser} from '../../util/alias/phaser';
-import Notifier from '../../output/notification/Notifier';
-import Texts from '../../render/Texts';
-import {TypeState} from 'typestate';
 import Input from '../../input/Input';
+import Notifier from '../../output/notification/Notifier';
 import PhysicalConstants from '../../PhysicalConstants';
+import Texts from '../../render/Texts';
+import {Phaser} from '../../util/alias/phaser';
 
 enum TutorialStates {
   START,
@@ -23,10 +23,10 @@ class TutorialSystem implements TickSystem {
   private fsm: TypeState.FiniteStateMachine<TutorialStates>;
 
   constructor(
-      private timer: Phaser.Timer,
-      private settingsManager: SettingsManager,
-      private notifier: Notifier,
-      private input: Input,
+      private readonly timer: Phaser.Timer,
+      private readonly settingsManager: SettingsManager,
+      private readonly notifier: Notifier,
+      private readonly input: Input,
       private isEnterPressed: boolean = false,
       private areControllerKeysPressed: boolean = false,
       private nextState: TutorialStates | null = null) {

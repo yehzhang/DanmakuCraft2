@@ -1,7 +1,5 @@
 class Sleep {
-  private static TIMEOUT_VALUE = {};
-
-  constructor(private duration: number = 0) {
+  constructor(private readonly duration: number = 0) {
   }
 
   static async after(duration: number) {
@@ -18,10 +16,10 @@ class Sleep {
   }
 
   static async orError<T>(duration: number, promise: Promise<T>): Promise<T> {
-    let sleepPromise = this.after(duration);
-    let value = await Promise.race([sleepPromise.then(() => this.TIMEOUT_VALUE), promise]);
+    const sleepPromise = this.after(duration);
+    const value = await Promise.race([sleepPromise.then(() => TIMEOUT_VALUE), promise]);
 
-    if (value === this.TIMEOUT_VALUE) {
+    if (value === TIMEOUT_VALUE) {
       throw new TypeError('Promise timed out');
     }
 
@@ -32,5 +30,7 @@ class Sleep {
     return new Promise(resolve => setTimeout(resolve, this.duration));
   }
 }
+
+const TIMEOUT_VALUE = {};
 
 export default Sleep;

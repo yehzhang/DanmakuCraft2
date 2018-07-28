@@ -30,7 +30,7 @@ class CommentData {
   }
 
   flatten(): FlatCommentData {
-    let flatData: any = {
+    const flatData: any = {
       size: this.size,
       color: this.color,
       text: this.text,

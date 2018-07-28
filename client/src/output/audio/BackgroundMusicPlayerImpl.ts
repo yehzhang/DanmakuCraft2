@@ -1,6 +1,6 @@
-import BackgroundMusicPlayer from './BackgroundMusicPlayer';
 import {Phaser} from '../../util/alias/phaser';
 import Sleep from '../../util/async/Sleep';
+import BackgroundMusicPlayer from './BackgroundMusicPlayer';
 
 class BackgroundMusicPlayerImpl implements BackgroundMusicPlayer {
   constructor(
@@ -11,20 +11,10 @@ class BackgroundMusicPlayerImpl implements BackgroundMusicPlayer {
       private currentSound: Phaser.Sound | null = null) {
   }
 
-  private static shuffle<T>(tracks: T[]) {
-    if (tracks.length <= 1) {
-      return;
-    }
-
-    const firstTrack = Phaser.ArrayUtils.removeRandomItem(tracks, 0, tracks.length - 1);
-    Phaser.ArrayUtils.shuffle(tracks);
-    tracks.unshift(firstTrack);
-  }
-
   setVolume(value: number) {
     this.volume = value;
 
-    if (this.currentSound == null) {
+    if (!this.currentSound) {
       return;
     }
     this.currentSound.volume = value;
@@ -43,7 +33,7 @@ class BackgroundMusicPlayerImpl implements BackgroundMusicPlayer {
   }
 
   async start() {
-    if (this.sprite == null) {
+    if (!this.sprite) {
       throw new TypeError('Sprite is not available');
     }
 
@@ -72,7 +62,7 @@ class BackgroundMusicPlayerImpl implements BackgroundMusicPlayer {
   private async loopTracks(trackKeys: string[]) {
     // noinspection InfiniteLoopJS
     while (true) {
-      BackgroundMusicPlayerImpl.shuffle(trackKeys);
+      shuffle(trackKeys);
       for (const trackKey of trackKeys) {
         await Sleep.after((Math.random() + 1.5) * Phaser.Timer.MINUTE);
         await this.play(trackKey);
@@ -88,6 +78,16 @@ class BackgroundMusicPlayerImpl implements BackgroundMusicPlayer {
 
     this.currentSound = null;
   }
+}
+
+function shuffle<T>(tracks: T[]) {
+  if (tracks.length <= 1) {
+    return;
+  }
+
+  const firstTrack = Phaser.ArrayUtils.removeRandomItem(tracks, 0, tracks.length - 1);
+  Phaser.ArrayUtils.shuffle(tracks);
+  tracks.unshift(firstTrack);
 }
 
 export default BackgroundMusicPlayerImpl;

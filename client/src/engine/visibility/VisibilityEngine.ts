@@ -16,62 +16,60 @@ import {OnOrBuildClause} from './visibilityEngineBuilderLanguage';
  */
 class VisibilityEngine implements SystemEngine {
   constructor(
-      private sampler: EntityFinderRecordsSampler,
-      private entityFinderRecords: Array<EntityFinderRecord<Entity>>,
-      private onUpdateTickers: SystemTicker[],
-      private onRenderTickers: SystemTicker[],
-      private systemFinisher: SystemFinisher) {
+      private readonly sampler: EntityFinderRecordsSampler,
+      private readonly entityFinderRecords: Array<EntityFinderRecord<Entity>>,
+      private readonly onUpdateTickers: SystemTicker[],
+      private readonly onRenderTickers: SystemTicker[],
+      private readonly systemFinisher: SystemFinisher) {
   }
 
   static newBuilder(
       trackee: Entity,
       samplingRadius: DynamicProvider<number>,
       updatingRadius: number) {
-    let builder = new VisibilityEngineBuilder(trackee, samplingRadius, updatingRadius);
+    const builder = new VisibilityEngineBuilder(trackee, samplingRadius, updatingRadius);
     return new OnOrBuildClause(builder);
   }
 
-  private static tickSystemsForward(tickers: SystemTicker[], time: Phaser.Time) {
-    for (const ticker of tickers) {
-      ticker.firstForwardTick(time);
-    }
-    for (const ticker of tickers) {
-      ticker.secondForwardTick();
-    }
-  }
-
-  private static tickSystemsBackward(tickers: SystemTicker[]) {
-    asSequence(tickers).reverse().forEach(ticker => ticker.backwardTick());
-  }
-
   updateBegin(time: Phaser.Time) {
-    VisibilityEngine.tickSystemsForward(this.onUpdateTickers, time);
+    tickSystemsForward(this.onUpdateTickers, time);
     this.systemFinisher.finish();
   }
 
   updateEnd(time: Phaser.Time) {
     this.sampler.update(this.entityFinderRecords);
-    VisibilityEngine.tickSystemsBackward(this.onUpdateTickers);
+    tickSystemsBackward(this.onUpdateTickers);
   }
 
   renderBegin(time: Phaser.Time) {
-    VisibilityEngine.tickSystemsForward(this.onRenderTickers, time);
+    tickSystemsForward(this.onRenderTickers, time);
     this.systemFinisher.finish();
   }
 
   renderEnd(time: Phaser.Time) {
-    VisibilityEngine.tickSystemsBackward(this.onRenderTickers);
+    tickSystemsBackward(this.onRenderTickers);
   }
 }
 
-export default VisibilityEngine;
+function tickSystemsForward(tickers: SystemTicker[], time: Phaser.Time) {
+  for (const ticker of tickers) {
+    ticker.firstForwardTick(time);
+  }
+  for (const ticker of tickers) {
+    ticker.secondForwardTick();
+  }
+}
+
+function tickSystemsBackward(tickers: SystemTicker[]) {
+  asSequence(tickers).reverse().forEach(ticker => ticker.backwardTick());
+}
 
 export class EntityFinderRecordsSampler {
   constructor(
-      private trackee: Entity,
-      private samplingRadius: DynamicProvider<number>,
-      private distanceChecker: DistanceChecker,
-      private currentCoordinates: Point = trackee.coordinates.clone()) {
+      private readonly trackee: Entity,
+      private readonly samplingRadius: DynamicProvider<number>,
+      private readonly distanceChecker: DistanceChecker,
+      private readonly currentCoordinates: Point = trackee.coordinates.clone()) {
   }
 
   update(records: Array<EntityFinderRecord<Entity>>) {
@@ -108,9 +106,9 @@ export class EntityFinderRecordsSampler {
 
 export class EntityFinderRecord<T extends Entity> {
   constructor(
-      private entityFinder: EntityFinder<T>,
-      private distanceChecker: DistanceChecker,
-      private currentCoordinates: Point = Point.origin(),
+      private readonly entityFinder: EntityFinder<T>,
+      private readonly distanceChecker: DistanceChecker,
+      private readonly currentCoordinates: Point = Point.origin(),
       private enteringEntitiesList: Array<Iterable<T>> = [],
       private exitingEntitiesList: Array<Iterable<T>> = [],
       public currentEntities: ReadonlySet<T> = new Set(),
@@ -178,7 +176,7 @@ export class DistanceChecker {
 
   constructor(
       samplingRadius: number,
-      private updatingRadius: number,
+      private readonly updatingRadius: number,
       readonly updatingDistance: Distance = new Distance(updatingRadius)) {
     this.updateDistance(samplingRadius);
   }
@@ -194,14 +192,14 @@ export class DistanceChecker {
 
 export class SystemTicker<T = Component, U extends T & Entity = T & Entity> {
   constructor(
-      private systems: Array<VisibilitySystem<T>>,
-      private entityFinderRecord: EntityFinderRecord<U>,
-      private systemFinisher: SystemFinisher,
+      private readonly systems: Array<VisibilitySystem<T>>,
+      private readonly entityFinderRecord: EntityFinderRecord<U>,
+      private readonly systemFinisher: SystemFinisher,
       private isVisibilityChanged: boolean = false) {
   }
 
   backwardTick() {
-    let entitiesCount = this.entityFinderRecord.fetchExitingEntities()
+    const entitiesCount = this.entityFinderRecord.fetchExitingEntities()
         .onEach(entity => {
           for (const system of this.systems) {
             system.exit(entity);
@@ -214,7 +212,7 @@ export class SystemTicker<T = Component, U extends T & Entity = T & Entity> {
   }
 
   firstForwardTick(time: Phaser.Time) {
-    let enteringEntities = this.entityFinderRecord.fetchEnteringEntities()
+    const enteringEntities = this.entityFinderRecord.fetchEnteringEntities()
         .onEach(entity => {
           for (const system of this.systems) {
             system.enter(entity);
@@ -246,7 +244,7 @@ export class SystemTicker<T = Component, U extends T & Entity = T & Entity> {
 }
 
 export class SystemFinisher {
-  constructor(private systems: Set<VisibilitySystem<Component>> = new Set()) {
+  constructor(private readonly systems: Set<VisibilitySystem<Component>> = new Set()) {
   }
 
   add(system: VisibilitySystem<Component>) {
@@ -260,3 +258,5 @@ export class SystemFinisher {
     this.systems.clear();
   }
 }
+
+export default VisibilityEngine;

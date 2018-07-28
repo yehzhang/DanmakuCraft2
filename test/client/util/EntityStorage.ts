@@ -1,13 +1,13 @@
-import EntityFinder from '../../../client/src/util/entityStorage/EntityFinder';
-import Entity from '../../../client/src/entitySystem/Entity';
+import {expect} from 'chai';
 import {instance, mock, when} from 'ts-mockito';
+import {DisplayableEntity} from '../../../client/src/entitySystem/alias';
+import Display from '../../../client/src/entitySystem/component/Display';
+import MutableCoordinates from '../../../client/src/entitySystem/component/MutableCoordinates';
+import Entity from '../../../client/src/entitySystem/Entity';
+import {Phaser, PIXI} from '../../../client/src/util/alias/phaser';
+import EntityFinder from '../../../client/src/util/entityStorage/EntityFinder';
 import GlobalEntityFinder from '../../../client/src/util/entityStorage/global/GlobalEntityFinder';
 import Point from '../../../client/src/util/syntax/Point';
-import {expect} from 'chai';
-import {Phaser, PIXI} from '../../../client/src/util/alias/phaser';
-import {DisplayableEntity} from '../../../client/src/entitySystem/alias';
-import MutableCoordinates from '../../../client/src/entitySystem/component/MutableCoordinates';
-import Display from '../../../client/src/entitySystem/component/Display';
 import Rectangle from '../../../client/src/util/syntax/Rectangle';
 
 describe('EntityFinder', () => {
@@ -15,7 +15,7 @@ describe('EntityFinder', () => {
   let entities: DisplayableEntity[];
 
   beforeEach(() => {
-    let FakeDisplayableEntity = () => {
+    const FakeDisplayableEntity = () => {
     };
     FakeDisplayableEntity.prototype = Object.getPrototypeOf(Entity.newBuilder()
         .mix(new MutableCoordinates(Point.origin()))
@@ -53,7 +53,7 @@ describe('EntityFinder', () => {
         expect(Array.from(finder.listAround(Point.of(4, 3), 5 - 1e-6)))
             .to.deep.equal([entities[1]]);
 
-        expect(Array.from(finder.listAround(Point.origin(), 0))).to.deep.equal([]);
+        expect(Array.from(finder.listAround(Point.origin(), 0))).to.be.empty;
       });
     });
   }

@@ -1,7 +1,7 @@
-import ExistenceEngine, {ExistenceRelation} from './ExistenceEngine';
-import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
 import Entity from '../../entitySystem/Entity';
+import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
+import ExistenceEngine, {ExistenceRelation} from './ExistenceEngine';
 
 class ExistenceEngineBuilder {
   constructor(
@@ -13,7 +13,7 @@ class ExistenceEngineBuilder {
       system: ExistenceSystem<T>,
       entityFinder: EntityFinder<U>,
       isOnUpdate: boolean) {
-    let relation = new ExistenceRelation(system, entityFinder);
+    const relation = new ExistenceRelation(system, entityFinder);
 
     let relations;
     if (isOnUpdate) {

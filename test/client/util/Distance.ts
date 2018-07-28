@@ -1,7 +1,7 @@
-import Distance from '../../../client/src/util/math/Distance';
-import Point from '../../../client/src/util/syntax/Point';
 import {expect} from 'chai';
 import PhysicalConstants from '../../../client/src/PhysicalConstants';
+import Distance from '../../../client/src/util/math/Distance';
+import Point from '../../../client/src/util/syntax/Point';
 
 describe('Distance', () => {
   let distance: Distance;

@@ -77,7 +77,7 @@ async function findOrCreateBilibiliUser(userData) {
  */
 async function findDefaultUser() {
   const user = await User.findOne({id: UserUtils.getDefaultId()});
-  if (user === null) {
+  if (user == null) {
     throw new TypeError('Default user not found');
   }
   return user;

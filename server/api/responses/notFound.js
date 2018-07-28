@@ -17,14 +17,14 @@
  * automatically.
  */
 module.exports = function notFound(data, options) {
-  let req = this.req;
-  let res = this.res;
-  let sails = req._sails;
+  const req = this.req;
+  const res = this.res;
+  const sails = req._sails;
 
   res.status(404);
 
   // Log error to console
-  if (data !== undefined) {
+  if (data != null) {
     sails.log.verbose('Sending 404 ("Not Found") response: \n', data);
   } else {
     sails.log.verbose('Sending 404 ("Not Found") response');

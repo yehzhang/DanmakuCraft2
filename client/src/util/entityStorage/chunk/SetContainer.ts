@@ -2,11 +2,11 @@ import Iterator from '../../syntax/Iterator';
 import ImmutableContainer from '../ImmutableContainer';
 
 class SetContainer<T> implements ImmutableContainer<T> {
-  constructor(private values: Set<T> = new Set()) {
+  constructor(private readonly values: Set<T> = new Set()) {
   }
 
   add(item: T) {
-    let newItems = new Set(this.values);
+    const newItems = new Set(this.values);
     newItems.add(item);
 
     return new SetContainer(newItems);

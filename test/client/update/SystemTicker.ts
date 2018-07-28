@@ -1,16 +1,13 @@
-import {
-  EntityFinderRecord, RecordSystemTicker, SystemTicker,
-  TickSystemTicker
-} from '../../../client/src/engine/visibility/VisibilityEngine';
-import VisibilitySystem from '../../../client/src/entitySystem/system/visibility/VisibilitySystem';
-import Entity from '../../../client/src/entitySystem/Entity';
 import {instance, mock, resetCalls, verify, when} from 'ts-mockito';
-import {Phaser} from '../../../client/src/util/alias/phaser';
-import TickSystem from '../../../client/src/entitySystem/system/tick/TickSystem';
+import {EntityFinderRecord, RecordSystemTicker, SystemTicker, TickSystemTicker} from '../../../client/src/engine/visibility/VisibilityEngine';
+import Entity from '../../../client/src/entitySystem/Entity';
 import MoveDisplaySystem from '../../../client/src/entitySystem/system/tick/MoveDisplaySystem';
+import TickSystem from '../../../client/src/entitySystem/system/tick/TickSystem';
 import BackgroundColorSystem from '../../../client/src/entitySystem/system/visibility/BackgroundColorSystem';
+import VisibilitySystem from '../../../client/src/entitySystem/system/visibility/VisibilitySystem';
+import {Phaser} from '../../../client/src/util/alias/phaser';
 
-describe('RecordSystemTicker', () => {
+xdescribe('RecordSystemTicker', () => {
   let mockSystem: VisibilitySystem<Entity>;
   let mockRecord: EntityFinderRecord<Entity>;
   let entities: Entity[];
@@ -61,7 +58,7 @@ describe('RecordSystemTicker', () => {
   });
 });
 
-describe('TickSystemTicker', () => {
+xdescribe('TickSystemTicker', () => {
   let mockSystem: TickSystem;
   let entities: Entity[];
   let time: Phaser.Time;

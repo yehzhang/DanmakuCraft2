@@ -1,14 +1,14 @@
-import CommentPlacingPolicy from '../../interface/CommentPlacingPolicy';
 import CommentData from '../../../comment/CommentData';
-import CollisionDetectionSystem from '../../../entitySystem/system/visibility/CollisionDetectionSystem';
-import BuffDataContainer from '../../../entitySystem/system/buff/BuffDataContainer';
-import Notifier, {NotificationPriority} from '../../../output/notification/Notifier';
 import {Player} from '../../../entitySystem/alias';
+import Display from '../../../entitySystem/component/Display';
 import {BuffData, BuffType} from '../../../entitySystem/system/buff/BuffData';
+import BuffDataContainer from '../../../entitySystem/system/buff/BuffDataContainer';
+import CollisionDetectionSystem from '../../../entitySystem/system/visibility/CollisionDetectionSystem';
+import Notifier, {NotificationPriority} from '../../../output/notification/Notifier';
+import GraphicsFactory from '../../../render/graphics/GraphicsFactory';
 import Texts from '../../../render/Texts';
 import Point from '../../../util/syntax/Point';
-import GraphicsFactory from '../../../render/graphics/GraphicsFactory';
-import Display from '../../../entitySystem/component/Display';
+import CommentPlacingPolicy from '../../interface/CommentPlacingPolicy';
 
 class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   // Maximum blur radius = 2. Minimum line padding = 9.
@@ -33,7 +33,7 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
     this.previewDisplay.anchor.setTo(0.5);
     this.fixedToCameraLayer.addChild(this.previewDisplay);
 
-    let bounds = Display.getWorldBounds(this.previewDisplay, this.player)
+    const bounds = Display.getWorldBounds(this.previewDisplay, this.player)
         .inflate(
             -CommentPlacingPolicyImpl.COLLISION_BOUNDS_SHRINKAGE.x,
             -CommentPlacingPolicyImpl.COLLISION_BOUNDS_SHRINKAGE.y);
@@ -60,7 +60,7 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   }
 
   private clearCommentPreview() {
-    if (this.previewDisplay === undefined) {
+    if (this.previewDisplay == null) {
       return;
     }
 
@@ -69,7 +69,7 @@ class CommentPlacingPolicyImpl implements CommentPlacingPolicy {
   }
 
   private buildCommentData(text: string, size: number, color: number) {
-    let buffData = this.buffDataContainer.peek(new BuffData(BuffType.NONE));
+    const buffData = this.buffDataContainer.peek(new BuffData(BuffType.NONE));
     return new CommentData(size, color, text, this.player.coordinates, buffData);
   }
 }

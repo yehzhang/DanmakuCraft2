@@ -1,11 +1,10 @@
 class ConditionalVariable {
-  constructor(private callbacks: Array<() => void> = []) {
+  constructor(private readonly callbacks: Array<() => void> = []) {
   }
 
   notify() {
-    let callback = this.callbacks.shift();
-
-    if (callback == null) {
+    const callback = this.callbacks.shift();
+    if (!callback) {
       return;
     }
 
@@ -13,7 +12,7 @@ class ConditionalVariable {
   }
 
   notifyAll() {
-    for (let callback of this.callbacks) {
+    for (const callback of this.callbacks) {
       callback();
     }
     this.callbacks.length = 0;

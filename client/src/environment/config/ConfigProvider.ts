@@ -1,18 +1,18 @@
 import FrontendConfig from './FrontendConfig';
 
 class ConfigProvider {
-  private static config?: FrontendConfig;
-
   static set(apiConfig: FrontendConfig) {
-    this.config = apiConfig;
+    config = apiConfig;
   }
 
   static get(): FrontendConfig {
-    if (this.config == null) {
+    if (!config) {
       throw new TypeError('FrontendConfig is not set');
     }
-    return this.config;
+    return config;
   }
 }
+
+let config: FrontendConfig | null = null;
 
 export default ConfigProvider;

@@ -16,7 +16,7 @@ import QuadTreeEntityFinder from './quadtree/QuadtreeEntityFinder';
 import QuadTreeEntityRegister from './quadtree/QuadtreeEntityRegister';
 
 class EntityStorageFactoryImpl implements EntityStorageFactory {
-  constructor(private entityFactory: EntityFactory) {
+  constructor(private readonly entityFactory: EntityFactory) {
   }
 
   createChunkEntityStorage<T extends StationaryEntity>(

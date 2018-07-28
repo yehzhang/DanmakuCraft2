@@ -1,5 +1,5 @@
-import socketIOClient = require('socket.io-client');
 import SailsIOJS = require('sails.io.js');
+import socketIOClient = require('socket.io-client');
 import ConfigProvider from '../../config/ConfigProvider';
 import Response, {ErrorResponse} from './Response';
 
@@ -9,10 +9,6 @@ io.sails.environment = __DEV__ ? 'development' : 'production';
 
 class Socket {
   constructor(private socket: SailsIOJS.Socket = io.sails.connect(ConfigProvider.get().baseUrl)) {
-  }
-
-  private static toPath(eventIdentity: string) {
-    return '/' + eventIdentity;
   }
 
   on<T>(eventIdentity: string, callback: (response: T) => void) {
@@ -33,8 +29,8 @@ class Socket {
       return new ErrorResponse(`Failed to establish socket connection for '${e}'.`);
     }
 
-    let message = await new Promise(
-        resolve => this.socket.get(Socket.toPath(eventIdentity), data, resolve));
+    const message = await new Promise(
+        resolve => this.socket.get(toPath(eventIdentity), data, resolve));
     return Response.from(message);
   }
 
@@ -45,8 +41,8 @@ class Socket {
       return new ErrorResponse(`Failed to establish socket connection for '${e}'.`);
     }
 
-    let message = await new Promise(
-        resolve => this.socket.post(Socket.toPath(eventIdentity), data, resolve));
+    const message = await new Promise(
+        resolve => this.socket.post(toPath(eventIdentity), data, resolve));
     return Response.from(message);
   }
 
@@ -60,6 +56,10 @@ class Socket {
     }
     this.socket.reconnect();
   }
+}
+
+function toPath(eventIdentity: string) {
+  return '/' + eventIdentity;
 }
 
 export default Socket;

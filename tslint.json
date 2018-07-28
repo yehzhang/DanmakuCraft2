@@ -21,6 +21,11 @@
     "no-string-literal": false,
     "indent": [true, "spaces", 2],
     "prefer-const": false,
+    "triple-equals": [
+      true,
+      "allow-null-check",
+      "allow-undefined-check"
+    ],
     "member-access": false,
     "quotemark": [true, "single"],
     "semicolon": [true, "always", "ignore-bound-class-methods"],

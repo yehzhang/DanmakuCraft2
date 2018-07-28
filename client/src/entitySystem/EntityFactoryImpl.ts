@@ -1,24 +1,24 @@
-import EntityFactory from './EntityFactory';
-import {UpdatingCommentEntity} from './alias';
 import CommentData from '../comment/CommentData';
-import Comment from './component/Comment';
-import Entity from './Entity';
-import ImmutableCoordinates from './component/ImmutableCoordinates';
-import BuffFactory from './system/buff/BuffFactory';
-import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
-import MutableCoordinates from './component/MutableCoordinates';
-import Motion from './component/Motion';
-import Display from './component/Display';
-import MovingAnimation from './component/MovingAnimation';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
-import Point from '../util/syntax/Point';
-import SetContainer from '../util/entityStorage/chunk/SetContainer';
-import Chest from './component/Chest';
 import {Phaser, PIXI} from '../util/alias/phaser';
+import SetContainer from '../util/entityStorage/chunk/SetContainer';
 import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
-import RegisteredTimes from './component/RegisteredTimes';
+import Point from '../util/syntax/Point';
+import {UpdatingCommentEntity} from './alias';
 import Blink from './component/Blink';
+import Chest from './component/Chest';
+import Comment from './component/Comment';
+import Display from './component/Display';
+import ImmutableCoordinates from './component/ImmutableCoordinates';
+import Motion from './component/Motion';
+import MovingAnimation from './component/MovingAnimation';
+import MutableCoordinates from './component/MutableCoordinates';
 import Nudge from './component/Nudge';
+import RegisteredTimes from './component/RegisteredTimes';
+import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
+import Entity from './Entity';
+import EntityFactory from './EntityFactory';
+import BuffFactory from './system/buff/BuffFactory';
 
 class EntityFactoryImpl implements EntityFactory {
   constructor(
@@ -47,8 +47,8 @@ class EntityFactoryImpl implements EntityFactory {
   }
 
   createTinyTelevision(coordinates: Point) {
-    let view = this.graphicsFactory.createTinyTelevision();
-    let entity = Entity.newBuilder()
+    const view = this.graphicsFactory.createTinyTelevision();
+    const entity = Entity.newBuilder()
         .mix(new MutableCoordinates(coordinates))
         .mix(new Motion())
         .mix(new Display(view.display))
@@ -69,7 +69,7 @@ class EntityFactoryImpl implements EntityFactory {
   }
 
   private createCommentEntityBuilder(data: CommentData) {
-    let comment = new Comment(data.size, data.color, data.text);
+    const comment = new Comment(data.size, data.color, data.text);
     return Entity.newBuilder()
         .mix(new ImmutableCoordinates(data.coordinates))
         .mix(comment)

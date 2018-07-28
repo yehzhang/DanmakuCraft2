@@ -1,12 +1,12 @@
+import {Region} from '../../entitySystem/alias';
+import Entity from '../../entitySystem/Entity';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
-import VisibilityEngineBuilder from './VisibilityEngineBuilder';
-import Entity from '../../entitySystem/Entity';
 import VisibilityEngine from './VisibilityEngine';
-import {Region} from '../../entitySystem/alias';
+import VisibilityEngineBuilder from './VisibilityEngineBuilder';
 
 export class OnOrBuildClause {
-  constructor(protected builder: VisibilityEngineBuilder) {
+  constructor(protected readonly builder: VisibilityEngineBuilder) {
   }
 
   onUpdate(): ApplyClause {
@@ -23,7 +23,9 @@ export class OnOrBuildClause {
 }
 
 class ApplyClause {
-  constructor(protected builder: VisibilityEngineBuilder, protected isOnUpdate: boolean) {
+  constructor(
+      protected readonly builder: VisibilityEngineBuilder,
+      protected readonly isOnUpdate: boolean) {
   }
 
   apply<T>(system: VisibilitySystem<T>): ToClause<T> {
@@ -33,18 +35,18 @@ class ApplyClause {
 
 class ToClause<T> {
   constructor(
-      private builder: VisibilityEngineBuilder,
-      private system: VisibilitySystem<T>,
-      private isOnUpdate: boolean) {
+      private readonly builder: VisibilityEngineBuilder,
+      private readonly system: VisibilitySystem<T>,
+      private readonly isOnUpdate: boolean) {
   }
 
   toChildren(): OfClause<Region<T>, T> {
-    let systemLifter = new SystemLifter(this.system, this.system);
+    const systemLifter = new SystemLifter(this.system, this.system);
     return this.createOfClause(systemLifter.lifted());
   }
 
   toEntities(): OfClause<T, T> {
-    let systemLifter = new SystemLifter(this.system, this.system);
+    const systemLifter = new SystemLifter(this.system, this.system);
     return this.createOfClause(systemLifter);
   }
 
@@ -55,9 +57,9 @@ class ToClause<T> {
 
 class OfClause<T, U> {
   constructor(
-      private builder: VisibilityEngineBuilder,
-      private systemLifter: SystemLifter<T, U>,
-      private isOnUpdate: boolean) {
+      private readonly builder: VisibilityEngineBuilder,
+      private readonly systemLifter: SystemLifter<T, U>,
+      private readonly isOnUpdate: boolean) {
   }
 
   of<V extends T & Entity>(entityFinder: EntityFinder<V>): ApplyOrToOrOfOrBuildClause<T, U> {
@@ -69,7 +71,7 @@ class OfClause<T, U> {
 class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
   constructor(
       builder: VisibilityEngineBuilder,
-      private systemLifter: SystemLifter<T, U>,
+      private readonly systemLifter: SystemLifter<T, U>,
       isOnUpdate: boolean) {
     super(builder, isOnUpdate);
   }
@@ -97,23 +99,23 @@ class ApplyOrToOrOfOrBuildClause<T, U> extends ApplyClause {
 }
 
 class LiftVisibilitySystemSystem<T> implements VisibilitySystem<Region<T>> {
-  constructor(private system: VisibilitySystem<T>) {
+  constructor(private readonly system: VisibilitySystem<T>) {
   }
 
   enter(container: Region<T>) {
-    for (let entity of container) {
+    for (const entity of container) {
       this.system.enter(entity);
     }
   }
 
   update(container: Region<T>, time: Phaser.Time) {
-    for (let entity of container) {
+    for (const entity of container) {
       this.system.update(entity, time);
     }
   }
 
   exit(container: Region<T>) {
-    for (let entity of container) {
+    for (const entity of container) {
       this.system.exit(entity);
     }
   }
@@ -125,7 +127,8 @@ class LiftVisibilitySystemSystem<T> implements VisibilitySystem<Region<T>> {
 
 class SystemLifter<T, U> {
   constructor(
-      private liftedSystem: VisibilitySystem<T>, private originalSystem: VisibilitySystem<U>) {
+      private readonly liftedSystem: VisibilitySystem<T>,
+      private readonly originalSystem: VisibilitySystem<U>) {
   }
 
   lifted(): SystemLifter<Region<T>, U> {

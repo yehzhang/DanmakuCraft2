@@ -1,11 +1,11 @@
-import {DisplayableEntity, DisplayableRegion} from '../../alias';
-import VisibilitySystem from './VisibilitySystem';
 import {toWorldCoordinateOffset2d} from '../../../law/space';
 import PhysicalConstants from '../../../PhysicalConstants';
+import {DisplayableEntity, DisplayableRegion} from '../../alias';
+import VisibilitySystem from './VisibilitySystem';
 
 class AddChildToRegionSystem implements VisibilitySystem<DisplayableRegion<DisplayableEntity>> {
   enter(region: DisplayableRegion<DisplayableEntity>) {
-    for (let entity of region) {
+    for (const entity of region) {
       region.display.addChild(entity.display);
       entity.display.position = toWorldCoordinateOffset2d(
           entity.coordinates,

@@ -1,20 +1,20 @@
-import {DisplayableRegion, StationaryEntity} from '../../../entitySystem/alias';
-import Chunks from './Chunks';
-import EntityFactory from '../../../entitySystem/EntityFactory';
-import {StateChanged} from '../EntityFinder';
-import {Phaser} from '../../alias/phaser';
 import {asSequence} from 'sequency';
+import {DisplayableRegion, StationaryEntity} from '../../../entitySystem/alias';
+import EntityFactory from '../../../entitySystem/EntityFactory';
+import {Phaser} from '../../alias/phaser';
 import Iterator from '../../syntax/Iterator';
+import {StateChanged} from '../EntityFinder';
 import EntityRegister from '../EntityRegister';
 import ImmutableContainer from '../ImmutableContainer';
+import Chunks from './Chunks';
 
 // TODO ChunkEntityRegister cannot handle comments protruding from a chunk
 // Can add an entity to multiple regions, but cannot add a display to multiple parents.
 class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<T> {
   constructor(
-      private chunks: Chunks<DisplayableRegion<T>>,
-      private onStateChanged: Phaser.Signal<StateChanged<DisplayableRegion<T>>>,
-      private entityFactory: EntityFactory) {
+      private readonly chunks: Chunks<DisplayableRegion<T>>,
+      private readonly onStateChanged: Phaser.Signal<StateChanged<DisplayableRegion<T>>>,
+      private readonly entityFactory: EntityFactory) {
   }
 
   register(entity: T) {
@@ -38,7 +38,7 @@ class ChunkEntityRegister<T extends StationaryEntity> implements EntityRegister<
       const chunkToReplace = this.chunks.getChunkByCoordinates(entity.coordinates);
 
       let entitiesToAdd = chunksToReplace.get(chunkToReplace);
-      if (entitiesToAdd == null) {
+      if (!entitiesToAdd) {
         entitiesToAdd = [];
         chunksToReplace.set(chunkToReplace, entitiesToAdd);
       }

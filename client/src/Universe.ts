@@ -74,7 +74,7 @@ class Universe {
   public backgroundMusicPlayer: BackgroundMusicPlayer;
   public timer: Phaser.Timer;
 
-  private constructor(public game: Phaser.Game, public adapter: EnvironmentAdapter) {
+  private constructor(readonly game: Phaser.Game, readonly adapter: EnvironmentAdapter) {
     this.buffDataContainer = new BuffDataContainer();
 
     this.input = new PhaserInput(game);
@@ -219,6 +219,6 @@ class Universe {
   }
 }
 
-export default Universe;
-
 let hasGenesis = false;
+
+export default Universe;

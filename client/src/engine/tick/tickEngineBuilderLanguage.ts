@@ -1,9 +1,9 @@
-import TickEngineBuilder from './TickEngineBuilder';
-import TickEngine, {BeginTicker, EndTicker} from './TickEngine';
 import TickSystem from '../../entitySystem/system/tick/TickSystem';
+import TickEngine, {BeginTicker, EndTicker} from './TickEngine';
+import TickEngineBuilder from './TickEngineBuilder';
 
 export class OnOrBuildClause {
-  constructor(protected builder: TickEngineBuilder) {
+  constructor(protected readonly builder: TickEngineBuilder) {
   }
 
   onUpdate(): ApplyClause {
@@ -20,7 +20,7 @@ export class OnOrBuildClause {
 }
 
 class ApplyClause {
-  constructor(private builder: TickEngineBuilder, private isOnUpdate: boolean) {
+  constructor(private readonly builder: TickEngineBuilder, private readonly isOnUpdate: boolean) {
   }
 
   apply(system: TickSystem): AtClause {

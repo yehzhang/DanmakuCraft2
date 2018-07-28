@@ -1,7 +1,7 @@
 import DataTransformer from './DataTransformer';
 
 class Threshold implements DataTransformer<number, boolean> {
-  constructor(private threshold: number = 0.5) {
+  constructor(private readonly threshold: number = 0.5) {
   }
 
   static smallerThan(value: number) {

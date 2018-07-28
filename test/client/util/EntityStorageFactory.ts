@@ -1,11 +1,11 @@
-import EntityStorageFactoryImpl from '../../../client/src/util/entityStorage/EntityStorageFactoryImpl';
+import {expect} from 'chai';
 import {anything, instance, mock, when} from 'ts-mockito';
 import EntityFactory from '../../../client/src/entitySystem/EntityFactory';
 import EntityFactoryImpl from '../../../client/src/entitySystem/EntityFactoryImpl';
-import Point from '../../../client/src/util/syntax/Point';
-import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
-import {expect} from 'chai';
 import PhysicalConstants from '../../../client/src/PhysicalConstants';
+import ChunkEntityFinder from '../../../client/src/util/entityStorage/chunk/ChunkEntityFinder';
+import EntityStorageFactoryImpl from '../../../client/src/util/entityStorage/EntityStorageFactoryImpl';
+import Point from '../../../client/src/util/syntax/Point';
 
 describe('EntityStorageFactoryImpl', () => {
   let factory: EntityStorageFactoryImpl;
@@ -27,16 +27,16 @@ describe('EntityStorageFactoryImpl', () => {
     const CHUNKS_COUNT = 10;
 
     beforeEach(() => {
-      let entityStorage = factory.createChunkEntityStorage(CHUNKS_COUNT);
+      const entityStorage = factory.createChunkEntityStorage(CHUNKS_COUNT);
       entityFinder = entityStorage.getFinder() as any;
     });
 
     it('with regard to chunks', () => {
-      let chunks = entityFinder['chunks'];
-      let expectedChunkSize = PhysicalConstants.WORLD_SIZE / CHUNKS_COUNT;
+      const chunks = entityFinder['chunks'];
+      const expectedChunkSize = PhysicalConstants.WORLD_SIZE / CHUNKS_COUNT;
       expect(chunks['chunkSize']).to.equal(expectedChunkSize);
 
-      let internalChunks = chunks['chunks'] as any as Point[][];
+      const internalChunks = chunks['chunks'] as any as Point[][];
       for (let i = 0; i < CHUNKS_COUNT; i++) {
         for (let j = 0; j < CHUNKS_COUNT; j++) {
           expect(internalChunks[i][j].x).to.deep.equal(j * expectedChunkSize);

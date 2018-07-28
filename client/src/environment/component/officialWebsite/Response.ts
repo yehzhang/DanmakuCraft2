@@ -1,10 +1,4 @@
-import {
-  ErrorResponse as ErrorResponseInterface,
-  ErrorResponseStatus,
-  Response as ResponseInterface,
-  ValueResponse as ValueResponseInterface,
-  ValueResponseStatus
-} from '../../../../../server/api/services/response';
+import {ErrorResponse as ErrorResponseInterface, ErrorResponseStatus, Response as ResponseInterface, ValueResponse as ValueResponseInterface, ValueResponseStatus} from '../../../../../server/api/services/response';
 import Texts from '../../../render/Texts';
 
 abstract class Response<T> {
@@ -14,10 +8,10 @@ abstract class Response<T> {
       console.error('Received undefined message');
       return null;
     }
-    if (this.isValueResponse(message)) {
+    if (isValueResponse(message)) {
       return new ValueResponse(message.value);
     }
-    if (this.isErrorResponse(message)) {
+    if (isErrorResponse(message)) {
       let reason;
       if (message.reason == null) {
         reason = Texts.forName('main.error.server');
@@ -29,18 +23,8 @@ abstract class Response<T> {
     return null;
   }
 
-  private static isValueResponse(message: Partial<ResponseInterface>): message is ValueResponseInterface {
-    return message.status === ValueResponseStatus;
-  }
-
-  private static isErrorResponse(message: Partial<ResponseInterface>): message is ErrorResponseInterface {
-    return message.status === ErrorResponseStatus;
-  }
-
   abstract apply(): T;
 }
-
-export default Response;
 
 export class ErrorResponse extends Response<never> {
   constructor(private reason: string) {
@@ -64,3 +48,13 @@ export class ValueResponse<T> extends Response<T> {
 
 export class ErrorResponseError extends TypeError {
 }
+
+function isValueResponse(message: Partial<ResponseInterface>): message is ValueResponseInterface {
+  return message.status === ValueResponseStatus;
+}
+
+function isErrorResponse(message: Partial<ResponseInterface>): message is ErrorResponseInterface {
+  return message.status === ErrorResponseStatus;
+}
+
+export default Response;

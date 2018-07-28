@@ -16,11 +16,16 @@ class ParticlesField {
     }
 
     for (let i = 0; i < numParticles; i++) {
-      let [x, y, z] = ParticlesField.getRandomCoordinates(game.width, game.height);
-      let particleDisplay = game.make.sprite(0, 0, spriteSheetKey);
+      const [x, y, z] = ParticlesField.getRandomCoordinates(game.width, game.height);
+      const particleDisplay = game.make.sprite(0, 0, spriteSheetKey);
       particleDisplay.position.setTo(x, y);
       particleDisplay.anchor.setTo(0.5);
-      let particle = new Perspective(particleDisplay, z, ParticlesField.FOCAL_LENGTH, false, true);
+      const particle = new Perspective(
+          particleDisplay,
+          z,
+          ParticlesField.FOCAL_LENGTH,
+          false,
+          true);
 
       display.addChild(particleDisplay);
 
@@ -36,7 +41,7 @@ class ParticlesField {
   }
 
   update() {
-    for (let particle of this.particles) {
+    for (const particle of this.particles) {
       let z = particle.z + this.particleSpeed;
       if (z >= ParticlesField.MAX_DISTANCE) {
         z -= ParticlesField.MAX_DISTANCE;
@@ -50,14 +55,14 @@ class ParticlesField {
   }
 
   onGameSizeChanged(gameWidth: number, gameHeight: number) {
-    for (let particle of this.particles) {
+    for (const particle of this.particles) {
       [particle.x, particle.y, particle.z] =
           ParticlesField.getRandomCoordinates(gameWidth, gameHeight);
     }
   }
 
   async approach(duration: number, easing: (x: number) => number) {
-    let speedTween = this.game.add.tween(this)
+    const speedTween = this.game.add.tween(this)
         .to({particleSpeed: -this.particleSpeed * 3}, duration, easing, true);
     return new Promise(resolve => {
       speedTween.onComplete.addOnce(resolve);

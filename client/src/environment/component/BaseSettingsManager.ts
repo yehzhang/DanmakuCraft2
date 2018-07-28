@@ -1,6 +1,6 @@
+import TextShadowStyle from '../../render/TextShadowStyle';
 import SettingsManager, {PresetSettingsOptions, SettingsOption} from '../interface/SettingsManager';
 import {isLinux} from '../util';
-import TextShadowStyle from '../../render/TextShadowStyle';
 
 abstract class BaseSettingsManager implements SettingsManager {
   private static readonly DEFAULT_PRESET_SETTINGS: Map<PresetSettingsOptions, any> = new Map()
@@ -13,16 +13,16 @@ abstract class BaseSettingsManager implements SettingsManager {
     this.loadPresetSettings(presetSettings);
   }
 
-  getSetting<T>(option: SettingsOption<T>): T {
-    let setting = this.presetSettings.get(option);
-    if (setting !== undefined) {
+  getSetting<T>(option: SettingsOption<T>) {
+    const setting = this.presetSettings.get(option);
+    if (setting) {
       return setting;
     }
 
     return this.loadSetting(option);
   }
 
-  setSetting<T>(option: SettingsOption<T>, value: T): void {
+  setSetting<T>(option: SettingsOption<T>, value: T) {
     switch (option as any) {
       case PresetSettingsOptions.TEXT_SHADOW:
       case PresetSettingsOptions.FONT_FAMILY:

@@ -1,5 +1,5 @@
-import Graphics from './Graphics';
 import {Phaser} from '../../util/alias/phaser';
+import Graphics from './Graphics';
 
 class InjectableGraphics implements Graphics {
   constructor(
@@ -66,7 +66,7 @@ class InjectableGraphics implements Graphics {
   }
 
   lineStyle(lineWidth?: number, color?: number, alpha?: number) {
-    if (this.lineColor !== null) {
+    if (this.lineColor != null) {
       color = this.lineColor;
     }
 

@@ -1,10 +1,10 @@
-import Input from './Input';
 import {Phaser} from '../util/alias/phaser';
+import Input from './Input';
 
 class PhaserInput implements Input {
   constructor(
       game: Phaser.Game,
-      private keys = game.input.keyboard.addKeys({
+      private readonly keys = game.input.keyboard.addKeys({
         up: Phaser.KeyCode.UP,
         down: Phaser.KeyCode.DOWN,
         left: Phaser.KeyCode.LEFT,
@@ -42,7 +42,7 @@ class PhaserInput implements Input {
   }
 
   private resetKeysStates() {
-    for (let key of Object.values(this.keys)) {
+    for (const key of Object.values(this.keys)) {
       key.reset(false);
     }
   }
