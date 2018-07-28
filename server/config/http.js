@@ -8,8 +8,6 @@
  * For more information on configuration, check out:
  * http://sailsjs.org/#!/documentation/reference/sails.config/sails.config.http.html
  */
-const WWW_HOSTNAME_PREFIX = 'www.';
-
 module.exports.http = {
 
   /****************************************************************************
@@ -24,7 +22,7 @@ module.exports.http = {
 
   middleware: {
     order: [
-      'redirectToNonWww',
+      'redirectToNonSubDomain',
       'startRequestTimer',
       'cookieParser',
       'session',
@@ -41,17 +39,13 @@ module.exports.http = {
       '500',
     ],
 
-    redirectToNonWww(req, res, next) {
-      if (typeof req.host === 'string') {
-        if (req.host.startsWith(WWW_HOSTNAME_PREFIX)) {
-          const url = `${req.protocol}://${req.host.slice(WWW_HOSTNAME_PREFIX.length)}${req.path}`;
-          return res.redirect(301, url);
-        }
-      } else {
-        const url = `${req.protocol}://danmakucraft.com${req.path}`;
-        return res.redirect(301, url);
+    redirectToNonSubDomain(req, res, next) {
+      if (['localhost', '127.0.0.1'].includes(req.host)) {
+        return next();
       }
-      return next();
+
+      const url = `${req.protocol}://danmakucraft.com${req.path}`;
+      return res.redirect(301, url);
     },
 
     /***************************************************************************
