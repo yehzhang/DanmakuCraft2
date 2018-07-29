@@ -7,8 +7,8 @@ module.exports = {
   },
 
   models: {
+    // see `sails.config.connections`
     connection: 'localDevPostgresqlServer',
-    migrate: 'drop',
   },
 
   port: 1337,
