@@ -1,7 +1,7 @@
 import {Phaser} from '../../../util/alias/phaser';
 import {bindFirst} from '../../util';
-import Widgets from './Widgets';
 import ClickTriggeredFocuser from './ClickTriggeredFocuser';
+import Widgets from './Widgets';
 
 class InputInterceptor {
   private keyboard: KeyboardExtended;
@@ -21,7 +21,7 @@ class InputInterceptor {
     this.handleKeyEvents($(window));
   }
 
-  private handleKeyEvents(target: JQuery<HTMLElement>) {
+  private handleKeyEvents(target: JQuery<EventTarget>) {
     bindFirst(target, 'keydown', event => {
       if (event.which === Phaser.KeyCode.ENTER) {
         this.keyboard.processKeyDown(event);

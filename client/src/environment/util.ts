@@ -1,4 +1,4 @@
-export function bindFirst<T extends Node>(
+export function bindFirst<T extends EventTarget>(
     element: JQuery<T>,
     event: string,
     selector: JQuery.EventHandler<T>) {

@@ -165,13 +165,11 @@ export class EntityFinderRecord<T extends Entity> {
 }
 
 export class DistanceChecker {
-  private enteringDistance: Distance;
-
   constructor(
       samplingRadius: number,
       private readonly updatingRadius: number,
-      readonly updatingDistance: Distance = new Distance(updatingRadius)) {
-    this.updateDistance(samplingRadius);
+      readonly updatingDistance = new Distance(updatingRadius),
+      private enteringDistance = createUpdateDistance(samplingRadius, updatingRadius)) {
   }
 
   isInEnteringRadius(currentCoordinates: Point, entity: Entity) {
@@ -179,8 +177,12 @@ export class DistanceChecker {
   }
 
   updateDistance(samplingRadius: number) {
-    this.enteringDistance = new Distance(samplingRadius + this.updatingRadius);
+    this.enteringDistance = createUpdateDistance(samplingRadius, this.updatingRadius);
   }
+}
+
+function createUpdateDistance(samplingRadius: number, updatingRadius: number): Distance {
+  return new Distance(samplingRadius + updatingRadius);
 }
 
 export class SystemTicker<T = Component, U extends T & Entity = T & Entity> {

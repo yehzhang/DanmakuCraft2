@@ -2,6 +2,7 @@ import {frontend} from '../../../server/config/frontend';
 import BilibiliClientAdapter from './BilibiliClientAdapter';
 import ConfigProvider from './config/ConfigProvider';
 import FrontendConfig from './config/FrontendConfig';
+import EnvironmentAdapter from './interface/EnvironmentAdapter';
 import OfficialWebsiteAdapter from './OfficialWebsiteAdapter';
 import TestingAdapter from './TestingAdapter';
 
@@ -10,22 +11,22 @@ class AdapterFactory {
     loadConfig();
   }
 
-  createAdapter() {
+  createAdapter(): EnvironmentAdapter {
     if (location.hostname.includes('bilibili')) {
       return this.createBilibiliClientAdapter();
     }
     return this.createOfficialAdapter();
   }
 
-  createTestingAdapter() {
+  createTestingAdapter(): EnvironmentAdapter {
     return new TestingAdapter();
   }
 
-  createBilibiliClientAdapter() {
+  createBilibiliClientAdapter(): EnvironmentAdapter {
     return new BilibiliClientAdapter();
   }
 
-  createOfficialAdapter() {
+  createOfficialAdapter(): EnvironmentAdapter {
     return new OfficialWebsiteAdapter();
   }
 }

@@ -1,13 +1,13 @@
 import {bindFirst} from '../../util';
 
 class ClickTriggeredFocuser {
-  private elements: Set<JQuery<HTMLElement>>;
+  private readonly elements: Set<JQuery<EventTarget>>;
 
   constructor(
-      trackingWidgets: Iterable<JQuery<HTMLElement>>,
-      private focusee: JQuery<HTMLElement> | null = null,
+      trackingWidgets: Iterable<JQuery<EventTarget>>,
+      private focusee: JQuery<EventTarget> | null = null,
       private isSettingFocusee: boolean = false) {
-    $(window).focusin(e => this.focusee = $(e.target));
+    $(window).on('focusin', e => this.focusee = $(e.target));
 
     this.elements = new Set(trackingWidgets);
     for (const element of this.elements) {
@@ -19,14 +19,14 @@ class ClickTriggeredFocuser {
     }
   }
 
-  isFocused(element: JQuery<HTMLElement>) {
+  isFocused(element: JQuery<EventTarget>) {
     if (!this.elements.has(element)) {
       throw new TypeError('Widget is not tracked');
     }
     return this.focusee === element;
   }
 
-  focus(element: JQuery<HTMLElement>) {
+  focus(element: JQuery<EventTarget>) {
     if (!this.elements.has(element)) {
       throw new TypeError('Widget is not tracked');
     }
@@ -34,7 +34,7 @@ class ClickTriggeredFocuser {
     clearAllOtherFocuses();
 
     this.isSettingFocusee = true;
-    element.focus();
+    element.trigger('focus');
     this.isSettingFocusee = false;
 
     this.focusee = element;
@@ -45,12 +45,12 @@ class ClickTriggeredFocuser {
       return;
     }
 
-    this.focusee.blur();
+    this.focusee.trigger('blur');
 
     this.focusee = null;
   }
 
-  private track(element: JQuery<HTMLElement>) {
+  private track(element: JQuery<EventTarget>) {
     element.on('click', () => this.focus(element));
     bindFirst(element, 'focusin', event => {
       if (this.isSettingFocusee) {
@@ -63,13 +63,13 @@ class ClickTriggeredFocuser {
 
       event.stopImmediatePropagation();
 
-      setImmediate(() => element.blur());
+      setImmediate(() => element.trigger('blur'));
     });
   }
 }
 
 function clearAllOtherFocuses() {
-  return $(':focus').blur();
+  return $(':focus').trigger('blur');
 }
 
 export default ClickTriggeredFocuser;

@@ -1,13 +1,14 @@
-import SettingsManager, {SettingsOption} from './interface/SettingsManager';
-import CommentProvider from './interface/CommentProvider';
-import GameContainerProvider from './interface/GameContainerProvider';
 import CommentData from '../comment/CommentData';
+import {BuiltinAsyncIterable} from '../util/alias/builtin';
 import BaseEnvironmentAdapter from './BaseEnvironmentAdapter';
 import BaseSettingsManager from './component/BaseSettingsManager';
-import {BuiltinAsyncIterable} from '../util/alias/builtin';
+import CommentProvider from './interface/CommentProvider';
+import GameContainerProvider from './interface/GameContainerProvider';
+import SettingsManager, {SettingsOption} from './interface/SettingsManager';
+import UniverseProxy from './interface/UniverseProxy';
 
 class TestingAdapter extends BaseEnvironmentAdapter {
-  onProxySet(): void {
+  setProxy(universeProxy: UniverseProxy) {
   }
 
   getSettingsManager(): SettingsManager {

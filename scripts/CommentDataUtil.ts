@@ -7,7 +7,11 @@ class CommentDataUtil {
   static parseFromDocument(document: Document): BilibiliCommentData[] {
     return Array.from(document.getElementsByTagName('d'))
         .map(commentElement => {
-          const attributes = commentElement.attributes.getNamedItem('p').value;
+          const p = commentElement.attributes.getNamedItem('p');
+          if (!p) {
+            return;
+          }
+          const attributes = p.value;
           const text = commentElement.textContent || '';
           try {
             return this.parseFromXmlLine(attributes, text);

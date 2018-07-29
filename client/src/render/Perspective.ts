@@ -1,6 +1,4 @@
 class Perspective<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
-  private internalZ: number;
-
   constructor(
       public display: T,
       z: number,
@@ -9,8 +7,9 @@ class Perspective<T extends PIXI.DisplayObject = PIXI.DisplayObject> {
       public gravitateToCenter: boolean = false,
       public x: number = display.x,
       public y: number = display.y,
-      public perspective: number = 0) {
-    this.z = z;
+      public perspective: number = 0,
+      private internalZ: number = z) {
+    this.updatePerspective();
   }
 
   get z() {

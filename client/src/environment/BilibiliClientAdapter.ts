@@ -10,6 +10,7 @@ import Jar from './component/officialWebsite/Jar';
 import OfficialCommentProvider from './component/officialWebsite/OfficialCommentProvider';
 import Socket from './component/officialWebsite/Socket';
 import GameContainerProvider from './interface/GameContainerProvider';
+import UniverseProxy from './interface/UniverseProxy';
 import {bindFirst} from './util';
 
 class BilibiliClientAdapter extends BaseEnvironmentAdapter {
@@ -67,29 +68,29 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
     });
   }
 
-  onProxySet() {
+  setProxy(universeProxy: UniverseProxy) {
     // Setup receiving and sending of new comments.
     const commentProvider =
-        new TextInputCommentProvider(this.universeProxy.getCommentPlacingPolicy(), this.widgets);
+        new TextInputCommentProvider(universeProxy.getCommentPlacingPolicy(), this.widgets);
     const ignored = new CommentSenderImpl(
         this.socket,
         commentProvider,
         this.nextCommentCreationTokenJar,
-        this.universeProxy.getNotifier());
+        universeProxy.getNotifier());
     commentProvider.connect();
 
     // Manages focus of widgets and game.
-    const game = this.universeProxy.getGame();
+    const game = universeProxy.getGame();
     const focuser = new ClickTriggeredFocuser(
         [this.widgets.videoFrame, this.widgets.textInput], this.widgets.videoFrame);
     const ignored2 = new InputInterceptor(game.input.keyboard, focuser, this.widgets);
 
-    this.updateVolume();
-    const updateVolume = () => setTimeout(this.updateVolume(), 0);
-    this.widgets.volumeButton.children().click(updateVolume).on('wheel', updateVolume);
+    this.updateVolume(universeProxy);
+    const updateVolume = () => setTimeout(this.updateVolume(universeProxy), 0);
+    this.widgets.volumeButton.children().on('click', updateVolume).on('wheel', updateVolume);
   }
 
-  private updateVolume() {
+  private updateVolume(universeProxy: UniverseProxy) {
     const volumeText = this.widgets.volumeText.text();
     let volume = parseInt(volumeText, 10) / 100;
     if (!(volume >= 0 && volume <= 1)) {
@@ -101,7 +102,7 @@ class BilibiliClientAdapter extends BaseEnvironmentAdapter {
       }
     }
 
-    this.universeProxy.getBackgroundMusicPlayer().setVolume(volume);
+    universeProxy.getBackgroundMusicPlayer().setVolume(volume);
   }
 
   getCommentProvider() {

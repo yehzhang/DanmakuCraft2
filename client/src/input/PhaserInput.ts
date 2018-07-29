@@ -4,7 +4,7 @@ import Input from './Input';
 class PhaserInput implements Input {
   constructor(
       game: Phaser.Game,
-      private readonly keys = game.input.keyboard.addKeys({
+      private readonly keys: { [key: string]: Phaser.Key } = game.input.keyboard.addKeys({
         up: Phaser.KeyCode.UP,
         down: Phaser.KeyCode.DOWN,
         left: Phaser.KeyCode.LEFT,

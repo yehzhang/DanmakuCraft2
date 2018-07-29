@@ -11,21 +11,21 @@ import Texts from './Texts';
 class OpeningScene {
   private static readonly FOCAL_LENGTH = 10;
 
-  private currentGameSize: Point;
-  private titlePerspective: Perspective;
+  private currentGameSize!: Point;
+  private titlePerspective!: Perspective;
 
-  private loadingStatusGroup: Phaser.Group;
-  private loadingStatusText: Phaser.Text;
+  private loadingStatusGroup!: Phaser.Group;
+  private loadingStatusText!: Phaser.Text;
 
-  private waitForAnyInputGroup: Phaser.Group;
+  private waitForAnyInputGroup!: Phaser.Group;
 
-  private borderGroup: Phaser.Group;
+  private borderGroup!: Phaser.Group;
 
-  private backgroundGroup: Phaser.Group;
-  private earthPerspective: Perspective;
+  private backgroundGroup!: Phaser.Group;
+  private earthPerspective!: Perspective;
 
-  private particlesField: ParticlesField;
-  private updateParticlesField: boolean;
+  private particlesField!: ParticlesField;
+  private updateParticlesField!: boolean;
 
   constructor(
       private game: Phaser.Game,

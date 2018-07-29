@@ -1,6 +1,6 @@
-import SettingsManager from './SettingsManager';
 import CommentProvider from './CommentProvider';
 import GameContainerProvider from './GameContainerProvider';
+import SettingsManager from './SettingsManager';
 import UniverseProxy from './UniverseProxy';
 
 /**
@@ -14,8 +14,6 @@ interface EnvironmentAdapter {
   getSettingsManager(): SettingsManager;
 
   setProxy(universeProxy: UniverseProxy): void;
-
-  onProxySet(): void;
 }
 
 export default EnvironmentAdapter;

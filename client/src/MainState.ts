@@ -15,8 +15,8 @@ import Rectangle from './util/syntax/Rectangle';
 import spriteSheet = require('../../data/audio/background_sprite.json');
 
 class MainState extends Phaser.State {
-  private scene: OpeningScene | null;
-  private universe: Universe;
+  private scene: OpeningScene | null = null;
+  private universe!: Universe;
 
   constructor(
       private readonly createUniverse: Provider<Universe>,
