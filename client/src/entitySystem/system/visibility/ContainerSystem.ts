@@ -1,9 +1,9 @@
-import VisibilitySystem from './VisibilitySystem';
-import Iterator from '../../../util/syntax/Iterator';
-import Container from '../../../util/entityStorage/Container';
 import {asSequence} from 'sequency';
-import Entity from '../../Entity';
+import Container from '../../../util/dataStructures/Container';
+import Iterator from '../../../util/syntax/Iterator';
 import Point from '../../../util/syntax/Point';
+import Entity from '../../Entity';
+import VisibilitySystem from './VisibilitySystem';
 
 class ContainerSystem<T extends Entity> implements VisibilitySystem<T>, Container<T> {
   constructor(private currentEntities: Set<T> = new Set()) {

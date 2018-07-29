@@ -21,7 +21,7 @@ class Existence extends SystemEnginesEngine<ExistenceEngine> {
 
         .build();
 
-    return new this([existenceEngineBuilder.build()]);
+    return new Existence([existenceEngineBuilder.build()]);
   }
 }
 

@@ -1,9 +1,9 @@
 import {asSequence} from 'sequency';
-import {toWorldCoordinate, toWorldCoordinate2d, validateRadius} from '../../../law/space';
-import PhysicalConstants from '../../../PhysicalConstants';
-import {Phaser} from '../../alias/phaser';
-import Iterator from '../../syntax/Iterator';
-import Point from '../../syntax/Point';
+import {toWorldCoordinate, toWorldCoordinate2d, validateRadius} from '../../law/space';
+import PhysicalConstants from '../../PhysicalConstants';
+import {Phaser} from '../alias/phaser';
+import Iterator from '../syntax/Iterator';
+import Point from '../syntax/Point';
 
 class Chunks<T> implements Iterable<T> {
   constructor(private readonly chunks: T[][], readonly chunkSize: number) {

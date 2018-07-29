@@ -1,5 +1,5 @@
 import {PIXI} from '../../../util/alias/phaser';
-import Chunks from '../../../util/entityStorage/chunk/Chunks';
+import Chunks from '../../../util/dataStructures/Chunks';
 import Point from '../../../util/syntax/Point';
 import {StationaryEntity} from '../../alias';
 import CountEntities from '../../component/CountEntities';

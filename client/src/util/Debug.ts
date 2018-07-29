@@ -291,11 +291,11 @@ class Debug {
 
     this.debugInfo.start();
 
-    asSequence(this.universe.chestsStorage.getFinder())
+    asSequence(this.universe.chestsStorage)
         .forEach(
             chest => this.debugInfo.line('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
 
-    const closestSign = asSequence(this.universe.signsStorage.getFinder())
+    const closestSign = asSequence(this.universe.signsStorage)
         .minBy(sign => Distance.roughlyOf(sign.coordinates, this.universe.player.coordinates));
     if (closestSign) {
       let note;

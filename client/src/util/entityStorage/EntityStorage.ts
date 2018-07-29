@@ -1,10 +1,7 @@
 import EntityFinder from './EntityFinder';
-import EntityLoader from './EntityRegister';
+import EntityRegister from './EntityRegister';
 
-interface EntityStorage<T, U = T> {
-  getRegister(): EntityLoader<T>;
-
-  getFinder(): EntityFinder<U>;
+interface EntityStorage<T> extends EntityRegister<T>, EntityFinder<T> {
 }
 
 export default EntityStorage;

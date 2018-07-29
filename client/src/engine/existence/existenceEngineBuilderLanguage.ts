@@ -1,6 +1,6 @@
 import Entity from '../../entitySystem/Entity';
 import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
-import Container from '../../util/entityStorage/Container';
+import Container from '../../util/dataStructures/Container';
 import EntityFinder from '../../util/entityStorage/EntityFinder';
 import ExistenceEngine from './ExistenceEngine';
 import ExistenceEngineBuilder from './ExistenceEngineBuilder';

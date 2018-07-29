@@ -1,4 +1,4 @@
-import ImmutableContainer from '../../util/entityStorage/ImmutableContainer';
+import ImmutableContainer from '../../util/dataStructures/ImmutableContainer';
 
 class ContainerHolder<T> {
   constructor(public container: ImmutableContainer<T>) {

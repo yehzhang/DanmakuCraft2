@@ -3,7 +3,7 @@ import {Component} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import DynamicProvider from '../../util/DynamicProvider';
-import EntityFinder, {StateChanged} from '../../util/entityStorage/EntityFinder';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
 import Distance from '../../util/math/Distance';
 import {leftOuterJoin} from '../../util/set';
 import Point from '../../util/syntax/Point';
@@ -113,7 +113,8 @@ export class EntityFinderRecord<T extends Entity> {
       private exitingEntitiesList: Array<Iterable<T>> = [],
       public currentEntities: ReadonlySet<T> = new Set(),
       private shouldUpdateEntities: boolean = true) {
-    entityFinder.onStateChanged.add(this.onStateChanged, this);
+    entityFinder.onEntitiesRegistered.add(this.onEntitiesRegistered, this);
+    entityFinder.onEntitiesDeregistered.add(this.onEntitiesDeregistered, this);
   }
 
   shouldUpdate() {
@@ -152,22 +153,14 @@ export class EntityFinderRecord<T extends Entity> {
     return asSequence(exitingEntitiesList).flatten();
   }
 
-  private onStateChanged(stateChanged: StateChanged<T>) {
-    if (this.shouldUpdateEntities) {
-      return;
-    }
-    this.shouldUpdateEntities = this.shouldRecordUpdate(stateChanged);
+  private onEntitiesRegistered(entities: ReadonlyArray<T>) {
+    this.shouldUpdateEntities = this.shouldUpdateEntities || entities.some(
+        entity => this.distanceChecker.isInEnteringRadius(this.currentCoordinates, entity));
   }
 
-  private shouldRecordUpdate(stateChanged: StateChanged<T>) {
-    if (stateChanged.registeredEntities.some(
-            entity => this.distanceChecker.isInEnteringRadius(this.currentCoordinates, entity))) {
-      return true;
-    }
-    if (stateChanged.removedEntities.some(entity => this.currentEntities.has(entity))) {
-      return true;
-    }
-    return false;
+  private onEntitiesDeregistered(entities: ReadonlyArray<T>) {
+    this.shouldUpdateEntities = this.shouldUpdateEntities || entities.some(
+        entity => this.currentEntities.has(entity));
   }
 }
 

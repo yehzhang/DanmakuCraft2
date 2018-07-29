@@ -1,8 +1,6 @@
 import CommentData from '../comment/CommentData';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import {Phaser, PIXI} from '../util/alias/phaser';
-import SetContainer from '../util/entityStorage/chunk/SetContainer';
-import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
 import Point from '../util/syntax/Point';
 import {UpdatingCommentEntity} from './alias';
 import Blink from './component/Blink';
@@ -25,17 +23,6 @@ class EntityFactoryImpl implements EntityFactory {
       private game: Phaser.Game,
       private graphicsFactory: GraphicsFactory,
       private buffFactory: BuffFactory) {
-  }
-
-  createRegion<T>(
-      coordinates: Point,
-      container: ImmutableContainer<T> = new SetContainer<T>(),
-      display: PIXI.DisplayObjectContainer = new PIXI.DisplayObjectContainer()) {
-    return Entity.newBuilder()
-        .mix(new ImmutableCoordinates(coordinates))
-        .mix(container)
-        .mix(new Display(display))
-        .build();
   }
 
   createCommentEntity(data: CommentData) {

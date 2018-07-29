@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import PhysicalConstants from '../../../client/src/PhysicalConstants';
-import Chunks from '../../../client/src/util/entityStorage/chunk/Chunks';
+import Chunks from '../../../client/src/util/dataStructures/Chunks';
 import Point from '../../../client/src/util/syntax/Point';
 import Rectangle from '../../../client/src/util/syntax/Rectangle';
 

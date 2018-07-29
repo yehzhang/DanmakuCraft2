@@ -1,17 +1,17 @@
-import Motion from './component/Motion';
-import ImmutableCoordinates from './component/ImmutableCoordinates';
-import MutableCoordinates from './component/MutableCoordinates';
-import Display from './component/Display';
-import Comment from './component/Comment';
-import Entity from './Entity';
-import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
-import MovingAnimation from './component/MovingAnimation';
-import Chest from './component/Chest';
 import {Phaser, PIXI} from '../util/alias/phaser';
-import RegisteredTimes from './component/RegisteredTimes';
+import ImmutableContainer from '../util/dataStructures/ImmutableContainer';
 import Blink from './component/Blink';
+import Chest from './component/Chest';
+import Comment from './component/Comment';
+import Display from './component/Display';
+import ImmutableCoordinates from './component/ImmutableCoordinates';
+import Motion from './component/Motion';
+import MovingAnimation from './component/MovingAnimation';
+import MutableCoordinates from './component/MutableCoordinates';
 import Nudge from './component/Nudge';
-import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
+import RegisteredTimes from './component/RegisteredTimes';
+import UpdatingBuffCarrier from './component/UpdatingBuffCarrier';
+import Entity from './Entity';
 
 // noinspection TsLint
 export type Component = {};
@@ -22,7 +22,6 @@ export type MovableEntity = Entity & MutableCoordinates & Motion;
 export type DisplayableEntity<T = PIXI.DisplayObjectContainer> = Entity & Display<T>;
 
 export type Region<T = Component> = StationaryEntity & ImmutableContainer<T>;
-export type DisplayableRegion<T = Component> = Region<T> & Display<PIXI.DisplayObjectContainer>;
 
 export type Updatable<T extends Component = Component> = UpdatingBuffCarrier<T> & T;
 

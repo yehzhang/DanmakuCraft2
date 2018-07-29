@@ -46,8 +46,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
     const collisionDetectionSystem = new CollisionDetectionSystem();
 
-    const chestSystem = systemFactory.createChestSystem(renderRadius, chestsStorage.getRegister());
-    const chestsFinder = chestsStorage.getFinder();
+    const chestSystem = systemFactory.createChestSystem(renderRadius, chestsStorage);
 
     const foregroundTrackerBuilder = VisibilityEngine.newBuilder(
         player,
@@ -62,7 +61,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .toEntities().of(commentsFinder).and(updatingCommentsFinder)
 
         .apply(chestSystem)
-        .toEntities().of(chestsFinder);
+        .toEntities().of(chestsStorage);
 
     const positioningSystem = new UnmovableDisplayPositioningSystem(player);
     foregroundTrackerBuilder.onRender()
@@ -78,7 +77,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .toEntities().of(updatingCommentsFinder)
 
         .apply(new RenderSystem(renderer.groundLayer))
-        .toEntities().of(chestsFinder)
+        .toEntities().of(chestsStorage)
 
         .apply(new RenderSystem(renderer.playersLayer))
         .toEntities().of(playersFinder)
@@ -88,7 +87,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
 
         .apply(positioningSystem)
         .toEntities()
-        .of(updatingCommentsFinder).and(chestsFinder).and(signsFinder)
+        .of(updatingCommentsFinder).and(chestsStorage).and(signsFinder)
 
         .apply(new MovingAnimationSystem())
         .toEntities().of(playersFinder)
@@ -109,7 +108,7 @@ class Visibility extends SystemEnginesEngine<VisibilityEngine> {
         .apply(new BackgroundColorSystem(game, spawnPointsContainerSystem))
         .toEntities().of(commentsFinder).and(updatingCommentsFinder);
 
-    return new this(
+    return new Visibility(
         [foregroundTrackerBuilder.build(), backgroundTrackerBuilder.build()],
         collisionDetectionSystem,
         chestSystem);

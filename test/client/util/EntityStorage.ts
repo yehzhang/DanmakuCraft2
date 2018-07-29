@@ -6,7 +6,7 @@ import MutableCoordinates from '../../../client/src/entitySystem/component/Mutab
 import Entity from '../../../client/src/entitySystem/Entity';
 import {Phaser, PIXI} from '../../../client/src/util/alias/phaser';
 import EntityFinder from '../../../client/src/util/entityStorage/EntityFinder';
-import GlobalEntityFinder from '../../../client/src/util/entityStorage/global/GlobalEntityFinder';
+import GlobalEntityStorage from '../../../client/src/util/entityStorage/GlobalEntityStorage';
 import Point from '../../../client/src/util/syntax/Point';
 import Rectangle from '../../../client/src/util/syntax/Rectangle';
 
@@ -29,9 +29,6 @@ describe('EntityFinder', () => {
     entities = mockEntities.map(instance);
   });
 
-  createTestCases(
-      'GlobalEntityFinder', () => new GlobalEntityFinder(new Set(entities), new Phaser.Signal()));
-
   function createTestCases(subject: string, createFinder: () => EntityFinder<Entity>) {
     let finder: EntityFinder<Entity>;
 
@@ -39,8 +36,8 @@ describe('EntityFinder', () => {
       finder = createFinder();
     });
 
-    describe('should list entities correctly', () => {
-      it(`for ${subject}`, () => {
+    describe(subject, () => {
+      it('should list entities correctly', () => {
         when(mockEntities[0].coordinates).thenReturn(Point.origin());
         when(mockEntities[0].getDisplayWorldBounds()).thenReturn(Rectangle.empty());
         when(mockEntities[1].coordinates).thenReturn(Point.of(3, 4));
@@ -57,4 +54,7 @@ describe('EntityFinder', () => {
       });
     });
   }
+
+  createTestCases(
+      'GlobalEntityStorage', () => new GlobalEntityStorage(new Set(entities), new Phaser.Signal()));
 });

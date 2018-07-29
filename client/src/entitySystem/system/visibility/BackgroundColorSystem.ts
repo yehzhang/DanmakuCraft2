@@ -2,7 +2,7 @@ import {Bag} from 'typescript-collections';
 import PhysicalConstants from '../../../PhysicalConstants';
 import Colors from '../../../render/Colors';
 import {Phaser} from '../../../util/alias/phaser';
-import Container from '../../../util/entityStorage/Container';
+import Container from '../../../util/dataStructures/Container';
 import Polar from '../../../util/math/Polar';
 import Point from '../../../util/syntax/Point';
 import {CommentEntity} from '../../alias';

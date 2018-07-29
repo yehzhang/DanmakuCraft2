@@ -10,7 +10,7 @@ import VisibilitySystem from '../../../client/src/entitySystem/system/visibility
 import {Phaser} from '../../../client/src/util/alias/phaser';
 import DynamicProvider from '../../../client/src/util/DynamicProvider';
 import EntityFinder from '../../../client/src/util/entityStorage/EntityFinder';
-import QuadTreeEntityFinder from '../../../client/src/util/entityStorage/quadtree/QuadtreeEntityFinder';
+import QuadtreeEntityStorage from '../../../client/src/util/entityStorage/QuadtreeEntityStorage';
 import Point from '../../../client/src/util/syntax/Point';
 
 xdescribe('VisibilityEngineBuilder', () => {
@@ -38,8 +38,8 @@ xdescribe('VisibilityEngineBuilder', () => {
       mock(BackgroundColorSystem)];
     visibilitySystems = mockVisibilitySystems.map(instance);
     mockEntityFinders = [
-      mock(QuadTreeEntityFinder),
-      mock(QuadTreeEntityFinder)];
+      mock(QuadtreeEntityStorage),
+      mock(QuadtreeEntityStorage)];
     entityFinders = mockEntityFinders.map(instance);
 
     when(mockEntityFinders[0].onStateChanged).thenReturn(new Phaser.Signal());

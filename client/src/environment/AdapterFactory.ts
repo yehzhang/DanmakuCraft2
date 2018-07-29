@@ -33,7 +33,7 @@ class AdapterFactory {
 function loadConfig() {
   const config: any = Object.assign({}, frontend);
   if (__LOCAL__) {
-    config.baseUrl = 'https://localhost';
+    config.baseUrl = 'http://localhost:1337';
   } else {
     config.baseUrl = 'https://danmakucraft.com';
   }

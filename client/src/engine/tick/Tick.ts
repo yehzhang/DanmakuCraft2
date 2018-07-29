@@ -1,8 +1,8 @@
-import TickEngine from './TickEngine';
-import MoveDisplaySystem from '../../entitySystem/system/tick/MoveDisplaySystem';
 import {Player} from '../../entitySystem/alias';
 import ChestSystem from '../../entitySystem/system/ChestSystem';
 import SystemFactory from '../../entitySystem/system/SystemFactory';
+import MoveDisplaySystem from '../../entitySystem/system/tick/MoveDisplaySystem';
+import TickEngine from './TickEngine';
 import TutorialSystem from './TutorialSystem';
 
 class Tick {
@@ -25,7 +25,7 @@ class Tick {
 
     const afterVisibilityBuilder = TickEngine.newBuilder();
 
-    return new this(
+    return new Tick(
         beforeVisibilityBuilder.build(),
         afterVisibilityBuilder.build(),
         tutorialSystem);

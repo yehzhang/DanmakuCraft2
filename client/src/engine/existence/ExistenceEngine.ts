@@ -2,7 +2,7 @@ import {asSequence} from 'sequency';
 import {Component} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
-import EntityFinder, {StateChanged} from '../../util/entityStorage/EntityFinder';
+import EntityFinder from '../../util/entityStorage/EntityFinder';
 import SystemEngine from '../SystemEngine';
 import ExistenceEngineBuilder from './ExistenceEngineBuilder';
 import {OnOrBuildClause} from './existenceEngineBuilderLanguage';
@@ -56,7 +56,11 @@ export class ExistenceRelation<T = Component, U extends T & Entity = T & Entity>
     for (const entity of this.entityFinder) {
       this.system.adopt(entity);
     }
-    this.entityFinder.onStateChanged.add(this.onStateChanged, this);
+
+    this.entityFinder.onEntitiesRegistered.add(
+        entities => this.enteringEntitiesList.push(entities));
+    this.entityFinder.onEntitiesDeregistered.add(
+        entities => this.exitingEntitiesList.push(entities));
   }
 
   forwardTick() {
@@ -67,11 +71,6 @@ export class ExistenceRelation<T = Component, U extends T & Entity = T & Entity>
   backwardTick() {
     asSequence(this.exitingEntitiesList).flatten().forEach(entity => this.system.abandon(entity));
     this.exitingEntitiesList.length = 0;
-  }
-
-  private onStateChanged(stateChanged: StateChanged<U>) {
-    this.enteringEntitiesList.push(stateChanged.registeredEntities);
-    this.exitingEntitiesList.push(stateChanged.removedEntities);
   }
 }
 

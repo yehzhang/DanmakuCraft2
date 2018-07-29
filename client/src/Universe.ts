@@ -37,8 +37,8 @@ import GraphicsFactoryImpl from './render/graphics/GraphicsFactoryImpl';
 import Renderer from './render/Renderer';
 import {Phaser} from './util/alias/phaser';
 import EntityStorage from './util/entityStorage/EntityStorage';
-import EntityStorageFactory from './util/entityStorage/EntityStorageFactory';
-import EntityStorageFactoryImpl from './util/entityStorage/EntityStorageFactoryImpl';
+import GlobalEntityStorage from './util/entityStorage/GlobalEntityStorage';
+import QuadtreeEntityStorage from './util/entityStorage/QuadtreeEntityStorage';
 
 /**
  * Instantiates and connects components. Starts the game.
@@ -56,7 +56,6 @@ class Universe {
   public graphicsFactory: GraphicsFactory;
   public updatingCommentsStorage: EntityStorage<UpdatingCommentEntity>;
   public playersStorage: EntityStorage<Player>;
-  public entityStorageFactory: EntityStorageFactory;
   public chestsStorage: EntityStorage<ChestEntity>;
   public lawFactory: LawFactory;
   public buffDataApplier: BuffDataApplier;
@@ -101,21 +100,20 @@ class Universe {
 
     this.entityFactory = new EntityFactoryImpl(game, this.graphicsFactory, this.buffFactory);
 
-    this.entityStorageFactory = new EntityStorageFactoryImpl(this.entityFactory);
-    this.commentsStorage = this.entityStorageFactory.createQuadtreeEntityStorage();
-    this.updatingCommentsStorage = this.entityStorageFactory.createQuadtreeEntityStorage();
-    this.playersStorage = this.entityStorageFactory.createGlobalEntityStorage();
-    this.chestsStorage = this.entityStorageFactory.createGlobalEntityStorage();
-    this.spawnPointsStorage = this.entityStorageFactory.createGlobalEntityStorage();
-    this.signsStorage = this.entityStorageFactory.createGlobalEntityStorage();
+    this.commentsStorage = QuadtreeEntityStorage.create();
+    this.updatingCommentsStorage = QuadtreeEntityStorage.create();
+    this.playersStorage = GlobalEntityStorage.create();
+    this.chestsStorage = GlobalEntityStorage.create();
+    this.spawnPointsStorage = GlobalEntityStorage.create();
+    this.signsStorage = GlobalEntityStorage.create();
 
     const preset = new HardCodedPreset(this.entityFactory, this.graphicsFactory);
-    preset.populateSigns(this.signsStorage.getRegister());
+    preset.populateSigns(this.signsStorage);
     preset.populateSpawnPoints(
-        this.spawnPointsStorage.getRegister(), this.signsStorage.getRegister());
+        this.spawnPointsStorage, this.signsStorage);
 
     this.player = this.entityFactory.createPlayer(preset.getPlayerSpawnPoint());
-    this.playersStorage.getRegister().register(this.player);
+    this.playersStorage.register(this.player);
 
     const notifierFactory = new NotifierFactoryImpl(game, this.graphicsFactory);
     this.notifier = notifierFactory.createPoppingNotifier(this.player.display);
@@ -127,8 +125,8 @@ class Universe {
 
     this.commentLoader = new CommentLoaderImpl(
         game,
-        this.commentsStorage.getRegister(),
-        this.updatingCommentsStorage.getRegister(),
+        this.commentsStorage,
+        this.updatingCommentsStorage,
         this.entityFactory,
         this.buffDataApplier);
 
@@ -147,17 +145,17 @@ class Universe {
         game,
         this.player,
         systemFactory,
-        this.commentsStorage.getFinder(),
-        this.updatingCommentsStorage.getFinder(),
+        this.commentsStorage,
+        this.updatingCommentsStorage,
         this.chestsStorage,
-        this.playersStorage.getFinder(),
-        this.spawnPointsStorage.getFinder(),
-        this.signsStorage.getFinder(),
+        this.playersStorage,
+        this.spawnPointsStorage,
+        this.signsStorage,
         this.renderer);
     this.existence = Existence.on(
         game,
-        this.commentsStorage.getFinder(),
-        this.updatingCommentsStorage.getFinder());
+        this.commentsStorage,
+        this.updatingCommentsStorage);
     this.tick = Tick.on(this.player, this.visibility.chestSystem, systemFactory);
     this.engineCap = new EngineCap(
         new SystemEnginesEngine([
