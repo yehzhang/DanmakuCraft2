@@ -32,17 +32,17 @@ class AdapterFactory {
 }
 
 function loadConfig() {
-  const config: any = Object.assign({}, frontend);
+  let baseUrl;
   if (__LOCAL__) {
-    config.baseUrl = `http://${location.host}`;
+    baseUrl = `http://${location.host}`;
   } else {
-    config.baseUrl = 'https://danmakucraft.com';
+    baseUrl = frontend.baseUrl;
   }
 
   ConfigProvider.set(FrontendConfig.newBuilder()
-      .setBaseUrl(config.baseUrl)
-      .setCommentIdentity(config.commentIdentity)
-      .setGameContainer(config.gameContainerId)
+      .setBaseUrl(baseUrl)
+      .setCommentIdentity(frontend.commentIdentity)
+      .setGameContainer(frontend.gameContainerId)
       .build());
 }
 

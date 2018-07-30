@@ -67,6 +67,7 @@ class Universe {
   public buffDataContainer: BuffDataContainer;
   public buffDescription: BuffDescription;
   public buffFactory: BuffFactory;
+  public cachedCommentsRenderSystem!: CachedChunksRenderSystem;
   public chestsStorage: EntityStorage<ChestEntity>;
   public collisionDetectionSystem!: CollisionDetectionSystem<DisplayableEntity>;
   public commentLoader: CommentLoader;
@@ -241,6 +242,10 @@ class Universe {
         this.notifier,
         this.input);
 
+    const displayPositioningSystem = new UnmovableDisplayRelativePositioningSystem(this.player);
+    this.cachedCommentsRenderSystem =
+        new CachedChunksRenderSystem(this.renderer.floatingLayer, displayPositioningSystem);
+
     const beforeVisibilityTickEngineBuilder = TickEngine.newBuilder();
     beforeVisibilityTickEngineBuilder.onUpdate()
         .apply(chestSystem).atEnter()
@@ -249,13 +254,14 @@ class Universe {
         .apply(new MoveDisplaySystem(this.player)).atEnter();
     this.beforeVisibilityTickEngine = beforeVisibilityTickEngineBuilder.build();
 
-    this.afterVisibilityTickEngine = TickEngine.newBuilder().build();
+    const afterVisibilityTickEngineBuilder = TickEngine.newBuilder();
+    afterVisibilityTickEngineBuilder.onRender()
+        .apply(this.cachedCommentsRenderSystem).atEnter();
+    this.afterVisibilityTickEngine = afterVisibilityTickEngineBuilder.build();
 
 
     // Setup visibility.
     this.collisionDetectionSystem = new CollisionDetectionSystem();
-
-    const positioningSystem = new UnmovableDisplayPositioningSystem(this.player);
 
     const foregroundVisibilityEngineBuilder = VisibilityEngine.newBuilder(
         this.player,
@@ -273,9 +279,9 @@ class Universe {
     foregroundVisibilityEngineBuilder.onRender()
         .apply(new BlinkSupportedRenderSystem(
             this.renderer.floatingLayer,
-            new CachedChunksRenderSystem(this.renderer.floatingLayer, positioningSystem),
+            this.cachedCommentsRenderSystem,
             new RenderSystem(this.renderer.floatingLayer),
-            positioningSystem))
+            displayPositioningSystem))
         .toEntities().of(this.commentsStorage)
 
         .apply(new RenderSystem(this.renderer.floatingLayer))
@@ -290,7 +296,7 @@ class Universe {
         .apply(new CachedRenderSystem(this.renderer.backgroundLayer))
         .toEntities().of(this.signsStorage)
 
-        .apply(positioningSystem)
+        .apply(displayPositioningSystem)
         .toEntities()
         .of(this.updatingCommentsStorage).and(this.chestsStorage).and(this.signsStorage)
 

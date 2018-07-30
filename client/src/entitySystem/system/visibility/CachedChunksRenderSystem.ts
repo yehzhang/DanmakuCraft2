@@ -1,4 +1,5 @@
 import {PIXI} from '../../../util/alias/phaser';
+import RenderThrottler from '../../../util/async/RenderThrottler';
 import Chunks from '../../../util/dataStructures/Chunks';
 import Point from '../../../util/syntax/Point';
 import {StationaryEntity} from '../../alias';
@@ -6,32 +7,30 @@ import CountEntities from '../../component/CountEntities';
 import Display from '../../component/Display';
 import ImmutableCoordinates from '../../component/ImmutableCoordinates';
 import Entity from '../../Entity';
-import UnmovableDisplayPositioningSystem from './UnmovableDisplayPositioningSystem';
+import TickSystem from '../tick/TickSystem';
+import UnmovableDisplayRelativePositioningSystem from './UnmovableDisplayRelativePositioningSystem';
 import VisibilitySystem from './VisibilitySystem';
 
 type CachedChunk = StationaryEntity & Display & CountEntities;
 
 /**
- * Renders and caches entities in chunks. Caching is permanent throughout the instance of game.
+ * Renders and caches entities in chunks.
  */
-class CachedChunksRenderSystem implements VisibilitySystem<CachedChunk> {
+class CachedChunksRenderSystem implements VisibilitySystem<StationaryEntity & Display>, TickSystem {
   constructor(
-      private layer: PIXI.DisplayObjectContainer,
-      private positioningSystem: UnmovableDisplayPositioningSystem,
-      private chunks = Chunks.create(createCachedChunk),
-      private chunksToUpdateCache: CachedChunk[] = []) {
-    for (const chunk of chunks) {
-      chunk.display.visible = false;
-      layer.addChild(chunk.display);
-    }
+      private readonly layer: PIXI.DisplayObjectContainer,
+      private readonly positioningSystem: UnmovableDisplayRelativePositioningSystem,
+      private readonly chunks = Chunks.create(createCachedChunk),
+      private readonly chunksToUpdateCache = new Set<CachedChunk>(),
+      private readonly throttler = new RenderThrottler()) {
   }
 
   enter(entity: StationaryEntity & Display) {
     const chunk = this.chunks.getChunkByCoordinates(entity.coordinates);
 
     if (!chunk.countEntities) {
-      chunk.display.visible = true;
       this.positioningSystem.enter(chunk);
+      this.layer.addChild(chunk.display);
     }
 
     chunk.countEntities++;
@@ -39,10 +38,10 @@ class CachedChunksRenderSystem implements VisibilitySystem<CachedChunk> {
     if (chunk.display.children.includes(entity.display)) {
       return;
     }
+    this.chunksToUpdateCache.add(chunk);
+
     chunk.display.addChild(entity.display);
     entity.display.position = Point.subtract(entity.coordinates, chunk.coordinates);
-
-    this.chunksToUpdateCache.push(chunk);
   }
 
   update(entity: StationaryEntity & Display) {
@@ -50,26 +49,53 @@ class CachedChunksRenderSystem implements VisibilitySystem<CachedChunk> {
 
   exit(entity: StationaryEntity & Display) {
     const chunk = this.chunks.getChunkByCoordinates(entity.coordinates);
+
     chunk.countEntities--;
 
     if (chunk.countEntities) {
       return;
     }
-    chunk.display.visible = false;
+    this.layer.removeChild(chunk.display);
+
+    // Clear cache to release memory?
+    // if (chunk.display.children.length >= 19) {  // 19 is empirically optimal
+    //   return;
+    // }
+    // chunk.display.removeChildren();
+    // chunk.display.cacheAsBitmap = false;
+    // chunk.display.cacheAsBitmap = true;
   }
 
   finish() {
+  }
+
+  tick(time: Phaser.Time) {
+    this.updateCache(time);
+  }
+
+  getUpdateQueueSize(): number {
+    return this.chunksToUpdateCache.size;
+  }
+
+  private updateCache(time: Phaser.Time) {
     for (const chunk of this.chunksToUpdateCache) {
-      chunk.display.updateCache();
+      if (!this.throttler.run(() => {
+        chunk.display.updateCache();
+      }, time)) {
+        return;
+      }
+      this.chunksToUpdateCache.delete(chunk);
     }
-    this.chunksToUpdateCache.length = 0;
   }
 }
 
 function createCachedChunk(point: Point): CachedChunk {
+  const display = new PIXI.DisplayObjectContainer();
+  display.cacheAsBitmap = true;
+
   return Entity.newBuilder()
       .mix(new ImmutableCoordinates(point))
-      .mix(new Display(new PIXI.DisplayObjectContainer()))
+      .mix(new Display(display))
       .mix(new CountEntities())
       .build();
 }

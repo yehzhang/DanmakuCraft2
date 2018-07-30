@@ -8,7 +8,8 @@ import VisibilitySystem from './VisibilitySystem';
 /**
  * Positions displays relative to the anchor, taking into consideration of the borderless world.
  */
-class UnmovableDisplayPositioningSystem implements VisibilitySystem<StationaryEntity & Display> {
+class UnmovableDisplayRelativePositioningSystem
+    implements VisibilitySystem<StationaryEntity & Display> {
   constructor(private readonly anchor: DisplayableEntity) {
   }
 
@@ -30,4 +31,4 @@ class UnmovableDisplayPositioningSystem implements VisibilitySystem<StationaryEn
   }
 }
 
-export default UnmovableDisplayPositioningSystem;
+export default UnmovableDisplayRelativePositioningSystem;

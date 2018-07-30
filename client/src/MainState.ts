@@ -23,7 +23,6 @@ class MainState extends Phaser.State {
       private readonly updatables: Set<{ update(): void }> = new Set(),
       private readonly renderables: Set<{ render(): void }> = new Set()) {
     super();
-
     if (__DEV__) {
       (window as any).boot = this;
     }
@@ -168,10 +167,7 @@ class MainState extends Phaser.State {
     const [commentsData] = await Sleep.orError(0.75 * Phaser.Timer.MINUTE, dataPromise);
     await this.loadCommentsInitial(commentsData);
 
-    this.updatables.add(this.universe.engineCap);
-    this.renderables.add(this.universe.engineCap);
-    // Wait for engines to initialize before starting animations.
-    await Sleep.break();
+    await this.startAndWarmUpEngine();
 
     await Promise.all([
       this.scene.showCompletedLoadingStatus(),
@@ -195,6 +191,19 @@ class MainState extends Phaser.State {
     await this.fadeInWorld();
 
     this.universe.onTransitionFinished();
+  }
+
+  private async startAndWarmUpEngine() {
+    this.updatables.add(this.universe.engineCap);
+    this.renderables.add(this.universe.engineCap);
+
+    // Wait for engines to initialize.
+    await Sleep.break();
+
+    // Cached comments render system may need some more time.
+    while (this.universe.cachedCommentsRenderSystem.getUpdateQueueSize()) {
+      await Sleep.break();
+    }
   }
 }
 

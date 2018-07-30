@@ -36,3 +36,5 @@ export type Player<T extends Component = Component> =
 export type ChestEntity = StationaryEntity & Display<Phaser.Sprite> & Chest;
 
 export type SignEntity = StationaryEntity & Display<PIXI.DisplayObjectContainer>;
+
+export type Immutable<T> = T extends MutableCoordinates | Updatable ? never : T;

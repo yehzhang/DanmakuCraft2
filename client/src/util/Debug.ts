@@ -1,9 +1,9 @@
-import {asSequence} from 'sequency';
+import Sequence, {asSequence} from 'sequency';
 import CommentData from '../comment/CommentData';
 import {ExistenceRelation} from '../engine/existence/ExistenceEngine';
 import TickEngine from '../engine/tick/TickEngine';
 import VisibilityEngine from '../engine/visibility/VisibilityEngine';
-import {DisplayableEntity, Player} from '../entitySystem/alias';
+import {DisplayableEntity, Player, StationaryEntity} from '../entitySystem/alias';
 import Nudge from '../entitySystem/component/Nudge';
 import {BuffData, BuffType} from '../entitySystem/system/buff/BuffData';
 import ConfigProvider from '../environment/config/ConfigProvider';
@@ -18,6 +18,7 @@ import SpeechBubbleBuilder from '../render/graphics/SpeechBubbleBuilder';
 import Universe from '../Universe';
 import {Phaser} from './alias/phaser';
 import Sleep from './async/Sleep';
+import {Leaf, Node, Tree} from './dataStructures/Quadtree';
 import Distance from './math/Distance';
 import Point from './syntax/Point';
 
@@ -189,9 +190,22 @@ class Debug {
   }
 
   // get treeDepths() {
-  //   const depthsMap = asSequence(this.universe.commentsStorage.getFinder() as
-  // EntityFinder<Leaf<any>>) .map(n => n['depth']) .groupBy(n => n); return asSequence(depthsMap)
-  // .sortedBy(([k]) => k) .map(([k, v]) => `${k}: ${v.length}`) .toArray(); }
+  //   const depthsMap = asSequence(this.universe.commentsStorage).map(n => n['depth']).groupBy(n => n);
+  //   return asSequence(depthsMap)
+  //       .sortedBy(([k]) => k).map(([k, v]) => `${k}: ${v.length}`).toArray();
+  // }
+
+  // noinspection JSUnusedGlobalSymbols
+  get treeLeaves(): Sequence<Leaf<StationaryEntity>> {
+    return this.flattenTree((this.universe.commentsStorage as any).tree.root);
+  }
+
+  private flattenTree<T extends StationaryEntity>(tree: Tree<T>): Sequence<Leaf<T>> {
+    if (tree instanceof Leaf) {
+      return asSequence([tree]);
+    }
+    return asSequence((tree as Node<T>)['children']).flatMap(child => this.flattenTree(child));
+  }
 
   static set(universe: Universe) {
     Object.assign(window, universe, {

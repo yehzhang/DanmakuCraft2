@@ -4,7 +4,7 @@ import Blink from '../../component/Blink';
 import Display from '../../component/Display';
 import CachedChunksRenderSystem from './CachedChunksRenderSystem';
 import RenderSystem from './RenderSystem';
-import UnmovableDisplayPositioningSystem from './UnmovableDisplayPositioningSystem';
+import UnmovableDisplayRelativePositioningSystem from './UnmovableDisplayRelativePositioningSystem';
 import VisibilitySystem from './VisibilitySystem';
 
 type EntityType = StationaryEntity & Display & Blink;
@@ -14,14 +14,14 @@ class BlinkSupportedRenderSystem implements VisibilitySystem<EntityType> {
       container: PIXI.DisplayObjectContainer,
       private plainEntityRenderSystem: CachedChunksRenderSystem,
       private blinkEntityRenderSystem: RenderSystem,
-      private blinkEntityPositioningSystem: UnmovableDisplayPositioningSystem) {
+      private blinkEntityPositioningSystem: UnmovableDisplayRelativePositioningSystem) {
   }
 
   enter(entity: EntityType) {
     if (entity.hasBlink()) {
       if (entity.isBlinking()) {
-        this.blinkEntityRenderSystem.enter(entity);
         this.blinkEntityPositioningSystem.enter(entity);
+        this.blinkEntityRenderSystem.enter(entity);
 
         return;
       }

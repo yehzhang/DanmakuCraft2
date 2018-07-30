@@ -8,9 +8,6 @@ class RenderSystem implements VisibilitySystem<Display> {
 
   enter(entity: Display) {
     this.layer.addChild(entity.display);
-    if (__DEV__) {
-      (window as any).d.showBoundsOf(entity);
-    }
   }
 
   update(entity: Display) {
@@ -18,9 +15,6 @@ class RenderSystem implements VisibilitySystem<Display> {
 
   exit(entity: Display) {
     this.layer.removeChild(entity.display);
-    if (__DEV__) {
-      (window as any).d.hideBoundsOf(entity);
-    }
   }
 
   finish() {
