@@ -9,7 +9,8 @@ abstract class BaseSettingsManager implements SettingsManager {
           : `SimHei, 'Microsoft JhengHei', YaHei`) + ', Arial, Helvetica, sans-serif')
       .set(PresetSettingsOptions.TEXT_SHADOW, TextShadowStyle.GLOW);
 
-  constructor(private presetSettings: Map<PresetSettingsOptions, any> = new Map(BaseSettingsManager.DEFAULT_PRESET_SETTINGS)) {
+  constructor(private presetSettings: Map<PresetSettingsOptions, any> =
+                  new Map(BaseSettingsManager.DEFAULT_PRESET_SETTINGS)) {
     this.loadPresetSettings(presetSettings);
   }
 

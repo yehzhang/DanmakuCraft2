@@ -1,11 +1,11 @@
 import {TypeState} from 'typestate';
-import TickSystem from '../../entitySystem/system/tick/TickSystem';
-import SettingsManager, {SettingsOption} from '../../environment/interface/SettingsManager';
-import Input from '../../input/Input';
-import Notifier from '../../output/notification/Notifier';
-import PhysicalConstants from '../../PhysicalConstants';
-import Texts from '../../render/Texts';
-import {Phaser} from '../../util/alias/phaser';
+import SettingsManager, {SettingsOption} from '../../../environment/interface/SettingsManager';
+import Input from '../../../input/Input';
+import Notifier from '../../../output/notification/Notifier';
+import PhysicalConstants from '../../../PhysicalConstants';
+import Texts from '../../../render/Texts';
+import {Phaser} from '../../../util/alias/phaser';
+import TickSystem from './TickSystem';
 
 enum TutorialStates {
   START,

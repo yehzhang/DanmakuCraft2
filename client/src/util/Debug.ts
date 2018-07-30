@@ -1,6 +1,8 @@
 import {asSequence} from 'sequency';
 import CommentData from '../comment/CommentData';
-import {getRenderRadius} from '../engine/visibility/Visibility';
+import {ExistenceRelation} from '../engine/existence/ExistenceEngine';
+import TickEngine from '../engine/tick/TickEngine';
+import VisibilityEngine from '../engine/visibility/VisibilityEngine';
 import {DisplayableEntity, Player} from '../entitySystem/alias';
 import Nudge from '../entitySystem/component/Nudge';
 import {BuffData, BuffType} from '../entitySystem/system/buff/BuffData';
@@ -37,26 +39,22 @@ class Debug {
       await render.call(universe.engineCap);
     })(universe.engineCap.render);
 
-    asSequence(universe.visibility['engines'])
-        .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']])
-        .plus<any[]>(asSequence(universe.existence['engines'])
-            .map(engine => [engine['onUpdateRelations'], engine['onRenderRelations']]))
-        .plus<any[]>(asSequence([universe.tick.beforeVisibility, universe.tick.afterVisibility])
-            .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']]))
+    asSequence([
+      asSequence<ExistenceRelation>(universe.existenceEngine['onUpdateRelations'])
+          .plus(universe.existenceEngine['onRenderRelations'])
+          .map(relation => relation['system']),
+      asSequence<TickEngine>([universe.beforeVisibilityTickEngine, universe.afterVisibilityTickEngine])
+          .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']])
+          .flatten()
+          .flatten()
+          .map(ticker => (ticker as any as { system: any })['system']),
+      asSequence<VisibilityEngine>(universe.visibilityEngine['engines'])
+          .map(engine => [engine['onUpdateTickers'], engine['onRenderTickers']])
+          .flatten()
+          .flatten()
+          .map(ticker => ticker['systems'])
+          .flatten()])
         .flatten()
-        .flatten()
-        .flatMap((systemHolder: any) => {
-          if (systemHolder.hasOwnProperty('systems')) {
-            return asSequence(systemHolder.systems);
-          }
-          return asSequence([systemHolder]);
-        })
-        .map((systemHolder: any) => {
-          while (systemHolder.hasOwnProperty('system')) {
-            systemHolder = systemHolder.system;
-          }
-          return systemHolder;
-        })
         .distinct()
         .forEach(system => {
           const systemName = system.constructor.name;
@@ -77,6 +75,7 @@ class Debug {
     this.applyGameState();
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get hideInfo() {
     this.shouldShowInfo = false;
     this.debugInfo.clear();
@@ -84,6 +83,7 @@ class Debug {
     return true;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get chest() {
     const chestCoordinates = this.universe.player.coordinates.clone().add(0, -100);
     return this.systems.chestSystem['chestSpawner']['spawnAt'](chestCoordinates);
@@ -103,7 +103,7 @@ class Debug {
 
   get currentEntities() {
     const distance = this.getVisibleDistance();
-    return asSequence(this.universe.visibility['engines'])
+    return asSequence(this.universe.visibilityEngine['engines'])
         .map(engine => engine['entityFinderRecords'])
         .flatten()
         .map(record => record.currentEntities)
@@ -112,6 +112,7 @@ class Debug {
         .toArray();
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get currentDisplays() {
     const distance = this.getVisibleDistance();
     return asSequence(this.universe.renderer['stage'].children as PIXI.DisplayObjectContainer[])
@@ -124,59 +125,53 @@ class Debug {
         .toArray();
   }
 
+  // noinspection JSUnusedGlobalSymbols
   set playerCoordinates(coordinates: Point) {
     this.movePlayerBy(Phaser.Point.subtract(coordinates, this.universe.player.coordinates));
   }
 
+  // noinspection JSUnusedGlobalSymbols
   set playerOffset(offset: number) {
     this.movePlayerBy(Point.of(offset, offset));
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get preview() {
-    this.universe.commentPlacingPolicy.requestFor('测试弹幕 ABCD', 25, Colors.GOLD_NUMBER);
-    return (this.universe.commentPlacingPolicy as any)['previewDisplay'];
+    Debug.getUniverseProxy()
+        .getCommentPlacingPolicy()
+        .requestFor('测试弹幕 ABCD', 25, Colors.GOLD_NUMBER);
+    return (Debug.getUniverseProxy().getCommentPlacingPolicy() as any)['previewDisplay'];
   }
 
-  private movePlayerBy(offset: Point) {
-    setTimeout(() => {
-      this.universe.player.addToCoordinatesBy(offset);
-      this.universe.player.movedOffset.add(offset.x, offset.y);
-    }, 0);
-  }
-
-  private getVisibleDistance() {
-    return new Distance(this.universe.game.width / 2);
-  }
-
+  // noinspection JSUnusedGlobalSymbols
   get say() {
     this.universe.notifier.send(this.getNotificationMessage());
     return this.universe.notifier;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get shout() {
     this.universe.notifier.send(this.getNotificationMessage(), NotificationPriority.SKIP);
     return this.universe.notifier;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get showInfo() {
     this.shouldShowInfo = true;
     return true;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get fly() {
     this.universe.player.moveSpeedBoostRatio = 20;
     return true;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get hidePreview() {
-    this.universe.commentPlacingPolicy.cancelRequest();
+    Debug.getUniverseProxy().getCommentPlacingPolicy().cancelRequest();
     return true;
   }
-
-  // get treeDepths() {
-  //   const depthsMap = asSequence(this.universe.commentsStorage.getFinder() as
-  // EntityFinder<Leaf<any>>) .map(n => n['depth']) .groupBy(n => n); return asSequence(depthsMap)
-  // .sortedBy(([k]) => k) .map(([k, v]) => `${k}: ${v.length}`) .toArray(); }
 
   get mute() {
     this.universe.backgroundMusicPlayer.setVolume(0);
@@ -187,6 +182,16 @@ class Debug {
     this.universe.player.moveSpeedBoostRatio = 5;
     return true;
   }
+
+  get walk() {
+    this.universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
+    return true;
+  }
+
+  // get treeDepths() {
+  //   const depthsMap = asSequence(this.universe.commentsStorage.getFinder() as
+  // EntityFinder<Leaf<any>>) .map(n => n['depth']) .groupBy(n => n); return asSequence(depthsMap)
+  // .sortedBy(([k]) => k) .map(([k, v]) => `${k}: ${v.length}`) .toArray(); }
 
   static set(universe: Universe) {
     Object.assign(window, universe, {
@@ -213,9 +218,8 @@ class Debug {
     return debug;
   }
 
-  get walk() {
-    this.universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
-    return true;
+  private static getUniverseProxy() {
+    return (window as any).universeProxy;
   }
 
   showBoundsOf(entity: DisplayableEntity) {
@@ -232,6 +236,21 @@ class Debug {
       buffData: BuffData | null = null) {
     return this.universe.commentLoader.load(
         new CommentData(25, color, text, coordinates, buffData), true);
+  }
+
+  hideBoundsOf(entity: DisplayableEntity) {
+    this.debugInfo.removeBoundsOf(entity);
+  }
+
+  private movePlayerBy(offset: Point) {
+    setTimeout(() => {
+      this.universe.player.addToCoordinatesBy(offset);
+      this.universe.player.movedOffset.add(offset.x, offset.y);
+    }, 0);
+  }
+
+  private getVisibleDistance() {
+    return new Distance(this.universe.game.width / 2);
   }
 
   private applyGameState() {
@@ -280,10 +299,6 @@ class Debug {
     }
   }
 
-  hideBoundsOf(entity: DisplayableEntity) {
-    this.debugInfo.removeBoundsOf(entity);
-  }
-
   private async render() {
     if (!this.shouldShowInfo) {
       return;
@@ -291,9 +306,16 @@ class Debug {
 
     this.debugInfo.start();
 
-    asSequence(this.universe.chestsStorage)
-        .forEach(
-            chest => this.debugInfo.line('Chest', chest.coordinates, chest.isOpen ? 'opened' : ''));
+    for (const chest of this.universe.chestsStorage) {
+      let note;
+      if (chest.isOpen) {
+        note = 'opened';
+      } else {
+        note = '';
+      }
+
+      this.debugInfo.line('Chest', chest.coordinates, note);
+    }
 
     const closestSign = asSequence(this.universe.signsStorage)
         .minBy(sign => Distance.roughlyOf(sign.coordinates, this.universe.player.coordinates));
@@ -307,7 +329,7 @@ class Debug {
       this.debugInfo.line('Sign', closestSign.coordinates, note);
     }
 
-    const [foregroundEngine, backgroundEngine] = this.universe.visibility['engines'];
+    const [foregroundEngine, backgroundEngine] = this.universe.visibilityEngine['engines'];
     this.debugInfo.line(
         `Foreground updated at`, foregroundEngine['sampler']['currentCoordinates']);
     this.debugInfo.line(
@@ -316,7 +338,7 @@ class Debug {
     this.debugInfo.line(
         `Lightness count: ${this.systems.backgroundColorSystem.colorMixer.lightnessCounter}`);
 
-    const previewEntity = (this.universe.proxy.getCommentPlacingPolicy() as any)['previewEntity'];
+    const previewEntity = Debug.getUniverseProxy().getCommentPlacingPolicy()['previewEntity'];
     if (previewEntity != null) {
       this.universe.game.debug.spriteBounds(previewEntity.display);
     }
@@ -410,14 +432,12 @@ class DebugInfo {
 
     this.line('Player', this.player.coordinates, '', true);
     this.line(`FPS: ${this.game.time.fps}`);
-    this.line(`Render radius: ${getRenderRadius(this.game)}`);
+    this.line(`Render radius: ${PhysicalConstants.getRenderRadius(
+        this.game.width,
+        this.game.height)}`);
     this.line('Camera focus', this.game.camera.position, undefined, true);
 
     return this;
-  }
-
-  private getHeight() {
-    return this.currentY += this.lineHeight;
   }
 
   clear() {
@@ -433,6 +453,10 @@ class DebugInfo {
 
   removeBoundsOf(entity: DisplayableEntity) {
     this.entitiesToShowBounds.delete(entity);
+  }
+
+  private getHeight() {
+    return this.currentY += this.lineHeight;
   }
 }
 

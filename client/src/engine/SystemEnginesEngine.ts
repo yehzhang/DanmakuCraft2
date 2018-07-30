@@ -2,7 +2,10 @@ import {asSequence} from 'sequency';
 import SystemEngine from './SystemEngine';
 
 class SystemEnginesEngine<T extends SystemEngine> implements SystemEngine {
-  constructor(private readonly engines: T[]) {
+  private readonly engines: T[];
+
+  constructor(...engines: T[]) {
+    this.engines = engines;
   }
 
   updateBegin(time: Phaser.Time) {

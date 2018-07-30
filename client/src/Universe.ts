@@ -1,11 +1,12 @@
 import CommentLoader from './comment/CommentLoader';
 import CommentLoaderImpl from './comment/CommentLoaderImpl';
 import EngineCap from './engine/EngineCap';
-import Existence from './engine/existence/Existence';
+import ExistenceEngine from './engine/existence/ExistenceEngine';
+import SystemEngine from './engine/SystemEngine';
 import SystemEnginesEngine from './engine/SystemEnginesEngine';
-import Tick from './engine/tick/Tick';
-import Visibility from './engine/visibility/Visibility';
-import {ChestEntity, CommentEntity, Player, SignEntity, UpdatingCommentEntity} from './entitySystem/alias';
+import TickEngine from './engine/tick/TickEngine';
+import VisibilityEngine from './engine/visibility/VisibilityEngine';
+import {ChestEntity, CommentEntity, DisplayableEntity, Player, SignEntity, UpdatingCommentEntity} from './entitySystem/alias';
 import Entity from './entitySystem/Entity';
 import EntityFactory from './entitySystem/EntityFactory';
 import EntityFactoryImpl from './entitySystem/EntityFactoryImpl';
@@ -14,14 +15,27 @@ import BuffDataContainer from './entitySystem/system/buff/BuffDataContainer';
 import BuffDescription from './entitySystem/system/buff/BuffDescription';
 import BuffFactory from './entitySystem/system/buff/BuffFactory';
 import BuffFactoryImpl from './entitySystem/system/buff/BuffFactoryImpl';
-import SystemFactoryImpl from './entitySystem/system/SystemFactoryImpl';
+import ChestSystem, {ChestDemolisher, ChestOpener, ChestSpawner} from './entitySystem/system/ChestSystem';
+import IncrementRegisteredTimesSystem from './entitySystem/system/existence/IncrementRegisteredTimesSystem';
+import TweenBlinkingSystem from './entitySystem/system/existence/TweenBlinkingSystem';
+import MoveDisplaySystem from './entitySystem/system/tick/MoveDisplaySystem';
+import TutorialSystem from './entitySystem/system/tick/TutorialSystem';
+import BackgroundColorSystem from './entitySystem/system/visibility/BackgroundColorSystem';
+import BlinkSupportedRenderSystem from './entitySystem/system/visibility/BlinkSupportedRenderSystem';
+import CachedChunksRenderSystem from './entitySystem/system/visibility/CachedChunksRenderSystem';
+import CachedRenderSystem from './entitySystem/system/visibility/CachedRenderSystem';
+import CollisionDetectionSystem from './entitySystem/system/visibility/CollisionDetectionSystem';
+import CommitMotionSystem from './entitySystem/system/visibility/CommitMotionSystem';
+import ContainerSystem from './entitySystem/system/visibility/ContainerSystem';
+import MovingAnimationSystem from './entitySystem/system/visibility/MovingAnimationSystem';
+import RenderSystem from './entitySystem/system/visibility/RenderSystem';
+import UnmovableDisplayRelativePositioningSystem from './entitySystem/system/visibility/UnmovableDisplayRelativePositioningSystem';
+import UpdateSystem from './entitySystem/system/visibility/UpdateSystem';
 import AdapterFactory from './environment/AdapterFactory';
 import CommentPlacingPolicyImpl from './environment/component/gameWorld/CommentPlacingPolicyImpl';
 import UniverseProxyImpl from './environment/component/gameWorld/UniverseProxyImpl';
-import CommentPlacingPolicy from './environment/interface/CommentPlacingPolicy';
 import EnvironmentAdapter from './environment/interface/EnvironmentAdapter';
-import {PresetSettingsOptions} from './environment/interface/SettingsManager';
-import UniverseProxy from './environment/interface/UniverseProxy';
+import SettingsManager, {PresetSettingsOptions} from './environment/interface/SettingsManager';
 import InputController from './input/InputController';
 import PhaserInput from './input/PhaserInput';
 import LawFactory from './law/LawFactory';
@@ -31,11 +45,13 @@ import BackgroundMusicPlayer from './output/audio/BackgroundMusicPlayer';
 import BackgroundMusicPlayerImpl from './output/audio/BackgroundMusicPlayerImpl';
 import Notifier from './output/notification/Notifier';
 import NotifierFactoryImpl from './output/notification/NotifierFactoryImpl';
+import PhysicalConstants from './PhysicalConstants';
 import HardCodedPreset from './preset/HardCodedPreset';
 import GraphicsFactory from './render/graphics/GraphicsFactory';
 import GraphicsFactoryImpl from './render/graphics/GraphicsFactoryImpl';
 import Renderer from './render/Renderer';
 import {Phaser} from './util/alias/phaser';
+import DynamicProvider from './util/DynamicProvider';
 import EntityStorage from './util/entityStorage/EntityStorage';
 import GlobalEntityStorage from './util/entityStorage/GlobalEntityStorage';
 import QuadtreeEntityStorage from './util/entityStorage/QuadtreeEntityStorage';
@@ -44,34 +60,36 @@ import QuadtreeEntityStorage from './util/entityStorage/QuadtreeEntityStorage';
  * Instantiates and connects components. Starts the game.
  */
 class Universe {
-  public inputController: InputController;
-  public renderer: Renderer;
+  public afterVisibilityTickEngine!: TickEngine;
+  public backgroundMusicPlayer: BackgroundMusicPlayer;
+  public beforeVisibilityTickEngine!: TickEngine;
+  public buffDataApplier: BuffDataApplier;
+  public buffDataContainer: BuffDataContainer;
+  public buffDescription: BuffDescription;
+  public buffFactory: BuffFactory;
+  public chestsStorage: EntityStorage<ChestEntity>;
+  public collisionDetectionSystem!: CollisionDetectionSystem<DisplayableEntity>;
   public commentLoader: CommentLoader;
   public commentsStorage: EntityStorage<CommentEntity>;
-  public notifier: Notifier;
-  public buffDataContainer: BuffDataContainer;
-  public player: Player;
-  public buffFactory: BuffFactory;
-  public entityFactory: EntityFactory;
-  public graphicsFactory: GraphicsFactory;
-  public updatingCommentsStorage: EntityStorage<UpdatingCommentEntity>;
-  public playersStorage: EntityStorage<Player>;
-  public chestsStorage: EntityStorage<ChestEntity>;
-  public lawFactory: LawFactory;
-  public buffDataApplier: BuffDataApplier;
-  public buffDescription: BuffDescription;
-  public proxy: UniverseProxy;
-  public visibility: Visibility;
-  public existence: Existence;
-  public spawnPointsStorage: EntityStorage<Entity>;
-  public signsStorage: EntityStorage<SignEntity>;
-  public commentPlacingPolicy: CommentPlacingPolicy;
-  public tick: Tick;
   public engineCap: EngineCap;
+  public entityFactory: EntityFactory;
+  public existenceEngine!: ExistenceEngine;
+  public graphicsFactory: GraphicsFactory;
   public input: PhaserInput;
+  public inputController: InputController;
+  public lawFactory: LawFactory;
+  public notifier: Notifier;
+  public player: Player;
+  public playersStorage: EntityStorage<Player>;
   public randomDataGenerator: Phaser.RandomDataGenerator;
-  public backgroundMusicPlayer: BackgroundMusicPlayer;
+  public renderer: Renderer;
+  public settingsManager: SettingsManager;
+  public signsStorage: EntityStorage<SignEntity>;
+  public spawnPointsStorage: EntityStorage<Entity>;
   public timer: Phaser.Timer;
+  public tutorialSystem!: TutorialSystem;
+  public updatingCommentsStorage: EntityStorage<UpdatingCommentEntity>;
+  public visibilityEngine!: SystemEnginesEngine<VisibilityEngine>;
 
   private constructor(readonly game: Phaser.Game, readonly adapter: EnvironmentAdapter) {
     this.buffDataContainer = new BuffDataContainer();
@@ -91,12 +109,12 @@ class Universe {
     this.backgroundMusicPlayer = new BackgroundMusicPlayerImpl(this.timer);
 
     this.randomDataGenerator = new Phaser.RandomDataGenerator([new Date()]);
-    const settingsManager = adapter.getSettingsManager();
+    this.settingsManager = adapter.getSettingsManager();
     this.graphicsFactory = new GraphicsFactoryImpl(
         game,
         this.randomDataGenerator,
-        settingsManager.getSetting(PresetSettingsOptions.FONT_FAMILY),
-        settingsManager.getSetting(PresetSettingsOptions.TEXT_SHADOW));
+        this.settingsManager.getSetting(PresetSettingsOptions.FONT_FAMILY),
+        this.settingsManager.getSetting(PresetSettingsOptions.TEXT_SHADOW));
 
     this.entityFactory = new EntityFactoryImpl(game, this.graphicsFactory, this.buffFactory);
 
@@ -130,53 +148,14 @@ class Universe {
         this.entityFactory,
         this.buffDataApplier);
 
-    const systemFactory = new SystemFactoryImpl(
-        this.game,
-        this.lawFactory,
-        this.player,
-        this.buffDataApplier,
-        this.buffDescription,
-        this.notifier,
-        this.entityFactory,
-        settingsManager,
-        this.timer,
-        this.input);
-    this.visibility = Visibility.on(
-        game,
-        this.player,
-        systemFactory,
-        this.commentsStorage,
-        this.updatingCommentsStorage,
-        this.chestsStorage,
-        this.playersStorage,
-        this.spawnPointsStorage,
-        this.signsStorage,
-        this.renderer);
-    this.existence = Existence.on(
-        game,
-        this.commentsStorage,
-        this.updatingCommentsStorage);
-    this.tick = Tick.on(this.player, this.visibility.chestSystem, systemFactory);
+    this.setupEngines();
     this.engineCap = new EngineCap(
-        new SystemEnginesEngine([
-          this.existence,
-          this.tick.beforeVisibility,
-          this.visibility,
-          this.tick.afterVisibility]),
+        new SystemEnginesEngine<SystemEngine>(
+            this.existenceEngine,
+            this.beforeVisibilityTickEngine,
+            this.visibilityEngine,
+            this.afterVisibilityTickEngine),
         this.game.time);
-
-    this.commentPlacingPolicy = new CommentPlacingPolicyImpl(
-        this.visibility.collisionDetectionSystem,
-        this.graphicsFactory,
-        this.notifier,
-        this.buffDataContainer,
-        this.player,
-        this.renderer.fixedToCameraLayer);
-    this.proxy = new UniverseProxyImpl(
-        game,
-        this.commentPlacingPolicy,
-        this.notifier,
-        this.backgroundMusicPlayer);
   }
 
   static genesis(): void {
@@ -194,8 +173,22 @@ class Universe {
     game.state.add('MainState', new MainState(() => {
       const universe = new Universe(game, adapter);
 
-      const proxy = universe.getProxy();
-      adapter.setProxy(proxy);
+      const universeProxy = new UniverseProxyImpl(
+          game,
+          new CommentPlacingPolicyImpl(
+              universe.collisionDetectionSystem,
+              universe.graphicsFactory,
+              universe.notifier,
+              universe.buffDataContainer,
+              universe.player,
+              universe.renderer.fixedToCameraLayer),
+          universe.notifier,
+          universe.backgroundMusicPlayer);
+      adapter.setProxy(universeProxy);
+
+      if (__DEV__) {
+        (window as any).universeProxy = universeProxy;
+      }
 
       return universe;
     }));
@@ -209,14 +202,127 @@ class Universe {
   onTransitionFinished() {
     this.inputController.receiveInput();
     this.backgroundMusicPlayer.start();
-    this.tick.tutorialSystem.start();
+    this.tutorialSystem.start();
   }
 
-  getProxy(): UniverseProxy {
-    return this.proxy;
+  private setupEngines() {
+    // Setup existence.
+    const existenceEngineBuilder = ExistenceEngine.newBuilder();
+    existenceEngineBuilder.onUpdate()
+        .apply(new IncrementRegisteredTimesSystem())
+        .toEntities().of(this.commentsStorage).and(this.updatingCommentsStorage);
+    existenceEngineBuilder.onRender()
+        .apply(new TweenBlinkingSystem(this.game))
+        .toEntities().of(this.commentsStorage).and(this.updatingCommentsStorage)
+
+        .build();
+    this.existenceEngine = existenceEngineBuilder.build();
+
+
+    // Setup tick.
+    const renderRadius = new DynamicProvider(getRenderRadius(this.game));
+    this.game.scale.onSizeChange.add(() => renderRadius.update(getRenderRadius(this.game)));
+
+    const chestLaw = this.lawFactory.createChestLaw(this.player, renderRadius);
+    const chestSystem = new ChestSystem(
+        new ChestOpener(
+            this.game,
+            this.player,
+            this.buffDataApplier,
+            chestLaw,
+            this.notifier,
+            this.buffDescription),
+        new ChestSpawner(this.chestsStorage, this.entityFactory, chestLaw, __DEV__),
+        new ChestDemolisher(this.chestsStorage));
+
+    this.tutorialSystem = new TutorialSystem(
+        this.timer,
+        this.settingsManager,
+        this.notifier,
+        this.input);
+
+    const beforeVisibilityTickEngineBuilder = TickEngine.newBuilder();
+    beforeVisibilityTickEngineBuilder.onUpdate()
+        .apply(chestSystem).atEnter()
+        .apply(this.tutorialSystem).atEnter();
+    beforeVisibilityTickEngineBuilder.onRender()
+        .apply(new MoveDisplaySystem(this.player)).atEnter();
+    this.beforeVisibilityTickEngine = beforeVisibilityTickEngineBuilder.build();
+
+    this.afterVisibilityTickEngine = TickEngine.newBuilder().build();
+
+
+    // Setup visibility.
+    this.collisionDetectionSystem = new CollisionDetectionSystem();
+
+    const positioningSystem = new UnmovableDisplayPositioningSystem(this.player);
+
+    const foregroundVisibilityEngineBuilder = VisibilityEngine.newBuilder(
+        this.player,
+        renderRadius,
+        PhysicalConstants.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS);
+    foregroundVisibilityEngineBuilder.onUpdate()
+        .apply(new UpdateSystem())
+        .toEntities().of(this.playersStorage).and(this.updatingCommentsStorage)
+
+        .apply(this.collisionDetectionSystem)
+        .toEntities().of(this.commentsStorage).and(this.updatingCommentsStorage)
+
+        .apply(chestSystem)
+        .toEntities().of(this.chestsStorage);
+    foregroundVisibilityEngineBuilder.onRender()
+        .apply(new BlinkSupportedRenderSystem(
+            this.renderer.floatingLayer,
+            new CachedChunksRenderSystem(this.renderer.floatingLayer, positioningSystem),
+            new RenderSystem(this.renderer.floatingLayer),
+            positioningSystem))
+        .toEntities().of(this.commentsStorage)
+
+        .apply(new RenderSystem(this.renderer.floatingLayer))
+        .toEntities().of(this.updatingCommentsStorage)
+
+        .apply(new RenderSystem(this.renderer.groundLayer))
+        .toEntities().of(this.chestsStorage)
+
+        .apply(new RenderSystem(this.renderer.playersLayer))
+        .toEntities().of(this.playersStorage)
+
+        .apply(new CachedRenderSystem(this.renderer.backgroundLayer))
+        .toEntities().of(this.signsStorage)
+
+        .apply(positioningSystem)
+        .toEntities()
+        .of(this.updatingCommentsStorage).and(this.chestsStorage).and(this.signsStorage)
+
+        .apply(new MovingAnimationSystem())
+        .toEntities().of(this.playersStorage)
+
+        .apply(new CommitMotionSystem())
+        .toEntities().of(this.playersStorage);
+
+    const spawnPointsContainerSystem = new ContainerSystem<Entity>();
+
+    const backgroundVisibilityEngineBuilder = VisibilityEngine.newBuilder(
+        this.player,
+        new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS),
+        PhysicalConstants.BACKGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS);
+    backgroundVisibilityEngineBuilder.onRender()
+        .apply(spawnPointsContainerSystem)
+        .toEntities().of(this.spawnPointsStorage)
+
+        .apply(new BackgroundColorSystem(this.game, spawnPointsContainerSystem))
+        .toEntities().of(this.commentsStorage).and(this.updatingCommentsStorage);
+
+    this.visibilityEngine = new SystemEnginesEngine(
+        foregroundVisibilityEngineBuilder.build(),
+        backgroundVisibilityEngineBuilder.build());
   }
 }
 
 let hasGenesis = false;
+
+function getRenderRadius(game: Phaser.Game) {
+  return PhysicalConstants.getRenderRadius(game.width, game.height);
+}
 
 export default Universe;
