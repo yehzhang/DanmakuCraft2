@@ -9,7 +9,8 @@ import PermanentlyUpdatingBuff from './PermanentlyUpdatingBuff';
 class Moving extends PermanentlyUpdatingBuff<MovableEntity & Nudge> {
   constructor(
       private readonly controller: Controller,
-      private readonly pixelsPerSecond: number = PhysicalConstants.PLAYER_MOVE_PIXELS_PER_SECOND) {
+      private readonly pixelsSpeed =
+      PhysicalConstants.PLAYER_MOVE_PIXELS_PER_SECOND / Phaser.Timer.SECOND) {
     super();
   }
 
@@ -30,20 +31,19 @@ class Moving extends PermanentlyUpdatingBuff<MovableEntity & Nudge> {
 
     if (distance.isZero()) {
       if (entity.isNudging()) {
-        moveEntity(entity, entity.abortMoving());
+        moveEntity(entity, entity.abortNudging());
       }
       entity.isMoving = false;
     } else {
-      entity.updateMoving(time);
-
       if (entity.isMoving) {
-        const moveSpeed = this.pixelsPerSecond * time.physicsElapsed * entity.moveSpeedBoostRatio;
-        const speed = Math.round(moveSpeed);
-        distance.multiply(speed, speed);
+        entity.updateNudging(time.physicsElapsedMS);
       } else {
-        entity.startToMove(distance);
+        entity.startToNudge(distance);
         entity.isMoving = true;
       }
+
+      const speed = this.pixelsSpeed * time.physicsElapsedMS * entity.moveSpeedBoostRatio;
+      distance.multiply(speed, speed);
 
       moveEntity(entity, distance);
     }

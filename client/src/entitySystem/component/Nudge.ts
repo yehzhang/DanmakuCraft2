@@ -1,8 +1,8 @@
-import Point from '../../util/syntax/Point';
-import Entity from '../Entity';
-import {Phaser} from '../../util/alias/phaser';
 import {toWorldCoordinateOffset2d} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
+import {Phaser} from '../../util/alias/phaser';
+import Point from '../../util/syntax/Point';
+import Entity from '../Entity';
 
 class Nudge {
   private static readonly NUDGING_DURATION = 70;
@@ -10,16 +10,16 @@ class Nudge {
   constructor(public nudgingDuration: number = 0, public nudgeDestination: Point = Point.origin()) {
   }
 
-  startToMove(this: Entity & Nudge, initialDistance: Point) {
+  startToNudge(this: Entity & Nudge, initialDistance: Point) {
     this.nudgingDuration = Nudge.NUDGING_DURATION;
     this.nudgeDestination = Phaser.Point.add(this.coordinates, initialDistance);
   }
 
-  updateMoving(time: Phaser.Time) {
-    this.nudgingDuration -= time.physicsElapsedMS;
+  updateNudging(elapsed: number) {
+    this.nudgingDuration -= elapsed;
   }
 
-  abortMoving(this: Entity & Nudge): Point {
+  abortNudging(this: Entity & Nudge): Point {
     this.nudgingDuration = 0;
     return toWorldCoordinateOffset2d(
         this.nudgeDestination,

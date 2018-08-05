@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/bundle.js",
   "scripts": {
-    "preinstall": "rm -rf node_modules/",
+    "preinstall": "npm run server:unlink",
     "postinstall": "npm run server:link",
     "prepublishOnly": "npm test && npm run client:build:prod && cp build/bundle.js dist/",
     "clean": "npm run client:clean",
@@ -90,7 +90,7 @@
     "include-all": "^4.0.3",
     "jsonwebtoken": "^8.3.0",
     "lodash": "3.10.1",
-    "phaser-ce-type-updated": "^2.10.0",
+    "phaser-ce-type-updated": "https://github.com/yehzhang/phaser-ce.git",
     "rc": "^1.2.8",
     "sails": "~0.12.14",
     "sails-disk": "~0.10.9",
