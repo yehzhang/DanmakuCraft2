@@ -3,6 +3,7 @@ import {anything, instance, mock, verify, when} from 'ts-mockito';
 import {StationaryEntity} from '../../../client/src/entitySystem/alias';
 import Entity from '../../../client/src/entitySystem/Entity';
 import Quadtree, {Leaf, Node} from '../../../client/src/util/dataStructures/Quadtree';
+import Iterator from '../../../client/src/util/syntax/Iterator';
 import Point from '../../../client/src/util/syntax/Point';
 import Rectangle from '../../../client/src/util/syntax/Rectangle';
 import chai = require('chai');
@@ -28,7 +29,7 @@ describe('Quadtree.Leaf', () => {
 
   it('should list values in bounds', () => {
     const leaves1 = leaf.add(entities[0]).listIn(Rectangle.sized(1));
-    expect(leaves1).to.shallowDeepEqual([entities[0]]);
+    expect(Array.from(leaves1)).to.shallowDeepEqual([entities[0]]);
 
     const leaves2 = leaf.listIn(Rectangle.empty());
     expect(leaves2).to.be.empty;
@@ -111,17 +112,22 @@ describe('Quadtree.Node', () => {
     mockEntity = mock(Entity) as any;
     entity = instance(mockEntity);
     mockLeaves = [mock(Leaf), mock(Leaf), mock(Leaf), mock(Leaf)];
-    node = new Node(mockLeaves.map(instance), Rectangle.sized(100));
+    const leaves = mockLeaves.map(instance);
+    node = new Node(leaves, Rectangle.sized(100));
 
     when(mockEntity.coordinates).thenReturn(Point.origin());
     when(mockLeaves[0].listIn(anything())).thenReturn([]);
     when(mockLeaves[1].listIn(anything())).thenReturn([]);
     when(mockLeaves[2].listIn(anything())).thenReturn([]);
     when(mockLeaves[3].listIn(anything())).thenReturn([]);
+    leaves[0][Symbol.iterator] = () => Iterator.of([]);
+    leaves[1][Symbol.iterator] = () => Iterator.of([]);
+    leaves[2][Symbol.iterator] = () => Iterator.of([]);
+    leaves[3][Symbol.iterator] = () => Iterator.of([]);
   });
 
-  it('should delegate `list` to all children', () => {
-    node.listIn(Rectangle.sized(100));
+  it('should delegate `list` to children', () => {
+    Array.from(node.listIn(new Rectangle(1, 1, 99, 99)));
 
     verify(mockLeaves[0].listIn(anything())).once();
     verify(mockLeaves[1].listIn(anything())).once();
@@ -129,8 +135,17 @@ describe('Quadtree.Node', () => {
     verify(mockLeaves[3].listIn(anything())).once();
   });
 
+  it('should not delegate `list` to children if not necessary', () => {
+    Array.from(node.listIn(Rectangle.sized(101)));
+
+    verify(mockLeaves[0].listIn(anything())).never();
+    verify(mockLeaves[1].listIn(anything())).never();
+    verify(mockLeaves[2].listIn(anything())).never();
+    verify(mockLeaves[3].listIn(anything())).never();
+  });
+
   it('should not delegate `list` to any children if the bounds do not intersect', () => {
-    node.listIn(Rectangle.empty());
+    Array.from(node.listIn(Rectangle.empty()));
 
     verify(mockLeaves[0].listIn(anything())).never();
     verify(mockLeaves[1].listIn(anything())).never();

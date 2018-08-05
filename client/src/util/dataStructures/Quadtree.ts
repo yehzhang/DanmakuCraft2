@@ -16,24 +16,34 @@ class Quadtree<T extends StationaryEntity> implements Iterable<T> {
     return new this(root);
   }
 
-  listIn(bounds: Rectangle): Iterable<T> {
+  /**
+   * @return values whose coordinates are in {@param bounds}.
+   */
+  listIn(bounds: Rectangle): T[] {
     bounds = toWorldBounds(bounds, PhysicalConstants.WORLD_SIZE);
     return asSequence([
       this.root.listIn(bounds),
-      this.root.listIn(bounds.offset(-PhysicalConstants.WORLD_SIZE, 0)),
-      this.root.listIn(bounds.offset(0, -PhysicalConstants.WORLD_SIZE)),
-      this.root.listIn(bounds.offset(PhysicalConstants.WORLD_SIZE, 0))])
+      this.root.listIn(bounds.clone().offset(-PhysicalConstants.WORLD_SIZE, 0)),
+      this.root.listIn(bounds.clone().offset(0, -PhysicalConstants.WORLD_SIZE)),
+      this.root.listIn(
+          bounds.clone().offset(-PhysicalConstants.WORLD_SIZE, -PhysicalConstants.WORLD_SIZE))])
         .flatten()
         .toArray();
   }
 
-  add(value: T) {
+  /**
+   * @return values added.
+   */
+  add(value: T): T[] {
     const addedValues: T[] = [];
     this.root = this.root.add(value, addedValues);
 
     return addedValues;
   }
 
+  /**
+   * @return values added.
+   */
   addBatch(values: Iterable<T>): T[] {
     const addedValues: T[] = [];
     for (const value of values) {
@@ -43,7 +53,10 @@ class Quadtree<T extends StationaryEntity> implements Iterable<T> {
     return addedValues;
   }
 
-  remove(value: T) {
+  /**
+   * @return values removed.
+   */
+  remove(value: T): T[] {
     const removedValues: T[] = [];
     this.root = this.root.remove(value, removedValues);
 
@@ -80,10 +93,13 @@ export class Node<T extends StationaryEntity> implements Tree<T> {
     if (!this.bounds.intersects(bounds)) {
       return [];
     }
+    if (bounds.containsRect(this.bounds)) {
+      return this;
+    }
     return asSequence(this.children)
         .map(tree => tree.listIn(bounds))
         .flatten()
-        .toArray();
+        .asIterable();
   }
 
   add(value: T, addedValues?: T[]): Tree<T> {
@@ -142,7 +158,7 @@ export class Leaf<T extends StationaryEntity> implements Tree<T> {
           const coordinates = value.coordinates;
           return bounds.contains(coordinates.x, coordinates.y);
         })
-        .toArray();
+        .asIterable();
   }
 
   add(value: T, addedValues?: T[]): Tree<T> {
