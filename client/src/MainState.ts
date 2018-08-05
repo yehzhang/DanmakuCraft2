@@ -75,15 +75,15 @@ class MainState extends Phaser.State {
 
     this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
 
-    // Makes camera lerp precisely.
-    this.game.camera.roundPx = false;
+    // Makes entities less blurry.
+    this.game.renderer.renderSession.roundPixels = true;
 
-    // Makes tiny television less blurry
-    // When combined with the option above, however, some fixed-to-camera displays convulse.
-    // this.game.renderer.renderSession.roundPixels = true;
+    // If false, Makes camera able to center on player when lerp is enabled.
+    // Must be true if `renderSession.roundPixels` is true, or uncached entities will jitter.
+    this.game.camera.roundPx = true;
 
-    // Makes tiny television less blurry
-    // However, it looks too ugly when zoomed if turned on
+    // Makes tiny television less blurry.
+    // However, it looks too ugly when zoomed if turned on.
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 
     this.game.load.baseURL = ConfigProvider.get().baseUrl;
