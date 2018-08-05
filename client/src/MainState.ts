@@ -6,7 +6,7 @@ import Colors from './render/Colors';
 import OpeningScene from './render/OpeningScene';
 import Universe from './Universe';
 import {Phaser} from './util/alias/phaser';
-import IntermittentIterable from './util/async/IntermittentIterable';
+import RenderThrottler from './util/async/RenderThrottler';
 import Sleep from './util/async/Sleep';
 import Debug from './util/Debug';
 import AsyncIterable from './util/syntax/AsyncIterable';
@@ -118,11 +118,16 @@ class MainState extends Phaser.State {
 
     const dataChunks = asSequence(commentsDataArray)
         .sortedBy(data => data.coordinates.y + data.coordinates.x / PhysicalConstants.WORLD_SIZE)
-        .chunk(50);
-    for await (const dataChunk of IntermittentIterable.of(dataChunks)) {
-      this.universe.commentLoader.loadBatch(dataChunk, false);
+        .chunk(5);
+    const throttler = new RenderThrottler();
+    const sleepDuration = 2;
+    for (const dataChunk of dataChunks) {
+      while (!throttler.run(() => {
+        this.universe.commentLoader.loadBatch(dataChunk, /* blink */ false);
+      }, this.game.time, sleepDuration)) {
+        await Sleep.after(sleepDuration);
+      }
     }
-    await Sleep.moment();
   }
 
   private async loadAudios() {
