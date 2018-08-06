@@ -74,21 +74,23 @@ xdescribe('VisibilityEngine', () => {
     visibilityEngine.update(time);
 
     verify(mockSamplingRadius.hasUpdate()).once();
-    verify(mockEntityFinderRecords[0].shouldUpdate(anything(), anything())).never();
-    verify(mockEntityFinderRecords[1].shouldUpdate(anything(), anything())).never();
+    verify(mockEntityFinderRecords[0].isVisibilityChanged(anything(), anything())).never();
+    verify(mockEntityFinderRecords[1].isVisibilityChanged(anything(), anything())).never();
     verify(mockEntityFinderRecords[0].update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
     verify(mockEntityFinderRecords[1].update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
   });
 
   it('should only update records that returns true from shouldUpdate()', () => {
     when(mockDistance.isClose(NEXT_COORDINATES, deepEqual(currentCoordinates))).thenReturn(true);
-    when(mockEntityFinderRecords[1].shouldUpdate(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+    when(mockEntityFinderRecords[1].isVisibilityChanged(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn(true);
 
     visibilityEngine.update(time);
 
-    verify(mockEntityFinderRecords[0].shouldUpdate(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
-    verify(mockEntityFinderRecords[1].shouldUpdate(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
+    verify(mockEntityFinderRecords[0].isVisibilityChanged(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+        .once();
+    verify(mockEntityFinderRecords[1].isVisibilityChanged(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+        .once();
     verify(mockEntityFinderRecords[0].update(anything(), anything())).never();
     verify(mockEntityFinderRecords[1].update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
   });
@@ -134,7 +136,7 @@ xdescribe('VisibilityEngine', () => {
 
   it('should not update current coordinates when not all entity finder records are updated', () => {
     when(mockDistance.isClose(NEXT_COORDINATES, deepEqual(currentCoordinates))).thenReturn(true);
-    when(mockEntityFinderRecords[0].shouldUpdate(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+    when(mockEntityFinderRecords[0].isVisibilityChanged(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn(true);
 
     visibilityEngine.update(time);
@@ -162,7 +164,7 @@ xdescribe('EntityFinderRecord', () => {
     entityExistenceUpdated = new Phaser.Signal();
 
     mockEntityFinder = mock(QuadtreeEntityStorage);
-    when(mockEntityFinder.listAround(anything(), anything())).thenReturn([]);
+    when(mockEntityFinder.collectAround(anything(), anything())).thenReturn([]);
     when(mockEntityFinder.onStateChanged).thenReturn(entityExistenceUpdated);
 
     mockDistanceChecker = mock(DistanceChecker);
@@ -186,19 +188,19 @@ xdescribe('EntityFinderRecord', () => {
     const record = new EntityFinderRecord(
         instance(mockEntityFinder),
         instance(mockDistanceChecker));
-    expect(record.shouldUpdate(Point.origin(), 0)).to.be.true;
+    expect(record.isVisibilityChanged(Point.origin(), 0)).to.be.true;
   });
 
   it('should list entities from entity finder', () => {
-    when(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).thenReturn([]);
+    when(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).thenReturn([]);
 
     entityFinderRecord.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);
 
-    verify(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
+    verify(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
   });
 
   it('should correctly select entering entities', () => {
-    when(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+    when(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn([entities[1], entities[2]]);
 
     entityFinderRecord.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);
@@ -207,7 +209,7 @@ xdescribe('EntityFinderRecord', () => {
   });
 
   it('should correctly select exiting entities', () => {
-    when(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+    when(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn([entities[1], entities[2]]);
 
     entityFinderRecord.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);
@@ -216,7 +218,7 @@ xdescribe('EntityFinderRecord', () => {
   });
 
   it('should correctly retain entities', () => {
-    when(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+    when(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn([entities[1], entities[2]]);
 
     entityFinderRecord.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);
@@ -236,7 +238,7 @@ xdescribe('EntityFinderRecord', () => {
 
     record.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);
 
-    expect(record.shouldUpdate(Point.origin(), 0)).to.be.false;
+    expect(record.isVisibilityChanged(Point.origin(), 0)).to.be.false;
   });
 
   it('should be updated when an entity is registered nearby', () => {
@@ -244,12 +246,12 @@ xdescribe('EntityFinderRecord', () => {
 
     entityExistenceUpdated.dispatch(new StateChanged([entities[3]], []));
 
-    expect(entityFinderRecord.shouldUpdate(Point.origin(), 0)).to.be.true;
+    expect(entityFinderRecord.isVisibilityChanged(Point.origin(), 0)).to.be.true;
   });
 
   it('should not be updated when an entity is registered faraway', () => {
     entityExistenceUpdated.dispatch(new StateChanged([entities[3]], []));
-    expect(entityFinderRecord.shouldUpdate(Point.origin(), 0)).to.be.false;
+    expect(entityFinderRecord.isVisibilityChanged(Point.origin(), 0)).to.be.false;
   });
 
   it('should be updated when a current entity is deregistered', () => {
@@ -257,12 +259,12 @@ xdescribe('EntityFinderRecord', () => {
 
     entityExistenceUpdated.dispatch(new StateChanged([], [entities[3]]));
 
-    expect(entityFinderRecord.shouldUpdate(Point.origin(), 0)).to.be.true;
+    expect(entityFinderRecord.isVisibilityChanged(Point.origin(), 0)).to.be.true;
   });
 
   it('should not be updated when a non-current entity is deregistered', () => {
     entityExistenceUpdated.dispatch(new StateChanged([], [entities[3]]));
-    expect(entityFinderRecord.shouldUpdate(Point.origin(), 0)).to.be.false;
+    expect(entityFinderRecord.isVisibilityChanged(Point.origin(), 0)).to.be.false;
   });
 
   // TODO should do the same things in pre render

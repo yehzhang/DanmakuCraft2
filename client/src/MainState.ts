@@ -8,7 +8,6 @@ import Universe from './Universe';
 import {Phaser} from './util/alias/phaser';
 import RenderThrottler from './util/async/RenderThrottler';
 import Sleep from './util/async/Sleep';
-import Debug from './util/Debug';
 import AsyncIterable from './util/syntax/AsyncIterable';
 import Provider from './util/syntax/Provider';
 import Rectangle from './util/syntax/Rectangle';
@@ -32,10 +31,6 @@ class MainState extends Phaser.State {
     this.configureGame();
 
     this.universe = this.createUniverse();
-
-    if (__DEV__) {
-      Debug.set(this.universe);
-    }
 
     try {
       await this.loadUniverseAndShowOpeningScene();
@@ -75,12 +70,7 @@ class MainState extends Phaser.State {
 
     this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
 
-    // Makes entities less blurry.
-    this.game.renderer.renderSession.roundPixels = true;
-
-    // If false, Makes camera able to center on player when lerp is enabled.
-    // Must be true if `renderSession.roundPixels` is true, or uncached entities will jitter.
-    this.game.camera.roundPx = true;
+    this.setRenderRoundPixels(true);
 
     // Makes tiny television less blurry.
     // However, it looks too ugly when zoomed if turned on.
@@ -89,6 +79,16 @@ class MainState extends Phaser.State {
     this.game.load.baseURL = ConfigProvider.get().baseUrl;
 
     this.game.sound.muteOnPause = false;
+  }
+
+  private setRenderRoundPixels(value: boolean) {
+    // If true, entities are less blurry.
+    this.game.renderer.renderSession.roundPixels = value;
+
+    // If false, camera is able to center on player when lerp is enabled.
+    // If true, text entities jitter periodically when player is moving?
+    // Must be true if `renderSession.roundPixels` is true, or uncached entities will jitter.
+    this.game.camera.roundPx = value;
   }
 
   private async loadCommentsDataAndListenToNewComments() {

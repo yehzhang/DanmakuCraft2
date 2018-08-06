@@ -2,8 +2,9 @@ import {expect} from 'chai';
 import {anything, instance, mock, verify, when} from 'ts-mockito';
 import {StationaryEntity} from '../../../client/src/entitySystem/alias';
 import Entity from '../../../client/src/entitySystem/Entity';
+import ArrayCollector from '../../../client/src/util/dataStructures/ArrayCollector';
 import Quadtree, {Leaf, Node} from '../../../client/src/util/dataStructures/Quadtree';
-import Iterator from '../../../client/src/util/syntax/Iterator';
+import {Collector} from '../../../client/src/util/entityStorage/EntityFinder';
 import Point from '../../../client/src/util/syntax/Point';
 import Rectangle from '../../../client/src/util/syntax/Rectangle';
 import chai = require('chai');
@@ -28,11 +29,13 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('should list values in bounds', () => {
-    const leaves1 = leaf.add(entities[0]).listIn(Rectangle.sized(1));
-    expect(Array.from(leaves1)).to.shallowDeepEqual([entities[0]]);
+    let collector = new ArrayCollector();
+    leaf.add(entities[0]).collectIn(Rectangle.sized(1), collector);
+    expect(collector.values).to.deep.equal([entities[0]]);
 
-    const leaves2 = leaf.listIn(Rectangle.empty());
-    expect(leaves2).to.be.empty;
+    collector = new ArrayCollector();
+    leaf.collectIn(Rectangle.empty(), collector);
+    expect(collector.values).to.be.empty;
   });
 
   it('should return itself', () => {
@@ -47,19 +50,22 @@ describe('Quadtree.Leaf', () => {
   it('should lift a leaf as node if there are more entities than a leaf could contain', () => {
     const node = leaf.add(entities[0]).add(entities[1]) as Node<StationaryEntity>;
 
+    expect(node).to.be.instanceOf(Node);
     expect(node['bounds']).to.deep.equal(Rectangle.sized(100));
-    expect(node['children'].length).to.equal(4);
 
-    const leaves = node['children'] as Array<Leaf<StationaryEntity>>;
-    expect(leaves[0]['bounds']).to.shallowDeepEqual(Rectangle.sized(50));
-    expect(leaves[1]['bounds']).to.shallowDeepEqual(Rectangle.of(50, 0, 50, 50));
-    expect(leaves[2]['bounds']).to.shallowDeepEqual(Rectangle.of(0, 50, 50, 50));
-    expect(leaves[3]['bounds']).to.shallowDeepEqual(Rectangle.of(50, 50, 50, 50));
-    expect(leaves[0]['depth']).to.equal(1);
-    expect(leaves[0]['maxDepth']).to.equal(1);
-    expect(leaves[0]['maxValuesCount']).to.equal(1);
-    expect(leaves[0]['values']).to.deep.equal(new Set([entities[0]]));
-    expect(leaves[1]['values']).to.deep.equal(new Set([entities[1]]));
+    expect((node['topLeftChild'] as Leaf<any>)['bounds'])
+        .to.shallowDeepEqual(Rectangle.sized(50));
+    expect((node['topRightChild'] as Leaf<any>)['bounds'])
+        .to.shallowDeepEqual(Rectangle.of(50, 0, 50, 50));
+    expect((node['bottomLeftChild'] as Leaf<any>)['bounds'])
+        .to.shallowDeepEqual(Rectangle.of(0, 50, 50, 50));
+    expect((node['bottomRightChild'] as Leaf<any>)['bounds'])
+        .to.shallowDeepEqual(Rectangle.of(50, 50, 50, 50));
+    expect((node['topLeftChild'] as Leaf<any>)['depth']).to.equal(1);
+    expect((node['topLeftChild'] as Leaf<any>)['maxDepth']).to.equal(1);
+    expect((node['topLeftChild'] as Leaf<any>)['maxValuesCount']).to.equal(1);
+    expect((node['topLeftChild'] as Leaf<any>)['values']).to.deep.equal([entities[0]]);
+    expect((node['topRightChild'] as Leaf<any>)['values']).to.deep.equal([entities[1]]);
   });
 
   it('should not add a value if it is already added', () => {
@@ -107,50 +113,54 @@ describe('Quadtree.Node', () => {
   let entity: StationaryEntity;
   let mockLeaves: Array<Leaf<StationaryEntity>>;
   let node: Node<StationaryEntity>;
+  let collector: Collector<Entity>;
 
   beforeEach(() => {
     mockEntity = mock(Entity) as any;
     entity = instance(mockEntity);
+    collector = new ArrayCollector();
     mockLeaves = [mock(Leaf), mock(Leaf), mock(Leaf), mock(Leaf)];
     const leaves = mockLeaves.map(instance);
-    node = new Node(leaves, Rectangle.sized(100));
+    node = new Node(leaves[0], leaves[1], leaves[2], leaves[3], Rectangle.sized(100));
 
     when(mockEntity.coordinates).thenReturn(Point.origin());
-    when(mockLeaves[0].listIn(anything())).thenReturn([]);
-    when(mockLeaves[1].listIn(anything())).thenReturn([]);
-    when(mockLeaves[2].listIn(anything())).thenReturn([]);
-    when(mockLeaves[3].listIn(anything())).thenReturn([]);
-    leaves[0][Symbol.iterator] = () => Iterator.of([]);
-    leaves[1][Symbol.iterator] = () => Iterator.of([]);
-    leaves[2][Symbol.iterator] = () => Iterator.of([]);
-    leaves[3][Symbol.iterator] = () => Iterator.of([]);
   });
 
-  it('should delegate `list` to children', () => {
-    Array.from(node.listIn(new Rectangle(1, 1, 99, 99)));
+  it('should delegate `collectIn` to children', () => {
+    const bounds = new Rectangle(1, 1, 99, 99);
+    node.collectIn(bounds, collector);
 
-    verify(mockLeaves[0].listIn(anything())).once();
-    verify(mockLeaves[1].listIn(anything())).once();
-    verify(mockLeaves[2].listIn(anything())).once();
-    verify(mockLeaves[3].listIn(anything())).once();
+    verify(mockLeaves[0].collectIn(bounds, collector)).once();
+    verify(mockLeaves[1].collectIn(bounds, collector)).once();
+    verify(mockLeaves[2].collectIn(bounds, collector)).once();
+    verify(mockLeaves[3].collectIn(bounds, collector)).once();
   });
 
-  it('should not delegate `list` to children if not necessary', () => {
-    Array.from(node.listIn(Rectangle.sized(101)));
+  it('should delegate `collectAll` to children', () => {
+    node.collectAll(collector);
 
-    verify(mockLeaves[0].listIn(anything())).never();
-    verify(mockLeaves[1].listIn(anything())).never();
-    verify(mockLeaves[2].listIn(anything())).never();
-    verify(mockLeaves[3].listIn(anything())).never();
+    verify(mockLeaves[0].collectAll(collector)).once();
+    verify(mockLeaves[1].collectAll(collector)).once();
+    verify(mockLeaves[2].collectAll(collector)).once();
+    verify(mockLeaves[3].collectAll(collector)).once();
   });
 
-  it('should not delegate `list` to any children if the bounds do not intersect', () => {
-    Array.from(node.listIn(Rectangle.empty()));
+  it('should not delegate `collectIn` to children if not necessary', () => {
+    node.collectIn(Rectangle.sized(101), collector);
 
-    verify(mockLeaves[0].listIn(anything())).never();
-    verify(mockLeaves[1].listIn(anything())).never();
-    verify(mockLeaves[2].listIn(anything())).never();
-    verify(mockLeaves[3].listIn(anything())).never();
+    verify(mockLeaves[0].collectIn(anything(), anything())).never();
+    verify(mockLeaves[1].collectIn(anything(), anything())).never();
+    verify(mockLeaves[2].collectIn(anything(), anything())).never();
+    verify(mockLeaves[3].collectIn(anything(), anything())).never();
+  });
+
+  it('should not delegate `collectIn` to children if the bounds do not intersect', () => {
+    node.collectIn(Rectangle.empty(), collector);
+
+    verify(mockLeaves[0].collectIn(anything(), anything())).never();
+    verify(mockLeaves[1].collectIn(anything(), anything())).never();
+    verify(mockLeaves[2].collectIn(anything(), anything())).never();
+    verify(mockLeaves[3].collectIn(anything(), anything())).never();
   });
 
   it('should delegate `add` to corresponding leaf', () => {

@@ -8,9 +8,10 @@ class PhysicalConstants {
   public static readonly FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS = 200;
 
   public static readonly COMMENT_CHUNKS_COUNT = 50;
-  public static readonly QUADTREE_MAX_DEPTH = Math.floor(
-      Math.log2(PhysicalConstants.WORLD_SIZE /
-          PhysicalConstants.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS * 2));
+  public static readonly QUADTREE_MAX_DEPTH = 6;
+  // public static readonly QUADTREE_MAX_DEPTH = Math.floor(
+  //     Math.log2(PhysicalConstants.WORLD_SIZE /
+  //         PhysicalConstants.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS * 2));
   public static readonly QUADTREE_MAX_VALUES_COUNT = 7;
 
   public static readonly MAX_UPDATING_COMMENTS_COUNT = 500;

@@ -1,5 +1,5 @@
 import {Phaser} from '../alias/phaser';
-import StreamStatistics from '../math/StreamStatistics';
+import StreamStatistics from '../dataStructures/StreamStatistics';
 
 class RenderThrottler {
   // The minimum fps that the throttler tries to guarantee. The higher the value, the more likely a
@@ -11,7 +11,7 @@ class RenderThrottler {
 
   private static readonly RUNNER_TIME_PREDICTION_Z_VALUE = 1;
 
-  private static readonly RESERVED_TIME_AFTER_RUNNER_MS = 2;
+  private static readonly RESERVED_TIME_AFTER_RUNNER_MS = 3;
 
   constructor(
       private readonly runnerTimeEstimator = new StreamStatistics().push(1),

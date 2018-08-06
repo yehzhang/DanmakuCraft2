@@ -1,8 +1,6 @@
-import {asSequence} from 'sequency';
 import {toWorldCoordinate, toWorldCoordinate2d, validateRadius} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
 import {Phaser} from '../alias/phaser';
-import Iterator from '../syntax/Iterator';
 import Point from '../syntax/Point';
 
 class Chunks<T> implements Iterable<T> {
@@ -19,6 +17,10 @@ class Chunks<T> implements Iterable<T> {
     if (chunks[0].length !== chunks.length) {
       throw new TypeError('Chunks are not square-shaped');
     }
+  }
+
+  private get chunksSide() {
+    return this.chunks.length;
   }
 
   static create<T>(
@@ -43,11 +45,7 @@ class Chunks<T> implements Iterable<T> {
     return new Chunks(chunks, chunkSize);
   }
 
-  private get chunksSide() {
-    return this.chunks.length;
-  }
-
-  getChunkByCoordinates(coordinates: Point) {
+  getChunkByCoordinates(coordinates: Phaser.ReadonlyPoint) {
     const chunkCoordinates = this.toInteriorChunkCoordinates(coordinates);
     return this.getChunkByInteriorChunkCoordinates(chunkCoordinates.x, chunkCoordinates.y);
   }
@@ -57,8 +55,10 @@ class Chunks<T> implements Iterable<T> {
     this.setChunkByInteriorChunkCoordinates(chunkCoordinates.x, chunkCoordinates.y, chunk);
   }
 
-  [Symbol.iterator](): Iterator<T> {
-    return Iterator.of(asSequence(this.chunks).flatten().asIterable());
+  * [Symbol.iterator]() {
+    for (const chunk of this.chunks) {
+      yield* chunk;
+    }
   }
 
   listChunksInBounds(bounds: Phaser.Rectangle): T[] {
@@ -113,7 +113,7 @@ class Chunks<T> implements Iterable<T> {
   /**
    * Also, wraps coordinates that are out of one side of the world to the other side.
    */
-  private toInteriorChunkCoordinates(coordinates: Point): Point {
+  private toInteriorChunkCoordinates(coordinates: Phaser.ReadonlyPoint): Point {
     return toWorldCoordinate2d(coordinates, PhysicalConstants.WORLD_SIZE)
         .divide(this.chunkSize, this.chunkSize)
         .floor();

@@ -90,7 +90,7 @@
     "include-all": "^4.0.3",
     "jsonwebtoken": "^8.3.0",
     "lodash": "3.10.1",
-    "phaser-ce-type-updated": "https://github.com/yehzhang/phaser-ce.git",
+    "phaser-ce-type-updated": "git+https://github.com/yehzhang/phaser-ce.git",
     "rc": "^1.2.8",
     "sails": "~0.12.14",
     "sails-disk": "~0.10.9",

@@ -1,6 +1,5 @@
 import {asSequence} from 'sequency';
 import Container from '../../../util/dataStructures/Container';
-import Iterator from '../../../util/syntax/Iterator';
 import Point from '../../../util/syntax/Point';
 import Entity from '../../Entity';
 import VisibilitySystem from './VisibilitySystem';
@@ -31,8 +30,8 @@ class ContainerSystem<T extends Entity> implements VisibilitySystem<T>, Containe
   finish() {
   }
 
-  [Symbol.iterator]() {
-    return Iterator.of(this.currentEntities);
+  * [Symbol.iterator]() {
+    yield* this.currentEntities;
   }
 
   count() {

@@ -8,7 +8,6 @@ import IncrementRegisteredTimesSystem from '../../../client/src/entitySystem/sys
 import {Phaser} from '../../../client/src/util/alias/phaser';
 import EntityFinder from '../../../client/src/util/entityStorage/EntityFinder';
 import QuadtreeEntityStorage from '../../../client/src/util/entityStorage/QuadtreeEntityStorage';
-import Iterator from '../../../client/src/util/syntax/Iterator';
 
 describe('ExistenceEngine', () => {
   let engine: ExistenceEngine;
@@ -105,12 +104,12 @@ describe('ExistenceRelation', () => {
     exitingEntities = [mockExitingEntities.map(instance)];
     mockEntityFinder = mock(QuadtreeEntityStorage);
     entityFinder = instance(mockEntityFinder);
-    entityFinder[Symbol.iterator] = () => Iterator.of([]);
+    entityFinder[Symbol.iterator] = [][Symbol.iterator];
     registeredSignal = new Phaser.Signal();
     deregisteredSignal = new Phaser.Signal();
     when(mockEntityFinder.onEntitiesRegistered).thenReturn(registeredSignal);
     when(mockEntityFinder.onEntitiesDeregistered).thenReturn(deregisteredSignal);
-    mockEntityFinder[Symbol.iterator] = () => Iterator.of([]);
+    mockEntityFinder[Symbol.iterator] = [][Symbol.iterator];
 
     relation = new ExistenceRelation(
         instance(mockSystem),
@@ -147,7 +146,7 @@ describe('ExistenceRelation', () => {
   });
 
   it('should apply system to all entities on initialization.', () => {
-    entityFinder[Symbol.iterator] = () => Iterator.of(enteringEntities[0]);
+    entityFinder[Symbol.iterator] = () => enteringEntities[0][Symbol.iterator]();
 
     relation = new ExistenceRelation(instance(mockSystem), entityFinder);
 

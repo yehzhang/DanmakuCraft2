@@ -17,6 +17,7 @@ import ChestBuilder from '../render/graphics/ChestBuilder';
 import SpeechBubbleBuilder from '../render/graphics/SpeechBubbleBuilder';
 import Universe from '../Universe';
 import {Phaser} from './alias/phaser';
+import RenderThrottler from './async/RenderThrottler';
 import Sleep from './async/Sleep';
 import {Leaf, Node, Tree} from './dataStructures/Quadtree';
 import Distance from './math/Distance';
@@ -73,6 +74,8 @@ class Debug {
 
     universe.game.time.advancedTiming = true;
 
+    universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
+
     this.applyGameState();
   }
 
@@ -107,7 +110,7 @@ class Debug {
     return asSequence(this.universe.visibilityEngine['engines'])
         .map(engine => engine['entityFinderRecords'])
         .flatten()
-        .map(record => record.currentEntities)
+        .map(record => record.getCurrentEntities())
         .flatten()
         .filter(entity => distance.isClose(entity.coordinates, this.universe.player.coordinates))
         .toArray();
@@ -157,7 +160,7 @@ class Debug {
   }
 
   // noinspection JSUnusedGlobalSymbols
-  get showInfo() {
+  get info() {
     this.shouldShowInfo = true;
     return true;
   }
@@ -185,15 +188,9 @@ class Debug {
   }
 
   get walk() {
-    this.universe.player.moveSpeedBoostRatio = PhysicalConstants.HASTY_BOOST_RATIO;
+    this.universe.player.moveSpeedBoostRatio = 1;
     return true;
   }
-
-  // get treeDepths() {
-  //   const depthsMap = asSequence(this.universe.commentsStorage).map(n => n['depth']).groupBy(n => n);
-  //   return asSequence(depthsMap)
-  //       .sortedBy(([k]) => k).map(([k, v]) => `${k}: ${v.length}`).toArray();
-  // }
 
   // noinspection JSUnusedGlobalSymbols
   get treeLeaves(): Sequence<Leaf<StationaryEntity>> {
@@ -204,7 +201,12 @@ class Debug {
     if (tree instanceof Leaf) {
       return asSequence([tree]);
     }
-    return asSequence((tree as Node<T>)['children']).flatMap(child => this.flattenTree(child));
+    return asSequence([
+      (tree as Node<T>)['topLeftChild'],
+      (tree as Node<T>)['topRightChild'],
+      (tree as Node<T>)['bottomLeftChild'],
+      (tree as Node<T>)['bottomRightChild'],
+    ]).flatMap(child => this.flattenTree(child));
   }
 
   static set(universe: Universe) {
@@ -223,6 +225,7 @@ class Debug {
       Sleep,
       PresetSettingsOptions,
       Nudge,
+      RenderThrottler,
     });
 
     const debug = new this(universe);
@@ -270,12 +273,13 @@ class Debug {
   private applyGameState() {
     const gameState = {
       player: {
-        movementStyle: 'walk',
+        movementStyle: null as string | null,
         coordinates: HardCodedPreset['WORLD_CENTER_COORDINATES'] as Point | null,
       },
       backgroundAudio: {
         muted: false,
       },
+      info: true,
     };
     location.hash.slice(1).split('&').forEach(param => {
       const [key, value] = param.split('=');
@@ -294,22 +298,28 @@ class Debug {
         case 'mute':
           gameState.backgroundAudio.muted = true;
           break;
+        case 'hideInfo':
+          gameState.info = false;
+          break;
         default:
           break;
       }
     });
 
-    const ignored = (this as any)[gameState.player.movementStyle];
-
-    if (gameState.player.coordinates != null) {
+    if (gameState.player.movementStyle) {
+      const ignored = (this as any)[gameState.player.movementStyle];
+    }
+    if (gameState.player.coordinates) {
       this.universe.player.addToCoordinatesBy(toWorldCoordinateOffset2d(
           gameState.player.coordinates,
           this.universe.player.coordinates,
           PhysicalConstants.WORLD_SIZE));
     }
-
     if (gameState.backgroundAudio.muted) {
       const ignored2 = this.mute;
+    }
+    if (!gameState.info) {
+      const ignored = this.hideInfo;
     }
   }
 
@@ -345,9 +355,9 @@ class Debug {
 
     const [foregroundEngine, backgroundEngine] = this.universe.visibilityEngine['engines'];
     this.debugInfo.line(
-        `Foreground updated at`, foregroundEngine['sampler']['currentCoordinates']);
+        `Foreground updated at`, foregroundEngine['sampler']['sampledAt']);
     this.debugInfo.line(
-        `Background updated at`, backgroundEngine['sampler']['currentCoordinates']);
+        `Background updated at`, backgroundEngine['sampler']['sampledAt']);
 
     this.debugInfo.line(
         `Lightness count: ${this.systems.backgroundColorSystem.colorMixer.lightnessCounter}`);
@@ -401,7 +411,11 @@ class DebugInfo {
       private readonly lineHeight: number = 18) {
   }
 
-  line(text: string, coordinates?: Point, note?: string, disableNavigation?: boolean) {
+  line(
+      text: string,
+      coordinates?: Phaser.ReadonlyPoint,
+      note?: string,
+      disableNavigation?: boolean) {
     if (note) {
       text = `${text}(${note})`;
     }

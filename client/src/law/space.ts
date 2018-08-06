@@ -1,4 +1,5 @@
 import PhysicalConstants from '../PhysicalConstants';
+import {Phaser} from '../util/alias/phaser';
 import Point from '../util/syntax/Point';
 import Rectangle from '../util/syntax/Rectangle';
 
@@ -27,7 +28,7 @@ export function validateValue(value: number) {
 /**
  * 2-dimensional version of {@link toWorldCoordinate}.
  */
-export function toWorldCoordinate2d(coordinates: Point, max: number): Point {
+export function toWorldCoordinate2d(coordinates: Phaser.ReadonlyPoint, max: number): Point {
   const x = toWorldCoordinate(coordinates.x, max);
   const y = toWorldCoordinate(coordinates.y, max);
   return Point.of(x, y);
@@ -61,7 +62,10 @@ export function toWorldCoordinateOffset(coordinate: number, other: number, max: 
 /**
  * 2-dimensional version of {@link toWorldCoordinateOffset}.
  */
-export function toWorldCoordinateOffset2d(coordinates: Point, other: Point, max: number): Point {
+export function toWorldCoordinateOffset2d(
+    coordinates: Phaser.ReadonlyPoint,
+    other: Phaser.ReadonlyPoint,
+    max: number): Point {
   const offsetX = toWorldCoordinateOffset(coordinates.x, other.x, max);
   const offsetY = toWorldCoordinateOffset(coordinates.y, other.y, max);
   return Point.of(offsetX, offsetY);

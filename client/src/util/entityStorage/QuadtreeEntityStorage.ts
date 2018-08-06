@@ -3,9 +3,8 @@ import {validateRadius} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
 import {Phaser} from '../alias/phaser';
 import Quadtree from '../dataStructures/Quadtree';
-import Iterator from '../syntax/Iterator';
-import Point from '../syntax/Point';
 import Rectangle from '../syntax/Rectangle';
+import {Collector} from './EntityFinder';
 import EntityStorage from './EntityStorage';
 
 class QuadtreeEntityStorage<T extends StationaryEntity> implements EntityStorage<T> {
@@ -18,15 +17,15 @@ class QuadtreeEntityStorage<T extends StationaryEntity> implements EntityStorage
   static create<T extends StationaryEntity>(
       maxValuesCount: number = PhysicalConstants.QUADTREE_MAX_VALUES_COUNT,
       maxDepth: number = PhysicalConstants.QUADTREE_MAX_DEPTH) {
-    const tree = Quadtree.empty<T>(maxValuesCount, maxDepth);
+    const tree = Quadtree.create<T>(maxValuesCount, maxDepth);
     return new QuadtreeEntityStorage(tree);
   }
 
-  listAround(coordinates: Point, radius: number) {
+  collectAround(coordinates: Phaser.ReadonlyPoint, radius: number, collector: Collector<T>) {
     validateRadius(radius);
 
     const bounds = Rectangle.inflateFrom(coordinates, radius);
-    return this.tree.listIn(bounds);
+    return this.tree.collectIn(bounds, collector);
   }
 
   register(entity: T) {
@@ -56,8 +55,8 @@ class QuadtreeEntityStorage<T extends StationaryEntity> implements EntityStorage
     this.onEntitiesDeregistered.dispatch(deregisteredEntities);
   }
 
-  [Symbol.iterator]() {
-    return Iterator.of(this.tree);
+  * [Symbol.iterator]() {
+    yield* this.tree;
   }
 }
 

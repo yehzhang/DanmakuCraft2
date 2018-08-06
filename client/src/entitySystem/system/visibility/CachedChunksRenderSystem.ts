@@ -38,10 +38,12 @@ class CachedChunksRenderSystem implements VisibilitySystem<StationaryEntity & Di
     if (chunk.display.children.includes(entity.display)) {
       return;
     }
-    this.chunksToUpdateCache.add(chunk);
+    if (chunk.display.children.length >= 19) {  // 19 is empirically optimal
+      this.chunksToUpdateCache.add(chunk);
+    }
 
     chunk.display.addChild(entity.display);
-    entity.display.position = Point.subtract(entity.coordinates, chunk.coordinates);
+    entity.display.position = Point.subtract(entity.coordinates, chunk.coordinates).floor();
   }
 
   update(entity: StationaryEntity & Display) {
@@ -57,7 +59,7 @@ class CachedChunksRenderSystem implements VisibilitySystem<StationaryEntity & Di
     }
     this.layer.removeChild(chunk.display);
 
-    // Clear cache to release memory?
+    // // Clear cache to release memory?
     // if (chunk.display.children.length >= 19) {  // 19 is empirically optimal
     //   return;
     // }
@@ -91,7 +93,7 @@ class CachedChunksRenderSystem implements VisibilitySystem<StationaryEntity & Di
 
 function createCachedChunk(point: Point): CachedChunk {
   const display = new PIXI.DisplayObjectContainer();
-  display.cacheAsBitmap = true;
+  // display.cacheAsBitmap = true;
 
   return Entity.newBuilder()
       .mix(new ImmutableCoordinates(point))

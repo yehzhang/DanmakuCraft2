@@ -1,20 +1,21 @@
 import CommentData from '../comment/CommentData';
-import {PIXI} from '../util/alias/phaser';
-import Point from '../util/syntax/Point';
+import {Phaser, PIXI} from '../util/alias/phaser';
 import {ChestEntity, CommentEntity, Player, SignEntity, StationaryEntity, UpdatingCommentEntity} from './alias';
 
 interface EntityFactory {
-  createPlayer(coordinates: Point): Player;
+  createPlayer(coordinates: Phaser.ReadonlyPoint): Player;
 
   createCommentEntity(data: CommentData): CommentEntity;
 
   createUpdatingCommentEntity(data: CommentData): UpdatingCommentEntity;
 
-  createChest(coordinates: Point): ChestEntity;
+  createChest(coordinates: Phaser.ReadonlyPoint): ChestEntity;
 
-  createPointEntity(coordinates: Point): StationaryEntity;
+  createPointEntity(coordinates: Phaser.ReadonlyPoint): StationaryEntity;
 
-  createSignEntity(coordinates: Point, display: PIXI.DisplayObjectContainer): SignEntity;
+  createSignEntity(
+      coordinates: Phaser.ReadonlyPoint,
+      display: PIXI.DisplayObjectContainer): SignEntity;
 }
 
 export default EntityFactory;

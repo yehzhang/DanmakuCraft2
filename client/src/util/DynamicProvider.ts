@@ -15,10 +15,12 @@ class DynamicProvider<T> {
     return this.dirty;
   }
 
+  // TODO remove
   commitUpdate() {
     this.dirty = false;
   }
 
+  // TODO force commit
   getValue() {
     return this.value;
   }

@@ -1,11 +1,11 @@
-import Point from '../util/syntax/Point';
+import {Phaser} from '../util/alias/phaser';
 import {Component} from './alias';
 import Coordinates from './component/Coordinates';
 
 abstract class Entity implements Coordinates {
-  abstract readonly coordinates: Point;
+  abstract readonly coordinates: Phaser.ReadonlyPoint;
 
-  static newBuilder(): EntityBuilder<{}> {
+  static newBuilder(): EntityBuilder<Component> {
     return new EntityBuilder();
   }
 }

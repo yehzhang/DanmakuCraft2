@@ -1,6 +1,7 @@
 import {DisplayableEntity} from '../../entitySystem/alias';
 import {toWorldCoordinateOffset2d, toWorldIntervalOffset, validateRadius} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
+import {Phaser} from '../alias/phaser';
 import Point from '../syntax/Point';
 
 class Distance {
@@ -14,20 +15,20 @@ class Distance {
   /**
    * @return Not an exact distance, but a comparable distance.
    */
-  static roughlyOf(coordinates: Point, other: Point) {
+  static roughlyOf(coordinates: Phaser.ReadonlyPoint, other: Phaser.ReadonlyPoint) {
     return squaredOf(coordinates, other);
   }
 
-  static of(coordinates: Point, other: Point) {
+  static of(coordinates: Phaser.ReadonlyPoint, other: Phaser.ReadonlyPoint) {
     const distanceSquared = squaredOf(coordinates, other);
     return Math.sqrt(distanceSquared);
   }
 
-  isClose(coordinates: Point, other: Point) {
+  isClose(coordinates: Phaser.ReadonlyPoint, other: Phaser.ReadonlyPoint) {
     return squaredOf(coordinates, other) <= this.maxDistanceSquared;
   }
 
-  isDisplayClose(entity: DisplayableEntity, other: Point) {
+  isDisplayClose(entity: DisplayableEntity, other: Phaser.ReadonlyPoint) {
     const bounds = entity.getDisplayWorldBounds();
     const horizontalOffset = toWorldIntervalOffset(
         bounds.left,
@@ -43,7 +44,7 @@ class Distance {
   }
 }
 
-function squaredOf(coordinates: Point, other: Point) {
+function squaredOf(coordinates: Phaser.ReadonlyPoint, other: Phaser.ReadonlyPoint) {
   return toWorldCoordinateOffset2d(coordinates, other, PhysicalConstants.WORLD_SIZE)
       .getMagnitudeSq();
 }

@@ -1,5 +1,4 @@
 import {Phaser} from '../alias/phaser';
-import Point from './Point';
 
 class Rectangle extends Phaser.Rectangle {
   static of(x: number, y: number, width: number, height: number) {
@@ -15,7 +14,7 @@ class Rectangle extends Phaser.Rectangle {
     return new this(0, 0, 0, 0);
   }
 
-  static inflateFrom(point: Point, dx: number, dy: number = dx) {
+  static inflateFrom(point: Phaser.ReadonlyPoint, dx: number, dy: number = dx) {
     return new this(point.x - dx, point.y - dy, dx * 2, dy * 2);
   }
 }
