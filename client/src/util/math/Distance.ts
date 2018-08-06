@@ -25,7 +25,7 @@ class Distance {
   }
 
   isClose(coordinates: Phaser.ReadonlyPoint, other: Phaser.ReadonlyPoint) {
-    return squaredOf(coordinates, other) <= this.maxDistanceSquared;
+    return squaredOf(coordinates, other) < this.maxDistanceSquared;
   }
 
   isDisplayClose(entity: DisplayableEntity, other: Phaser.ReadonlyPoint) {
@@ -40,7 +40,7 @@ class Distance {
         bounds.bottom,
         other.y,
         PhysicalConstants.WORLD_SIZE);
-    return Point.of(horizontalOffset, verticalOffset).getMagnitudeSq() <= this.maxDistanceSquared;
+    return Point.of(horizontalOffset, verticalOffset).getMagnitudeSq() < this.maxDistanceSquared;
   }
 }
 

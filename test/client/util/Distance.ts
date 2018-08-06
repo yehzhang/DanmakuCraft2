@@ -11,17 +11,17 @@ describe('Distance', () => {
   });
 
   it('should work correctly', () => {
-    expect(distance.isClose(Point.of(0, 0), Point.of(0, 5))).to.be.true;
-    expect(distance.isClose(Point.of(0, 0), Point.of(0, 5 + 1e-6))).to.be.false;
+    expect(distance.isClose(Point.of(0, 0), Point.of(0, 5))).to.be.false;
+    expect(distance.isClose(Point.of(0, 0), Point.of(0, 5 - 1e-6))).to.be.true;
 
-    expect(distance.isClose(Point.of(0, 0), Point.of(3, 4))).to.be.true;
-    expect(distance.isClose(Point.of(0, 0), Point.of(3 + 1e-6, 4))).to.be.false;
+    expect(distance.isClose(Point.of(0, 0), Point.of(3, 4))).to.be.false;
+    expect(distance.isClose(Point.of(0, 0), Point.of(3 - 1e-6, 4))).to.be.true;
 
     expect(distance.isClose(
-        Point.of(0, 0), Point.of(0, PhysicalConstants.WORLD_SIZE - 5))).to.be.true;
+        Point.of(0, 0), Point.of(0, PhysicalConstants.WORLD_SIZE - 5))).to.be.false;
     expect(distance.isClose(
         Point.of(0, 0),
-        Point.of(0, PhysicalConstants.WORLD_SIZE - 5 - 1e-6))).to.be.false;
+        Point.of(0, PhysicalConstants.WORLD_SIZE - 5 + 1e-6))).to.be.true;
   });
 
   it('should throw when radius is invalid', () => {
