@@ -51,6 +51,7 @@ import GraphicsFactory from './render/graphics/GraphicsFactory';
 import GraphicsFactoryImpl from './render/graphics/GraphicsFactoryImpl';
 import Renderer from './render/Renderer';
 import {Phaser} from './util/alias/phaser';
+import Debug from './util/Debug';
 import DynamicProvider from './util/DynamicProvider';
 import EntityStorage from './util/entityStorage/EntityStorage';
 import GlobalEntityStorage from './util/entityStorage/GlobalEntityStorage';
@@ -166,12 +167,7 @@ class Universe {
 
     hasGenesis = true;
 
-    const adapterFactory = new AdapterFactory();
-    const adapter = adapterFactory.createAdapter();
-    const gameContainer = adapter.getGameContainerProvider().getContainerId();
-    const game = new Phaser.Game(0, 0, Phaser.AUTO, gameContainer, null);
-
-    game.state.add('MainState', new MainState(() => {
+    const state: MainState = new MainState(() => {
       const universe = new Universe(game, adapter);
 
       const universeProxy = new UniverseProxyImpl(
@@ -188,12 +184,20 @@ class Universe {
       adapter.setProxy(universeProxy);
 
       if (__DEV__) {
+        Debug.set(universe);
         (window as any).universeProxy = universeProxy;
       }
 
       return universe;
-    }));
-    game.state.start('MainState');
+    });
+
+    const adapter = new AdapterFactory().createAdapter();
+    const game = new Phaser.Game({
+      width: 1e-10,
+      height: 1e-10,
+      parent: adapter.getGameContainerProvider().getContainerId(),
+      state,
+    });
   }
 
   onTransitionScreenAllWhite() {

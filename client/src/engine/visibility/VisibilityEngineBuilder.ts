@@ -1,5 +1,5 @@
 import {asSequence} from 'sequency';
-import {Component} from '../../entitySystem/alias';
+import {Component, MovableEntity} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
 import DynamicProvider from '../../util/DynamicProvider';
@@ -8,7 +8,7 @@ import VisibilityEngine, {DistanceChecker, EntityFinderRecord, EntityFinderRecor
 
 export class VisibilityEngineBuilder {
   constructor(
-      private readonly trackee: Entity,
+      private readonly trackee: MovableEntity,
       private readonly samplingRadius: DynamicProvider<number>,
       updatingRadius: number,
       private readonly distanceChecker: DistanceChecker =

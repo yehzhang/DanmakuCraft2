@@ -1,4 +1,3 @@
-import {asSequence} from 'sequency';
 import {Component} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import ExistenceSystem from '../../entitySystem/system/existence/ExistenceSystem';
@@ -38,7 +37,10 @@ class ExistenceEngine implements SystemEngine {
 }
 
 function tickRelationsBackward(relations: ExistenceRelation[]) {
-  asSequence(relations).reverse().forEach(relation => relation.backwardTick());
+  // noinspection TsLint
+  for (var relationIndex = relations.length - 1; relationIndex >= 0; --relationIndex) {
+    relations[relationIndex].backwardTick();
+  }
 }
 
 function tickRelationsForward(relations: ExistenceRelation[]) {
@@ -64,12 +66,20 @@ export class ExistenceRelation<T = Component, U extends T & Entity = T & Entity>
   }
 
   forwardTick() {
-    asSequence(this.enteringEntitiesList).flatten().forEach(entity => this.system.adopt(entity));
+    for (const enteringEntities of this.enteringEntitiesList) {
+      for (const entity of enteringEntities) {
+        this.system.adopt(entity);
+      }
+    }
     this.enteringEntitiesList.length = 0;
   }
 
   backwardTick() {
-    asSequence(this.exitingEntitiesList).flatten().forEach(entity => this.system.abandon(entity));
+    for (const exitingEntities of this.exitingEntitiesList) {
+      for (const entity of exitingEntities) {
+        this.system.abandon(entity);
+      }
+    }
     this.exitingEntitiesList.length = 0;
   }
 }

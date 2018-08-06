@@ -1,10 +1,10 @@
-import Point from '../../util/syntax/Point';
+import {Phaser} from '../../util/alias/phaser';
 
-interface Coordinates {
+interface Coordinates<T extends Phaser.ReadonlyPoint = Phaser.ReadonlyPoint> {
   /**
    * Returns internal coordinates. Modifying them directly may or may not change the internal ones.
    */
-  readonly coordinates: Point;
+  readonly coordinates: T;
 }
 
 export default Coordinates;

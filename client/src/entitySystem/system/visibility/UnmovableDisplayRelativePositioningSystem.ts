@@ -18,7 +18,7 @@ class UnmovableDisplayRelativePositioningSystem
         entity.coordinates,
         this.anchor.coordinates,
         PhysicalConstants.WORLD_SIZE);
-    entity.display.position = Point.add(this.anchor.display.position, offset);
+    entity.display.position = Point.add(this.anchor.display.position, offset).floor();
   }
 
   update(entity: StationaryEntity & Display) {

@@ -1,5 +1,5 @@
 import {Phaser} from '../alias/phaser';
-import StreamStatistics from '../math/StreamStatistics';
+import StreamStatistics from '../dataStructures/StreamStatistics';
 
 class RenderThrottler {
   // The minimum fps that the throttler tries to guarantee. The higher the value, the more likely a

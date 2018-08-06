@@ -1,11 +1,13 @@
-import {asSequence, default as Sequence} from 'sequency';
-import {Component} from '../../entitySystem/alias';
+import {asSequence} from 'sequency';
+import {Component, MovableEntity} from '../../entitySystem/alias';
 import Entity from '../../entitySystem/Entity';
 import VisibilitySystem from '../../entitySystem/system/visibility/VisibilitySystem';
+import {Phaser} from '../../util/alias/phaser';
+import SetStreamJoiner from '../../util/dataStructures/SetStreamJoiner';
+import StreamJoiner from '../../util/dataStructures/StreamJoiner';
 import DynamicProvider from '../../util/DynamicProvider';
-import EntityFinder from '../../util/entityStorage/EntityFinder';
+import EntityFinder, {Collector} from '../../util/entityStorage/EntityFinder';
 import Distance from '../../util/math/Distance';
-import {leftOuterJoin} from '../../util/set';
 import Point from '../../util/syntax/Point';
 import SystemEngine from '../SystemEngine';
 import VisibilityEngineBuilder from './VisibilityEngineBuilder';
@@ -24,7 +26,7 @@ class VisibilityEngine implements SystemEngine {
   }
 
   static newBuilder(
-      trackee: Entity,
+      trackee: MovableEntity,
       samplingRadius: DynamicProvider<number>,
       updatingRadius: number) {
     const builder = new VisibilityEngineBuilder(trackee, samplingRadius, updatingRadius);
@@ -61,23 +63,32 @@ function tickSystemsForward(tickers: SystemTicker[], time: Phaser.Time) {
 }
 
 function tickSystemsBackward(tickers: SystemTicker[]) {
-  asSequence(tickers).reverse().forEach(ticker => ticker.backwardTick());
+  // noinspection TsLint
+  for (var tickerIndex = tickers.length - 1; tickerIndex >= 0; --tickerIndex) {
+    tickers[tickerIndex].backwardTick();
+  }
 }
 
 export class EntityFinderRecordsSampler {
   constructor(
-      private readonly trackee: Entity,
+      private readonly trackee: MovableEntity,
       private readonly samplingRadius: DynamicProvider<number>,
       private readonly distanceChecker: DistanceChecker,
-      private readonly currentCoordinates: Point = trackee.coordinates.clone()) {
+      private readonly currentCoordinates: Phaser.Point = trackee.coordinates.clone()) {
   }
 
   update(records: Array<EntityFinderRecord<Entity>>) {
     const nextCoordinates = this.trackee.coordinates;
     const samplingRadius = this.samplingRadius.getValue();
-    const updatedRecordsCount = this.getEntityFinderRecordsToUpdate(records, nextCoordinates)
-        .onEach(record => record.update(nextCoordinates, samplingRadius))
-        .count(record => record.hasUpdate());
+    let updatedRecordsCount = 0;
+    for (const record of this.getEntityFinderRecordsToUpdate(records, nextCoordinates)) {
+      record.update(nextCoordinates, samplingRadius);
+
+      if (!record.hasUpdate()) {
+        continue;
+      }
+      updatedRecordsCount++;
+    }
 
     if (this.samplingRadius.hasUpdate()) {
       this.distanceChecker.updateDistance(samplingRadius);
@@ -88,19 +99,24 @@ export class EntityFinderRecordsSampler {
     }
   }
 
-  private getEntityFinderRecordsToUpdate(
-      records: Iterable<EntityFinderRecord<Entity>>, nextCoordinates: Point) {
-    const sequence = asSequence(records);
-
+  private* getEntityFinderRecordsToUpdate(
+      records: Iterable<EntityFinderRecord<Entity>>, nextCoordinates: Phaser.ReadonlyPoint) {
     if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinates)) {
-      return sequence;
+      yield* records;
+      return;
     }
 
     if (this.samplingRadius.hasUpdate()) {
-      return sequence;
+      yield* records;
+      return;
     }
 
-    return sequence.filter(record => record.shouldUpdate());
+    for (const record of records) {
+      if (!record.shouldUpdate()) {
+        continue;
+      }
+      yield record;
+    }
   }
 }
 
@@ -109,58 +125,62 @@ export class EntityFinderRecord<T extends Entity> {
       private readonly entityFinder: EntityFinder<T>,
       private readonly distanceChecker: DistanceChecker,
       private readonly currentCoordinates: Point = Point.origin(),
-      private enteringEntitiesList: Array<Iterable<T>> = [],
-      private exitingEntitiesList: Array<Iterable<T>> = [],
-      public currentEntities: ReadonlySet<T> = new Set(),
+      private readonly joiner: StreamJoiner<T> & Collector<T> = new SetStreamJoiner(),
+      private isEnteringEntitiesFetched = false,
+      private isExitingEntitiesFetched = false,
       private shouldUpdateEntities: boolean = true) {
-    entityFinder.onEntitiesRegistered.add(this.onEntitiesRegistered, this);
-    entityFinder.onEntitiesDeregistered.add(this.onEntitiesDeregistered, this);
+    entityFinder.onEntitiesRegistered.add(this.onEntitiesExistenceChanged, this);
+    entityFinder.onEntitiesDeregistered.add(this.onEntitiesExistenceChanged, this);
   }
 
   shouldUpdate() {
     return this.shouldUpdateEntities;
   }
 
-  update(nextCoordinates: Point, samplingRadius: number) {
-    const nextEntities = new Set(this.entityFinder.listAround(nextCoordinates, samplingRadius));
-    const enteringEntities = leftOuterJoin(nextEntities, this.currentEntities);
-    const exitingEntities = leftOuterJoin(this.currentEntities, nextEntities);
-
-    this.currentEntities = nextEntities;
-    this.enteringEntitiesList.push(enteringEntities);
-    this.exitingEntitiesList.push(exitingEntities);
+  update(nextCoordinates: Phaser.ReadonlyPoint, samplingRadius: number) {
+    this.joiner.flush();
+    this.entityFinder.collectAround(nextCoordinates, samplingRadius, this.joiner);
 
     this.currentCoordinates.copyFrom(nextCoordinates);
+
+    this.isEnteringEntitiesFetched = false;
+    this.isExitingEntitiesFetched = false;
 
     this.shouldUpdateEntities = false;
   }
 
-  hasUpdate() {
-    return this.enteringEntitiesList.length > 0 || this.exitingEntitiesList.length > 0;
+  hasUpdate(): boolean {
+    return asSequence(this.joiner.leftValues).any() || asSequence(this.joiner.rightValues).any();
   }
 
-  fetchEnteringEntities(): Sequence<T> {
-    const enteringEntitiesList = this.enteringEntitiesList;
-    this.enteringEntitiesList = [];
+  * fetchEnteringEntities(): Iterable<T> {
+    if (this.isEnteringEntitiesFetched) {
+      return;
+    }
+    this.isEnteringEntitiesFetched = true;
 
-    return asSequence(enteringEntitiesList).flatten();
+    yield* this.joiner.leftValues;
   }
 
-  fetchExitingEntities(): Sequence<T> {
-    const exitingEntitiesList = this.exitingEntitiesList;
-    this.exitingEntitiesList = [];
-
-    return asSequence(exitingEntitiesList).flatten();
+  getCurrentEntities(): Iterable<T> {
+    return this.joiner.innerValues;
   }
 
-  private onEntitiesRegistered(entities: ReadonlyArray<T>) {
-    this.shouldUpdateEntities = this.shouldUpdateEntities || entities.some(
+  * fetchExitingEntities(): Iterable<T> {
+    if (this.isExitingEntitiesFetched) {
+      return;
+    }
+    this.isExitingEntitiesFetched = true;
+
+    yield* this.joiner.rightValues;
+  }
+
+  private onEntitiesExistenceChanged(entities: ReadonlyArray<T>) {
+    if (this.shouldUpdateEntities) {
+      return;
+    }
+    this.shouldUpdateEntities = entities.some(
         entity => this.distanceChecker.isInEnteringRadius(this.currentCoordinates, entity));
-  }
-
-  private onEntitiesDeregistered(entities: ReadonlyArray<T>) {
-    this.shouldUpdateEntities = this.shouldUpdateEntities || entities.some(
-        entity => this.currentEntities.has(entity));
   }
 }
 
@@ -194,31 +214,23 @@ export class SystemTicker<T = Component, U extends T & Entity = T & Entity> {
   }
 
   backwardTick() {
-    const entitiesCount = this.entityFinderRecord.fetchExitingEntities()
-        .onEach(entity => {
-          for (const system of this.systems) {
-            system.exit(entity);
-          }
-        })
-        .count();
-    if (entitiesCount > 0) {
+    for (const entity of this.entityFinderRecord.fetchExitingEntities()) {
+      for (const system of this.systems) {
+        system.exit(entity);
+      }
       this.isVisibilityChanged = true;
     }
   }
 
   firstForwardTick(time: Phaser.Time) {
-    const enteringEntities = this.entityFinderRecord.fetchEnteringEntities()
-        .onEach(entity => {
-          for (const system of this.systems) {
-            system.enter(entity);
-          }
-        })
-        .toSet();
-    if (enteringEntities.size > 0) {
+    // TODO entering entities should be entered once
+    for (const entity of this.entityFinderRecord.fetchEnteringEntities()) {
+      for (const system of this.systems) {
+        system.enter(entity);
+      }
       this.isVisibilityChanged = true;
     }
-
-    for (const entity of leftOuterJoin(this.entityFinderRecord.currentEntities, enteringEntities)) {
+    for (const entity of this.entityFinderRecord.getCurrentEntities()) {
       for (const system of this.systems) {
         system.update(entity, time);
       }

@@ -1,34 +1,25 @@
-import {asSequence} from 'sequency';
 import {StationaryEntity} from '../../entitySystem/alias';
 import {toWorldBounds} from '../../law/space';
 import PhysicalConstants from '../../PhysicalConstants';
-import Iterator from '../syntax/Iterator';
-import Point from '../syntax/Point';
+import {Collector} from '../entityStorage/EntityFinder';
 import Rectangle from '../syntax/Rectangle';
 
 class Quadtree<T extends StationaryEntity> implements Iterable<T> {
   constructor(private root: Tree<T>) {
   }
 
-  static empty<T extends StationaryEntity>(maxValuesCount: number, maxDepth: number): Quadtree<T> {
+  static create<T extends StationaryEntity>(maxValuesCount: number, maxDepth: number): Quadtree<T> {
     const bounds = Rectangle.sized(PhysicalConstants.WORLD_SIZE);
     const root = new Leaf<T>(bounds, maxDepth, maxValuesCount);
-    return new this(root);
+    return new Quadtree(root);
   }
 
-  /**
-   * @return values whose coordinates are in {@param bounds}.
-   */
-  listIn(bounds: Rectangle): T[] {
+  collectIn(bounds: Rectangle, collector: Collector<T>) {
     bounds = toWorldBounds(bounds, PhysicalConstants.WORLD_SIZE);
-    return asSequence([
-      this.root.listIn(bounds),
-      this.root.listIn(bounds.clone().offset(-PhysicalConstants.WORLD_SIZE, 0)),
-      this.root.listIn(bounds.clone().offset(0, -PhysicalConstants.WORLD_SIZE)),
-      this.root.listIn(
-          bounds.clone().offset(-PhysicalConstants.WORLD_SIZE, -PhysicalConstants.WORLD_SIZE))])
-        .flatten()
-        .toArray();
+    this.root.collectIn(bounds, collector);
+    this.root.collectIn(bounds.offset(-PhysicalConstants.WORLD_SIZE, 0), collector);
+    this.root.collectIn(bounds.offset(0, -PhysicalConstants.WORLD_SIZE), collector);
+    this.root.collectIn(bounds.offset(PhysicalConstants.WORLD_SIZE, 0), collector);
   }
 
   /**
@@ -63,15 +54,17 @@ class Quadtree<T extends StationaryEntity> implements Iterable<T> {
     return removedValues;
   }
 
-  [Symbol.iterator]() {
-    return Iterator.of(this.root);
+  * [Symbol.iterator]() {
+    yield* this.root;
   }
 }
 
 export default Quadtree;
 
 export interface Tree<T extends StationaryEntity> extends Iterable<T> {
-  listIn(bounds: Rectangle): Iterable<T>;
+  collectIn(bounds: Rectangle, collector: Collector<T>): void;
+
+  collectAll(collector: Collector<T>): void;
 
   add(value: T, addedValues?: T[]): Tree<T>;
 
@@ -79,27 +72,28 @@ export interface Tree<T extends StationaryEntity> extends Iterable<T> {
 }
 
 export class Node<T extends StationaryEntity> implements Tree<T> {
-  /**
-   * @param {Array<Tree<T>>} children [topLeft, topRight, bottomLeft, bottomRight]
-   * @param {Rectangle} bounds
-   */
-  constructor(private readonly children: Array<Tree<T>>, private readonly bounds: Rectangle) {
-    if (children.length !== 4) {
-      throw new TypeError('Invalid number of children');
-    }
+  constructor(
+      private topLeftChild: Tree<T>,
+      private topRightChild: Tree<T>,
+      private bottomLeftChild: Tree<T>,
+      private bottomRightChild: Tree<T>,
+      private readonly bounds: Rectangle) {
   }
 
-  listIn(bounds: Rectangle) {
+  collectIn(bounds: Rectangle, collector: Collector<T>) {
     if (!this.bounds.intersects(bounds)) {
-      return [];
+      return;
     }
+
     if (bounds.containsRect(this.bounds)) {
-      return this;
+      this.collectAll(collector);
+      return;
     }
-    return asSequence(this.children)
-        .map(tree => tree.listIn(bounds))
-        .flatten()
-        .asIterable();
+
+    this.topLeftChild.collectIn(bounds, collector);
+    this.topRightChild.collectIn(bounds, collector);
+    this.bottomLeftChild.collectIn(bounds, collector);
+    this.bottomRightChild.collectIn(bounds, collector);
   }
 
   add(value: T, addedValues?: T[]): Tree<T> {
@@ -112,25 +106,40 @@ export class Node<T extends StationaryEntity> implements Tree<T> {
     return this;
   }
 
-  [Symbol.iterator]() {
-    const values = asSequence(this.children).flatten().asIterable();
-    return Iterator.of(values);
+  collectAll(collector: Collector<T>) {
+    this.topLeftChild.collectAll(collector);
+    this.topRightChild.collectAll(collector);
+    this.bottomLeftChild.collectAll(collector);
+    this.bottomRightChild.collectAll(collector);
+  }
+
+  * [Symbol.iterator]() {
+    yield* this.topLeftChild;
+    yield* this.topRightChild;
+    yield* this.bottomLeftChild;
+    yield* this.bottomRightChild;
   }
 
   private applyValueToChild(value: T, callback: (child: Tree<T>) => Tree<T>) {
-    const coordinates = value.coordinates;
-    if (!this.bounds.contains(coordinates.x, coordinates.y)) {
+    if (!this.bounds.contains(value.coordinates.x, value.coordinates.y)) {
       return;
     }
 
-    const childIndex = this.getIndexOfChildContaining(coordinates);
-    this.children[childIndex] = callback(this.children[childIndex]);
-  }
-
-  private getIndexOfChildContaining(coordinates: Point) {
-    const isOnTheRight = coordinates.x >= this.bounds.centerX;
-    const isOnTheBottom = coordinates.y >= this.bounds.centerY;
-    return Number(isOnTheRight) + Number(isOnTheBottom) * 2;
+    const isOnTheRight = value.coordinates.x >= this.bounds.centerX;
+    const isOnTheBottom = value.coordinates.y >= this.bounds.centerY;
+    if (isOnTheBottom) {
+      if (isOnTheRight) {
+        this.bottomRightChild = callback(this.bottomRightChild);
+      } else {
+        this.bottomLeftChild = callback(this.bottomLeftChild);
+      }
+    } else {
+      if (isOnTheRight) {
+        this.topRightChild = callback(this.topRightChild);
+      } else {
+        this.topLeftChild = callback(this.topLeftChild);
+      }
+    }
   }
 }
 
@@ -140,37 +149,36 @@ export class Leaf<T extends StationaryEntity> implements Tree<T> {
       private readonly maxDepth: number,
       private readonly maxValuesCount: number,
       private readonly depth: number = 0,
-      private readonly values: Set<T> = new Set()) {
+      private readonly values: T[] = []) {
     if (!(maxValuesCount > 0)) {
       throw new TypeError(`Invalid 'maxValuesCount'`);
     }
   }
 
-  listIn(bounds: Rectangle) {
-    if (this.values.size === 0) {
-      return [];
-    }
+  collectIn(bounds: Rectangle, collector: Collector<T>) {
     if (!this.bounds.intersects(bounds)) {
-      return [];
+      return;
     }
-    return asSequence(this)
-        .filter(value => {
-          const coordinates = value.coordinates;
-          return bounds.contains(coordinates.x, coordinates.y);
-        })
-        .asIterable();
+    for (const value of this.values) {
+      const coordinates = value.coordinates;
+      if (!bounds.contains(coordinates.x, coordinates.y)) {
+        return;
+      }
+
+      collector.add(value);
+    }
   }
 
   add(value: T, addedValues?: T[]): Tree<T> {
-    if (this.values.has(value)) {
+    if (this.values.includes(value)) {
       return this;
     }
 
-    if (this.values.size >= this.maxValuesCount && this.depth !== this.maxDepth) {
+    if (this.values.length >= this.maxValuesCount && this.depth !== this.maxDepth) {
       return this.asNode().add(value, addedValues);
     }
 
-    this.values.add(value);
+    this.values.push(value);
 
     if (addedValues) {
       addedValues.push(value);
@@ -180,11 +188,12 @@ export class Leaf<T extends StationaryEntity> implements Tree<T> {
   }
 
   remove(value: T, removedValues?: T[]) {
-    if (!this.values.has(value)) {
+    const valueIndex = this.values.indexOf(value);
+    if (valueIndex === -1) {
       return this;
     }
 
-    this.values.delete(value);
+    this.values.splice(valueIndex, 1);
 
     if (removedValues) {
       removedValues.push(value);
@@ -193,20 +202,26 @@ export class Leaf<T extends StationaryEntity> implements Tree<T> {
     return this;
   }
 
-  [Symbol.iterator]() {
-    return Iterator.of(this.values);
+  collectAll(collector: Collector<T>) {
+    for (const value of this.values) {
+      collector.add(value);
+    }
+  }
+
+  * [Symbol.iterator]() {
+    yield* this.values;
   }
 
   private asNode(): Tree<T> {
     const quartileBounds = this.bounds.clone().scale(0.5);
+    const topLeft = this.newChildLeaf<T>(quartileBounds);
     const topRight = this.newChildLeaf<T>(quartileBounds.clone().offset(quartileBounds.width, 0));
     const bottomLeft =
         this.newChildLeaf<T>(quartileBounds.clone().offset(0, quartileBounds.height));
     const bottomRight = this.newChildLeaf<T>(
         quartileBounds.clone().offset(quartileBounds.width, quartileBounds.height));
-    const topLeft = this.newChildLeaf<T>(quartileBounds);
 
-    let node: Tree<T> = new Node([topLeft, topRight, bottomLeft, bottomRight], this.bounds);
+    let node: Tree<T> = new Node(topLeft, topRight, bottomLeft, bottomRight, this.bounds);
     for (const value of this.values) {
       node = node.add(value);
     }

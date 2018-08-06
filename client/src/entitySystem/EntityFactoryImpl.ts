@@ -1,7 +1,6 @@
 import CommentData from '../comment/CommentData';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import {Phaser, PIXI} from '../util/alias/phaser';
-import Point from '../util/syntax/Point';
 import {UpdatingCommentEntity} from './alias';
 import Blink from './component/Blink';
 import Chest from './component/Chest';
@@ -29,11 +28,11 @@ class EntityFactoryImpl implements EntityFactory {
     return this.createCommentEntityBuilder(data).build();
   }
 
-  createPlayer(coordinates: Point) {
+  createPlayer(coordinates: Phaser.ReadonlyPoint) {
     return this.createTinyTelevision(coordinates);
   }
 
-  createTinyTelevision(coordinates: Point) {
+  createTinyTelevision(coordinates: Phaser.ReadonlyPoint) {
     const view = this.graphicsFactory.createTinyTelevision();
     const entity = Entity.newBuilder()
         .mix(new MutableCoordinates(coordinates))
@@ -65,7 +64,7 @@ class EntityFactoryImpl implements EntityFactory {
         .mix(new Blink());
   }
 
-  createChest(coordinates: Point) {
+  createChest(coordinates: Phaser.ReadonlyPoint) {
     return Entity.newBuilder()
         .mix(new ImmutableCoordinates(coordinates))
         .mix(new Display(this.graphicsFactory.createChest()))
@@ -73,11 +72,11 @@ class EntityFactoryImpl implements EntityFactory {
         .build();
   }
 
-  createPointEntity(coordinates: Point) {
+  createPointEntity(coordinates: Phaser.ReadonlyPoint) {
     return Entity.newBuilder().mix(new ImmutableCoordinates(coordinates)).build();
   }
 
-  createSignEntity(coordinates: Point, display: PIXI.DisplayObjectContainer) {
+  createSignEntity(coordinates: Phaser.ReadonlyPoint, display: PIXI.DisplayObjectContainer) {
     return Entity.newBuilder()
         .mix(new ImmutableCoordinates(coordinates))
         .mix(new Display(display))

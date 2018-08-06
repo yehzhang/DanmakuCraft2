@@ -41,7 +41,7 @@ class CachedChunksRenderSystem implements VisibilitySystem<StationaryEntity & Di
     this.chunksToUpdateCache.add(chunk);
 
     chunk.display.addChild(entity.display);
-    entity.display.position = Point.subtract(entity.coordinates, chunk.coordinates);
+    entity.display.position = Point.subtract(entity.coordinates, chunk.coordinates).floor();
   }
 
   update(entity: StationaryEntity & Display) {

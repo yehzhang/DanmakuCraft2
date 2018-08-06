@@ -3,8 +3,7 @@ import Display from '../../entitySystem/component/Display';
 import Entity from '../../entitySystem/Entity';
 import {Phaser} from '../alias/phaser';
 import Distance from '../math/Distance';
-import Iterator from '../syntax/Iterator';
-import Point from '../syntax/Point';
+import {Collector} from './EntityFinder';
 import EntityStorage from './EntityStorage';
 
 class GlobalEntityStorage<T extends Entity> implements EntityStorage<T> {
@@ -18,20 +17,18 @@ class GlobalEntityStorage<T extends Entity> implements EntityStorage<T> {
     return new GlobalEntityStorage();
   }
 
-  listAround(coordinates: Point, radius: number): Iterable<T> {
-    if (radius === 0) {
-      return [];
-    }
-
+  collectAround(coordinates: Phaser.ReadonlyPoint, radius: number, collector: Collector<T>) {
     const distance = new Distance(radius);
-    return asSequence(this.entities)
-        .filter(entity => {
-          if (isDisplay(entity)) {
-            return distance.isDisplayClose(entity, coordinates);
-          }
-          return distance.isClose(entity.coordinates, coordinates);
-        })
-        .asIterable();
+    for (const entity of this.entities) {
+      if (isDisplay(entity)) {
+        if (!distance.isDisplayClose(entity, coordinates)) {
+          continue;
+        }
+      } else if (!distance.isClose(entity.coordinates, coordinates)) {
+        continue;
+      }
+      collector.add(entity);
+    }
   }
 
   register(entity: T) {
@@ -58,15 +55,17 @@ class GlobalEntityStorage<T extends Entity> implements EntityStorage<T> {
   deregister(entity: T) {
     const isEntityDeleted = this.entities.delete(entity);
     if (!isEntityDeleted) {
-      console.error('Entity was not registered', entity);
+      if (__DEV__) {
+        console.error('Entity was not registered', entity);
+      }
       return;
     }
 
     this.onEntitiesDeregistered.dispatch([entity]);
   }
 
-  [Symbol.iterator](): Iterator<T> {
-    return Iterator.of(this.entities);
+  * [Symbol.iterator]() {
+    yield* this.entities;
   }
 }
 

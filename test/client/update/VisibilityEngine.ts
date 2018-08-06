@@ -162,7 +162,7 @@ xdescribe('EntityFinderRecord', () => {
     entityExistenceUpdated = new Phaser.Signal();
 
     mockEntityFinder = mock(QuadtreeEntityStorage);
-    when(mockEntityFinder.listAround(anything(), anything())).thenReturn([]);
+    when(mockEntityFinder.collectAround(anything(), anything())).thenReturn([]);
     when(mockEntityFinder.onStateChanged).thenReturn(entityExistenceUpdated);
 
     mockDistanceChecker = mock(DistanceChecker);
@@ -190,15 +190,15 @@ xdescribe('EntityFinderRecord', () => {
   });
 
   it('should list entities from entity finder', () => {
-    when(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).thenReturn([]);
+    when(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).thenReturn([]);
 
     entityFinderRecord.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);
 
-    verify(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
+    verify(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS)).once();
   });
 
   it('should correctly select entering entities', () => {
-    when(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+    when(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn([entities[1], entities[2]]);
 
     entityFinderRecord.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);
@@ -207,7 +207,7 @@ xdescribe('EntityFinderRecord', () => {
   });
 
   it('should correctly select exiting entities', () => {
-    when(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+    when(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn([entities[1], entities[2]]);
 
     entityFinderRecord.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);
@@ -216,7 +216,7 @@ xdescribe('EntityFinderRecord', () => {
   });
 
   it('should correctly retain entities', () => {
-    when(mockEntityFinder.listAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
+    when(mockEntityFinder.collectAround(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS))
         .thenReturn([entities[1], entities[2]]);
 
     entityFinderRecord.update(NEXT_COORDINATES, NEXT_SAMPLING_RADIUS);

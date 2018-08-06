@@ -16,7 +16,7 @@ class PresetPoint<T> {
   constructor(readonly x: number, readonly y: number, readonly data: T) {
   }
 
-  get coordinates() {
+  get coordinates(): Point {
     return Point.of(this.x, this.y);
   }
 }
@@ -37,7 +37,8 @@ class HardCodedPreset implements Preset {
   private static readonly WORLD_CENTER_COORDINATES = Point.of(16200, 16200); // WORLD_SIZE was 32400
   private static readonly WORLD_ORIGIN_COORDINATES = Point.origin();
 
-  private static readonly SPAWN_POINT_CHANGE_INTERVAL = 5 * Phaser.Timer.MINUTE + 17 * Phaser.Timer.SECOND;
+  private static readonly SPAWN_POINT_CHANGE_INTERVAL =
+      5 * Phaser.Timer.MINUTE + 17 * Phaser.Timer.SECOND;
   private static readonly SPAWN_COORDINATE_MAX_OFFSET = 675;
 
   constructor(
