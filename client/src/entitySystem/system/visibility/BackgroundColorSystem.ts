@@ -86,7 +86,6 @@ class BackgroundColorSystem implements VisibilitySystem<CommentEntity> {
  * Produces a color between black and white based on mixed colors.
  */
 export class ColorMixer {
-
   constructor(
       private readonly maxMixedSaturation: number = 0.5,
       private readonly countBrightColorsToReachMaxLightness: number = 7,

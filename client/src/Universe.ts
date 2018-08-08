@@ -267,13 +267,14 @@ class Universe {
     // Setup visibility.
     this.collisionDetectionSystem = new CollisionDetectionSystem();
 
+    const spawnPointsContainerSystem = new ContainerSystem<Entity>();
     const foregroundVisibilityEngineBuilder = VisibilityEngine.newBuilder(
         this.player,
         renderRadius,
         PhysicalConstants.FOREGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS);
     foregroundVisibilityEngineBuilder.onUpdate()
         .apply(new UpdateSystem())
-        .toEntities().of(this.playersStorage).and(this.updatingCommentsStorage)
+        .toEntities().of(this.playersStorage)
 
         .apply(this.collisionDetectionSystem)
         .toEntities().of(this.commentsStorage).and(this.updatingCommentsStorage)
@@ -281,6 +282,9 @@ class Universe {
         .apply(chestSystem)
         .toEntities().of(this.chestsStorage);
     foregroundVisibilityEngineBuilder.onRender()
+        .apply(new UpdateSystem())
+        .toEntities().of(this.updatingCommentsStorage)
+
         .apply(new BlinkSupportedRenderSystem(
             this.renderer.floatingLayer,
             this.cachedCommentsRenderSystem,
@@ -308,15 +312,8 @@ class Universe {
         .toEntities().of(this.playersStorage)
 
         .apply(new CommitMotionSystem())
-        .toEntities().of(this.playersStorage);
+        .toEntities().of(this.playersStorage)
 
-    const spawnPointsContainerSystem = new ContainerSystem<Entity>();
-
-    const backgroundVisibilityEngineBuilder = VisibilityEngine.newBuilder(
-        this.player,
-        new DynamicProvider(PhysicalConstants.BACKGROUND_SAMPLING_RADIUS),
-        PhysicalConstants.BACKGROUND_VISIBILITY_ENGINE_UPDATE_RADIUS);
-    backgroundVisibilityEngineBuilder.onRender()
         .apply(spawnPointsContainerSystem)
         .toEntities().of(this.spawnPointsStorage)
 
@@ -324,8 +321,7 @@ class Universe {
         .toEntities().of(this.commentsStorage).and(this.updatingCommentsStorage);
 
     this.visibilityEngine = new SystemEnginesEngine(
-        foregroundVisibilityEngineBuilder.build(),
-        backgroundVisibilityEngineBuilder.build());
+        foregroundVisibilityEngineBuilder.build());
   }
 }
 

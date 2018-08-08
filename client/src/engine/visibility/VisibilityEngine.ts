@@ -74,49 +74,50 @@ export class EntityFinderRecordsSampler {
       private readonly trackee: MovableEntity,
       private readonly samplingRadius: DynamicProvider<number>,
       private readonly distanceChecker: DistanceChecker,
-      private readonly currentCoordinates: Phaser.Point = trackee.coordinates.clone()) {
+      private readonly sampledAt = trackee.coordinates.clone()) {
   }
 
   update(records: Array<EntityFinderRecord<Entity>>) {
     const nextCoordinates = this.trackee.coordinates;
     const samplingRadius = this.samplingRadius.getValue();
-    let updatedRecordsCount = 0;
-    for (const record of this.getEntityFinderRecordsToUpdate(records, nextCoordinates)) {
-      record.update(nextCoordinates, samplingRadius);
-
-      if (!record.hasUpdate()) {
-        continue;
+    let shouldUpdateSampledAtCoordinates = true;
+    if (this.isLastSampleStale(nextCoordinates)) {
+      for (const record of records) {
+        record.update(nextCoordinates, samplingRadius);
       }
-      updatedRecordsCount++;
+    } else {
+      for (const record of records) {
+        if (!record.isExistenceChangedNearby) {
+          shouldUpdateSampledAtCoordinates = false;
+          continue;
+        }
+
+        record.update(nextCoordinates, samplingRadius);
+
+        if (record.isVisibilityChanged()) {
+          continue;
+        }
+        shouldUpdateSampledAtCoordinates = false;
+      }
     }
 
     if (this.samplingRadius.hasUpdate()) {
       this.distanceChecker.updateDistance(samplingRadius);
       this.samplingRadius.commitUpdate();
     }
-    if (updatedRecordsCount === records.length) {
-      this.currentCoordinates.copyFrom(nextCoordinates);
+    if (shouldUpdateSampledAtCoordinates) {
+      this.sampledAt.copyFrom(nextCoordinates);
     }
   }
 
-  private* getEntityFinderRecordsToUpdate(
-      records: Iterable<EntityFinderRecord<Entity>>, nextCoordinates: Phaser.ReadonlyPoint) {
-    if (!this.distanceChecker.updatingDistance.isClose(nextCoordinates, this.currentCoordinates)) {
-      yield* records;
-      return;
+  private isLastSampleStale(nextCoordinates: Phaser.ReadonlyPoint) {
+    if (!this.distanceChecker.updatingDistance.isClose(this.sampledAt, nextCoordinates)) {
+      return true;
     }
-
     if (this.samplingRadius.hasUpdate()) {
-      yield* records;
-      return;
+      return true;
     }
-
-    for (const record of records) {
-      if (!record.shouldUpdate()) {
-        continue;
-      }
-      yield record;
-    }
+    return false;
   }
 }
 
@@ -124,32 +125,29 @@ export class EntityFinderRecord<T extends Entity> {
   constructor(
       private readonly entityFinder: EntityFinder<T>,
       private readonly distanceChecker: DistanceChecker,
-      private readonly currentCoordinates: Point = Point.origin(),
+      private readonly updatedAt = Point.origin(),
       private readonly joiner: StreamJoiner<T> & Collector<T> = new SetStreamJoiner(),
       private isEnteringEntitiesFetched = false,
       private isExitingEntitiesFetched = false,
-      private shouldUpdateEntities: boolean = true) {
+      public isExistenceChangedNearby = true) {
     entityFinder.onEntitiesRegistered.add(this.onEntitiesExistenceChanged, this);
     entityFinder.onEntitiesDeregistered.add(this.onEntitiesExistenceChanged, this);
-  }
-
-  shouldUpdate() {
-    return this.shouldUpdateEntities;
   }
 
   update(nextCoordinates: Phaser.ReadonlyPoint, samplingRadius: number) {
     this.joiner.flush();
     this.entityFinder.collectAround(nextCoordinates, samplingRadius, this.joiner);
 
-    this.currentCoordinates.copyFrom(nextCoordinates);
+    this.updatedAt.copyFrom(nextCoordinates);
 
     this.isEnteringEntitiesFetched = false;
     this.isExitingEntitiesFetched = false;
 
-    this.shouldUpdateEntities = false;
+    this.isExistenceChangedNearby = false;
   }
 
-  hasUpdate(): boolean {
+  isVisibilityChanged(): boolean {
+    // TODO also fixed a bug that caused excessive has update
     return asSequence(this.joiner.leftValues).any() || asSequence(this.joiner.rightValues).any();
   }
 
@@ -162,8 +160,12 @@ export class EntityFinderRecord<T extends Entity> {
     yield* this.joiner.leftValues;
   }
 
-  getCurrentEntities(): Iterable<T> {
-    return this.joiner.innerValues;
+  * getCurrentEntities(): Iterable<T> {
+    // TODO remove all these conditions. Maybe by moving flush to entity finder record's finish?
+    if (this.isEnteringEntitiesFetched) {
+      yield* this.joiner.leftValues;
+    }
+    yield* this.joiner.innerValues;
   }
 
   * fetchExitingEntities(): Iterable<T> {
@@ -176,11 +178,11 @@ export class EntityFinderRecord<T extends Entity> {
   }
 
   private onEntitiesExistenceChanged(entities: ReadonlyArray<T>) {
-    if (this.shouldUpdateEntities) {
+    if (this.isExistenceChangedNearby) {
       return;
     }
-    this.shouldUpdateEntities = entities.some(
-        entity => this.distanceChecker.isInEnteringRadius(this.currentCoordinates, entity));
+    this.isExistenceChangedNearby = entities.some(
+        entity => this.distanceChecker.isInEnteringRadius(this.updatedAt, entity));
   }
 }
 
@@ -192,8 +194,8 @@ export class DistanceChecker {
       private enteringDistance = createUpdateDistance(samplingRadius, updatingRadius)) {
   }
 
-  isInEnteringRadius(currentCoordinates: Point, entity: Entity) {
-    return this.enteringDistance.isClose(currentCoordinates, entity.coordinates);
+  isInEnteringRadius(centerCoordinates: Point, entity: Entity) {
+    return this.enteringDistance.isClose(centerCoordinates, entity.coordinates);
   }
 
   updateDistance(samplingRadius: number) {
@@ -223,17 +225,16 @@ export class SystemTicker<T = Component, U extends T & Entity = T & Entity> {
   }
 
   firstForwardTick(time: Phaser.Time) {
-    // TODO entering entities should be entered once
+    for (const entity of this.entityFinderRecord.getCurrentEntities()) {
+      for (const system of this.systems) {
+        system.update(entity, time);
+      }
+    }
     for (const entity of this.entityFinderRecord.fetchEnteringEntities()) {
       for (const system of this.systems) {
         system.enter(entity);
       }
       this.isVisibilityChanged = true;
-    }
-    for (const entity of this.entityFinderRecord.getCurrentEntities()) {
-      for (const system of this.systems) {
-        system.update(entity, time);
-      }
     }
   }
 

@@ -11,7 +11,7 @@ class RenderThrottler {
 
   private static readonly RUNNER_TIME_PREDICTION_Z_VALUE = 1;
 
-  private static readonly RESERVED_TIME_AFTER_RUNNER_MS = 2;
+  private static readonly RESERVED_TIME_AFTER_RUNNER_MS = 3;
 
   constructor(
       private readonly runnerTimeEstimator = new StreamStatistics().push(1),

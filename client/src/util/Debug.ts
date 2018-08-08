@@ -17,6 +17,7 @@ import ChestBuilder from '../render/graphics/ChestBuilder';
 import SpeechBubbleBuilder from '../render/graphics/SpeechBubbleBuilder';
 import Universe from '../Universe';
 import {Phaser} from './alias/phaser';
+import RenderThrottler from './async/RenderThrottler';
 import Sleep from './async/Sleep';
 import {Leaf, Node, Tree} from './dataStructures/Quadtree';
 import Distance from './math/Distance';
@@ -159,7 +160,7 @@ class Debug {
   }
 
   // noinspection JSUnusedGlobalSymbols
-  get showInfo() {
+  get info() {
     this.shouldShowInfo = true;
     return true;
   }
@@ -224,6 +225,7 @@ class Debug {
       Sleep,
       PresetSettingsOptions,
       Nudge,
+      RenderThrottler,
     });
 
     const debug = new this(universe);
@@ -353,9 +355,9 @@ class Debug {
 
     const [foregroundEngine, backgroundEngine] = this.universe.visibilityEngine['engines'];
     this.debugInfo.line(
-        `Foreground updated at`, foregroundEngine['sampler']['currentCoordinates']);
+        `Foreground updated at`, foregroundEngine['sampler']['sampledAt']);
     this.debugInfo.line(
-        `Background updated at`, backgroundEngine['sampler']['currentCoordinates']);
+        `Background updated at`, backgroundEngine['sampler']['sampledAt']);
 
     this.debugInfo.line(
         `Lightness count: ${this.systems.backgroundColorSystem.colorMixer.lightnessCounter}`);

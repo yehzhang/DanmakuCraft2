@@ -71,7 +71,6 @@ class MainState extends Phaser.State {
     this.game.stage.backgroundColor = Colors.BACKGROUND_NUMBER;
 
     this.setRenderRoundPixels(true);
-    // this.setRenderRoundPixels(false);
 
     // Makes tiny television less blurry.
     // However, it looks too ugly when zoomed if turned on.
