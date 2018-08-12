@@ -3,7 +3,7 @@ import {Phaser} from '../../../util/alias/phaser';
 import {UpdatingCommentEntity} from '../../alias';
 import PermanentlyUpdatingBuff from './PermanentlyUpdatingBuff';
 
-const TICKS_PER_UPDATE = 3;
+const UPDATE_FREQUENCY_PER_TICK = 1 / 2;
 
 /**
  * Makes a {@link CommentEntity} constantly change its color.
@@ -14,20 +14,21 @@ class Chromatic extends PermanentlyUpdatingBuff<UpdatingCommentEntity> {
       private redTransition: ColorTransition,
       private blueTransition: ColorTransition,
       private greenTransition: ColorTransition,
-      private ticksSinceLastUpdate = 1) {
+      private elapsedTimeSinceLastTransition = 0) {
     super();
   }
 
   tick(commentEntity: UpdatingCommentEntity, time: Phaser.Time) {
-    if (Math.random() >= 1 / TICKS_PER_UPDATE) {
-      this.ticksSinceLastUpdate++;
+    this.elapsedTimeSinceLastTransition += time.elapsedMS;
+
+    if (Math.random() >= UPDATE_FREQUENCY_PER_TICK) {
       return;
     }
-    this.ticksSinceLastUpdate = 1;
 
-    this.redTransition.tick(time, this.ticksSinceLastUpdate);
-    this.greenTransition.tick(time, this.ticksSinceLastUpdate);
-    this.blueTransition.tick(time, this.ticksSinceLastUpdate);
+    this.redTransition.tick(time, this.elapsedTimeSinceLastTransition);
+    this.greenTransition.tick(time, this.elapsedTimeSinceLastTransition);
+    this.blueTransition.tick(time, this.elapsedTimeSinceLastTransition);
+    this.elapsedTimeSinceLastTransition = 0;
 
     const color = Phaser.Color.RGBtoString(
         this.redTransition.getValue(),
@@ -46,7 +47,7 @@ class Chromatic extends PermanentlyUpdatingBuff<UpdatingCommentEntity> {
 export default Chromatic;
 
 export interface ColorTransition {
-  tick(time: Phaser.Time, ticksSinceLastUpdate: number): void;
+  tick(time: Phaser.Time, elapsedTimeSinceLastTick: number): void;
 
   getValue(): number;
 }
@@ -72,13 +73,13 @@ export class BouncingColorTransition implements ColorTransition {
     return Math.round(this.value);
   }
 
-  tick(time: Phaser.Time, ticksSinceLastUpdate: number) {
-    this.pauseInterval -= time.physicsElapsedMS * ticksSinceLastUpdate;
+  tick(time: Phaser.Time, elapsedTimeSinceLastTick: number) {
+    this.pauseInterval -= elapsedTimeSinceLastTick;
     if (this.pauseInterval > 0) {
       return;
     }
 
-    this.value += this.velocity * ticksSinceLastUpdate;
+    this.value += this.velocity * elapsedTimeSinceLastTick / time.physicsElapsedMS;
 
     if (this.value > BouncingColorTransition.MAX_VALUE) {
       this.value = BouncingColorTransition.MAX_VALUE;
