@@ -5,7 +5,7 @@ import setUpUser from './setUpUser';
 
 async function setup(store: Store): Promise<string> {
   setUpUser(store);
-  const ignored = setupExternalDependency(store);
+  setupExternalDependency(store);
   return setUpGameContainerElement();
 }
 

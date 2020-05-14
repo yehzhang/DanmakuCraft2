@@ -1,30 +1,17 @@
 import { addLoadingTask } from '../../component/Loading';
 import { Store } from '../redux';
+import poll from './poll';
 
-async function setupExternalDependency(store: Store): Promise<JQueryStatic> {
-  const promise = setupAfterExternalDependencyReady(store);
-  addLoadingTask(async () => {
-    await promise;
-  });
-
-  return promise;
-}
-
-async function setupAfterExternalDependencyReady(store: Store): Promise<JQueryStatic> {
-  return new Promise((resolve) => {
-    const check = () => {
+function setupExternalDependency(store: Store) {
+  addLoadingTask(() => {
+    poll(() => {
       const $ = (window as any).$;
       if (!$) {
-        setTimeout(check, 100);
-        return;
+        return null;
       }
 
       store.dispatch({ type: '[shim/bilibili] external dependency ready', $ });
-
-      resolve($);
-    };
-
-    check();
+    });
   });
 }
 

@@ -1,5 +1,7 @@
 /** Resolves to the ID of the container element. */
 import { toHexString, white } from '../../data/color';
+import sleep from '../sleep';
+import poll from './poll';
 
 async function setUpGameContainerElement(): Promise<string> {
   const videoFrameElement = await waitUntilHtml5PlayerIsReady();
@@ -30,18 +32,16 @@ async function waitUntilHtml5PlayerIsReady(): Promise<HTMLElement> {
   // TODO click only if necessary
   // (window as any).GrayManager.clickMenu('change_h5');
 
-  return new Promise((resolve) => {
-    function tryToResolvePlayerElement() {
-      const videoFrameElement = document.querySelector<HTMLElement>('.bilibili-player-video-wrap');
-      if (videoFrameElement) {
-        // Wait a while after the element is first created.
-        setTimeout(() => resolve(videoFrameElement), 2000);
-        return;
-      }
-      setTimeout(tryToResolvePlayerElement, 100);
+  return poll(async () => {
+    const videoFrameElement = document.querySelector<HTMLElement>('.bilibili-player-video-wrap');
+    if (!videoFrameElement) {
+      return null;
     }
 
-    tryToResolvePlayerElement();
+    // Wait a while after the element is first created.
+    await sleep(2000);
+
+    return videoFrameElement;
   });
 }
 

@@ -9,6 +9,7 @@ import RenderThrottler from '../shim/pixi/RenderThrottler';
 import { memo } from '../shim/react';
 import { PointLike } from '../shim/reactPixi';
 import { Dispatch, useDispatch } from '../shim/redux';
+import sleep from '../shim/sleep';
 import FadeTransitionText from './FadeTransitionText';
 
 interface Props {
@@ -115,10 +116,6 @@ function loadCommentsFromBackend(dispatch: Dispatch): LoadingTask {
       }
     }
   };
-}
-
-async function sleep(durationMs: number) {
-  return new Promise((resolve) => setTimeout(resolve, durationMs));
 }
 
 async function loadingTimeout(): Promise<never> {
