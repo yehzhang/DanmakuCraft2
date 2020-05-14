@@ -145,6 +145,12 @@ function CommentTextInput() {
         }
       }, [textInputElement, refCallback]);
 
+      useEffect(() => {
+        if (textInputElement) {
+          textInputElement.value = commentText;
+        }
+      }, [textInputElement, commentText]);
+
       const onSubmitRef = useRef(onSubmit);
       onSubmitRef.current = onSubmit;
       useEffect(() => {
