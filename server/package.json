@@ -31,7 +31,7 @@
     "grunt-sync": "^0.8.0",
     "include-all": "^4.0.3",
     "jsonwebtoken": "^8.3.0",
-    "lodash": "3.10.1",
+    "lodash": "4.17.13",
     "rc": "^1.2.8",
     "sails": "~0.12.14",
     "sails-disk": "~0.10.9",
