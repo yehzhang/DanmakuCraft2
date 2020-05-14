@@ -2,6 +2,7 @@
 **/*.log
 .prettierignore
 .gitignore
+.gitattributes
 *.db
 *.ac3
 *.mp3
