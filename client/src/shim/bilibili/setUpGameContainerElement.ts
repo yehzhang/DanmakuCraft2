@@ -4,7 +4,7 @@ import sleep from '../sleep';
 import poll from './poll';
 
 async function setUpGameContainerElement(): Promise<string> {
-  const videoFrameElement = await waitUntilHtml5PlayerIsReady();
+  const videoFrameElement = await poll(checkAndEnableHtml5Player);
 
   configureBilibiliPlayer(videoFrameElement);
 
@@ -28,21 +28,29 @@ function configureBilibiliPlayer(videoFrameElement: HTMLElement) {
     ?.remove();
 }
 
-async function waitUntilHtml5PlayerIsReady(): Promise<HTMLElement> {
-  // TODO click only if necessary
-  // (window as any).GrayManager.clickMenu('change_h5');
-
-  return poll(async () => {
-    const videoFrameElement = document.querySelector<HTMLElement>('.bilibili-player-video-wrap');
-    if (!videoFrameElement) {
-      return null;
-    }
-
+async function checkAndEnableHtml5Player(): Promise<HTMLElement | null> {
+  const videoFrameElement = document.querySelector<HTMLElement>('.bilibili-player-video-wrap');
+  if (videoFrameElement) {
     // Wait a while after the element is first created.
     await sleep(2000);
 
     return videoFrameElement;
-  });
+  }
+
+  // Enable HTML5 player if flash player is enabled.
+  const flashPlayerElement = document.querySelector(
+    'object.player[type="application/x-shockwave-flash"]'
+  );
+  if (flashPlayerElement) {
+    const { GrayManager } = window as any;
+    try {
+      GrayManager.clickMenu('change_h5');
+    } catch (e) {
+      GrayManager.clickMenu('change_new_h5');
+    }
+  }
+
+  return null;
 }
 
 function addGameContainerElement(elementId: string, videoFrameElement: Element) {
