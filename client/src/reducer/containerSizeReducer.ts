@@ -9,8 +9,6 @@ function containerSizeReducer(state = initialState, action: Action): Point {
       const { size } = action;
       return equal(size, state) ? state : size;
     }
-    case 'Genesis':
-      return initialState;
     default:
       return state;
   }

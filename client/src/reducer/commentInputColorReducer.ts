@@ -9,8 +9,6 @@ function commentInputColorReducer(state = initialState, action: Action): Color {
       const { color } = action;
       return color;
     }
-    case 'Genesis':
-      return initialState;
     default:
       return state;
   }

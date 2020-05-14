@@ -15,8 +15,6 @@ function userReducer(state = initialState, action: Action): UserState | null {
       return {
         id: null,
       };
-    case 'Genesis':
-      return initialState;
     default:
       return state;
   }

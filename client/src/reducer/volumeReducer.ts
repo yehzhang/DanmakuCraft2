@@ -9,8 +9,6 @@ function volumeReducer(state = initialState, action: Action): VolumeState {
       const { on } = action;
       return on ? 1 : 0;
     }
-    case 'Genesis':
-      return initialState;
     default:
       return state;
   }

@@ -9,8 +9,6 @@ function commentInputSubmittingReducer(state = initialState, action: Action): bo
     case '[CommentTextInput] submitted':
     case '[CommentTextInput] submit failed due to network error':
       return false;
-    case 'Genesis':
-      return initialState;
     default:
       return state;
   }

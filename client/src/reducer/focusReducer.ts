@@ -21,8 +21,6 @@ function focusReducer(state = initialState, action: Action): FocusTarget | null 
       return 'comment_input';
     case '[CommentTextInput] blurred':
       return null;
-    case 'Genesis':
-      return initialState;
     default:
       return state;
   }

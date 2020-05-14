@@ -8,8 +8,6 @@ function commentInputSizeReducer(state = initialState, action: Action): number {
       const { size } = action;
       return size;
     }
-    case 'Genesis':
-      return initialState;
     default:
       return state;
   }

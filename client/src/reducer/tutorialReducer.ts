@@ -37,8 +37,6 @@ function tutorialReducer(state = initialState, action: Action): TutorialState {
         msSinceThisStage: msSinceThisStage + deltaMs,
       });
     }
-    case 'Genesis':
-      return initialState;
     default:
       return state;
   }

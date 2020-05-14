@@ -9,7 +9,6 @@ function commentInputTextReducer(state = initialState, action: Action): string {
       return value;
     }
     case '[CommentTextInput] submitted':
-    case 'Genesis':
       return initialState;
     default:
       return state;
