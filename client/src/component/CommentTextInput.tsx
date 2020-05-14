@@ -4,13 +4,12 @@ import { Key } from 'ts-keycode-enum';
 import BuffType from '../../../server/api/services/BuffType';
 import { CreationRequestData } from '../../../server/api/services/request';
 import { toRgbNumber } from '../data/color';
-import useDomainState from '../hook/useDomainState';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
 import { postToBackend } from '../shim/backend';
 import bindFirst from '../shim/bilibili/bindFirst';
-import { domain } from '../shim/domain';
+import { domain, selectDomain } from '../shim/domain';
 import { createStyleSheet, memo } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
@@ -87,7 +86,7 @@ function CommentTextInput() {
     return true;
   }, [dispatch, commentText, submitting, commentInput, user, disabled]);
 
-  return useDomainState({
+  return selectDomain({
     danmakucraft: () => {
       const onFormSubmit = useCallback(
         (event: FormEvent) => {
@@ -116,7 +115,7 @@ function CommentTextInput() {
         </form>
       );
     },
-    bilibili: ({ $ }) => {
+    bilibili: () => {
       const textInputElement = document.querySelector<HTMLInputElement>(
         'input.bilibili-player-video-danmaku-input'
       );
@@ -153,7 +152,14 @@ function CommentTextInput() {
 
       const onSubmitRef = useRef(onSubmit);
       onSubmitRef.current = onSubmit;
+      const $ = useSelector((state) =>
+        state.domain.type === 'bilibili' ? state.domain.externalDependency?.$ : undefined
+      );
       useEffect(() => {
+        if (!$) {
+          return;
+        }
+
         const $sendButton = $('.bilibili-player-video-btn-send');
         return bindFirst($sendButton, 'click', (event) => {
           if ($sendButton.hasClass('bui-button-disabled')) {
@@ -166,11 +172,11 @@ function CommentTextInput() {
             event.preventDefault();
           }
         });
-      }, []);
+      }, [$]);
 
       return null;
     },
-  });
+  })();
 }
 
 const styles = createStyleSheet({
