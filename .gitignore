@@ -13,6 +13,7 @@ data/audio/depot/
 data/release/
 
 server/assets/static
+server/assets/bundle.js
 server/.sass-cache
 
 ## Node.gitignore
