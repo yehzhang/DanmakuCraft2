@@ -1,22 +1,21 @@
 const merge = require('webpack-merge');
-const common = require('./webpack.common.js');
-const webpack = require('webpack');
-
-const LOCAL = process.env.LOCAL_SERVER != null;
+const config = require('./webpack.common.js');
+const { DefinePlugin } = require('webpack');
 
 console.error('Bundle in development mode.');
 
-module.exports = merge.smart(common, {
-  devtool: LOCAL ? 'cheap-module-eval-source-map' : 'source-map',
+module.exports = merge.smart(config, {
+  mode: 'development',
+  devtool: 'eval-source-map',
   plugins: [
-    new webpack.DefinePlugin({
+    new DefinePlugin({
       __DEV__: JSON.stringify(true),
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      parallel: true,
-      mangle: false,
-      compress: false,
-      sourceMap: true,
-    }),
   ],
+  resolve: {
+    alias: {
+      // Make Why Did You Render work.
+      'react-redux': 'react-redux/lib',
+    },
+  },
 });

@@ -24,7 +24,6 @@
  * In AJAX/Socket-heavy apps, just send a GET request to the /csrfToken route to get a valid token.
  */
 
-// No need to enable for creation of comment as it is already protected by sendNextCommentToken.
 module.exports.csrf = false;
 
 // module.exports.csrf = {

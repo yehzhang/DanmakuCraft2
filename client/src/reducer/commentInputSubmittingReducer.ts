@@ -1,0 +1,19 @@
+import { Action } from '../action';
+
+const initialState: boolean = false;
+
+function commentInputSubmittingReducer(state = initialState, action: Action): boolean {
+  switch (action.type) {
+    case '[CommentTextInput] started submission':
+      return true;
+    case '[CommentTextInput] submitted':
+    case '[CommentTextInput] submit failed due to network error':
+      return false;
+    case 'Genesis':
+      return initialState;
+    default:
+      return state;
+  }
+}
+
+export default commentInputSubmittingReducer;

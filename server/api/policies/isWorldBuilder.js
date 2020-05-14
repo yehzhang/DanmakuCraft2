@@ -1,9 +1,5 @@
 module.exports = function (req, res, next) {
-  const allowedIps = [
-    '::1',
-    '127.0.0.1',
-    ...sails.config.roles.getUserIps('builder'),
-  ];
+  const allowedIps = ['::1', '127.0.0.1'];
 
   let ip = req.ip;
   if (ip.startsWith('::ffff:')) {

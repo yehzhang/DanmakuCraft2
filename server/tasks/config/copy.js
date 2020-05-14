@@ -24,6 +24,12 @@ module.exports = function (grunt) {
           src: ['**/*.!(coffee|scss)'],
           dest: '.tmp/public',
         },
+        {
+          expand: true,
+          cwd: '../build',
+          src: ['**/*'],
+          dest: '.tmp/public',
+        },
       ],
     },
     build: {

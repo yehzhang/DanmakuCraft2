@@ -1,0 +1,9 @@
+**/*.lock
+**/*.log
+.prettierignore
+.gitignore
+*.db
+*.ac3
+*.mp3
+*.m4a
+*.ogg

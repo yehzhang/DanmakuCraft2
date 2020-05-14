@@ -13,8 +13,8 @@ module.exports.policies = {
 
   CommentController: {
     '*': false,
-    find: ['grantNextCommentCreationToken'],
-    create: ['verifyNextCommentCreationToken', 'grantNextCommentCreationToken'],
+    find: true,
+    create: true,
   },
 
   ProtectedFilesController: {

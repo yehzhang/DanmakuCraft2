@@ -1,68 +1,56 @@
 const path = require('path');
-const webpack = require('webpack');
+const { DefinePlugin } = require('webpack');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
-const PACKAGE_DIR = require('app-root-path').toString();
-const SRC_DIR = path.resolve(__dirname, 'src');
-const PHASER_DIR = path.join(PACKAGE_DIR, 'node_modules/phaser-ce-type-updated');
-const WatchTimePlugin = require('webpack-watch-time-plugin');
+const sourcePath = path.resolve(__dirname, 'src');
+const outPath = path.resolve(__dirname, '../build');
+const backendAssetsPath = path.resolve(__dirname, '../server/assets');
+
+const localBackend = !!process.env.LOCAL_BACKEND;
+const analysis = !!process.env.ANALYSIS;
 
 module.exports = {
-  entry: `${SRC_DIR}/index.ts`,
+  entry: path.join(sourcePath, 'index.tsx'),
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        use: 'ts-loader',
+        test: /\.tsx?$/,
         exclude: /node_modules/,
+        enforce: 'pre',
+        loader: 'tslint-loader',
+        options: {
+          failOnHint: true,
+        },
       },
       {
-        test: /pixi\.js/,
-        use: [
-          {
-            loader: 'expose-loader',
-            options: 'PIXI',
-          },
-        ],
-      },
-      {
-        test: /phaser-split\.js$/,
-        use: [
-          {
-            loader: 'expose-loader',
-            options: 'Phaser',
-          },
-        ],
-      },
-      {
-        test: /p2\.js/,
-        use: [
-          {
-            loader: 'expose-loader',
-            options: 'p2',
-          },
-        ],
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        loader: 'ts-loader',
       },
     ],
   },
   plugins: [
-    new webpack.DefinePlugin({
-      __WEBPACK__: JSON.stringify(true),
-      __LOCAL__: JSON.stringify(process.env.LOCAL_SERVER != null),
+    new DefinePlugin({
+      __LOCAL_BACKEND__: JSON.stringify(localBackend),
     }),
-    WatchTimePlugin,
+    new BundleAnalyzerPlugin({
+      analyzerMode: analysis ? 'server' : 'disabled',
+    }),
   ],
   resolve: {
-    extensions: ['.ts', '.js'],
-    modules: [SRC_DIR, 'node_modules'],
-    alias: {
-      constants: `${SRC_DIR}/constants`,
-      phaser: path.join(PHASER_DIR, 'build/custom/phaser-split.js'),
-      pixi: path.join(PHASER_DIR, 'build/custom/pixi.js'),
-      p2: path.join(PHASER_DIR, 'build/custom/p2.js'),
-    },
+    extensions: ['.tsx', '.ts', '.js'],
+    modules: [sourcePath, 'node_modules'],
   },
   output: {
     filename: 'bundle.js',
-    path: path.join(PACKAGE_DIR, 'build'),
+    path: outPath,
+  },
+  devServer: {
+    public: 'https://localhost:8080',
+    open: false,
+    contentBase: [__dirname, outPath, backendAssetsPath],
+    https: true,
+    // Workaround the Socket JS error when serving to HTTPS websites.
+    disableHostCheck: true,
   },
 };

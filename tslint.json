@@ -1,8 +1,5 @@
 {
-  "extends": [
-    "tslint:recommended",
-    "tslint-no-unused-expression-chai"
-  ],
+  "extends": ["tslint:recommended"],
   "rulesDirectory": [],
   "rules": {
     "trailing-comma": false,
@@ -21,16 +18,18 @@
     "no-string-literal": false,
     "indent": [true, "spaces", 2],
     "prefer-const": false,
-    "triple-equals": [
+    "variable-name": [
       true,
-      "allow-null-check",
-      "allow-undefined-check"
+      "ban-keywords",
+      "check-format",
+      "allow-trailing-underscore",
+      "allow-pascal-case"
     ],
+    "triple-equals": [true, "allow-null-check", "allow-undefined-check"],
     "member-access": false,
-    "quotemark": [true, "single"],
+    "quotemark": [true, "single", "jsx-double"],
     "semicolon": [true, "always", "ignore-bound-class-methods"],
-    "max-line-length": [true, {"ignorePattern": "^import \\w+ from"}]
+    "max-line-length": [true, { "ignorePattern": "^import \\w+ from" }]
   },
-  "jsRules": {
-  }
+  "jsRules": {}
 }

@@ -8,7 +8,8 @@ module.exports = {
 
   models: {
     // see `sails.config.connections`
-    connection: 'localDevPostgresqlServer',
+    connection: 'localDiskDb',
+    // connection: 'localDevPostgresqlServer',
   },
 
   port: 1337,

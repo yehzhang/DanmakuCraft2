@@ -1,12 +1,13 @@
-import {FlatCommentData} from '../../../client/src/comment/CommentData';
+import { FlatCommentDataRequest } from './FlatCommentData';
 
 export interface CreationRequestData {
-  comment: FlatCommentData;
+  comment: FlatCommentDataRequest;
   user: UserData;
-  nextCreationToken: string;
 }
 
 export interface UserData {
-  origin: string;
-  id: string;
+  origin: Domain;
+  id: string | null;
 }
+
+export type Domain = 'danmakucraft' | 'bilibili';

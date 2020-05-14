@@ -20,7 +20,7 @@ module.exports = function redirectToHttps(sails) {
         disabled: false,
 
         // listen for all connected hostname
-        hostname: sails.config.hostname,
+        hostname: '0.0.0.0',
 
         // port to listen
         port: undefined,
@@ -73,15 +73,19 @@ function startServer(sails, cb) {
   });
 
   // start listening
-  server.listen(sails.config.redirectToHttps.port, sails.config.redirectToHttps.hostname, error => {
-    if (error) {
-      return cb(error);
+  server.listen(
+    sails.config.redirectToHttps.port,
+    sails.config.redirectToHttps.hostname,
+    (error) => {
+      if (error) {
+        return cb(error);
+      }
+      sails.once('lower', () => {
+        server.close();
+      });
+      cb();
     }
-    sails.once('lower', () => {
-      server.close();
-    });
-    cb();
-  });
+  );
 }
 
 function redirectToHttps(req, res) {
@@ -104,6 +108,6 @@ function redirectToHttps(req, res) {
 
   const location = `https://${sails.config.hostname}${port}${path}`;
 
-  res.writeHead(301, {'Location': location});
+  res.writeHead(301, { Location: location });
   res.end();
 }

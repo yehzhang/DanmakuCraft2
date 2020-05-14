@@ -27,52 +27,53 @@
  */
 
 module.exports.cors = {
-
   /***************************************************************************
-  *                                                                          *
-  * Allow CORS on all routes by default? If not, you must enable CORS on a   *
-  * per-route basis by either adding a "cors" configuration object to the    *
-  * route config, or setting "cors:true" in the route config to use the      *
-  * default settings below.                                                  *
-  *                                                                          *
-  ***************************************************************************/
+   *                                                                          *
+   * Allow CORS on all routes by default? If not, you must enable CORS on a   *
+   * per-route basis by either adding a "cors" configuration object to the    *
+   * route config, or setting "cors:true" in the route config to use the      *
+   * default settings below.                                                  *
+   *                                                                          *
+   ***************************************************************************/
 
   allRoutes: true,
 
   /***************************************************************************
-  *                                                                          *
-  * Which domains which are allowed CORS access? This can be a               *
-  * comma-delimited list of hosts (beginning with http:// or https://) or    *
-  * "*" to allow all domains CORS access.                                    *
-  *                                                                          *
-  ***************************************************************************/
+   *                                                                          *
+   * Which domains which are allowed CORS access? This can be a               *
+   * comma-delimited list of hosts (beginning with http:// or https://) or    *
+   * "*" to allow all domains CORS access.                                    *
+   *                                                                          *
+   ***************************************************************************/
 
-  origin: 'https://www.bilibili.com, http://www.bilibili.com',
+  origin:
+    'https://www.bilibili.com, http://www.bilibili.com' +
+    ', https://localhost:8080, http://localhost:8080' +
+    ', https://127.0.0.1:8080, http://127.0.0.1:8080',
 
   /***************************************************************************
-  *                                                                          *
-  * Allow cookies to be shared for CORS requests?                            *
-  *                                                                          *
-  ***************************************************************************/
+   *                                                                          *
+   * Allow cookies to be shared for CORS requests?                            *
+   *                                                                          *
+   ***************************************************************************/
 
   // credentials: true,
 
   /***************************************************************************
-  *                                                                          *
-  * Which methods should be allowed for CORS requests? This is only used in  *
-  * response to preflight requests (see article linked above for more info)  *
-  *                                                                          *
-  ***************************************************************************/
+   *                                                                          *
+   * Which methods should be allowed for CORS requests? This is only used in  *
+   * response to preflight requests (see article linked above for more info)  *
+   *                                                                          *
+   ***************************************************************************/
 
   // methods: 'GET, POST'
 
   /***************************************************************************
-  *                                                                          *
-  * Which headers should be allowed for CORS requests? This is only used in  *
-  * response to preflight requests.                                          *
-  *                                                                          *
-  ***************************************************************************/
+   *                                                                          *
+   * Which headers should be allowed for CORS requests? This is only used in  *
+   * response to preflight requests.                                          *
+   *                                                                          *
+   ***************************************************************************/
 
   // headers: 'content-type'
-
 };

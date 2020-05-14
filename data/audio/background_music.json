@@ -1,0 +1,13 @@
+{
+  "urls": [
+    "../build/audio/background_music.ogg",
+    "../build/audio/background_music.m4a",
+    "../build/audio/background_music.mp3",
+    "../build/audio/background_music.ac3"
+  ],
+  "sprite": {
+    "all_alone": [0, 42057.142857142855],
+    "eating_cake": [44000, 59219.5918367347],
+    "peaceful_piano_amplified": [105000, 149849.31972789115]
+  }
+}

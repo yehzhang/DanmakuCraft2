@@ -4,9 +4,10 @@ const COMMENT_ROOM_ID = -1;
 module.exports = {
   async find(req, res) {
     return ControllerUtils.catchServerError(res, async () => {
-      const rawCommentsCount = parseInt(req.param('count'), 10);
+      const rawCommentsCount = Number(req.param('count'));
       let commentsCount;
       if (isNaN(rawCommentsCount)) {
+        // TODO default to 0
         commentsCount = MAX_COMMENTS_COUNT;
       } else {
         commentsCount = Math.max(Math.min(rawCommentsCount, MAX_COMMENTS_COUNT), 0);
@@ -18,7 +19,7 @@ module.exports = {
         Comment.subscribe(req, [COMMENT_ROOM_ID]);
       }
 
-      return res.ok(CommentUtils.wrapAsCommentFoundData(comments, req.nextCommentCreationToken));
+      return res.ok(CommentUtils.wrapAsCommentFoundData(comments));
     });
   },
 
@@ -41,8 +42,7 @@ module.exports = {
       user.comment.add(comment);
       const ignored = user.save();
 
-      const commentCreatedData =
-        CommentUtils.wrapAsCommentCreatedData(comment, req.nextCommentCreationToken);
+      const commentCreatedData = CommentUtils.wrapAsCommentCreatedData(comment);
       Comment.message(COMMENT_ROOM_ID, commentCreatedData);
 
       return res.ok();

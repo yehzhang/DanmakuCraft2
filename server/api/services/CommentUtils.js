@@ -1,32 +1,29 @@
 module.exports = {
   /**
    * @param {Comment} comment
-   * @param {string} nextCreationToken
    * @return {CommentCreatedData}
    */
-  wrapAsCommentCreatedData(comment, nextCreationToken) {
-    return {comment: CommentUtils.asFlatData(comment), nextCreationToken};
+  wrapAsCommentCreatedData(comment) {
+    return { comment: CommentUtils.asFlatData(comment) };
   },
 
   /**
    * @param {Comment[]} comments
-   * @param {string} nextCreationToken
    * @return {CommentFoundData}
    */
-  wrapAsCommentFoundData(comments, nextCreationToken) {
-    return {comments: comments.map(CommentUtils.asFlatData), nextCreationToken};
+  wrapAsCommentFoundData(comments) {
+    return { comments: comments.map(CommentUtils.asFlatData) };
   },
 
   /**
    * @param {Comment} comment
-   * @return {FlatCommentData}
+   * @return {FlatCommentDataResponse}
    */
   asFlatData(comment) {
     const flatData = comment.toJSON();
-    delete flatData.createdAt;
     delete flatData.updatedAt;
     delete flatData.id;
 
     return flatData;
-  }
+  },
 };

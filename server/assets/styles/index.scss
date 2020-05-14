@@ -1,26 +1,28 @@
-@import "../../../node_modules/bootstrap/scss/functions";
-@import "../../../node_modules/bootstrap/scss/variables";
-@import "../../../node_modules/bootstrap/scss/mixins";
-@import "../../../node_modules/bootstrap/scss/utilities/spacing";
+@import '../../node_modules/bootstrap/scss/functions';
+@import '../../node_modules/bootstrap/scss/variables';
+@import '../../node_modules/bootstrap/scss/mixins';
+@import '../../node_modules/bootstrap/scss/utilities/spacing';
 
 body {
-  background-color: #F6F9FA;
-  font-family: // Safari for OS X and iOS (San Francisco)
-    -apple-system,
-      // Chrome < 56 for OS X (San Francisco)
-    BlinkMacSystemFont,
-      // Mac
-    "Helvetica Neue",
-      // Chinese
-    'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei',
-      // Windows
-    "Segoe UI",
-      // Android
-    "Roboto",
-      // Basic web fallback
-    Helvetica, Arial, sans-serif,
-      // Emoji fonts
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  background-color: #f6f9fa;
+  font-family: // Safari for OS X and iOS (San Francisco) -apple-system,
+    // Chrome < 56 for OS X (San Francisco)
+      BlinkMacSystemFont,
+    // Mac
+      'Helvetica Neue',
+    // Chinese
+      'PingFang SC',
+    'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei',
+    // Windows
+      'Segoe UI',
+    // Android
+      'Roboto',
+    // Basic web fallback
+      Helvetica,
+    Arial, sans-serif,
+    // Emoji fonts
+      'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 
 @mixin dimensions-from-width($width) {
@@ -33,11 +35,6 @@ body {
 
   display: block;
   @include dimensions-from-width(100vw);
-
-  $box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05), 0 3px 6px rgba(0, 0, 0, 0.05);
-  -moz-box-shadow: $box-shadow;
-  -webkit-box-shadow: $box-shadow;
-  box-shadow: $box-shadow;
 }
 
 @include media-breakpoint-up(md) {
