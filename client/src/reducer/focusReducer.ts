@@ -16,11 +16,11 @@ function focusReducer(state = initialState, action: Action): FocusTarget | null 
       return view === 'main' && state === 'stage' && keyDown ? 'comment_input' : state;
     }
     case '[PixiStage] blurred':
-      return null;
+      return state === 'stage' ? null : state;
     case '[CommentTextInput] focused':
       return 'comment_input';
     case '[CommentTextInput] blurred':
-      return null;
+      return state === 'comment_input' ? null : state;
     default:
       return state;
   }
