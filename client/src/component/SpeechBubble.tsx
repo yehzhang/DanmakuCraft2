@@ -12,7 +12,6 @@ import { Tweens } from '../data/tween';
 import useTexture from '../hook/useTexture';
 import useTweens from '../hook/useTweens';
 import wrapDrawWithShadow from '../shim/pixi/wrapDrawWithShadow';
-import { memo } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 import { inQuad, outQuad } from '../shim/tsEasing';
 import { JustText } from '../state';
@@ -123,4 +122,4 @@ const draw = wrapDrawWithShadow(
   }
 );
 
-export default memo(SpeechBubble);
+export default SpeechBubble;

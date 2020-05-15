@@ -6,7 +6,7 @@ import { Color, fromString, toHexString } from '../data/color';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useHovered from '../hook/useHovered';
 import { selectDomain } from '../shim/domain';
-import { createStyleSheet, memo } from '../shim/react';
+import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
 function CommentColorInput() {
@@ -108,4 +108,4 @@ const colors = [
   '#000000',
 ];
 
-export default memo(CommentColorInput);
+export default CommentColorInput;

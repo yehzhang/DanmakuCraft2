@@ -5,7 +5,6 @@ import { useMemo } from 'react';
 import { black, Color, toRgbNumber, white } from '../data/color';
 import useTexture from '../hook/useTexture';
 import wrapDrawWithShadow from '../shim/pixi/wrapDrawWithShadow';
-import { memo } from '../shim/react';
 import { PointLike } from '../shim/reactPixi';
 import { useSelector } from '../shim/redux';
 
@@ -213,4 +212,4 @@ const drawThirdFrame = wrapDrawWithShadow(
   }
 );
 
-export default memo(TinyTelevision);
+export default TinyTelevision;

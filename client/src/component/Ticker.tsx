@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 import useTick from '../hook/useTick';
-import { memo } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 import { State } from '../state';
 
@@ -14,4 +13,4 @@ function Ticker() {
   return null;
 }
 
-export default memo(Ticker);
+export default Ticker;

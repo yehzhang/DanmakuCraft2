@@ -10,7 +10,7 @@ import commentInputSelector from '../selector/commentInputSelector';
 import { postToBackend } from '../shim/backend';
 import bindFirst from '../shim/bilibili/bindFirst';
 import { domain, selectDomain } from '../shim/domain';
-import { createStyleSheet, memo } from '../shim/react';
+import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
 function CommentTextInput() {
@@ -202,4 +202,4 @@ const styles = createStyleSheet({
   },
 });
 
-export default memo(CommentTextInput);
+export default CommentTextInput;

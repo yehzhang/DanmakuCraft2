@@ -1,14 +1,18 @@
 import * as React from 'react';
-import { ReactNode } from 'react';
 import { selectDomain } from '../shim/domain';
 import { createStyleSheet } from '../shim/react';
+import CommentColorInput from './CommentColorInput';
+import CommentSizeInput from './CommentSizeInput';
+import CommentTextInput from './CommentTextInput';
 
-interface Props {
-  readonly children: ReactNode;
-}
-
-function BelowStageControlsBar({ children }: Props) {
-  return <div style={styles.container}>{children}</div>;
+function BelowStageControlsBar() {
+  return (
+    <div style={styles.container}>
+      <CommentSizeInput />
+      <CommentColorInput />
+      <CommentTextInput />
+    </div>
+  );
 }
 
 const styles = createStyleSheet({

@@ -7,7 +7,6 @@ import { map } from '../data/point';
 import commentInputDimensionsSelector from '../selector/commentInputDimensionsSelector';
 import commentInputSelector from '../selector/commentInputSelector';
 import trimmedCommentInputSelector from '../selector/trimmedCommentInputSelector';
-import { memo } from '../shim/react';
 import { useSelector } from '../shim/redux';
 import Comment from './Comment';
 
@@ -47,4 +46,4 @@ function CommentInputPreview_({ text }: Props) {
 const warningBoxOffsetY = -5;
 const warningBoxPadding1d = 4;
 
-export default memo(CommentInputPreview);
+export default CommentInputPreview;

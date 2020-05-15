@@ -2,7 +2,6 @@ import * as React from 'react';
 import { white } from '../data/color';
 import { Tweens } from '../data/tween';
 import useTweens from '../hook/useTweens';
-import { memo } from '../shim/react';
 import { inQuad } from '../shim/tsEasing';
 import FullscreenColor from './FullscreenColor';
 
@@ -25,4 +24,4 @@ const alphaTweens: Tweens = [
   },
 ];
 
-export default memo(MainViewFadeIn);
+export default MainViewFadeIn;

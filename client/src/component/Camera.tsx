@@ -3,7 +3,6 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { ReactNode } from 'react';
 import { equal, map, zip } from '../data/point';
-import { memo } from '../shim/react';
 import { useSelector } from '../shim/redux';
 
 interface Props {
@@ -18,4 +17,4 @@ function Camera({ children }: Props) {
   return <Container {...centeredViewOffsets}>{children}</Container>;
 }
 
-export default memo(Camera);
+export default Camera;

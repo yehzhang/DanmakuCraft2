@@ -10,7 +10,6 @@ import { ChestEntity } from '../data/entity';
 import { Tween, Tweens } from '../data/tween';
 import useTexture from '../hook/useTexture';
 import useTweens from '../hook/useTweens';
-import { memo } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 import { inOutQuad } from '../shim/tsEasing';
 
@@ -149,4 +148,4 @@ function drawOpenChest(graphics: PIXI.Graphics) {
     .drawRect(33, 17, 7, 5);
 }
 
-export default memo(Chest);
+export default Chest;
