@@ -28,26 +28,32 @@ function useUncontrolledFocus<T extends HTMLElement>({
 
   const focused = useSelector((state) => state.focus === focusTarget);
   const targetRef = useRef<T | null>(null);
+  const dispatchFocusedState = useCallback(
+    (target: T) => {
+      if (focused) {
+        target.focus();
+      } else {
+        target.blur();
+      }
+    },
+    [focused]
+  );
   useEffect(() => {
     if (targetRef.current) {
       dispatchFocusedState(targetRef.current);
     }
-  }, [focused, ...extraDeps]);
+  }, [dispatchFocusedState, ...extraDeps]);
 
-  const dispatchFocusedState = (target: T) => {
-    if (focused) {
-      target.focus();
-    } else {
-      target.blur();
-    }
-  };
-  const refCallback = useCallback((instance: T | null) => {
-    if (!instance) {
-      return;
-    }
-    targetRef.current = instance;
-    dispatchFocusedState(instance);
-  }, []);
+  const refCallback = useCallback(
+    (instance: T | null) => {
+      if (!instance) {
+        return;
+      }
+      targetRef.current = instance;
+      dispatchFocusedState(instance);
+    },
+    [dispatchFocusedState]
+  );
 
   return {
     refCallback,
