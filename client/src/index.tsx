@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import * as ReactRedux from 'react-redux';
 import { Provider } from 'react-redux';
 import 'resize-observer-polyfill';
 import './action'; // Hack for webpack to pickup interface-only files.
@@ -10,16 +9,11 @@ import ConsoleInput from './shim/ConsoleInput';
 import { selectDomain } from './shim/domain';
 import './state';
 import store, { persistor } from './store';
+import whyDidYouRender from './whyDidYouRender';
 
 async function main() {
   if (__DEV__) {
-    const { default: whyDidYouRender } = await import('@welldone-software/why-did-you-render');
-    whyDidYouRender(React, {
-      trackAllPureComponents: true,
-      include: [/.*/],
-      exclude: [/^ConsoleDisplay/, /^Ticker$/, /^TinyTelevision$/, /^SpeechBubble_?$/],
-      trackExtraHooks: [[ReactRedux, 'useSelector']],
-    });
+    await whyDidYouRender();
 
     window.d = new ConsoleInput(store);
     window.store = store;

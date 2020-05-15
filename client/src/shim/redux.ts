@@ -15,6 +15,7 @@ export type Selector<R> = (state: State) => R;
 
 export type Store = Redux.Store<State, Action>;
 
+// A hack to get whyDidYouRender to work.
 function lazyModuleUseSelector<T>(
   selector: Selector<T>,
   equalityFn?: (left: T, right: T) => boolean
