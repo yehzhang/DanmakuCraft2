@@ -9,6 +9,7 @@ import { empty, Point, zip } from '../data/point';
 import { sampleUniformDistributionInCircle } from '../data/random';
 import { worldSize } from '../data/unboundedWorld';
 import { useDispatch, useSelector } from '../shim/redux';
+import sleep from '../shim/sleep';
 import DanmakuParticleField from './DanmakuParticleField';
 import DanmakuPlanet from './DanmakuPlanet';
 import Loading from './Loading';
@@ -25,8 +26,12 @@ function Opening() {
   const vanishingPoint = { x: width * 0.5, y: height * 0.5 };
   const successfulExiting = state.stage === 'exiting_successful';
   const dispatch = useDispatch();
-  const onComplete = useCallback(() => {
+  const onComplete = useCallback(async () => {
     if (successfulExiting) {
+      if (__DEV__) {
+        // Hack to mitigate the memory leak warning due to synchronous `setState()` in dev build.
+        await sleep(0);
+      }
       dispatch({ type: '[Opening] completed' });
     }
   }, [dispatch, successfulExiting]);
