@@ -52,5 +52,12 @@ module.exports = {
     https: true,
     // Workaround the Socket JS error when serving to HTTPS websites.
     disableHostCheck: true,
+    headers: {
+      'Access-Control-Allow-Origin': 'https://www.bilibili.com',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Headers':
+        'Content-Type, Authorization, x-id, Content-Length, X-Requested-With',
+      'Access-Control-Allow-Methods': 'GET',
+    },
   },
 };
