@@ -1,8 +1,8 @@
-/** Resolves to the ID of the container element. */
 import { toHexString, white } from '../../data/color';
 import sleep from '../sleep';
 import poll from './poll';
 
+/** Resolves to the ID of the container element. */
 async function setUpGameContainerElement(): Promise<string> {
   const videoFrameElement = await poll(checkAndEnableHtml5Player);
 
