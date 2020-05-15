@@ -1,20 +1,21 @@
-import { DependencyList, RefCallback, useCallback, useEffect, useRef } from 'react';
+import { DependencyList, RefObject, useCallback, useEffect } from 'react';
 import { Action } from '../action';
 import { useDispatch, useSelector } from '../shim/redux';
 import { FocusTarget } from '../state';
 
 function useUncontrolledFocus<T extends HTMLElement>({
+  targetRef,
   focusTarget,
   onFocusActionType,
   onBlurActionType,
   extraDeps = [],
 }: {
+  targetRef: RefObject<T>;
   focusTarget: FocusTarget;
   onFocusActionType: SimpleAction['type'];
   onBlurActionType: SimpleAction['type'];
   extraDeps?: DependencyList;
 }): {
-  refCallback: RefCallback<T | null>;
   onFocus: () => void;
   onBlur: () => void;
 } {
@@ -27,36 +28,15 @@ function useUncontrolledFocus<T extends HTMLElement>({
   }, [dispatch, onBlurActionType]);
 
   const focused = useSelector((state) => state.focus === focusTarget);
-  const targetRef = useRef<T | null>(null);
-  const dispatchFocusedState = useCallback(
-    (target: T) => {
-      if (focused) {
-        target.focus();
-      } else {
-        target.blur();
-      }
-    },
-    [focused]
-  );
   useEffect(() => {
-    if (targetRef.current) {
-      dispatchFocusedState(targetRef.current);
+    if (focused) {
+      targetRef.current?.focus();
+    } else {
+      targetRef.current?.blur();
     }
-  }, [dispatchFocusedState, ...extraDeps]);
-
-  const refCallback = useCallback(
-    (instance: T | null) => {
-      if (!instance) {
-        return;
-      }
-      targetRef.current = instance;
-      dispatchFocusedState(instance);
-    },
-    [dispatchFocusedState]
-  );
+  }, [focused, ...extraDeps]);
 
   return {
-    refCallback,
     onFocus,
     onBlur,
   };

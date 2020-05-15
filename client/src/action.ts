@@ -8,14 +8,14 @@ import { Point } from './data/point';
 import { ConsoleDisplayLevel, ConsoleEntry, State, ViewName } from './state';
 
 export type Action =
-  | { type: '[StageControls] up'; keyDown: boolean }
-  | { type: '[StageControls] down'; keyDown: boolean }
-  | { type: '[StageControls] left'; keyDown: boolean }
-  | { type: '[StageControls] right'; keyDown: boolean }
-  | { type: '[StageControls] enter'; keyDown: boolean; view: ViewName }
-  | { type: '[StageControls] focused' }
-  | { type: '[StageControls] blurred' }
-  | { type: '[StageControls] context menu opened' }
+  | { type: '[PixiStage] up'; keyDown: boolean }
+  | { type: '[PixiStage] down'; keyDown: boolean }
+  | { type: '[PixiStage] left'; keyDown: boolean }
+  | { type: '[PixiStage] right'; keyDown: boolean }
+  | { type: '[PixiStage] enter'; keyDown: boolean; view: ViewName }
+  | { type: '[PixiStage] focused' }
+  | { type: '[PixiStage] blurred' }
+  | { type: '[PixiStage] context menu opened' }
   | { type: '[LayoutSizeDetector] resized'; size: Point }
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }

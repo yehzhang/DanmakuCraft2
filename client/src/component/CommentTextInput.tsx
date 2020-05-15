@@ -15,7 +15,9 @@ import { useDispatch, useSelector } from '../shim/redux';
 
 function CommentTextInput() {
   const submitting = useSelector((state) => state.commentInputSubmitting);
-  const { refCallback, onFocus, onBlur } = useUncontrolledFocus<HTMLInputElement>({
+  const elementRef = useRef<HTMLInputElement | null>(null);
+  const { onFocus, onBlur } = useUncontrolledFocus({
+    targetRef: elementRef,
     focusTarget: 'comment_input',
     onFocusActionType: '[CommentTextInput] focused',
     onBlurActionType: '[CommentTextInput] blurred',
@@ -101,7 +103,7 @@ function CommentTextInput() {
         <form style={styles.container} onSubmit={onFormSubmit}>
           <input
             disabled={disabled}
-            ref={refCallback}
+            ref={elementRef}
             style={styles.textInput}
             type="text"
             value={commentText}
@@ -119,9 +121,12 @@ function CommentTextInput() {
       const textInputElement = document.querySelector<HTMLInputElement>(
         'input.bilibili-player-video-danmaku-input'
       );
-      if (!textInputElement) {
+      if (textInputElement) {
+        elementRef.current = textInputElement;
+      } else {
         console.error('Expected Bilibili danmaku input element');
       }
+
       useDomEvent(textInputElement, 'input', (event: ElementTargetEvent) => {
         onTextChanged((event.target as HTMLInputElement).value);
       });
@@ -140,15 +145,9 @@ function CommentTextInput() {
 
       useEffect(() => {
         if (textInputElement) {
-          refCallback(textInputElement);
-        }
-      }, [textInputElement, refCallback]);
-
-      useEffect(() => {
-        if (textInputElement) {
           textInputElement.value = commentText;
         }
-      }, [textInputElement, commentText]);
+      }, [commentText]);
 
       const onSubmitRef = useRef(onSubmit);
       onSubmitRef.current = onSubmit;

@@ -10,36 +10,36 @@ const initialState: MovementState = {
 
 function movementReducer(state = initialState, action: Action): MovementState {
   switch (action.type) {
-    case '[StageControls] up': {
+    case '[PixiStage] up': {
       const { keyDown } = action;
       return {
         ...state,
         up: keyDown,
       };
     }
-    case '[StageControls] down': {
+    case '[PixiStage] down': {
       const { keyDown } = action;
       return {
         ...state,
         down: keyDown,
       };
     }
-    case '[StageControls] left': {
+    case '[PixiStage] left': {
       const { keyDown } = action;
       return {
         ...state,
         left: keyDown,
       };
     }
-    case '[StageControls] right': {
+    case '[PixiStage] right': {
       const { keyDown } = action;
       return {
         ...state,
         right: keyDown,
       };
     }
-    case '[StageControls] blurred':
-    case '[StageControls] context menu opened':
+    case '[PixiStage] blurred':
+    case '[PixiStage] context menu opened':
     case 'Genesis':
       return initialState;
     default:

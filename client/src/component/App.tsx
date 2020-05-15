@@ -6,6 +6,8 @@ import BelowStageControlsBar from './BelowStageControlsBar';
 import ColumnLayout from './ColumnLayout';
 import Frame from './Frame';
 import Stage from './Stage';
+import View from './View';
+import VolumeInput from './VolumeInput';
 
 function App() {
   return (
@@ -13,6 +15,9 @@ function App() {
       <Provider store={store}>
         <ColumnLayout>
           <Stage />
+          <View name="main">
+            <VolumeInput />
+          </View>
           <BelowStageControlsBar />
         </ColumnLayout>
       </Provider>

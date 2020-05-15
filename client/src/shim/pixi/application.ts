@@ -7,6 +7,7 @@ const application = new Application({
 });
 
 export function setRendererView(view: HTMLCanvasElement) {
+  application.renderer.destroy();
   application.renderer = autoDetectRenderer({
     view,
     autoDensity: true,
