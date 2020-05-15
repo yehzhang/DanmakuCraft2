@@ -1,23 +1,27 @@
-import { useEffect, useRef } from 'react';
+import { RefObject, useEffect, useRef } from 'react';
 
 function useDomEvent<T extends HTMLDivElement, K extends keyof HTMLElementEventMap>(
-  element: T | null,
+  elementRef: RefObject<T>,
   type: K,
-  listener: EventListener<HTMLElementEventMap[K] & ElementTargetEvent>
+  callback: EventListener<HTMLElementEventMap[K] & ElementTargetEvent>
 ) {
-  const listenerRef = useRef(listener);
-  listenerRef.current = listener;
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
 
   useEffect(() => {
+    const element = elementRef.current;
     if (!element) {
       return;
     }
 
-    element.addEventListener(type, listener as EventListener<HTMLElementEventMap[K]>);
+    const listener = ((event: HTMLElementEventMap[K] & ElementTargetEvent) => {
+      callbackRef.current(event);
+    }) as EventListener<HTMLElementEventMap[K]>;
+    element.addEventListener(type, listener);
     return () => {
-      element.removeEventListener(type, listener as EventListener<HTMLElementEventMap[K]>);
+      element.removeEventListener(type, listener);
     };
-  }, [element]);
+  }, []);
 }
 
 type EventListener<T> = (event: T) => void;

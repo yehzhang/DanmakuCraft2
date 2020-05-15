@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { ReactElement, useCallback } from 'react';
+import { ReactElement, useCallback, useRef } from 'react';
 import { ColorResult } from 'react-color';
 import TwitterPicker from 'react-color/lib/components/twitter/Twitter';
 import { Color, fromString, toHexString } from '../data/color';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useHovered from '../hook/useHovered';
+import useQuerySelector from '../hook/useQuerySelector';
 import { selectDomain } from '../shim/domain';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
@@ -50,11 +51,9 @@ const renderUserInterface = selectDomain<RenderUserInterface>({
     );
   },
   bilibili: (onChange) => {
-    const element = document.querySelector<HTMLDivElement>('.bilibili-player-video-btn-danmaku');
-    if (!element) {
-      console.error('Expected Bilibili danmaku settings element');
-    }
-    useDomEvent(element, 'click', (event: ElementTargetEvent) => {
+    const elementRef = useRef(null);
+    useQuerySelector('.bilibili-player-video-btn-danmaku', elementRef);
+    useDomEvent(elementRef, 'click', (event: ElementTargetEvent) => {
       if (!event.target.classList.contains('bui-color-picker-option')) {
         return;
       }
@@ -64,7 +63,7 @@ const renderUserInterface = selectDomain<RenderUserInterface>({
         onChange(color);
       }
     });
-    useDomEvent(element, 'change', (event: ElementTargetEvent) => {
+    useDomEvent(elementRef, 'change', (event: ElementTargetEvent) => {
       if (!event.target.classList.contains('bui-input-input')) {
         return;
       }

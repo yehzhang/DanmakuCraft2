@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { ChangeEvent, ReactElement, useCallback } from 'react';
+import { ChangeEvent, ReactElement, useCallback, useRef } from 'react';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
+import useQuerySelector from '../hook/useQuerySelector';
 import { selectDomain } from '../shim/domain';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
@@ -44,11 +45,9 @@ const renderUserInterface = selectDomain<RenderUserInterface>({
     );
   },
   bilibili: (onChange) => {
-    const element = document.querySelector<HTMLDivElement>('.bilibili-player-video-btn-danmaku');
-    if (!element) {
-      console.error('Expected Bilibili danmaku input element');
-    }
-    useDomEvent(element, 'click', (event: ElementTargetEvent) => {
+    const elementRef = useRef(null);
+    useQuerySelector('.bilibili-player-video-btn-danmaku', elementRef);
+    useDomEvent(elementRef, 'click', (event: ElementTargetEvent) => {
       const selectionFieldElement = event.target.classList.contains('selection-name')
         ? event.target.parentElement
         : event.target;

@@ -5,6 +5,7 @@ import BuffType from '../../../server/api/services/BuffType';
 import { CreationRequestData } from '../../../server/api/services/request';
 import { toRgbNumber } from '../data/color';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
+import useQuerySelector from '../hook/useQuerySelector';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
 import { postToBackend } from '../shim/backend';
@@ -118,23 +119,16 @@ function CommentTextInput() {
       );
     },
     bilibili: () => {
-      const textInputElement = document.querySelector<HTMLInputElement>(
-        'input.bilibili-player-video-danmaku-input'
-      );
-      if (textInputElement) {
-        elementRef.current = textInputElement;
-      } else {
-        console.error('Expected Bilibili danmaku input element');
-      }
-
-      useDomEvent(textInputElement, 'input', (event: ElementTargetEvent) => {
+      const textInputElementRef = useRef<HTMLInputElement>(null);
+      useQuerySelector('input.bilibili-player-video-danmaku-input', textInputElementRef);
+      useDomEvent(textInputElementRef, 'input', (event: ElementTargetEvent) => {
         onTextChanged((event.target as HTMLInputElement).value);
       });
 
-      useDomEvent(textInputElement, 'focus', onFocus);
-      useDomEvent(textInputElement, 'blur', onBlur);
+      useDomEvent(textInputElementRef, 'focus', onFocus);
+      useDomEvent(textInputElementRef, 'blur', onBlur);
 
-      useDomEvent(textInputElement, 'keydown', (event: KeyboardEvent) => {
+      useDomEvent(textInputElementRef, 'keydown', (event: KeyboardEvent) => {
         if (
           (event.which || event.keyCode) === Key.Enter &&
           !(event.target as HTMLInputElement).value
@@ -144,8 +138,8 @@ function CommentTextInput() {
       });
 
       useEffect(() => {
-        if (textInputElement) {
-          textInputElement.value = commentText;
+        if (textInputElementRef.current) {
+          textInputElementRef.current.value = commentText;
         }
       }, [commentText]);
 
