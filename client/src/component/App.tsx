@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { Provider } from 'react-redux';
 import { memo } from '../shim/react';
-import store from '../store';
 import BelowStageControlsBar from './BelowStageControlsBar';
 import ColumnLayout from './ColumnLayout';
 import Frame from './Frame';
+import LayoutSizeDetector from './LayoutSizeDetector';
 import Stage from './Stage';
 import View from './View';
 import VolumeInput from './VolumeInput';
@@ -12,15 +11,15 @@ import VolumeInput from './VolumeInput';
 function App() {
   return (
     <Frame>
-      <Provider store={store}>
-        <ColumnLayout>
+      <ColumnLayout>
+        <LayoutSizeDetector>
           <Stage />
-          <View name="main">
-            <VolumeInput />
-          </View>
-          <BelowStageControlsBar />
-        </ColumnLayout>
-      </Provider>
+        </LayoutSizeDetector>
+        <View name="main">
+          <VolumeInput />
+        </View>
+        <BelowStageControlsBar />
+      </ColumnLayout>
     </Frame>
   );
 }

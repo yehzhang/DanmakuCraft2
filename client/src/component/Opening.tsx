@@ -1,7 +1,13 @@
+import * as _ from 'lodash';
 import * as React from 'react';
-import { useCallback, useReducer } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
+import { Action } from '../action';
 import { bottomRight } from '../data/anchors';
 import { black, white } from '../data/color';
+import { SpawnPointEntity, WorldCenterEntity, WorldOriginEntity } from '../data/entity';
+import { empty, Point, zip } from '../data/point';
+import { sampleUniformDistributionInCircle } from '../data/random';
+import { worldSize } from '../data/unboundedWorld';
 import { useDispatch, useSelector } from '../shim/redux';
 import DanmakuParticleField from './DanmakuParticleField';
 import DanmakuPlanet from './DanmakuPlanet';
@@ -10,7 +16,7 @@ import OpeningFadeOut from './OpeningFadeOut';
 import OpeningTitle from './OpeningTitle';
 
 function Opening() {
-  const [state, dispatch] = useReducer(reducer, {
+  const [state, openingDispatch] = useReducer(reducer, {
     stage: 'entering',
     titleEntered: false,
     planetEntered: false,
@@ -18,12 +24,17 @@ function Opening() {
   const { x: width, y: height } = useSelector((state_) => state_.containerSize);
   const vanishingPoint = { x: width * 0.5, y: height * 0.5 };
   const successfulExiting = state.stage === 'exiting_successful';
-  const storeDispatch = useDispatch();
+  const dispatch = useDispatch();
   const onComplete = useCallback(() => {
     if (successfulExiting) {
-      storeDispatch({ type: '[Opening] completed' });
+      dispatch({ type: '[Opening] completed' });
     }
-  }, [storeDispatch, successfulExiting]);
+  }, [dispatch, successfulExiting]);
+
+  useEffect(() => {
+    dispatch(genesis());
+  }, [dispatch]);
+
   return (
     <>
       <DanmakuParticleField observerZ={successfulExiting ? 60 : 0} />
@@ -33,7 +44,7 @@ function Opening() {
         vanishingPointX={vanishingPoint.x}
         vanishingPointY={vanishingPoint.y}
         stage={successfulExiting ? 'exiting' : 'entering'}
-        dispatch={dispatch}
+        dispatch={openingDispatch}
       />
       <OpeningTitle
         x={width * 0.5}
@@ -41,14 +52,14 @@ function Opening() {
         vanishingPointX={vanishingPoint.x}
         vanishingPointY={vanishingPoint.y}
         stage={successfulExiting ? 'exiting' : 'entering'}
-        dispatch={dispatch}
+        dispatch={openingDispatch}
       />
       {state.stage === 'exiting_failed' && <OpeningFadeOut color={black} onComplete={onComplete} />}
       <Loading
         x={width * 0.95}
         y={height * 0.95}
         anchor={bottomRight}
-        dispatch={dispatch}
+        dispatch={openingDispatch}
         startHeavyTasks={state.stage === 'heavy_loading'}
       />
       {successfulExiting && <OpeningFadeOut color={white} onComplete={onComplete} />}
@@ -56,7 +67,7 @@ function Opening() {
   );
 }
 
-type State =
+type OpeningState =
   | {
       readonly stage: 'entering';
       readonly titleEntered: boolean;
@@ -71,9 +82,9 @@ type State =
   | {
       readonly stage: 'exiting_failed';
     };
-type Action = 'Title entered' | 'Planet entered' | 'Successfully loaded' | 'Failed to load';
+type OpeningAction = 'Title entered' | 'Planet entered' | 'Successfully loaded' | 'Failed to load';
 
-function reducer(state: State, action: Action): State {
+function reducer(state: OpeningState, action: OpeningAction): OpeningState {
   switch (action) {
     case 'Title entered':
       return state.stage === 'entering'
@@ -90,9 +101,61 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function transitionToLoadingStateIfAllDone(state: Extract<State, { stage: 'entering' }>): State {
+function transitionToLoadingStateIfAllDone(
+  state: Extract<OpeningState, { stage: 'entering' }>
+): OpeningState {
   const { titleEntered, planetEntered } = state;
   return titleEntered && planetEntered ? { stage: 'heavy_loading' } : state;
+}
+
+function genesis(): Action {
+  const spawnPoints: readonly SpawnPointEntity[] = [
+    { type: 'spawn_point', x: 8424, y: 8586, text: '8' }, // NW
+    { type: 'spawn_point', x: 16362, y: 9396, text: '1' }, // N
+    { type: 'spawn_point', x: 24300, y: 8748, text: '6' }, // NE
+    { type: 'spawn_point', x: 8748, y: 16038, text: '3' }, // W
+    { type: 'spawn_point', x: 23652, y: 16524, text: '7' }, // E
+    { type: 'spawn_point', x: 9072, y: 23976, text: '4' }, // SW
+    { type: 'spawn_point', x: 16524, y: 23490, text: '⑨' }, // S
+    { type: 'spawn_point', x: 23976, y: 23814, text: '2' }, // SE
+  ];
+
+  const halfWorldSize = worldSize / 2;
+  const worldCenterEntity: WorldCenterEntity = {
+    type: 'world_center',
+    x: halfWorldSize,
+    y: halfWorldSize,
+  };
+
+  const worldOriginEntity: WorldOriginEntity = {
+    type: 'world_origin',
+    ...empty,
+  };
+
+  return {
+    type: 'Genesis',
+    spawnPosition: generateRandomPointAround(__DEV__ ? empty : getRandomSpawnPoint(spawnPoints)),
+    signEntities: [...spawnPoints, worldCenterEntity, worldOriginEntity],
+  };
+}
+
+function getRandomSpawnPoint(spawnPoints: readonly Point[]): Point {
+  if (!spawnPoints.length) {
+    return empty;
+  }
+
+  const spawnPointChangeInterval = new Date(0);
+  spawnPointChangeInterval.setMinutes(5);
+  spawnPointChangeInterval.setSeconds(17);
+  const spawnPeriod = Math.floor(Date.now() / spawnPointChangeInterval.getTime());
+  const spawnPointIndex = spawnPeriod % spawnPoints.length;
+  return spawnPoints[spawnPointIndex];
+}
+
+function generateRandomPointAround(point: Point): Point {
+  const maxOffset = __DEV__ ? 300 : 675;
+  const randomOffsets = sampleUniformDistributionInCircle(maxOffset);
+  return zip(point, randomOffsets, _.add);
 }
 
 export default Opening;
