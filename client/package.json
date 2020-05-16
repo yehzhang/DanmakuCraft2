@@ -20,7 +20,6 @@
     "@types/react-redux": "7.1.8",
     "@welldone-software/why-did-you-render": "^4.2.1",
     "ts-loader": "7.0.3",
-    "tslint-loader": "3.5.4",
     "webpack": "4.43.0",
     "webpack-bundle-analyzer": "3.7.0",
     "webpack-cli": "3.3.11",
