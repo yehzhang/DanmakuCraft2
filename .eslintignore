@@ -1,6 +1,6 @@
 **/*.lock
 **/*.log
-.prettierignore
+.eslintignore
 .gitignore
 .gitattributes
 *.db

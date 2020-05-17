@@ -1,89 +1,141 @@
 {
   "env": {
-    "browser": true,
-    "es6": true
+    "es2020": true
   },
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "plugin:jsdoc/recommended",
+    "prettier"
   ],
-  "parser": ",@typescript-eslint/parser",
+  "plugins": [
+    "jsdoc"
+  ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "tsconfig.json",
+    "project": "**/tsconfig.json",
     "sourceType": "module"
   },
-  "plugins": [",@typescript-eslint"],
   "rules": {
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "parseInt",
+        "message": "Use `Number()` instead."
+      }
+    ],
     "dot-notation": "error",
-    "no-unused-expressions": "off", // TS version enabled below.
-    "@typescript-eslint/no-unused-expressions": "error",
-    "@typescript-eslint/prefer-for-of": "error",
-    "@typescript-eslint/prefer-function-type": "error",
-    "@typescript-eslint/triple-slash-reference": "error",
-    "@typescript-eslint/type-annotation-spacing": "off", // Fixed by Prettier.
-    "@typescript-eslint/unified-signatures": "error",
-    "camelcase": "off", // TS version enabled below.
-    "@typescript-eslint/camelcase": ["error", { "genericType": "always" }],
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "guard-for-in": "error",
-    // TODO
     "id-blacklist": [
       "error",
       "any",
-      "Number",
+      "unknown",
       "number",
-      "String",
       "string",
-      "Boolean",
       "boolean",
-      "Undefined",
-      "undefined"
+      "undefined",
+      "err",
+      "e",
+      "evt",
+      "cb"
     ],
-    "id-match": "error",
-    "import/order": "off",
-    "jsdoc/check-alignment": "error",
+      "jsdoc/require-jsdoc": "off",
+  "jsdoc/check-alignment": "error",
     "jsdoc/check-indentation": "error",
     "jsdoc/newline-after-description": "error",
-    "max-classes-per-file": "off",
-    "max-len": ["error", {}],
-    "new-parens": "error",
-    "no-bitwise": "off",
     "no-caller": "error",
-    "no-cond-assign": "error",
-    "no-console": "off",
-    "no-debugger": "error",
-    "no-empty": "off",
+    "no-cond-assign": [
+      "error",
+      "always"
+    ],
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error"
+        ]
+      }
+    ],
     "no-eval": "error",
-    "no-fallthrough": "off",
-    "no-invalid-this": "off",
+    "no-invalid-this": "error",
     "no-new-wrappers": "error",
     "no-shadow": [
       "error",
       {
-        "hoist": "all"
+        "builtinGlobals": true,
+        "hoist": "functions",
+        "allow": [
+          "event"
+        ]
       }
     ],
     "no-throw-literal": "error",
     "no-undef-init": "error",
-    "no-underscore-dangle": "error",
     "no-unsafe-finally": "error",
-    "no-unused-labels": "error",
     "object-shorthand": "error",
     "one-var": ["error", "never"],
-    "prefer-arrow/prefer-arrow-functions": "error",
-    "prefer-const": "off",
-    "radix": "error",
-    "spaced-comment": [
-      "error",
-      "always",
-      {
-        "markers": [",/"]
+    "spaced-comment": "error",
+    "use-isnan": "error"
+  },
+  "overrides": [
+    {
+      // TypeScript
+      "files": [
+        "*.ts",
+        "*.tsx"
+      ],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:react/recommended",
+        "prettier",
+        "prettier/@typescript-eslint",
+        "prettier/react"
+      ],
+      "plugins": [
+        "@typescript-eslint",
+        "react"
+      ],
+      "rules": {
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/prefer-for-of": "error",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/prefer-function-type": "error",
+        "@typescript-eslint/triple-slash-reference": "error",
+        "@typescript-eslint/unified-signatures": "error",
+
+        "no-unused-expressions": "off",
+        "@typescript-eslint/no-unused-expressions": "error",
+        "camelcase": "off",
+        "@typescript-eslint/camelcase": [
+          "error",
+          {
+            "genericType": "always"
+          }
+        ]
       }
-    ],
-    "use-isnan": "error",
-    "valid-typeof": "off"
-  }
+    },
+    {
+      // Client
+      "files": [
+        "client/**/*.*"
+      ],
+      "env": {
+        "browser": true
+      }
+    },
+    {
+      // Node
+      "files": [
+        "**/*.js"
+      ],
+      "env": {
+        "node": true
+      }
+    }
+  ],
+  "reportUnusedDisableDirectives": true
 }
