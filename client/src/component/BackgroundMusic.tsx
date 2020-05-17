@@ -68,7 +68,7 @@ addLoadingTask(
           resolve();
         },
         onloaderror: (id, error) => {
-          reject(new TypeError(`Failed to load background music: ${error}`));
+          reject(new TypeError(`Failed to load background music. Error: ${error}`));
         },
       });
     })
