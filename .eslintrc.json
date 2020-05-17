@@ -8,7 +8,8 @@
     "prettier"
   ],
   "plugins": [
-    "jsdoc"
+    "jsdoc",
+    "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -39,23 +40,14 @@
       "evt",
       "cb"
     ],
-      "jsdoc/require-jsdoc": "off",
-  "jsdoc/check-alignment": "error",
+    "jsdoc/require-jsdoc": "off",
+    "jsdoc/check-alignment": "error",
     "jsdoc/check-indentation": "error",
     "jsdoc/newline-after-description": "error",
     "no-caller": "error",
     "no-cond-assign": [
       "error",
       "always"
-    ],
-    "no-console": [
-      "error",
-      {
-        "allow": [
-          "warn",
-          "error"
-        ]
-      }
     ],
     "no-eval": "error",
     "no-invalid-this": "error",
@@ -106,6 +98,12 @@
         "@typescript-eslint/prefer-function-type": "error",
         "@typescript-eslint/triple-slash-reference": "error",
         "@typescript-eslint/unified-signatures": "error",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "varsIgnorePattern": "[iI]gnored"
+          }
+        ],
 
         "no-unused-expressions": "off",
         "@typescript-eslint/no-unused-expressions": "error",
@@ -119,17 +117,31 @@
       }
     },
     {
-      // Client
+      // Running in browsers
       "files": [
-        "client/**/*.*"
+        "client/**/*.*",
+        "**/*.user.js"
       ],
       "env": {
         "browser": true
+      },
+      "rules": {
+        "no-console": [
+          "error",
+          {
+            "allow": [
+              "warn",
+              "error"
+            ]
+          }
+        ]
       }
     },
     {
-      // Node
+      // Running in Node envrionement
       "files": [
+        "scripts/**/*.*",
+        "server/**/*.*",
         "**/*.js"
       ],
       "env": {
