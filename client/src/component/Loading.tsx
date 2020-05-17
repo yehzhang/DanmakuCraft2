@@ -1,15 +1,11 @@
-import * as _ from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { grey } from '../data/color';
 import { I18nTextIdentifier } from '../data/i18n';
 import i18nData from '../data/i18n/zh';
-import { getFromBackend } from '../shim/backend';
-import RenderThrottler from '../shim/pixi/RenderThrottler';
 import { memo } from '../shim/react';
 import { PointLike } from '../shim/reactPixi';
-import { Dispatch, useDispatch } from '../shim/redux';
-import sleep from '../shim/sleep';
+import { useDispatch } from '../shim/redux';
 import FadeTransitionText from './FadeTransitionText';
 
 interface Props {
@@ -71,7 +67,6 @@ function Loading({ x, y, anchor, dispatch: parentDispatch, startHeavyTasks }: Pr
 
   useEffect(() => {
     setState({ type: 'pending' });
-    addLoadingTask(loadCommentsFromBackend(dispatch));
   }, []);
 
   return (
@@ -98,24 +93,6 @@ function getText(state: State): string | null {
     case 'end':
       return null;
   }
-}
-
-function loadCommentsFromBackend(dispatch: Dispatch): LoadingTask {
-  const commentDataPromise = getFromBackend('comment');
-  return async () => {
-    const { comments: flatComments } = await commentDataPromise;
-    const throttler = new RenderThrottler();
-    const sleepDurationMs = 2;
-    for (const flatCommentChunk of _.chunk(flatComments, 100)) {
-      while (
-        !throttler.run(() => {
-          dispatch({ type: 'Comments loaded from backend', data: flatCommentChunk });
-        }, sleepDurationMs)
-      ) {
-        await sleep(sleepDurationMs);
-      }
-    }
-  };
 }
 
 async function loadingTimeout(): Promise<never> {
