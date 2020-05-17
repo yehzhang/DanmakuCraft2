@@ -27,9 +27,9 @@
     "@typescript-eslint/unified-signatures": "error",
     "camelcase": "off", // TS version enabled below.
     "@typescript-eslint/camelcase": ["error", { "genericType": "always" }],
-    // TODO below
-    "eqeqeq": ["error", "smart"],
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
     "guard-for-in": "error",
+    // TODO
     "id-blacklist": [
       "error",
       "any",
