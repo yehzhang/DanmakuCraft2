@@ -17,7 +17,8 @@ import { useDispatch, useSelector } from '../shim/redux';
 function CommentTextInput() {
   const submitting = useSelector((state) => state.commentInputSubmitting);
   const elementRef = useRef<HTMLInputElement | null>(null);
-  const { onFocus, onBlur } = useUncontrolledFocus({
+  const { onFocus, onBlur } =
+    useUncontrolledFocus({
     targetRef: elementRef,
     focusTarget: 'comment_input',
     onFocusActionType: '[CommentTextInput] focused',

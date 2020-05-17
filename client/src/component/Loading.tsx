@@ -34,13 +34,13 @@ function Loading({ x, y, anchor, dispatch: parentDispatch, startHeavyTasks }: Pr
           loadingTimeout(),
         ]);
         loadingResult = loadingResults.find(Boolean);
-      } catch (e) {
-        console.error('Error when executing loading task queue.', e);
+      } catch (error) {
+        console.error('Error when executing loading task queue.', error);
         loadingResult = 'mainSceneLoadingFailed';
       }
 
       if (__DEV__) {
-        console.log(`Heavy task loading time: ${Math.round((Date.now() - beginMs) / 1000)}s.`);
+        console.warn(`Heavy task loading time: ${Math.round((Date.now() - beginMs) / 1000)}s.`);
       }
 
       if (loadingResult) {

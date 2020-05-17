@@ -4,7 +4,6 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:jsdoc/recommended",
     "prettier"
   ],
   "plugins": [
@@ -26,6 +25,7 @@
     "dot-notation": "error",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "guard-for-in": "error",
+    "prefer-template": "error",
     "id-blacklist": [
       "error",
       "any",
@@ -39,7 +39,6 @@
       "evt",
       "cb"
     ],
-    "jsdoc/require-jsdoc": "off",
     "jsdoc/check-alignment": "error",
     "jsdoc/check-indentation": "error",
     "jsdoc/newline-after-description": "error",
@@ -54,11 +53,9 @@
     "no-shadow": [
       "error",
       {
-        "builtinGlobals": true,
+        "builtinGlobals": false,
         "hoist": "functions",
-        "allow": [
-          "event"
-        ]
+        "allow": []
       }
     ],
     "no-throw-literal": "error",
@@ -89,6 +86,21 @@
         "react"
       ],
       "rules": {
+        "react/display-name":  "off", // Inccorectly reports arrow functions that return JSX.
+        // Checked by TS.
+        "no-undef": "off",
+        "no-fallthrough": "off",
+        // Rules existing in eslint and extended by typescript-eslint.
+        "no-unused-expressions": "off",
+        "@typescript-eslint/no-unused-expressions": "error",
+        "camelcase": "off",
+        "@typescript-eslint/camelcase": [
+          "error",
+          {
+            "genericType": "always"
+          }
+        ],
+        // Regular rules.
         "@typescript-eslint/no-use-before-define": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/prefer-for-of": "error",
@@ -100,16 +112,6 @@
           "error",
           {
             "varsIgnorePattern": "[iI]gnored"
-          }
-        ],
-
-        "no-unused-expressions": "off",
-        "@typescript-eslint/no-unused-expressions": "error",
-        "camelcase": "off",
-        "@typescript-eslint/camelcase": [
-          "error",
-          {
-            "genericType": "always"
           }
         ]
       }

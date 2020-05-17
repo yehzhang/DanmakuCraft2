@@ -45,7 +45,7 @@ async function checkAndEnableHtml5Player(): Promise<HTMLElement | null> {
     const { GrayManager } = window as any;
     try {
       GrayManager.clickMenu('change_h5');
-    } catch (e) {
+    } catch {
       GrayManager.clickMenu('change_new_h5');
     }
   }

@@ -1,7 +1,7 @@
 import { Action } from '../action';
 import { maxChestSpawnIntervalMs, minChestSpawnIntervalMs } from '../data/chest';
 
-const initialState: number = 0;
+const initialState = 0;
 
 function hastyRemainingMsReducer(state = initialState, action: Action): number {
   switch (action.type) {

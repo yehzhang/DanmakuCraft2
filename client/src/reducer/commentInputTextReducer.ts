@@ -1,6 +1,6 @@
 import { Action } from '../action';
 
-const initialState: string = '';
+const initialState = '';
 
 function commentInputTextReducer(state = initialState, action: Action): string {
   switch (action.type) {

@@ -10,6 +10,7 @@ class RenderThrottler {
 
   /**
    * Calls {@param runner} if there is enough time left in this tick.
+   *
    * @param reservedMsAfterRunner
    * @return whether {@param runner} is called.
    */

@@ -1,6 +1,5 @@
 import { Howl } from 'howler';
 import * as _ from 'lodash';
-import * as React from 'react';
 import { useEffect, useRef } from 'react';
 import backgroundMusicConfig from '../../../data/audio/background_music.json';
 import useTick from '../hook/useTick';

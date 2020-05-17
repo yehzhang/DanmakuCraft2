@@ -19,15 +19,15 @@ function PixiStage({ children }: Props) {
   const view = useSelector((state) => state.view);
   const dispatch = useDispatch();
   const onKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      e.stopPropagation();
+    (event: KeyboardEvent) => {
+      event.stopPropagation();
 
       let action;
-      if (e.ctrlKey || e.altKey || e.metaKey) {
-        action = getActionByKeyboardEvent(e, /* keyDown= */ false, view);
+      if (event.ctrlKey || event.altKey || event.metaKey) {
+        action = getActionByKeyboardEvent(event, /* keyDown= */ false, view);
       } else {
-        e.preventDefault();
-        action = getActionByKeyboardEvent(e, /* keyDown= */ true, view);
+        event.preventDefault();
+        action = getActionByKeyboardEvent(event, /* keyDown= */ true, view);
       }
 
       if (action) {
@@ -37,14 +37,14 @@ function PixiStage({ children }: Props) {
     [dispatch, view]
   );
   const onKeyUp = useCallback(
-    (e: KeyboardEvent) => {
-      e.stopPropagation();
+    (event: KeyboardEvent) => {
+      event.stopPropagation();
 
-      if (e.ctrlKey || e.altKey || e.metaKey) {
+      if (event.ctrlKey || event.altKey || event.metaKey) {
         return;
       }
 
-      const action = getActionByKeyboardEvent(e, /* keyDown= */ false, view);
+      const action = getActionByKeyboardEvent(event, /* keyDown= */ false, view);
       if (action) {
         dispatch(action);
       }

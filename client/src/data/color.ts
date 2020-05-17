@@ -22,7 +22,7 @@ export function fromHsl(h: Channel360, s: Channel1, l: Channel1): Color {
 export function fromString(data: string): Color | null {
   try {
     return new ColorConstructor(data);
-  } catch (e) {
+  } catch {
     return null;
   }
 }

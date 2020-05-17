@@ -14,9 +14,10 @@ function cameraPositionReducer(state = initialState, action: Action): Point {
       } = action;
       return zip3(state, playerPosition, interpolationParameters, convergingLerp);
     }
-    case 'Genesis':
+    case 'Genesis': {
       const { spawnPosition } = action;
       return spawnPosition;
+    }
     default:
       return state;
   }

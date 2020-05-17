@@ -1,6 +1,6 @@
 import { Action } from '../action';
 
-const initialState: boolean = false;
+const initialState = false;
 
 function commentInputSubmittingReducer(state = initialState, action: Action): boolean {
   switch (action.type) {

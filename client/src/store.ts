@@ -1,20 +1,20 @@
 import { createStore } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { PersistConfig, persistReducer, persistStore } from 'redux-persist';
-import localStorage from 'redux-persist/lib/storage';
+import storage from 'redux-persist/lib/storage';
 import reducer from './reducer';
 import { Store } from './shim/redux';
 import { State } from './state';
 
 const stateSanitizer = (state: State): any => {
   const {
-    movement,
-    hastyRemainingMs,
-    containerSize,
-    commentEntities,
-    signEntities,
-    consoleEntries,
-    commentInputText,
+    movement: movementIgnored,
+    hastyRemainingMs: hastyRemainingMsIgnored,
+    containerSize: containerSizeIgnored,
+    commentEntities: commentEntitiesIgnored,
+    signEntities: signEntitiesIgnored,
+    consoleEntries: consoleEntriesIgnored,
+    commentInputText: commentInputTextIgnored,
     ...state_
   } = state;
   return state_;
@@ -36,7 +36,7 @@ const persistWhitelist: (keyof State)[] = ['volume', 'tutorial'];
 
 const persistConfig: PersistConfig<State> = {
   key: 'danmakucraft:root',
-  storage: localStorage,
+  storage,
   serialize: true,
   whitelist: persistWhitelist,
   debug: __DEV__,

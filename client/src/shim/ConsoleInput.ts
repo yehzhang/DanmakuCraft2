@@ -9,7 +9,7 @@ class ConsoleInput {
   constructor(private readonly store: Store) {}
 
   get chest() {
-    const lootType = _.sample(['none', 'chromatic', 'hasty'] as const)!;
+    const lootType = _.sample(['none', 'chromatic', 'hasty'] as const) || 'none';
     this.wantChest(lootType);
 
     return lootType;

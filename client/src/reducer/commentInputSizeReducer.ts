@@ -1,6 +1,6 @@
 import { Action } from '../action';
 
-const initialState: number = 25;
+const initialState = 25;
 
 function commentInputSizeReducer(state = initialState, action: Action): number {
   switch (action.type) {

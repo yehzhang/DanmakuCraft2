@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useEffect } from 'react';
 import checkExhaustive from '../shim/checkExhaustive';
 import { useDispatch, useSelector } from '../shim/redux';
