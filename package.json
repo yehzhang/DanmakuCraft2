@@ -32,7 +32,7 @@
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [
-      "eslint --fix"
+      "eslint --fix --rule 'prettier/prettier: \"error\"'"
     ]
   }
 }
