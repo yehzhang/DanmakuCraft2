@@ -30,7 +30,7 @@ function CommentTextInput() {
     (value: string) => {
       dispatch({ type: '[CommentTextInput] changed', value: value.trimLeft() });
     },
-    [dispatch],
+    [dispatch]
   );
 
   const commentText = useSelector((state) => state.commentInputText);
@@ -98,7 +98,7 @@ function CommentTextInput() {
 
           onSubmit();
         },
-        [onSubmit],
+        [onSubmit]
       );
       return (
         <form style={styles.container} onSubmit={onFormSubmit}>
@@ -146,7 +146,7 @@ function CommentTextInput() {
       const onSubmitRef = useRef(onSubmit);
       onSubmitRef.current = onSubmit;
       const $ = useSelector((state) =>
-        state.domain.type === 'bilibili' ? state.domain.externalDependency?.$ : undefined,
+        state.domain.type === 'bilibili' ? state.domain.externalDependency?.$ : undefined
       );
       useEffect(() => {
         if (!$) {

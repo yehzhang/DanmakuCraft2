@@ -9,7 +9,6 @@
   "plugins": [
     "jsdoc",
     "prettier"
-
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -88,7 +87,7 @@
         "react"
       ],
       "rules": {
-        "react/display-name":  "off", // Inccorectly reports arrow functions that return JSX.
+        "react/display-name": "off", // Inccorectly reports arrow functions that return JSX.
         // Checked by TS.
         "no-undef": "off",
         "no-fallthrough": "off",

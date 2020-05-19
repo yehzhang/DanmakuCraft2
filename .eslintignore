@@ -1,5 +1,7 @@
-**/*.lock
-**/*.log
+!*.json
+
+*.lock
+*.log
 .eslintignore
 .gitignore
 .gitattributes
