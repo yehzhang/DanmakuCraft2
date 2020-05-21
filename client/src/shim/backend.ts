@@ -12,17 +12,8 @@ export function getBackendUrl(path: string): string {
 const backendBaseUrl = __LOCAL_BACKEND__ ? `http://localhost:${devPort}` : frontendConfig.baseUrl;
 
 export async function getFromBackend(eventIdentity: 'comment'): Promise<CommentFoundData> {
-  const response = await Promise.race([fetch(getBackendUrl(eventIdentity)), requestTimeout()]);
+  const response = await fetch(getBackendUrl(eventIdentity));
   return await parseResponse(response);
-}
-
-async function requestTimeout(): Promise<never> {
-  return new Promise((resolve, reject) => {
-    setTimeout(
-      () => reject(new TypeError('Expected get response within timeout')),
-      requestTimeoutMs
-    );
-  });
 }
 
 interface CommentFoundData {
@@ -33,17 +24,12 @@ export async function postToBackend(
   eventIdentity: 'comment',
   data: CreationRequestData
 ): Promise<CommentCreatedData> {
-  const response = await Promise.race([
-    fetch(getBackendUrl(eventIdentity), {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-    requestTimeout(),
-  ]);
+  const response = await fetch(getBackendUrl(eventIdentity), {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
   return await parseResponse(response);
 }
-
-const requestTimeoutMs = 45000;
 
 export interface CommentCreatedData {
   comment: FlatCommentDataResponse;
