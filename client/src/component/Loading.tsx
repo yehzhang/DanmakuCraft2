@@ -97,7 +97,7 @@ function getText(state: State): string | null {
 
 async function loadingTimeout(): Promise<never> {
   return new Promise((resolve, reject) => {
-    setTimeout(() => reject(new TypeError('Expected to finish loading within timeout')), 60000);
+    setTimeout(() => reject(new TypeError('Expected to finish loading within timeout')), 45000);
   });
 }
 
