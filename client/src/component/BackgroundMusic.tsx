@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { useEffect, useRef } from 'react';
 import backgroundMusicConfig from '../../../data/audio/background_music.json';
 import useTick from '../hook/useTick';
-import { getBackendUrl } from '../shim/backend';
+import getFileStorageUrl from '../shim/backend/getFileStorageUrl';
 import { useSelector } from '../shim/redux';
 import { addLoadingTask } from './Loading';
 
@@ -58,10 +58,10 @@ addLoadingTask(
     new Promise((resolve, reject) => {
       album = new Howl({
         src: [
-          getBackendUrl('/audio/background_music.mp3'),
-          getBackendUrl('/audio/background_music.ogg'),
-          getBackendUrl('/audio/background_music.m4a'),
-          getBackendUrl('/audio/background_music.ac3'),
+          getFileStorageUrl('/audio/background_music.mp3'),
+          getFileStorageUrl('/audio/background_music.ogg'),
+          getFileStorageUrl('/audio/background_music.m4a'),
+          getFileStorageUrl('/audio/background_music.ac3'),
         ],
         sprite: backgroundMusicConfig.sprite as any,
         onload: () => {
