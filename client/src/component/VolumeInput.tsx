@@ -16,13 +16,16 @@ function VolumeInput() {
   const { hovered, onMouseOver, onMouseOut } = useHovered();
   const opacity = useTimerState(
     (elapsedMs) => {
+      if (hovered) {
+        return 1;
+      }
       if (elapsedMs < 3000) {
         return 0;
       }
       if (elapsedMs < 10000) {
         return 1;
       }
-      return hovered ? 1 : 0.1;
+      return 0.1;
     },
     0,
     []
