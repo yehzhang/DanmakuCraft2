@@ -15,15 +15,15 @@
     "sourceType": "module"
   },
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": "warn",
     "no-restricted-globals": [
-      "error",
+      "warn",
       {
         "name": "parseInt",
         "message": "Use `Number()` instead."
       }
     ],
-    "dot-notation": "error",
+    "dot-notation": "warn",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "guard-for-in": "error",
     "prefer-template": "error",
@@ -40,19 +40,19 @@
       "evt",
       "cb"
     ],
-    "jsdoc/check-alignment": "error",
-    "jsdoc/check-indentation": "error",
-    "jsdoc/newline-after-description": "error",
-    "no-caller": "error",
+    "jsdoc/check-alignment": "warn",
+    "jsdoc/check-indentation": "warn",
+    "jsdoc/newline-after-description": "warn",
+    "no-caller": "warn",
     "no-cond-assign": [
       "error",
       "always"
     ],
-    "no-eval": "error",
-    "no-invalid-this": "error",
+    "no-eval": "warn",
+    "no-invalid-this": "warn",
     "no-new-wrappers": "error",
     "no-shadow": [
-      "error",
+      "warn",
       {
         "builtinGlobals": false,
         "hoist": "functions",
@@ -60,11 +60,11 @@
       }
     ],
     "no-throw-literal": "error",
-    "no-undef-init": "error",
+    "no-undef-init": "warn",
     "no-unsafe-finally": "error",
     "object-shorthand": "error",
     "one-var": ["error", "never"],
-    "spaced-comment": "error",
+    "spaced-comment": "warn",
     "use-isnan": "error"
   },
   "overrides": [
@@ -93,7 +93,7 @@
         "no-fallthrough": "off",
         // Rules existing in eslint and extended by typescript-eslint.
         "no-unused-expressions": "off",
-        "@typescript-eslint/no-unused-expressions": "error",
+        "@typescript-eslint/no-unused-expressions": "warn",
         "camelcase": "off",
         "@typescript-eslint/camelcase": [
           "error",
@@ -110,7 +110,7 @@
         "@typescript-eslint/triple-slash-reference": "error",
         "@typescript-eslint/unified-signatures": "error",
         "@typescript-eslint/no-unused-vars": [
-          "error",
+          "warn",
           {
             "varsIgnorePattern": "[iI]gnored"
           }
@@ -128,7 +128,7 @@
       },
       "rules": {
         "no-console": [
-          "error",
+          "warn",
           {
             "allow": [
               "warn",
