@@ -23,7 +23,7 @@ const environmentAwareColorSelector = createSelector(
     let lightnessCounter = 0;
     for (const { entity } of commentEntityNodes) {
       hSVector = addColorToHSVector(hSVector, entity.type === 'chromatic' ? white : entity.color);
-      lightnessCounter += getEffectiveLightnessWeight(yesterdayMs < entity.creationMs);
+      lightnessCounter += getEffectiveLightnessWeight(yesterday < entity.creationDate);
     }
 
     const [h, s] = getHueSaturation(hSVector);
@@ -32,7 +32,8 @@ const environmentAwareColorSelector = createSelector(
   }
 );
 
-const yesterdayMs = Date.now() - 24 * 3600 * 1000;
+const yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
 
 function addColorToHSVector(hSVector: Point, color: Color): Point {
   const { h, s } = toHsl(color);
