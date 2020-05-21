@@ -7,6 +7,7 @@ import { empty, map } from '../data/point';
 import environmentAwareColorSelector from '../selector/environmentAwareColorSelector';
 import environmentCommentEntityNodesSelector from '../selector/environmentCommentEntityNodesSelector';
 import visibleCommentEntityNodesSelector from '../selector/visibleCommentEntityNodesSelector';
+import existsObject from '../shim/existsObject';
 import application from '../shim/pixi/application';
 import { useSelector } from '../shim/redux';
 import { ConsoleEntry } from '../state';
@@ -54,16 +55,12 @@ function ConsoleDisplay() {
         },
         ...Object.values(consoleEntries).sort(compareConsoleEntries),
       ]
-        .filter(existConsoleEntry)
+        .filter(existsObject)
         .map((consoleEntry, index) => (
           <ConsoleDisplayListing key={index} y={20 * index} {...consoleEntry} />
         ))}
     </Container>
   );
-}
-
-function existConsoleEntry(entry: ConsoleEntry | false | null): entry is ConsoleEntry {
-  return !!entry;
 }
 
 function compareConsoleEntries(
