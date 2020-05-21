@@ -16,7 +16,7 @@ export interface PlainCommentEntity extends CommentEntityCommon {
 export interface CommentEntityCommon extends Point {
   readonly text: string;
   readonly size: number;
-  readonly creationDate: Date;
+  readonly createdAt: Date;
 }
 
 // Entity that roots in the lowest ground. Usually predefined along with the world.

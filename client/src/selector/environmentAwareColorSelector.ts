@@ -23,7 +23,7 @@ const environmentAwareColorSelector = createSelector(
     let lightnessCounter = 0;
     for (const { entity } of commentEntityNodes) {
       hSVector = addColorToHSVector(hSVector, entity.type === 'chromatic' ? white : entity.color);
-      lightnessCounter += getEffectiveLightnessWeight(yesterday < entity.creationDate);
+      lightnessCounter += getEffectiveLightnessWeight(yesterday < entity.createdAt);
     }
 
     const [h, s] = getHueSaturation(hSVector);

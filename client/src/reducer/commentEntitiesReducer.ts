@@ -68,7 +68,7 @@ function toCommentEntity(
     text,
     size,
     color: fromRgbNumber(color),
-    creationDate: new Date(creationMs),
+    createdAt: new Date(creationMs),
   };
 }
 
@@ -80,7 +80,7 @@ function createDevComment(data: Partial<CommentEntity>): CommentEntity {
     color: white,
     x: 0,
     y: 0,
-    creationDate: new Date(),
+    createdAt: new Date(),
     ...data,
   };
 }
