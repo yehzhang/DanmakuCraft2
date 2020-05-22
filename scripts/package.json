@@ -3,23 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build:bgm": "node node_modules/audiosprite/cli.js -b 192 -v 6 -f howler -o ../build/audio/background_music ../data/audio/background/* && mv ../build/audio/background_music.json ../data/audio && mv ../build/audio/background_music.* ../server/assets/audio",
-    "data:generate:sql": "ts-node generateDatabaseSql.ts ../data/comments/all.xml > ../build/comments.sql",
-    "data:generate:sql:partial": "ts-node generateDatabaseSql.ts ../data/comments/all.xml 16000 > ../build/comments.partial.sql",
-    "data:populate:nedb": "ts-node populateNedb.ts ../data/comments/all.xml 16000 ../server/.tmp/localDiskDb.db"
+    "build:bgm": "node node_modules/audiosprite/cli.js -b 192 -v 6 -f howler -o ../build/audio/background_music ../data/audio/background/* && mv ../build/audio/background_music.json ../data/audio && mv ../build/audio/background_music.* ../server/assets/audio"
   },
   "devDependencies": {
-    "@types/moment-timezone": "^0.5.13",
-    "@types/node": "^13.13.4",
-    "@types/pg-escape": "^0.2.0",
-    "@types/shortid": "^0.0.29",
-    "@types/xml2js": "^0.4.5",
-    "audiosprite": "^0.7.2",
-    "moment-timezone": "^0.5.28",
-    "pg-escape": "^0.2.0",
-    "sequency": "^0.19.2",
-    "shortid": "^2.2.15",
-    "ts-node": "^8.9.1",
-    "xml2js": "^0.4.23"
+    "audiosprite": "^0.7.2"
   }
 }
