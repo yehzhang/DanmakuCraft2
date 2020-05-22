@@ -1,9 +1,6 @@
-import {
-  FlatCommentDataRequest,
-  FlatCommentDataResponse,
-} from '../../server/api/services/FlatCommentData';
+import { FlatCommentDataRequest } from '../../server/api/services/FlatCommentData';
 import { Color } from './data/color';
-import { Buff, SignEntity } from './data/entity';
+import { Buff, CommentEntity, SignEntity } from './data/entity';
 import { Point } from './data/point';
 import { ConsoleDisplayLevel, ConsoleEntry, State, ViewName } from './state';
 
@@ -21,7 +18,7 @@ export type Action =
   | { type: '[Chest] opened by player'; buff: Buff }
   | { type: '[SpeechBubble] display expired' }
   | { type: 'Genesis'; spawnPosition: Point; signEntities: readonly SignEntity[] }
-  | { type: 'Comments loaded from backend'; data: readonly FlatCommentDataResponse[] }
+  | { type: 'Comments loaded from backend'; data: readonly CommentEntity[] }
   | { type: '[Opening] completed' }
   | { type: '[ConsoleInput] chest wanted'; position: Point; lootType: Buff['type'] }
   | { type: '[ConsoleInput] comment wanted'; position: Point; text: string; color: Color }

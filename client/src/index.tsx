@@ -8,7 +8,8 @@ import './action'; // Hack for webpack to pickup interface-only files.
 import App from './component/App';
 import { addLoadingTask, LoadingResult } from './component/Loading';
 import './data/entity';
-import { getFromBackend } from './shim/backend';
+import getLatestComments from './shim/backend/getLatestComments';
+import initialize from './shim/backend/initialize';
 import setUpBilibiliShim from './shim/bilibili';
 import ConsoleInput from './shim/ConsoleInput';
 import { selectDomain } from './shim/domain';
@@ -32,6 +33,7 @@ async function main() {
     window.persistor = persistor;
   }
 
+  initialize();
   addLoadingTask(loadCommentsFromBackend());
 
   const gameContainerId = await selectDomain<() => Promise<string> | string>({
@@ -51,15 +53,15 @@ async function main() {
 }
 
 function loadCommentsFromBackend(): () => Promise<LoadingResult> {
-  const commentDataPromise = getFromBackend('comment');
+  const commentDataPromise = getLatestComments();
   return async () => {
-    const { comments: flatComments } = await commentDataPromise;
+    const comments = await commentDataPromise;
     const throttler = new RenderThrottler();
     const sleepDurationMs = 2;
-    for (const flatCommentChunk of _.chunk(flatComments, 100)) {
+    for (const commentChunk of _.chunk(comments, 100)) {
       while (
         !throttler.run(() => {
-          store.dispatch({ type: 'Comments loaded from backend', data: flatCommentChunk });
+          store.dispatch({ type: 'Comments loaded from backend', data: commentChunk });
         }, sleepDurationMs)
       ) {
         await sleep(sleepDurationMs);

@@ -18,10 +18,7 @@ function commentEntitiesReducer(
     }
     case 'Comments loaded from backend': {
       const { data } = action;
-      return updateState(
-        state,
-        data.map((comment) => toCommentEntity(comment, comment.createdAt))
-      );
+      return updateState(state, data);
     }
     case '[ConsoleInput] chromatic comment wanted': {
       const { position, text } = action;
