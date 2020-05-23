@@ -1,5 +1,7 @@
-function checkExhaustive(value: never) {
-  console.error('Unexpected inexhaustive check', value);
+import ParametricTypeError from './ParametricTypeError';
+
+function checkExhaustive(value: never): never {
+  throw new ParametricTypeError('Unexpected inexhaustive check', { value });
 }
 
 export default checkExhaustive;
