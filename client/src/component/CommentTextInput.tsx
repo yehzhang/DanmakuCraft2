@@ -2,15 +2,14 @@ import * as React from 'react';
 import { ChangeEvent, FormEvent, useCallback, useEffect, useRef } from 'react';
 import { Key } from 'ts-keycode-enum';
 import BuffType from '../../../server/api/services/BuffType';
-import { CreationRequestData } from '../../../server/api/services/request';
 import { toRgbNumber } from '../data/color';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useQuerySelector from '../hook/useQuerySelector';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
-import { postToBackend } from '../shim/backend';
+import postComment from '../shim/backend/postComment';
 import bindFirst from '../shim/bilibili/bindFirst';
-import { domain, selectDomain } from '../shim/domain';
+import { selectDomain } from '../shim/domain';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
@@ -69,15 +68,7 @@ function CommentTextInput() {
       coordinateY: position.y,
       buffType: chromatic ? BuffType.CHROMATIC : undefined,
     };
-    const payload: CreationRequestData = {
-      comment: flatCommentData,
-      user: {
-        origin: domain,
-        id: user.id,
-      },
-    };
-
-    postToBackend('comment', payload)
+    postComment()
       .then(() => {
         dispatch({ type: '[CommentTextInput] submitted', data: flatCommentData });
       })
