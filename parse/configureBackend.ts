@@ -3,17 +3,17 @@ import { URL } from 'url';
 import applicationId from './config/applicationId.json';
 import masterKey from './config/masterKey.json';
 import serverUrl from './config/serverUrl.json';
+import BilibiliUserCommentSchema from './schema/BilibiliUserComment.json';
 import CommentSchema from './schema/Comment.json';
-import UserSchema from './schema/User.json';
 
 async function pushDatabaseSchema(className: string, schema: any) {
   const currentSchema = await fetchDatabaseSchema('GET', className);
   // Remove already defined indices as Parse does not support updating indices.
-  for (const indexName of Object.keys(currentSchema.indexes)) {
+  for (const indexName of Object.keys(currentSchema.indexes || {})) {
     if (!Object.prototype.hasOwnProperty.call(schema.indexes, indexName)) {
       continue;
     }
-    console.warn('Not updating already defined index:', indexName);
+    console.warn('Not updating already defined index:', indexName, 'for class:', className);
     delete schema.indexes[indexName];
   }
 
@@ -26,7 +26,7 @@ function fetchDatabaseSchema(method: 'PUT', className: string, body: string): Pr
 async function fetchDatabaseSchema(method: string, className: string, body?: string) {
   const url = new URL(`/schemas/${className}`, serverUrl);
   const response = await fetch(url.href, {
-    method: 'PUT',
+    method,
     headers: {
       'X-Parse-Application-Id': applicationId,
       'X-Parse-Master-Key': masterKey,
@@ -47,7 +47,7 @@ async function fetchDatabaseSchema(method: string, className: string, body?: str
 async function configureBackend() {
   await Promise.all([
     pushDatabaseSchema('Comment', CommentSchema),
-    pushDatabaseSchema('User', UserSchema),
+    pushDatabaseSchema('BilibiliUserComment', BilibiliUserCommentSchema),
   ]);
 }
 

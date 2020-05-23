@@ -1,16 +1,16 @@
 {
-  "className": "User",
+  "className": "BilibiliUserComment",
   "classLevelPermissions": {
     "find": {},
     "create": {
       "*": true
     },
-    "get": {
-      "*": true
-    },
+    "get": {},
     "update": {},
     "addField": {},
     "delete": {}
   },
-  "indexes": {}
+  "indexes": {
+    "user": { "objectId": 1 }
+  }
 }
