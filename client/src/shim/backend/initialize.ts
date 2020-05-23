@@ -1,11 +1,11 @@
 import Parse from 'parse';
+import applicationId from '../../../../parse/config/applicationId.json';
+import javaScriptKey from '../../../../parse/config/javaScriptKey.json';
+import serverUrl from '../../../../parse/config/serverUrl.json';
 
 function initialize() {
-  Parse.initialize(
-    'web9nefde1uMML5m3SUhQwDGbTPMP9vIn0OtALyn',
-    '5Zfjq6zZHrIDR8scvgdebjqTMdbKVDWjzK695Ycm'
-  );
-  Parse.serverURL = 'https://danmakucraft2.back4app.io/';
+  Parse.initialize(applicationId, javaScriptKey);
+  Parse.serverURL = serverUrl;
 }
 
 export default initialize;
