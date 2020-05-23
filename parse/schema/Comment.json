@@ -2,10 +2,10 @@
   "className": "Comment",
   "classLevelPermissions": {
     "find": {
-      "requiresAuthentication": true
+      "*": true
     },
     "create": {
-      "requiresAuthentication": true
+      "*": true
     },
     "get": {},
     "update": {},
