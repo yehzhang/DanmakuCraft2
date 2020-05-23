@@ -1,0 +1,18 @@
+{
+  "className": "Comment",
+  "classLevelPermissions": {
+    "find": {
+      "requiresAuthentication": true
+    },
+    "create": {
+      "requiresAuthentication": true
+    },
+    "get": {},
+    "update": {},
+    "addField": {},
+    "delete": {}
+  },
+  "indexes": {
+    "timeSorted": { "createdAt": -1 }
+  }
+}

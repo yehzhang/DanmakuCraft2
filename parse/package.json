@@ -1,0 +1,14 @@
+{
+  "name": "danmakucraft2-parse",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "configure": "ts-node configureBackend.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.5",
+    "@types/node-fetch": "^2.5.7",
+    "node-fetch": "^2.6.0",
+    "ts-node": "^8.10.1"
+  }
+}
