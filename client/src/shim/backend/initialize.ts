@@ -1,10 +1,9 @@
 import Parse from 'parse';
 import applicationId from '../../../../parse/config/applicationId.json';
-import javaScriptKey from '../../../../parse/config/javaScriptKey.json';
 import serverUrl from '../../../../parse/config/serverUrl.json';
 
 function initialize() {
-  Parse.initialize(applicationId, javaScriptKey);
+  Parse.initialize(applicationId, '5Zfjq6zZHrIDR8scvgdebjqTMdbKVDWjzK695Ycm');
   Parse.serverURL = serverUrl;
 }
 
