@@ -1,0 +1,16 @@
+{
+  "className": "User",
+  "classLevelPermissions": {
+    "find": {},
+    "create": {
+      "*": true
+    },
+    "get": {
+      "*": true
+    },
+    "update": {},
+    "addField": {},
+    "delete": {}
+  },
+  "indexes": {}
+}

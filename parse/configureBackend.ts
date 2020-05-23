@@ -4,6 +4,7 @@ import applicationId from './config/applicationId.json';
 import masterKey from './config/masterKey.json';
 import serverUrl from './config/serverUrl.json';
 import CommentSchema from './schema/Comment.json';
+import UserSchema from './schema/User.json';
 
 async function pushDatabaseSchema(className: string, schema: any) {
   const currentSchema = await fetchDatabaseSchema('GET', className);
@@ -44,7 +45,10 @@ async function fetchDatabaseSchema(method: string, className: string, body?: str
 }
 
 async function configureBackend() {
-  await pushDatabaseSchema('Comment', CommentSchema);
+  await Promise.all([
+    pushDatabaseSchema('Comment', CommentSchema),
+    pushDatabaseSchema('User', UserSchema),
+  ]);
 }
 
 configureBackend();
