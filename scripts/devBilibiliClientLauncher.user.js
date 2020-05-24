@@ -10,7 +10,7 @@
 // @match        *://www.bilibili.com/video/BV1GW41177LA?*
 // @match        *://www.bilibili.com/video/BV1GW41177LA/*
 // @grant        none
-// @run-at       document-start
+// @run-at       document-end
 // @license      AGPL-3.0
 // ==/UserScript==
 
@@ -28,10 +28,10 @@ async function getScriptUrl() {
     await fetch(devServerBaseUrl);
   } catch {
     // Prod URL.
-    return 'https://danmakucraft.com/bundle.js?nonsense=' + Math.random();
+    return `https://danmakucraft.com/bundle.js?nonsense=${Math.random()}`;
   }
   // Dev URL.
-  return devServerBaseUrl + '/bundle.js';
+  return `${devServerBaseUrl}/bundle.js`;
 }
 
 main();
