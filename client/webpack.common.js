@@ -33,7 +33,6 @@ module.exports = {
     modules: [sourcePath, 'node_modules'],
   },
   output: {
-    filename: 'bundle.js',
     path: outPath,
   },
   devServer: {
