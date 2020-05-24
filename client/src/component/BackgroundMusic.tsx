@@ -3,9 +3,9 @@ import * as _ from 'lodash';
 import { useEffect, useRef } from 'react';
 import backgroundMusicConfig from '../../../data/audio/background_music.json';
 import useTick from '../hook/useTick';
-import getFileStorageUrl from '../shim/backend/getFileStorageUrl';
+import getResourceUrls from '../shim/backend/getResourceUrls';
+import ParametricTypeError from '../shim/ParametricTypeError';
 import { useSelector } from '../shim/redux';
-import { addLoadingTask } from './Loading';
 
 function BackgroundMusic() {
   useEffect(() => {
@@ -53,26 +53,23 @@ function updatePlaylist(playlist: Playlist): Playlist {
 
 let album: Howl;
 
-addLoadingTask(
-  _.constant(
-    new Promise((resolve, reject) => {
-      album = new Howl({
-        src: [
-          getFileStorageUrl('/audio/background_music.mp3'),
-          getFileStorageUrl('/audio/background_music.ogg'),
-          getFileStorageUrl('/audio/background_music.m4a'),
-          getFileStorageUrl('/audio/background_music.ac3'),
-        ],
-        sprite: backgroundMusicConfig.sprite as any,
-        onload: () => {
-          resolve();
-        },
-        onloaderror: (id, error) => {
-          reject(new TypeError(`Failed to load background music. Error: ${error}`));
-        },
-      });
-    })
-  )
-);
+export async function loadBackgroundMusic(): Promise<void> {
+  const urls = await getResourceUrls(
+    'background_music.mp3',
+    'background_music.ogg',
+    'background_music.m4a'
+  );
+  return new Promise((resolve, reject) => {
+    album = new Howl({
+      src: urls,
+      sprite: backgroundMusicConfig.sprite as any,
+      onload: () => void resolve(),
+      onloaderror: (id, error) =>
+        void reject(
+          new ParametricTypeError('Unexpected error when loading background music', { error })
+        ),
+    });
+  });
+}
 
 export default BackgroundMusic;

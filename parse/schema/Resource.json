@@ -1,11 +1,9 @@
 {
   "className": "Resource",
   "classLevelPermissions": {
-    "find": {},
+    "find": {"*": true},
     "create": {},
-    "get": {
-      "*": true
-    },
+    "get": {},
     "update": {},
     "addField": {},
     "delete": {}

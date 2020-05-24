@@ -14,11 +14,10 @@ async function pushDatabaseSchema(className: string, schema: any) {
     delete schema.indexes[indexName];
   }
 
-  const updatedSchema = await fetchBackend('PUT', getSchemaPath(className), {
+  await fetchBackend('PUT', getSchemaPath(className), {
     type: 'json',
     serializedData: JSON.stringify(schema),
   });
-  console.log('Schema pushed for', className, updatedSchema);
 }
 
 function getSchemaPath(className: string): string {

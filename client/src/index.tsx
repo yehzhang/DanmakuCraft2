@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import 'resize-observer-polyfill';
 import './action'; // Hack for webpack to pickup interface-only files.
 import App from './component/App';
+import { loadBackgroundMusic } from './component/BackgroundMusic';
 import { addLoadingTask, LoadingResult } from './component/Loading';
 import './data/entity';
 import getLatestCommentEntities from './shim/backend/getLatestCommentEntities';
@@ -35,6 +36,7 @@ async function main() {
 
   initialize();
   addLoadingTask(loadCommentsFromBackend());
+  addLoadingTask(_.constant(loadBackgroundMusic()));
 
   const gameContainerId = await selectDomain<() => Promise<string> | string>({
     bilibili: () => setUpBilibiliShim(store),
