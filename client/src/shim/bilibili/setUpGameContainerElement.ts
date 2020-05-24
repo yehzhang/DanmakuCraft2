@@ -4,7 +4,10 @@ import poll from './poll';
 
 /** Resolves to the ID of the container element. */
 async function setUpGameContainerElement(): Promise<string> {
-  const videoFrameElement = await poll(checkAndEnableHtml5Player);
+  const [videoFrameElement] = await Promise.all([
+    poll(checkAndEnableHtml5Player),
+    poll(checkHtml5PlayerSendBar),
+  ]);
 
   configureBilibiliPlayer(videoFrameElement);
 
@@ -51,6 +54,10 @@ async function checkAndEnableHtml5Player(): Promise<HTMLElement | null> {
   }
 
   return null;
+}
+
+function checkHtml5PlayerSendBar(): HTMLElement | null {
+  return document.querySelector('.bilibili-player-video-btn-send') || null;
 }
 
 function addGameContainerElement(elementId: string, videoFrameElement: Element) {
