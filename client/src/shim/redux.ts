@@ -3,11 +3,10 @@ import * as Redux from 'redux';
 import { Action } from '../action';
 import { State } from '../state';
 
-export const useDispatch: UseDispatch = ReactRedux.useDispatch;
+export const useDispatch: () => Dispatch = ReactRedux.useDispatch;
 
 export const useSelector: UseSelector = __DEV__ ? lazyModuleUseSelector : ReactRedux.useSelector;
 
-type UseDispatch = () => Dispatch;
 export type Dispatch = (action: Action) => void;
 
 type UseSelector = <T>(selector: Selector<T>, equalityFn?: (left: T, right: T) => boolean) => T;
@@ -22,3 +21,5 @@ function lazyModuleUseSelector<T>(
 ): T {
   return ReactRedux.useSelector(selector, equalityFn);
 }
+
+export const useStore: () => Store = ReactRedux.useStore;

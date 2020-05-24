@@ -1,4 +1,6 @@
-import * as _ from 'lodash';
+import eq from 'lodash/eq';
+import identity from 'lodash/identity';
+import zipWith from 'lodash/zipWith';
 import { DependencyList, useRef, useState } from 'react';
 import useTick from './useTick';
 
@@ -6,7 +8,7 @@ function useTimerState<T>(
   tick: ((elapsedMs: number) => T) | null,
   initialState: T | (() => T),
   deps: DependencyList,
-  equalityFn: (a: T, b: T) => boolean = _.eq
+  equalityFn: (a: T, b: T) => boolean = eq
 ): T {
   const [state, setState] = useState(initialState);
 
@@ -15,7 +17,7 @@ function useTimerState<T>(
   useTick(
     tick &&
       ((deltaMs: number) => {
-        if (_.zipWith(deps, depsRef.current, _.eq).every(_.identity)) {
+        if (zipWith(deps, depsRef.current, eq).every(identity)) {
           elapsedMsRef.current += deltaMs;
         } else {
           depsRef.current = deps;

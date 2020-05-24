@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import noop from 'lodash/noop';
 import { useEffect } from 'react';
 import { useDispatch } from '../shim/redux';
 import { ConsoleEntry } from '../state';
@@ -6,7 +6,7 @@ import useUniqueId from './useUniqueId';
 
 function useConsoleEntry(entry?: ConsoleEntry) {
   if (!__DEV__) {
-    return _.noop;
+    return noop;
   }
 
   const dispatch = useDispatch();

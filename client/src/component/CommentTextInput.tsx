@@ -1,14 +1,16 @@
 import * as React from 'react';
-import { ChangeEvent, FormEvent, useCallback, useEffect, useRef } from 'react';
+import { ChangeEvent, FormEvent, ReactElement, useCallback, useEffect, useRef } from 'react';
 import { Key } from 'ts-keycode-enum';
 import { CommentEntity } from '../data/entity';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useQuerySelector from '../hook/useQuerySelector';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
+import { OutboundAttributes } from '../shim/backend/parse/objectConstructors';
 import postCommentEntity from '../shim/backend/postCommentEntity';
 import bindFirst from '../shim/bilibili/bindFirst';
 import { selectDomain } from '../shim/domain';
+import logError from '../shim/logging/logError';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
@@ -56,7 +58,7 @@ function CommentTextInput() {
 
     dispatch({ type: '[CommentTextInput] started submission' });
 
-    const commentEntity: CommentEntity = {
+    const outboundCommentEntity: OutboundAttributes<CommentEntity> = {
       ...(chromatic
         ? {
             type: 'chromatic',
@@ -68,21 +70,20 @@ function CommentTextInput() {
       size,
       text: commentText,
       ...position,
-      createdAt: new Date(),
     };
-    postCommentEntity(commentEntity, bilibiliUserId)
-      .then(() => {
-        dispatch({ type: '[CommentTextInput] submitted', data: commentEntity });
+    postCommentEntity(outboundCommentEntity, bilibiliUserId)
+      .then(([id, commentEntity]) => {
+        dispatch({ type: '[CommentTextInput] submitted', id, commentEntity });
       })
       .catch((error) => {
-        console.error('Failed to submit comment', error);
+        logError(error);
         dispatch({ type: '[CommentTextInput] submit failed due to network error' });
       });
 
     return true;
   }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled]);
 
-  return selectDomain({
+  return selectDomain<() => ReactElement | null>({
     danmakucraft: () => {
       const onFormSubmit = useCallback(
         (event: FormEvent) => {

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import { black, Color, toRgbNumber, white } from '../data/color';
 import useTexture from '../hook/useTexture';
+import movingSelector from '../selector/movingSelector';
 import wrapDrawWithShadow from '../shim/pixi/wrapDrawWithShadow';
 import { PointLike } from '../shim/reactPixi';
 import { useSelector } from '../shim/redux';
@@ -14,9 +15,7 @@ function TinyTelevision() {
   const thirdTexture = useTexture(drawThirdFrame);
   const textures = useMemo(() => [firstTexture, secondTexture, thirdTexture], []);
   const playerPosition = useSelector((state) => state.player.position);
-  const moving = useSelector(
-    ({ movement: { up, down, left, right } }) => up !== down || left !== right
-  );
+  const moving = useSelector(movingSelector);
   return (
     <AnimatedSprite
       {...playerPosition}

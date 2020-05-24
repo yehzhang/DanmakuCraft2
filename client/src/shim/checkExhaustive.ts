@@ -1,7 +1,7 @@
-import ParametricTypeError from './ParametricTypeError';
+import ParametricTypeError from './logging/ParametricTypeError';
 
 function checkExhaustive(value: never): never {
-  throw new ParametricTypeError('Unexpected inexhaustive check', { value });
+  throw new ParametricTypeError('Expected exhaustive check', { value });
 }
 
 export default checkExhaustive;

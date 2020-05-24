@@ -1,14 +1,21 @@
+import { Howl } from 'howler';
 import { Color } from './data/color';
-import { Buff, CommentEntity, SignEntity } from './data/entity';
+import {
+  Buff,
+  ChromaticCommentEntity,
+  CommentEntity,
+  PlainCommentEntity,
+  SignEntity,
+} from './data/entity';
 import { Point } from './data/point';
-import { ConsoleDisplayLevel, ConsoleEntry, State, ViewName } from './state';
+import { ConsoleDisplayLevel, ConsoleEntry, IdKeyed, State, ViewName } from './state';
 
 export type Action =
   | { type: '[PixiStage] up'; keyDown: boolean }
   | { type: '[PixiStage] down'; keyDown: boolean }
   | { type: '[PixiStage] left'; keyDown: boolean }
   | { type: '[PixiStage] right'; keyDown: boolean }
-  | { type: '[PixiStage] enter'; keyDown: boolean; view: ViewName }
+  | { type: '[PixiStage] enter'; keyDown: boolean; view: ViewName; commentInputSubmitting: boolean }
   | { type: '[PixiStage] focused' }
   | { type: '[PixiStage] blurred' }
   | { type: '[PixiStage] context menu opened' }
@@ -16,12 +23,17 @@ export type Action =
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }
   | { type: '[SpeechBubble] display expired' }
-  | { type: 'Genesis'; spawnPosition: Point; signEntities: readonly SignEntity[] }
-  | { type: 'Comments loaded from backend'; data: readonly CommentEntity[] }
+  | { type: '[Opening] genesis'; spawnPosition: Point; signEntities: IdKeyed<SignEntity> }
+  | { type: '[index] comment entities loaded'; commentEntities: IdKeyed<CommentEntity> }
+  | { type: '[index] background music created'; album: Howl }
   | { type: '[Opening] completed' }
   | { type: '[ConsoleInput] chest wanted'; position: Point; lootType: Buff['type'] }
-  | { type: '[ConsoleInput] comment wanted'; position: Point; text: string; color: Color }
-  | { type: '[ConsoleInput] chromatic comment wanted'; position: Point; text: string }
+  | { type: '[ConsoleInput] comment wanted'; id: string; commentEntity: PlainCommentEntity }
+  | {
+      type: '[ConsoleInput] chromatic comment wanted';
+      id: string;
+      commentEntity: ChromaticCommentEntity;
+    }
   | { type: '[ConsoleInput] notification pushed'; text: string }
   | { type: '[ConsoleInput] view switched' }
   | { type: '[ConsoleInput] view set'; viewName: ViewName }
@@ -32,7 +44,7 @@ export type Action =
   | { type: '[CommentTextInput] submit failed due to empty text' }
   | { type: '[CommentTextInput] submit failed due to network error' }
   | { type: '[CommentTextInput] started submission' }
-  | { type: '[CommentTextInput] submitted'; data: CommentEntity }
+  | { type: '[CommentTextInput] submitted'; id: string; commentEntity: CommentEntity }
   | { type: '[CommentTextInput] focused' }
   | { type: '[CommentTextInput] blurred' }
   | { type: '[CommentTextInput/bilibili] enter key down when empty' }

@@ -1,0 +1,20 @@
+{
+  "name": "danmakucraft2-backend",
+  "private": true,
+  "scripts": {
+    "ts": "node -r ts-node/register",
+    "configure:dev": "ENV=dev yarn ts script/configureBackend.ts",
+    "configure:prod": "ENV=prod yarn ts script/configureBackend.ts",
+    "migratePsql": "yarn ts --max-old-space-size=8192 script/migratePsqlJson.ts",
+    "deploy:dev": "./script/deploy.sh dev",
+    "deploy:prod": "./script/deploy.sh prod"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.152",
+    "@types/mime-types": "^2.1.0",
+    "@types/nanoid": "^2.1.0",
+    "lodash": "^4.17.15",
+    "mime-types": "^2.1.27",
+    "nanoid": "^3.1.9"
+  }
+}

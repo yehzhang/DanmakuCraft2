@@ -1,4 +1,5 @@
 import { MutableRefObject, useEffect } from 'react';
+import logErrorMessage from '../shim/logging/logErrorMessage';
 
 function useQuerySelector<T extends Element>(selector: string, ref: MutableRefObject<T | null>) {
   useEffect(() => {
@@ -6,7 +7,7 @@ function useQuerySelector<T extends Element>(selector: string, ref: MutableRefOb
     if (element) {
       ref.current = element;
     } else {
-      console.error('Failed to query element with selector', selector);
+      logErrorMessage('Expected element from selector', { selector });
     }
   }, []);
 }

@@ -2,6 +2,8 @@
  * Binds a JQuery event listener which is executed before all others.
  * Returns a destructor.
  */
+import logErrorMessage from '../logging/logErrorMessage';
+
 function bindFirst<T extends EventTarget>(
   element: JQuery<T>,
   event: string,
@@ -11,7 +13,7 @@ function bindFirst<T extends EventTarget>(
 
   const events = element.data('events');
   if (events == null) {
-    console.error('Failed to bind handler to the first');
+    logErrorMessage('Expected JQuery element events');
   } else {
     const bindings = events[event];
     bindings.unshift(bindings.pop());

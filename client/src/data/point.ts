@@ -3,10 +3,14 @@ export interface Point<T = number> {
   readonly y: T;
 }
 
-export const empty: Point = {
-  x: 0,
-  y: 0,
-};
+export const empty: Point = fromNumber(0);
+
+export function fromNumber(x: number): Point {
+  return {
+    x,
+    y: x,
+  };
+}
 
 export function map<T, U>({ x, y }: Point<T>, f: (x: T) => U): Point<U> {
   return {

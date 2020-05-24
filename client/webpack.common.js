@@ -1,16 +1,19 @@
 const path = require('path');
-const { DefinePlugin } = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const sourcePath = path.resolve(__dirname, 'src');
 const outPath = path.resolve(__dirname, '../build');
-const backendAssetsPath = path.resolve(__dirname, '../server/assets');
+const backendPublicPath = path.resolve(__dirname, '../website/public');
 
-const localBackend = !!process.env.LOCAL_BACKEND;
 const analysis = !!process.env.ANALYSIS;
 
 module.exports = {
   entry: path.join(sourcePath, 'index.tsx'),
+  output: {
+    path: outPath,
+    filename: 'bundle.js',
+  },
   module: {
     rules: [
       {
@@ -21,8 +24,8 @@ module.exports = {
     ],
   },
   plugins: [
-    new DefinePlugin({
-      __LOCAL_BACKEND__: JSON.stringify(localBackend),
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: ['bundle.js'],
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: analysis ? 'server' : 'disabled',
@@ -32,14 +35,10 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
     modules: [sourcePath, 'node_modules'],
   },
-  output: {
-    filename: 'bundle.js',
-    path: outPath,
-  },
   devServer: {
-    public: 'https://localhost:8080',
+    public: 'https://localhost:8080/',
     open: false,
-    contentBase: [__dirname, outPath, backendAssetsPath],
+    contentBase: [__dirname, outPath, backendPublicPath],
     https: true,
     // Workaround the Socket JS error when serving to HTTPS websites.
     disableHostCheck: true,

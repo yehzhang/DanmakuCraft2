@@ -1,4 +1,5 @@
-import * as _ from 'lodash';
+import add from 'lodash/add';
+import subtract from 'lodash/subtract';
 import * as React from 'react';
 import { useState } from 'react';
 import { Channel1, Channel255, maxChannel255Value } from '../data/channel';
@@ -28,9 +29,9 @@ function approximateTRgb(
   targetTRgb: Rgb<Channel1>,
   deltaMs: number
 ): Rgb<Channel1> {
-  const deltaTRgb = zipRgb(targetTRgb, tRgb, _.subtract);
+  const deltaTRgb = zipRgb(targetTRgb, tRgb, subtract);
   const normalizedDeltaTRgb = normalizeDeltaTRgb(deltaTRgb, deltaMs);
-  return zipRgb(tRgb, normalizedDeltaTRgb, _.add);
+  return zipRgb(tRgb, normalizedDeltaTRgb, add);
 }
 
 const endToEndTransitionMs = 10 * 1000;

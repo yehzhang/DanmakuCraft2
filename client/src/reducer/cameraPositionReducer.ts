@@ -1,6 +1,7 @@
+import divide from 'lodash/divide';
 import { Action } from '../action';
 import { convergingLerp } from '../data/interpolation';
-import { empty, Point, zip3 } from '../data/point';
+import { empty, equal, fromNumber, Point, zip, zip3 } from '../data/point';
 
 const initialState: Point = empty;
 
@@ -11,10 +12,11 @@ function cameraPositionReducer(state = initialState, action: Action): Point {
         state: {
           player: { position: playerPosition },
         },
+        deltaMs,
       } = action;
-      return zip3(state, playerPosition, interpolationParameters, convergingLerp);
+      return update(state, playerPosition, deltaMs);
     }
-    case 'Genesis': {
+    case '[Opening] genesis': {
       const { spawnPosition } = action;
       return spawnPosition;
     }
@@ -23,10 +25,16 @@ function cameraPositionReducer(state = initialState, action: Action): Point {
   }
 }
 
+function update(state: Point, playerPosition: Point, deltaMs: number): Point {
+  const t = zip(fromNumber(deltaMs), msToReachMaxOffset, divide);
+  const nextState = zip3(state, playerPosition, t, convergingLerp);
+  return equal(nextState, state) ? state : nextState;
+}
+
 /** Parameter to the interpolation of following. */
-const interpolationParameters = {
-  x: 0.05,
-  y: 0.08,
+const msToReachMaxOffset = {
+  x: 1000 / 3,
+  y: 1000 / 4.8,
 };
 
 export default cameraPositionReducer;

@@ -1,40 +1,42 @@
 import { render } from '@inlet/react-pixi';
 import * as React from 'react';
 import { isValidElement, KeyboardEvent, ReactElement, useCallback, useEffect, useRef } from 'react';
-import { Provider, useStore } from 'react-redux';
+import { Provider } from 'react-redux';
 import { Key } from 'ts-keycode-enum';
 import { Action } from '../action';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import { selectDomain } from '../shim/domain';
 import application, { setRendererView } from '../shim/pixi/application';
 import { createStyleSheet } from '../shim/react';
-import { useDispatch, useSelector } from '../shim/redux';
-import { ViewName } from '../state';
+import { useDispatch, useStore } from '../shim/redux';
+import { State } from '../state';
+import ErrorBoundary from './ErrorBoundary';
 
 interface Props {
   readonly children: readonly (ReactElement | false)[];
 }
 
 function PixiStage({ children }: Props) {
-  const view = useSelector((state) => state.view);
+  const store = useStore();
   const dispatch = useDispatch();
   const onKeyDown = useCallback(
     (event: KeyboardEvent) => {
       event.stopPropagation();
 
+      const state = store.getState();
       let action;
       if (event.ctrlKey || event.altKey || event.metaKey) {
-        action = getActionByKeyboardEvent(event, /* keyDown= */ false, view);
+        action = getActionByKeyboardEvent(event, /* keyDown= */ false, state);
       } else {
         event.preventDefault();
-        action = getActionByKeyboardEvent(event, /* keyDown= */ true, view);
+        action = getActionByKeyboardEvent(event, /* keyDown= */ true, state);
       }
 
       if (action) {
         dispatch(action);
       }
     },
-    [dispatch, view]
+    [dispatch, store]
   );
   const onKeyUp = useCallback(
     (event: KeyboardEvent) => {
@@ -44,12 +46,12 @@ function PixiStage({ children }: Props) {
         return;
       }
 
-      const action = getActionByKeyboardEvent(event, /* keyDown= */ false, view);
+      const action = getActionByKeyboardEvent(event, /* keyDown= */ false, store.getState());
       if (action) {
         dispatch(action);
       }
     },
-    [dispatch, view]
+    [dispatch, store]
   );
 
   const elementRef = useRef<HTMLCanvasElement>(null);
@@ -69,9 +71,13 @@ function PixiStage({ children }: Props) {
     }
   }, []);
 
-  const store = useStore();
   useEffect(() => {
-    render(<Provider store={store}>{children.filter(isValidElement)}</Provider>, application.stage);
+    render(
+      <Provider store={store}>
+        <ErrorBoundary>{children.filter(isValidElement)}</ErrorBoundary>
+      </Provider>,
+      application.stage
+    );
   }, [store, children]);
 
   return (
@@ -105,7 +111,7 @@ const styles = createStyleSheet({
 function getActionByKeyboardEvent(
   event: KeyboardEvent,
   keyDown: boolean,
-  view: ViewName
+  { view, commentInputSubmitting }: State
 ): Action | null {
   switch (event.which || event.keyCode) {
     case Key.UpArrow:
@@ -121,7 +127,7 @@ function getActionByKeyboardEvent(
     case Key.D:
       return { type: '[PixiStage] right', keyDown };
     case Key.Enter:
-      return { type: '[PixiStage] enter', keyDown, view };
+      return { type: '[PixiStage] enter', keyDown, view, commentInputSubmitting };
     default:
       return null;
   }

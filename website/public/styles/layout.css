@@ -1,0 +1,15 @@
+body {
+  background-color: #f6f9fa;
+  font-family: /*Safari for OS X and iOS (San Francisco) */ -apple-system,
+    /*Chrome < 56 for OS X (San Francisco)*/ BlinkMacSystemFont,
+    /*Mac*/ 'Helvetica Neue',
+    /*Chinese*/ 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei',
+    /*Windows*/ 'Segoe UI',
+    /*Android*/ 'Roboto',
+    /*Basic web fallback*/ Helvetica, Arial, sans-serif,
+    /*Emoji fonts*/ 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
+.description {
+  color: #5c5855;
+}

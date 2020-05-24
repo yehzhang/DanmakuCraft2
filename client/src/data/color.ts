@@ -1,10 +1,12 @@
-import ColorConstructor from 'color';
+import tinycolor from 'tinycolor2';
 import { Channel1, Channel255, Channel360 } from './channel';
 
-export type Color = ColorConstructor;
+export type Color = tinycolor.Instance;
+
+const ColorConstructor: tinycolor.Constructor = tinycolor;
 
 export function fromRgbNumbers(r: Channel255, g: Channel255, b: Channel255): Color {
-  return ColorConstructor.rgb(r, g, b);
+  return new ColorConstructor({ r, g, b });
 }
 
 export function fromRgb(rgb: Rgb): Color {
@@ -12,28 +14,24 @@ export function fromRgb(rgb: Rgb): Color {
 }
 
 export function fromRgbNumber(rgb: number): Color {
-  return new ColorConstructor(rgb);
+  return fromRgb({
+    r: (rgb >> 16) & 0xff,
+    g: (rgb >> 8) & 0xff,
+    b: rgb & 0xff,
+  });
 }
 
 export function fromHsl(h: Channel360, s: Channel1, l: Channel1): Color {
-  return ColorConstructor.hsl(h, s * 100, l * 100);
+  return new ColorConstructor({ h, s, l });
 }
 
 export function fromString(data: string): Color | null {
-  try {
-    return new ColorConstructor(data);
-  } catch {
-    return null;
-  }
+  const color = new ColorConstructor(data);
+  return color.isValid() ? color : null;
 }
 
 export function toHsl(color: Color): Hsl {
-  const { h, s, l } = color.hsl().object();
-  return {
-    h,
-    s: s / 100,
-    l: l / 100,
-  };
+  return color.toHsl();
 }
 
 interface Hsl {
@@ -43,15 +41,16 @@ interface Hsl {
 }
 
 export function toHexString(color: Color): string {
-  return color.hex();
+  return color.toHexString();
 }
 
 export function toRgbNumber(color: Color): number {
-  return color.rgbNumber();
+  const { r, g, b } = color.toRgb();
+  return (r << 16) | (g << 8) | b;
 }
 
 export function toRgb(color: Color): Rgb {
-  return color.rgb().object() as any;
+  return color.toRgb();
 }
 
 export interface Rgb<T = Channel255> {
@@ -77,15 +76,15 @@ export function zipRgb<T, U>(rgb: Rgb<T>, rgb_: Rgb<T>, f: (x: T, x_: T) => U): 
 }
 
 export function visiblyEqualColors(color: Color, other: Color): boolean {
-  return color.rgbNumber() === other.rgbNumber();
+  return toRgbNumber(color) === toRgbNumber(other);
 }
 
 export function showRgb(color: Color): string {
-  return color.rgb().string();
+  return color.toRgbString();
 }
 
 export function showHsl(color: Color): string {
-  return color.hsl().string();
+  return color.toHslString();
 }
 
 export const white = new ColorConstructor('#ffffff');

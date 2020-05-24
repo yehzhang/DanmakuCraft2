@@ -10,7 +10,7 @@ function CulledComments() {
   return (
     <Container>
       {commentEntityNodes.map(({ id, entity: commentEntity }) => (
-        <Comment key={id} {...commentEntity} />
+        <Comment key={id} id={id} {...commentEntity} />
       ))}
     </Container>
   );

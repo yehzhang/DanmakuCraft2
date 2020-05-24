@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import partial from 'lodash/partial';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { center } from '../data/anchors';
@@ -30,7 +30,7 @@ function OpeningTitle(props: Props) {
   const projectedPosition = zip(
     props,
     { x: vanishingPointX, y: vanishingPointY },
-    _.partial(projectToPerspective, perspective)
+    partial(projectToPerspective, perspective)
   );
 
   useEffect(() => {

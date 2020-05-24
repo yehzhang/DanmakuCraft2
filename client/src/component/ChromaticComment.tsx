@@ -4,7 +4,9 @@ import { Channel255 } from '../data/channel';
 import { Color, fromRgbNumbers } from '../data/color';
 import { lerp } from '../data/interpolation';
 import useTick from '../hook/useTick';
+import movingSelector from '../selector/movingSelector';
 import { memo } from '../shim/react';
+import { useSelector } from '../shim/redux';
 import ShadowedText from './ShadowedText';
 
 interface Props {
@@ -16,21 +18,26 @@ interface Props {
 
 function ChromaticComment({ x, y, text, size }: Props) {
   const color = useChromaticColor();
-  return <ShadowedText x={x} y={y} text={text} size={size} color={color} />;
+  return <ShadowedText x={x} y={y} text={text} size={size} tint={color} />;
 }
 
 function useChromaticColor(): Color {
-  const r = usePausablyBouncingChannel();
-  const g = usePausablyBouncingChannel();
-  const b = usePausablyBouncingChannel();
+  const moving = useSelector(movingSelector);
+  const r = usePausablyBouncingChannel(moving);
+  const g = usePausablyBouncingChannel(moving);
+  const b = usePausablyBouncingChannel(moving);
   return fromRgbNumbers(r, g, b);
 }
 
-function usePausablyBouncingChannel(): Channel255 {
+function usePausablyBouncingChannel(moving: boolean): Channel255 {
   const [value, setValue] = useState(maxChannelValue);
   const pauseMsRef = useRef(0);
   const transitionVelocityRef = useRef(0);
   useTick((deltaMs: number) => {
+    if (moving) {
+      return;
+    }
+
     pauseMsRef.current -= deltaMs;
     if (pauseMsRef.current > 0) {
       return;

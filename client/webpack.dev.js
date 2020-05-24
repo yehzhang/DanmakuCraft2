@@ -6,6 +6,9 @@ console.error('Bundle in development mode.');
 
 module.exports = merge.smart(config, {
   mode: 'development',
+  output: {
+    publicPath: config.devServer.public,
+  },
   devtool: 'eval-source-map',
   plugins: [
     new DefinePlugin({

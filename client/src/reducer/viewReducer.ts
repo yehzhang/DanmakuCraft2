@@ -19,7 +19,7 @@ function viewReducer(state = initialState, action: Action): ViewName {
       const { viewName } = action;
       return viewName;
     }
-    case 'Genesis':
+    case '[Opening] genesis':
       return initialState;
     default:
       return state;

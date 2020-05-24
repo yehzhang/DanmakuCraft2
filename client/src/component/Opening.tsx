@@ -1,11 +1,12 @@
-import * as _ from 'lodash';
+import add from 'lodash/add';
+import { nanoid } from 'nanoid';
 import * as React from 'react';
 import { useCallback, useEffect, useReducer } from 'react';
 import { Action } from '../action';
 import { bottomRight } from '../data/anchors';
 import { black, white } from '../data/color';
 import { SpawnPointEntity, WorldCenterEntity, WorldOriginEntity } from '../data/entity';
-import { empty, Point, zip } from '../data/point';
+import { empty, fromNumber, Point, zip } from '../data/point';
 import { sampleUniformDistributionInCircle } from '../data/random';
 import { worldSize } from '../data/unboundedWorld';
 import { useDispatch, useSelector } from '../shim/redux';
@@ -128,8 +129,7 @@ function genesis(): Action {
   const halfWorldSize = worldSize / 2;
   const worldCenterEntity: WorldCenterEntity = {
     type: 'world_center',
-    x: halfWorldSize,
-    y: halfWorldSize,
+    ...fromNumber(halfWorldSize),
   };
 
   const worldOriginEntity: WorldOriginEntity = {
@@ -138,9 +138,12 @@ function genesis(): Action {
   };
 
   return {
-    type: 'Genesis',
-    spawnPosition: generateRandomPointAround(__DEV__ ? empty : getRandomSpawnPoint(spawnPoints)),
-    signEntities: [...spawnPoints, worldCenterEntity, worldOriginEntity],
+    type: '[Opening] genesis',
+    spawnPosition: generateRandomPointAround(getRandomSpawnPoint(spawnPoints)),
+    signEntities: [...spawnPoints, worldCenterEntity, worldOriginEntity].reduce(
+      (signEntities, signEntity) => Object.assign(signEntities, { [nanoid()]: signEntity }),
+      {}
+    ),
   };
 }
 
@@ -160,7 +163,7 @@ function getRandomSpawnPoint(spawnPoints: readonly Point[]): Point {
 function generateRandomPointAround(point: Point): Point {
   const maxOffset = __DEV__ ? 300 : 675;
   const randomOffsets = sampleUniformDistributionInCircle(maxOffset);
-  return zip(point, randomOffsets, _.add);
+  return zip(point, randomOffsets, add);
 }
 
 export default Opening;

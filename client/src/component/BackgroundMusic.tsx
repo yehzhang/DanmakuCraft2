@@ -1,20 +1,26 @@
-import { Howl } from 'howler';
-import * as _ from 'lodash';
+import shuffle from 'lodash/shuffle';
 import { useEffect, useRef } from 'react';
 import backgroundMusicConfig from '../../../data/audio/background_music.json';
 import useTick from '../hook/useTick';
-import getFileStorageUrl from '../shim/backend/getFileStorageUrl';
 import { useSelector } from '../shim/redux';
-import { addLoadingTask } from './Loading';
 
 function BackgroundMusic() {
+  const album = useSelector((state) => state.backgroundMusic);
+
   useEffect(() => {
+    if (!album) {
+      return;
+    }
     nextSongInMsRef.current = __DEV__ ? 0 : 60000;
-  }, []);
+  }, [album]);
 
   const playlistRef = useRef(initialPlaylist);
   const nextSongInMsRef = useRef(Infinity);
   useTick((deltaMs: number) => {
+    if (!album) {
+      return;
+    }
+
     nextSongInMsRef.current -= deltaMs;
     if (nextSongInMsRef.current > 0) {
       return;
@@ -32,8 +38,8 @@ function BackgroundMusic() {
 
   const volume = useSelector((state) => state.volume);
   useEffect(() => {
-    album.volume(volume);
-  }, [volume]);
+    album?.volume(volume);
+  }, [album, volume]);
 
   return null;
 }
@@ -46,33 +52,9 @@ type AvailableSong = keyof typeof backgroundMusicConfig.sprite;
 
 function updatePlaylist(playlist: Playlist): Playlist {
   if (playlist.length === 1) {
-    return _.shuffle(initialPlaylist.filter((song) => song !== playlist[0]));
+    return shuffle(initialPlaylist.filter((song) => song !== playlist[0]));
   }
   return initialPlaylist.slice(1);
 }
-
-let album: Howl;
-
-addLoadingTask(
-  _.constant(
-    new Promise((resolve, reject) => {
-      album = new Howl({
-        src: [
-          getFileStorageUrl('/audio/background_music.mp3'),
-          getFileStorageUrl('/audio/background_music.ogg'),
-          getFileStorageUrl('/audio/background_music.m4a'),
-          getFileStorageUrl('/audio/background_music.ac3'),
-        ],
-        sprite: backgroundMusicConfig.sprite as any,
-        onload: () => {
-          resolve();
-        },
-        onloaderror: (id, error) => {
-          reject(new TypeError(`Failed to load background music. Error: ${error}`));
-        },
-      });
-    })
-  )
-);
 
 export default BackgroundMusic;

@@ -2,8 +2,7 @@
   "urls": [
     "../build/audio/background_music.ogg",
     "../build/audio/background_music.m4a",
-    "../build/audio/background_music.mp3",
-    "../build/audio/background_music.ac3"
+    "../build/audio/background_music.mp3"
   ],
   "sprite": {
     "all_alone": [0, 42057.142857142855],

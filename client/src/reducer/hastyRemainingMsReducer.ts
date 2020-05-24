@@ -13,7 +13,7 @@ function hastyRemainingMsReducer(state = initialState, action: Action): number {
       const { buff } = action;
       return buff.type === 'hasty' ? hastyDurationMs : state;
     }
-    case 'Genesis':
+    case '[Opening] genesis':
       return initialState;
     default:
       return state;

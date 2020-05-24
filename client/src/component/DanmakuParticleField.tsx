@@ -1,5 +1,5 @@
 import { ParticleContainer, Sprite } from '@inlet/react-pixi';
-import * as _ from 'lodash';
+import times from 'lodash/times';
 import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useEffect, useRef } from 'react';
@@ -36,7 +36,7 @@ function DanmakuParticleField({ observerZ }: Props) {
   );
 
   useEffect(() => {
-    particlesRef.current = _.times(particleCount, () => generateRandomCoordinate(containerSize));
+    particlesRef.current = times(particleCount, () => generateRandomCoordinate(containerSize));
   }, [containerSize]);
 
   return (
