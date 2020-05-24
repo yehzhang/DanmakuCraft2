@@ -3,14 +3,15 @@
   "private": true,
   "scripts": {
     "configure": "ts-node configureBackend.ts",
-    "migratePsql": "node --max-old-space-size=8192 -r ts-node/register migratePsqlJson.ts"
+    "migratePsql": "node --max-old-space-size=8192 -r ts-node/register migratePsqlJson.ts",
+    "pushBgm": "ts-node pushBackgroundMusic.ts"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.152",
     "@types/mime-types": "^2.1.0",
     "@types/nanoid": "^2.1.0",
     "@types/node": "^14.0.5",
-    "@types/node-fetch": "^2.5.7",
+    "audiosprite": "^0.7.2",
     "lodash": "^4.17.15",
     "mime-types": "^2.1.27",
     "nanoid": "^3.1.9",

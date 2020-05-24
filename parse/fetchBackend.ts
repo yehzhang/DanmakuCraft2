@@ -1,67 +1,74 @@
-import childProcess from 'child_process';
-import { lookup } from 'mime-types';
+import mimetype from 'mime-types';
 import { URL } from 'url';
-import { promisify } from 'util';
+import buildCommand from './buildCommand';
 import config from './config';
+import execute from './execute';
 
-async function fetchBackend(method: 'GET', path: string): Promise<Response>;
-async function fetchBackend(method: 'PUT', path: string, body: Body): Promise<Response>;
-async function fetchBackend(method: string, path: string, body?: Body) {
+async function fetchBackend(method: 'GET', path: string, query?: Query): Promise<Response>;
+async function fetchBackend(method: 'POST' | 'PUT', path: string, body: Body): Promise<Response>;
+async function fetchBackend(method: string, path: string, payload?: Payload) {
   const url = new URL(path, config.serverUrl);
-  const { contentType, extraFlags } = body
-    ? getContentTypeAndFlags(body)
+  const { contentType, extraFlags } = payload
+    ? getCurlFlags(payload)
     : {
         contentType: 'application/json',
         extraFlags: [],
       };
-  const command = `
-    curl -X ${method} \
-      -H "X-Parse-Application-Id: ${config.applicationId}" \
-      -H "X-Parse-Master-Key: ${config.masterKey}" \
-      -H "Content-Type: ${contentType}" \
-      ${extraFlags.join(' ')} \
-      ${url.href}`;
-
-  console.log('Running command:', command);
-  const { stdout, stderr } = await exec(command);
-  if (stderr) {
-    console.error(stderr);
-  }
+  const command = buildCommand([
+    'curl',
+    `-X ${method}`,
+    `-H 'X-Parse-Application-Id: ${config.applicationId}'`,
+    `-H 'X-Parse-Master-Key: ${config.masterKey}'`,
+    contentType && `-H "Content-Type: ${contentType}"`,
+    '--silent',
+    ...extraFlags,
+    url.href,
+  ]);
+  const stdout = await execute(command);
 
   const response = JSON.parse(stdout);
   if (typeof response !== 'object' || response.error) {
     throw new TypeError(`Expected valid response: ${stdout}`);
   }
 
+  console.debug('Got response from path', path, response);
+
   return response;
 }
 
-type Body = { type: 'json'; serializedData: string } | { type: 'file'; path: string };
+type Payload = Query | Body;
+export type Query = { type: 'query'; where: object };
+export type Body = { type: 'json'; serializedData: string } | { type: 'file'; path: string };
 
-interface Response {
+export interface Response {
   [key: string]: any;
 }
 
-function getContentTypeAndFlags(body: Body): { contentType: string; extraFlags: string[] } {
-  switch (body.type) {
+function getCurlFlags(payload: Payload): { contentType?: string; extraFlags: string[] } {
+  switch (payload.type) {
     case 'json':
       return {
         contentType: 'application/json',
-        extraFlags: [`-d '${body.serializedData}'`],
+        extraFlags: [`-d '${payload.serializedData}'`],
       };
     case 'file': {
-      const contentType = lookup(body.path);
+      const { path } = payload;
+      const contentType = mimetype.lookup(path);
       if (contentType === false) {
-        throw new TypeError(`Unexpected file extension for file: ${body.path}`);
+        throw new TypeError(`Unexpected file extension for file: ${path}`);
       }
       return {
         contentType,
-        extraFlags: [`--data-binary '@${body.path}'`],
+        extraFlags: [`--data-binary '@${path}'`],
+      };
+    }
+    case 'query': {
+      const { where } = payload;
+      return {
+        extraFlags: ['-G', `--data-urlencode 'where=${JSON.stringify(where)}'`],
       };
     }
   }
 }
-
-const exec = promisify(childProcess.exec);
 
 export default fetchBackend;

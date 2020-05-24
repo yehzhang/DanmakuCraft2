@@ -1,0 +1,15 @@
+{
+  "className": "Resource",
+  "classLevelPermissions": {
+    "find": {},
+    "create": {},
+    "get": {
+      "*": true
+    },
+    "update": {},
+    "addField": {},
+    "delete": {}
+  },
+  "indexes": {
+  }
+}
