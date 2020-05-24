@@ -46,8 +46,8 @@ async function outputBilibiliUserCommentTable() {
     }
 
     table.push({
+      objectId: commentId.toString(),
       bilibiliUserId,
-      commentId: commentId.toString(),
     });
   }
 
