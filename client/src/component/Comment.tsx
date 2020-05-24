@@ -39,6 +39,6 @@ function Comment(props: Props) {
   return fresh ? <Blink>{commentElement}</Blink> : commentElement;
 }
 
-const maxFreshCommentAgeMs = 1000;
+const maxFreshCommentAgeMs = 2000;
 
 export default memo(Comment);
