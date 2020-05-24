@@ -8,7 +8,7 @@ import './action'; // Hack for webpack to pickup interface-only files.
 import App from './component/App';
 import { addLoadingTask, LoadingResult } from './component/Loading';
 import './data/entity';
-import getLatestComments from './shim/backend/getLatestComments';
+import getLatestCommentEntities from './shim/backend/getLatestCommentEntities';
 import initialize from './shim/backend/initialize';
 import setUpBilibiliShim from './shim/bilibili';
 import ConsoleInput from './shim/ConsoleInput';
@@ -53,7 +53,7 @@ async function main() {
 }
 
 function loadCommentsFromBackend(): () => Promise<LoadingResult> {
-  const commentDataPromise = getLatestComments();
+  const commentDataPromise = getLatestCommentEntities();
   return async () => {
     const comments = await commentDataPromise;
     const throttler = new RenderThrottler();

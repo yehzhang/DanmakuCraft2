@@ -5,7 +5,7 @@ import existsObject from '../existsObject';
 import ParametricTypeError from '../ParametricTypeError';
 import { createParseObjectConstructor, InboundParseObject, ParseQueryConstructor } from './parse';
 
-async function getLatestComments(): Promise<CommentEntity[]> {
+async function getLatestCommentEntities(): Promise<CommentEntity[]> {
   const commentParseObjects = await new ParseQueryConstructor(CommentEntityConstructor)
     .descending('createdAt')
     .limit(15000)
@@ -83,4 +83,4 @@ function buildCommentEntity(parseObject: InboundParseObject<CommentEntity>): Com
   checkExhaustive(type);
 }
 
-export default getLatestComments;
+export default getLatestCommentEntities;
