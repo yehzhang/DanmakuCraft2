@@ -12,13 +12,13 @@ async function outputCommentTable() {
       text,
       color: chromatic ? undefined : color,
       size,
-      createdAt,
+      sentAt: createdAt,
       x: coordinateX,
       y: coordinateY,
       type: chromatic ? 'chromatic' : 'plain',
     })
   );
-  await outputTable('Comment', table, 4);
+  await outputTable('Comment', table, 5);
 }
 
 async function outputBilibiliUserCommentTable() {
