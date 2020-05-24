@@ -112,16 +112,15 @@ function CommentTextInput() {
       );
     },
     bilibili: () => {
-      const textInputElementRef = useRef<HTMLInputElement>(null);
-      useQuerySelector('input.bilibili-player-video-danmaku-input', textInputElementRef);
-      useDomEvent(textInputElementRef, 'input', (event: ElementTargetEvent) => {
+      useQuerySelector('input.bilibili-player-video-danmaku-input', elementRef);
+      useDomEvent(elementRef, 'input', (event: ElementTargetEvent) => {
         onTextChanged((event.target as HTMLInputElement).value);
       });
 
-      useDomEvent(textInputElementRef, 'focus', onFocus);
-      useDomEvent(textInputElementRef, 'blur', onBlur);
+      useDomEvent(elementRef, 'focus', onFocus);
+      useDomEvent(elementRef, 'blur', onBlur);
 
-      useDomEvent(textInputElementRef, 'keydown', (event: KeyboardEvent) => {
+      useDomEvent(elementRef, 'keydown', (event: KeyboardEvent) => {
         if (
           (event.which || event.keyCode) === Key.Enter &&
           !(event.target as HTMLInputElement).value
@@ -131,8 +130,8 @@ function CommentTextInput() {
       });
 
       useEffect(() => {
-        if (textInputElementRef.current) {
-          textInputElementRef.current.value = commentText;
+        if (elementRef.current) {
+          elementRef.current.value = commentText;
         }
       }, [commentText]);
 
