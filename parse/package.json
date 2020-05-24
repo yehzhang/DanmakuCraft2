@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "configure": "ts-node configureBackend.ts"
+    "configure": "ts-node configureBackend.ts",
+    "migratePsql": "node --max-old-space-size=8192 -r ts-node/register migratePsqlJson.ts"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.152",
     "@types/node": "^14.0.5",
     "@types/node-fetch": "^2.5.7",
+    "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "ts-node": "^8.10.1"
   }

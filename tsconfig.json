@@ -1,7 +1,7 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "lib": [],
+    "lib": ["esnext"],
     "module": "commonjs",
     "target": "esnext",
     "outDir": "build",

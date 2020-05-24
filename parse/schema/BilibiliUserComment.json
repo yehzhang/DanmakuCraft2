@@ -10,7 +10,5 @@
     "addField": {},
     "delete": {}
   },
-  "indexes": {
-    "user": { "objectId": 1 }
-  }
+  "indexes": {}
 }
