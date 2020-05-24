@@ -3,7 +3,7 @@ import { CommentEntity } from '../../data/entity';
 import checkExhaustive from '../checkExhaustive';
 import existsObject from '../existsObject';
 import ParametricTypeError from '../ParametricTypeError';
-import { createParseObjectConstructor, InboundParseObject, ParseQueryConstructor } from './parse';
+import { CommentEntityConstructor, InboundParseObject, ParseQueryConstructor } from './parse';
 
 async function getLatestCommentEntities(): Promise<CommentEntity[]> {
   const commentParseObjects = await new ParseQueryConstructor(CommentEntityConstructor)
@@ -31,8 +31,6 @@ async function getLatestCommentEntities(): Promise<CommentEntity[]> {
 
   return commentParseObjects.map(buildCommentEntity).filter(existsObject);
 }
-
-const CommentEntityConstructor = createParseObjectConstructor('CommentEntity');
 
 function buildCommentEntity(parseObject: InboundParseObject<CommentEntity>): CommentEntity {
   const {

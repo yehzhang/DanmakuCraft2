@@ -1,7 +1,5 @@
-import BuffType from '../../../server/api/services/BuffType';
-import { FlatCommentDataRequest } from '../../../server/api/services/FlatCommentData';
 import { Action } from '../action';
-import { fromRgbNumber, white } from '../data/color';
+import { white } from '../data/color';
 import { CommentEntity } from '../data/entity';
 import measureTextDimensions from '../shim/pixi/measureTextDimensions';
 import { EntitiesState } from '../state';
@@ -14,7 +12,7 @@ function commentEntitiesReducer(
   switch (action.type) {
     case '[CommentTextInput] submitted': {
       const { data } = action;
-      return updateState(state, [toCommentEntity(data, Date.now())]);
+      return updateState(state, [data]);
     }
     case 'Comments loaded from backend': {
       const { data } = action;
@@ -52,21 +50,6 @@ function updateState(
   newData: readonly CommentEntity[]
 ): EntitiesState<CommentEntity> {
   return updateEntitiesState<CommentEntity>(state, newData, measureTextDimensions);
-}
-
-function toCommentEntity(
-  { size, color, text, coordinateX, coordinateY, buffType }: FlatCommentDataRequest,
-  creationMs: number
-): CommentEntity {
-  return {
-    type: buffType === BuffType.CHROMATIC ? 'chromatic' : 'plain',
-    x: coordinateX,
-    y: coordinateY,
-    text,
-    size,
-    color: fromRgbNumber(color),
-    createdAt: new Date(creationMs),
-  };
 }
 
 function createDevComment(data: Partial<CommentEntity>): CommentEntity {

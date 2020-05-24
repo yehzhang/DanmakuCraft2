@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { ChangeEvent, FormEvent, useCallback, useEffect, useRef } from 'react';
 import { Key } from 'ts-keycode-enum';
-import BuffType from '../../../server/api/services/BuffType';
-import { toRgbNumber } from '../data/color';
+import { CommentEntity } from '../data/entity';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useQuerySelector from '../hook/useQuerySelector';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
-import postComment from '../shim/backend/postComment';
+import postCommentEntity from '../shim/backend/postCommentEntity';
 import bindFirst from '../shim/bilibili/bindFirst';
 import { selectDomain } from '../shim/domain';
 import { createStyleSheet } from '../shim/react';
@@ -60,17 +59,23 @@ function CommentTextInput() {
 
     dispatch({ type: '[CommentTextInput] started submission' });
 
-    const flatCommentData = {
+    const commentEntity: CommentEntity = {
+      ...(chromatic
+        ? {
+            type: 'chromatic',
+          }
+        : {
+            type: 'plain',
+            color,
+          }),
       size,
-      color: toRgbNumber(color),
       text: commentText,
-      coordinateX: position.x,
-      coordinateY: position.y,
-      buffType: chromatic ? BuffType.CHROMATIC : undefined,
+      ...position,
+      createdAt: new Date(),
     };
-    postComment()
+    postCommentEntity(commentEntity)
       .then(() => {
-        dispatch({ type: '[CommentTextInput] submitted', data: flatCommentData });
+        dispatch({ type: '[CommentTextInput] submitted', data: commentEntity });
       })
       .catch((error) => {
         console.error('Failed to submit comment', error);

@@ -1,4 +1,3 @@
-import { FlatCommentDataRequest } from '../../server/api/services/FlatCommentData';
 import { Color } from './data/color';
 import { Buff, CommentEntity, SignEntity } from './data/entity';
 import { Point } from './data/point';
@@ -33,7 +32,7 @@ export type Action =
   | { type: '[CommentTextInput] submit failed due to empty text' }
   | { type: '[CommentTextInput] submit failed due to network error' }
   | { type: '[CommentTextInput] started submission' }
-  | { type: '[CommentTextInput] submitted'; data: FlatCommentDataRequest }
+  | { type: '[CommentTextInput] submitted'; data: CommentEntity }
   | { type: '[CommentTextInput] focused' }
   | { type: '[CommentTextInput] blurred' }
   | { type: '[CommentTextInput/bilibili] enter key down when empty' }

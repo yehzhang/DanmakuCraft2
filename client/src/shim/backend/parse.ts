@@ -1,19 +1,20 @@
 import Parse from 'parse';
 import { CommentEntity } from '../../data/entity';
+import BilibiliUserComment from './BilibiliUserComment';
 
-export function createParseObjectConstructor(
-  tableName: 'CommentEntity'
-): new () => OutboundParseObject<CommentEntity> {
-  return Parse.Object.extend(tableName);
+const createParseObjectConstructor: CreateParseObjectConstructor = (tableName: string) =>
+  Parse.Object.extend(tableName);
+
+interface CreateParseObjectConstructor {
+  (tableName: 'CommentEntity'): new () => Parse.Object<CommentEntity>;
+  (tableName: 'BilibiliUserComment'): new () => Parse.Object<BilibiliUserComment>;
 }
 
-type OutboundParseObject<T extends Parse.Attributes> = Parse.Object<ExcludeBaseAttributes<T>>;
-type ExcludeBaseAttributes<T extends Parse.Attributes> = {
-  [P in keyof T]: P extends keyof Parse.BaseAttributes ? never : T[P];
-};
+export const CommentEntityConstructor = createParseObjectConstructor('CommentEntity');
+export const BilibiliUserCommentConstructor = createParseObjectConstructor('BilibiliUserComment');
 
 export const ParseQueryConstructor: new <T extends Parse.Attributes>(
-  ParseObjectConstructor: new () => OutboundParseObject<T>
+  ParseObjectConstructor: new () => Parse.Object<T>
 ) => ParseQuery<T> = Parse.Query;
 
 interface ParseQuery<T extends Parse.Attributes> {
@@ -22,7 +23,7 @@ interface ParseQuery<T extends Parse.Attributes> {
   find(): Promise<InboundParseObject<T>[]>;
 }
 
-export type InboundParseObject<T extends Parse.Attributes> = OutboundParseObject<
+export type InboundParseObject<T extends Parse.Attributes> = Parse.Object<
   {
     [P in keyof UnionToIntersectionHack<T>]?: unknown;
   }
