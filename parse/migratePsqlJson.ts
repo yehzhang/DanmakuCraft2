@@ -6,7 +6,7 @@ import commentDump from '../data/dump/comment.json';
 import commentUserDump from '../data/dump/comment_user.json';
 import externalUserDump from '../data/dump/external_user.json';
 
-async function outputCommentTable() {
+async function outputEntityTable() {
   const table = (commentDump as any).map(
     ({ id, text, color, size, coordinateX, coordinateY, chromatic }: any) => ({
       objectId: getObjectId(id),
@@ -18,7 +18,7 @@ async function outputCommentTable() {
       type: chromatic ? 'chromatic' : 'plain',
     })
   );
-  await outputTable('Comment', table, 5);
+  await outputTable('Entity', table, 5);
 }
 
 async function outputBilibiliUserCommentTable() {
@@ -87,7 +87,7 @@ const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
 
 async function main() {
   await mkdir(outputDirectory, { recursive: true });
-  await Promise.all([outputCommentTable(), outputBilibiliUserCommentTable()]);
+  await Promise.all([outputEntityTable(), outputBilibiliUserCommentTable()]);
 }
 
 main();

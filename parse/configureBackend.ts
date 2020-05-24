@@ -7,7 +7,7 @@ import prodApplicationId from './config/prod/applicationId.json';
 import prodMasterKey from './config/prod/masterKey.json';
 import prodServerUrl from './config/prod/serverUrl.json';
 import BilibiliUserCommentSchema from './schema/BilibiliUserComment.json';
-import CommentEntitySchema from './schema/CommentEntity.json';
+import EntitySchema from './schema/Entity.json';
 
 async function pushDatabaseSchema(className: string, schema: any) {
   const currentSchema = await fetchDatabaseSchema('GET', className);
@@ -74,7 +74,7 @@ async function configureBackend() {
   }
 
   await Promise.all([
-    pushDatabaseSchema('CommentEntity', CommentEntitySchema),
+    pushDatabaseSchema('Entity', EntitySchema),
     pushDatabaseSchema('BilibiliUserComment', BilibiliUserCommentSchema),
   ]);
 }

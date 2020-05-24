@@ -6,11 +6,11 @@ const createParseObjectConstructor: CreateParseObjectConstructor = (tableName: s
   Parse.Object.extend(tableName);
 
 interface CreateParseObjectConstructor {
-  (tableName: 'CommentEntity'): new () => Parse.Object<CommentEntity>;
+  (tableName: 'Entity'): new () => Parse.Object<CommentEntity>;
   (tableName: 'BilibiliUserComment'): new () => Parse.Object<BilibiliUserComment>;
 }
 
-export const CommentEntityConstructor = createParseObjectConstructor('CommentEntity');
+export const CommentEntityConstructor = createParseObjectConstructor('Entity');
 export const BilibiliUserCommentConstructor = createParseObjectConstructor('BilibiliUserComment');
 
 export const ParseQueryConstructor: new <T extends Parse.Attributes>(

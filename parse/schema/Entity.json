@@ -1,5 +1,5 @@
 {
-  "className": "CommentEntity",
+  "className": "Entity",
   "classLevelPermissions": {
     "find": {
       "*": true
