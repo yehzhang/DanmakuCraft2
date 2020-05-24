@@ -1,6 +1,5 @@
 {
   "name": "danmakucraft2-parse",
-  "version": "1.0.0",
   "private": true,
   "scripts": {
     "configure": "ts-node configureBackend.ts",

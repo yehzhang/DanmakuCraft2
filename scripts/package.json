@@ -1,6 +1,5 @@
 {
   "name": "danmakucraft2-scripts",
-  "version": "1.0.0",
   "private": true,
   "scripts": {
     "build:bgm": "node node_modules/audiosprite/cli.js -b 192 -v 6 -f howler -o ../build/audio/background_music ../data/audio/background/* && mv ../build/audio/background_music.json ../data/audio && mv ../build/audio/background_music.* ../server/assets/audio"

@@ -1,6 +1,5 @@
 {
   "name": "danmakucraft2-client",
-  "version": "1.1.0",
   "private": true,
   "scripts": {
     "build:dev": "LOCAL_BACKEND=1 webpack-dev-server --config webpack.dev.js",
