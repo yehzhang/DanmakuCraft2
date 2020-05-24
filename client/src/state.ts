@@ -26,7 +26,6 @@ export interface State {
   readonly volume: VolumeState;
   readonly sendChromaticComment: boolean;
   readonly tutorial: TutorialState;
-  readonly user: UserState | null;
   readonly domain: DomainState;
 }
 
@@ -113,10 +112,6 @@ export type TutorialStage =
   | 'commentKeys'
   | 'end';
 
-export interface UserState {
-  readonly id: string | null;
-}
-
 export type ConsoleDisplayLevel = 'none' | 'info';
 
 export interface DanmakuCraftDomainState {
@@ -125,6 +120,7 @@ export interface DanmakuCraftDomainState {
 export interface BilibiliDomainState {
   readonly type: 'bilibili';
   readonly externalDependency: BilibiliExternalDependency | null;
+  readonly userId: string | null;
 }
 export interface BilibiliExternalDependency {
   readonly $: JQueryStatic;

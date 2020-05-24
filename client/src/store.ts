@@ -39,7 +39,6 @@ const persistConfig: PersistConfig<State> = {
   storage,
   serialize: true,
   whitelist: persistWhitelist,
-  debug: __DEV__,
 };
 
 const store: Store = createStore(persistReducer(persistConfig, reducer), compose());

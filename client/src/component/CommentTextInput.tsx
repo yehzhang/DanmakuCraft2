@@ -33,15 +33,12 @@ function CommentTextInput() {
 
   const commentText = useSelector((state) => state.commentInputText);
   const commentInput = useSelector(commentInputSelector);
-  const user = useSelector((state) => state.user);
-  const disabled = useSelector((state) => state.view !== 'main' || submitting || !user);
+  const bilibiliUserId = useSelector(
+    (state) => (state.domain.type === 'bilibili' && state.domain.userId) || undefined
+  );
+  const disabled = useSelector((state) => state.view !== 'main' || submitting);
   const onSubmit = useCallback(() => {
     if (disabled) {
-      return false;
-    }
-
-    if (!user) {
-      console.error('Unexpected comment submission when signed out');
       return false;
     }
 
@@ -73,7 +70,7 @@ function CommentTextInput() {
       ...position,
       createdAt: new Date(),
     };
-    postCommentEntity(commentEntity)
+    postCommentEntity(commentEntity, bilibiliUserId)
       .then(() => {
         dispatch({ type: '[CommentTextInput] submitted', data: commentEntity });
       })
@@ -83,7 +80,7 @@ function CommentTextInput() {
       });
 
     return true;
-  }, [dispatch, commentText, submitting, commentInput, user, disabled]);
+  }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled]);
 
   return selectDomain({
     danmakucraft: () => {

@@ -20,7 +20,6 @@ import playerReducer from './playerReducer';
 import sendChromaticCommentReducer from './sendChromaticCommentReducer';
 import signEntitiesReducer from './signEntitiesReducer';
 import tutorialReducer from './tutorialReducer';
-import userReducer from './userReducer';
 import viewReducer from './viewReducer';
 import volumeReducer from './volumeReducer';
 
@@ -45,7 +44,6 @@ const reducer = combineReducers<State, Action>({
   volume: volumeReducer,
   sendChromaticComment: sendChromaticCommentReducer,
   tutorial: tutorialReducer,
-  user: userReducer,
   domain: domainReducer,
 });
 

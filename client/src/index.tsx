@@ -38,10 +38,7 @@ async function main() {
 
   const gameContainerId = await selectDomain<() => Promise<string> | string>({
     bilibili: () => setUpBilibiliShim(store),
-    danmakucraft: () => {
-      store.dispatch({ type: '[TEST] signed in' });
-      return 'danmakucraft-container';
-    },
+    danmakucraft: () => 'danmakucraft-container',
   })();
 
   ReactDOM.render(

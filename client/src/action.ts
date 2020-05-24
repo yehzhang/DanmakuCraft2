@@ -45,6 +45,5 @@ export type Action =
   | { type: '[Tutorial] hinted comment key' }
   | { type: '[shim/bilibili] detected maybe signed-in user'; userId: string | null }
   | { type: '[shim/bilibili] external dependency ready'; $: JQueryStatic }
-  | { type: '[TEST] signed in' }
   | { type: 'Console entry used'; key: string; entry: ConsoleEntry }
   | { type: 'Console entry released'; key: string };
