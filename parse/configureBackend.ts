@@ -1,8 +1,11 @@
 import fetch from 'node-fetch';
 import { URL } from 'url';
-import applicationId from './config/applicationId.json';
-import masterKey from './config/masterKey.json';
-import serverUrl from './config/serverUrl.json';
+import devApplicationId from './config/dev/applicationId.json';
+import devMasterKey from './config/dev/masterKey.json';
+import devServerUrl from './config/dev/serverUrl.json';
+import prodApplicationId from './config/prod/applicationId.json';
+import prodMasterKey from './config/prod/masterKey.json';
+import prodServerUrl from './config/prod/serverUrl.json';
 import BilibiliUserCommentSchema from './schema/BilibiliUserComment.json';
 import CommentSchema from './schema/Comment.json';
 
@@ -24,12 +27,12 @@ async function pushDatabaseSchema(className: string, schema: any) {
 function fetchDatabaseSchema(method: 'GET', className: string): Promise<any>;
 function fetchDatabaseSchema(method: 'PUT', className: string, body: string): Promise<any>;
 async function fetchDatabaseSchema(method: string, className: string, body?: string) {
-  const url = new URL(`/schemas/${className}`, serverUrl);
+  const url = new URL(`/schemas/${className}`, config.serverUrl);
   const response = await fetch(url.href, {
     method,
     headers: {
-      'X-Parse-Application-Id': applicationId,
-      'X-Parse-Master-Key': masterKey,
+      'X-Parse-Application-Id': config.applicationId,
+      'X-Parse-Master-Key': config.masterKey,
       'Content-Type': 'application/json',
     },
     body,
@@ -44,7 +47,32 @@ async function fetchDatabaseSchema(method: string, className: string, body?: str
   return payload;
 }
 
+let config: {
+  readonly applicationId: string;
+  readonly masterKey: string;
+  readonly serverUrl: string;
+};
+
 async function configureBackend() {
+  const environment = process.argv[2];
+  if (environment === 'prod') {
+    console.log('Configuring prod environment');
+    config = {
+      applicationId: prodApplicationId,
+      masterKey: prodMasterKey,
+      serverUrl: prodServerUrl,
+    };
+  } else if (environment === 'dev') {
+    console.log('Configuring dev environment');
+    config = {
+      applicationId: devApplicationId,
+      masterKey: devMasterKey,
+      serverUrl: devServerUrl,
+    };
+  } else {
+    throw new TypeError('Expected environment dev or prod');
+  }
+
   await Promise.all([
     pushDatabaseSchema('Comment', CommentSchema),
     pushDatabaseSchema('BilibiliUserComment', BilibiliUserCommentSchema),
