@@ -22,12 +22,14 @@ interface CommentEntityPropsCommon {
   readonly y?: number;
   readonly text: string;
   readonly size: number;
-  readonly creationMs?: number;
+  readonly createdAt?: Date;
 }
 
 function Comment(props: Props) {
-  const { x, y, text, size, creationMs = -Infinity } = props;
-  const { current: fresh } = useRef(Date.now() < creationMs + maxFreshCommentAgeMs);
+  const { x, y, text, size, createdAt } = props;
+  const { current: fresh } = useRef(
+    Date.now() < (createdAt ? createdAt.getTime() : -Infinity) + maxFreshCommentAgeMs
+  );
   const commentElement =
     props.type === 'chromatic' ? (
       <ChromaticComment x={x} y={y} text={text} size={size} />
