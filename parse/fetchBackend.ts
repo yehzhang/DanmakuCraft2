@@ -1,53 +1,67 @@
-import fetch from 'node-fetch';
+import childProcess from 'child_process';
+import { lookup } from 'mime-types';
 import { URL } from 'url';
-import devApplicationId from './config/dev/applicationId.json';
-import devMasterKey from './config/dev/masterKey.json';
-import devServerUrl from './config/dev/serverUrl.json';
-import prodApplicationId from './config/prod/applicationId.json';
-import prodMasterKey from './config/prod/masterKey.json';
-import prodServerUrl from './config/prod/serverUrl.json';
+import { promisify } from 'util';
+import config from './config';
 
-async function fetchBackend(method: 'GET', path: string): Promise<any>;
-async function fetchBackend(method: 'PUT', path: string, body: string): Promise<any>;
-async function fetchBackend(method: string, path: string, body?: string) {
+async function fetchBackend(method: 'GET', path: string): Promise<Response>;
+async function fetchBackend(method: 'PUT', path: string, body: Body): Promise<Response>;
+async function fetchBackend(method: string, path: string, body?: Body) {
   const url = new URL(path, config.serverUrl);
-  const response = await fetch(url.href, {
-    method,
-    headers: {
-      'X-Parse-Application-Id': config.applicationId,
-      'X-Parse-Master-Key': config.masterKey,
-      'Content-Type': 'application/json',
-    },
-    body,
-  });
+  const { contentType, extraFlags } = body
+    ? getContentTypeAndFlags(body)
+    : {
+        contentType: 'application/json',
+        extraFlags: [],
+      };
+  const command = `
+    curl -X ${method} \
+      -H "X-Parse-Application-Id: ${config.applicationId}" \
+      -H "X-Parse-Master-Key: ${config.masterKey}" \
+      -H "Content-Type: ${contentType}" \
+      ${extraFlags.join(' ')} \
+      ${url.href}`;
 
-  const payload = await response.json();
-  if (!response.ok) {
-    console.error('Unexpected response status when fetching schema.', payload, response);
-    throw new TypeError('Unexpected response status when fetching schema');
+  console.log('Running command:', command);
+  const { stdout, stderr } = await exec(command);
+  if (stderr) {
+    console.error(stderr);
   }
 
-  return payload;
+  const response = JSON.parse(stdout);
+  if (typeof response !== 'object' || response.error) {
+    throw new TypeError(`Expected valid response: ${stdout}`);
+  }
+
+  return response;
 }
 
-const config = (() => {
-  if (process.env.ENV === 'prod') {
-    console.log('Configuring prod environment');
-    return {
-      applicationId: prodApplicationId,
-      masterKey: prodMasterKey,
-      serverUrl: prodServerUrl,
-    };
+type Body = { type: 'json'; serializedData: string } | { type: 'file'; path: string };
+
+interface Response {
+  [key: string]: any;
+}
+
+function getContentTypeAndFlags(body: Body): { contentType: string; extraFlags: string[] } {
+  switch (body.type) {
+    case 'json':
+      return {
+        contentType: 'application/json',
+        extraFlags: [`-d '${body.serializedData}'`],
+      };
+    case 'file': {
+      const contentType = lookup(body.path);
+      if (contentType === false) {
+        throw new TypeError(`Unexpected file extension for file: ${body.path}`);
+      }
+      return {
+        contentType,
+        extraFlags: [`--data-binary '@${body.path}'`],
+      };
+    }
   }
-  if (process.env.ENV === 'dev') {
-    console.log('Configuring dev environment');
-    return {
-      applicationId: devApplicationId,
-      masterKey: devMasterKey,
-      serverUrl: devServerUrl,
-    };
-  }
-  throw new TypeError('Expected environment dev or prod');
-})();
+}
+
+const exec = promisify(childProcess.exec);
 
 export default fetchBackend;

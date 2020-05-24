@@ -1,6 +1,7 @@
 import fetchBackend from './fetchBackend';
 import BilibiliUserCommentSchema from './schema/BilibiliUserComment.json';
 import EntitySchema from './schema/Entity.json';
+import ResourceSchema from './schema/Resource.json';
 
 async function pushDatabaseSchema(className: string, schema: any) {
   const currentSchema = await fetchBackend('GET', getSchemaPath(className));
@@ -13,7 +14,10 @@ async function pushDatabaseSchema(className: string, schema: any) {
     delete schema.indexes[indexName];
   }
 
-  const updatedSchema = await fetchBackend('PUT', getSchemaPath(className), JSON.stringify(schema));
+  const updatedSchema = await fetchBackend('PUT', getSchemaPath(className), {
+    type: 'json',
+    serializedData: JSON.stringify(schema),
+  });
   console.log('Schema pushed for', className, updatedSchema);
 }
 
@@ -25,6 +29,7 @@ async function configureBackend() {
   await Promise.all([
     pushDatabaseSchema('Entity', EntitySchema),
     pushDatabaseSchema('BilibiliUserComment', BilibiliUserCommentSchema),
+    pushDatabaseSchema('Resource', ResourceSchema),
   ]);
 }
 
