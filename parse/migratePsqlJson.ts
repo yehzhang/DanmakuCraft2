@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'fs/promises';
 import * as _ from 'lodash';
+import { customAlphabet } from 'nanoid';
 import path from 'path';
 import commentDump from '../data/dump/comment.json';
 import commentUserDump from '../data/dump/comment_user.json';
@@ -8,11 +9,11 @@ import externalUserDump from '../data/dump/external_user.json';
 async function outputCommentTable() {
   const table = (commentDump as any).map(
     ({ id, text, color, size, createdAt, coordinateX, coordinateY, chromatic }: any) => ({
-      objectId: id.toString(),
+      objectId: getObjectId(id),
       text,
       color: chromatic ? undefined : color,
       size,
-      sentAt: createdAt,
+      sentAt: new Date(createdAt).toISOString(),
       x: coordinateX,
       y: coordinateY,
       type: chromatic ? 'chromatic' : 'plain',
@@ -46,7 +47,7 @@ async function outputBilibiliUserCommentTable() {
     }
 
     table.push({
-      objectId: commentId.toString(),
+      objectId: getObjectId(commentId),
       bilibiliUserId,
     });
   }
@@ -69,6 +70,21 @@ async function outputTable(tableName: string, table: object[], partitions = 1) {
     })
   );
 }
+
+function getObjectId(commentId: number): string {
+  const objectId = objectIdMapping.get(commentId);
+  if (objectId) {
+    return objectId;
+  }
+
+  const newObjectId = nanoid();
+  objectIdMapping.set(commentId, newObjectId);
+
+  return newObjectId;
+}
+
+const objectIdMapping = new Map<number, string>();
+const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 10);
 
 async function main() {
   await mkdir(outputDirectory, { recursive: true });
