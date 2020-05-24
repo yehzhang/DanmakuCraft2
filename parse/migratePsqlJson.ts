@@ -8,12 +8,11 @@ import externalUserDump from '../data/dump/external_user.json';
 
 async function outputCommentTable() {
   const table = (commentDump as any).map(
-    ({ id, text, color, size, createdAt, coordinateX, coordinateY, chromatic }: any) => ({
+    ({ id, text, color, size, coordinateX, coordinateY, chromatic }: any) => ({
       objectId: getObjectId(id),
       text,
       color: chromatic ? undefined : color,
       size,
-      sentAt: new Date(createdAt).toISOString(),
       x: coordinateX,
       y: coordinateY,
       type: chromatic ? 'chromatic' : 'plain',
