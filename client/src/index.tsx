@@ -53,15 +53,15 @@ async function main() {
 }
 
 function loadCommentsFromBackend(): () => Promise<LoadingResult> {
-  const commentDataPromise = getLatestCommentEntities();
+  const commentEntitiesPromise = getLatestCommentEntities();
   return async () => {
-    const comments = await commentDataPromise;
+    const commentEntities = await commentEntitiesPromise;
     const throttler = new RenderThrottler();
     const sleepDurationMs = 2;
-    for (const commentChunk of _.chunk(comments, 100)) {
+    for (const commentEntityChunk of _.chunk(commentEntities, 100)) {
       while (
         !throttler.run(() => {
-          store.dispatch({ type: 'Comments loaded from backend', data: commentChunk });
+          store.dispatch({ type: 'Comments loaded from backend', data: commentEntityChunk });
         }, sleepDurationMs)
       ) {
         await sleep(sleepDurationMs);
