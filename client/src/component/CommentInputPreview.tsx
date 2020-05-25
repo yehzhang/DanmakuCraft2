@@ -1,6 +1,7 @@
 import { Container, Sprite } from '@inlet/react-pixi';
 import * as PIXI from 'pixi.js';
 import * as React from 'react';
+import { useRef } from 'react';
 import { center } from '../data/anchors';
 import { toRgbNumber, warning } from '../data/color';
 import { map } from '../data/point';
@@ -25,8 +26,15 @@ interface Props {
 function CommentInputPreview_({ text }: Props) {
   const commentInputDimensions = useSelector(commentInputDimensionsSelector);
   const { x: width, y: height } = map(commentInputDimensions, (x) => x + warningBoxPadding1d);
-  const { position, collision, color, size, chromatic } = useSelector(commentInputSelector);
+  const commentInput = useSelector(commentInputSelector);
+
   const submitting = useSelector((state) => state.commentInputSubmitting);
+  const commentInputRef = useRef(commentInput);
+  if (!submitting) {
+    commentInputRef.current = commentInput;
+  }
+
+  const { position, collision, color, size, chromatic } = commentInputRef.current;
   return (
     <Container {...position} alpha={submitting ? 0.3 : 1}>
       <Sprite
