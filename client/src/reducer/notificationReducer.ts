@@ -29,7 +29,7 @@ function notificationReducer(state = initialState, action: Action): Notification
     case '[Tutorial] hinted comment key':
       return createNotification('commentTutorial');
     case '[SpeechBubble] display expired':
-    case 'Genesis':
+    case '[Opening] Genesis':
       return initialState;
     default:
       return state;

@@ -16,8 +16,8 @@ export type Action =
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }
   | { type: '[SpeechBubble] display expired' }
-  | { type: 'Genesis'; spawnPosition: Point; signEntities: readonly SignEntity[] }
-  | { type: 'Comments loaded from backend'; data: readonly CommentEntity[] }
+  | { type: '[Opening] Genesis'; spawnPosition: Point; signEntities: readonly SignEntity[] }
+  | { type: '[index] Comments loaded from backend'; data: readonly CommentEntity[] }
   | { type: '[Opening] completed' }
   | { type: '[ConsoleInput] chest wanted'; position: Point; lootType: Buff['type'] }
   | { type: '[ConsoleInput] comment wanted'; position: Point; text: string; color: Color }

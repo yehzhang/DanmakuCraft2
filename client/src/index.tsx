@@ -60,7 +60,10 @@ function loadCommentsFromBackend(): () => Promise<LoadingResult> {
     for (const commentEntityChunk of _.chunk(commentEntities, 100)) {
       while (
         !throttler.run(() => {
-          store.dispatch({ type: 'Comments loaded from backend', data: commentEntityChunk });
+          store.dispatch({
+            type: '[index] Comments loaded from backend',
+            data: commentEntityChunk,
+          });
         }, sleepDurationMs)
       ) {
         await sleep(sleepDurationMs);

@@ -40,7 +40,7 @@ function chestReducer(state = initialState, action: Action): ChestState {
         },
       };
     }
-    case 'Genesis':
+    case '[Opening] Genesis':
       return initialState;
     default:
       return state;
