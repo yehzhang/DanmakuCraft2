@@ -9,7 +9,7 @@ function logErrorMessage(message: string, details?: { readonly [key: string]: un
     }
     return;
   }
-  track('error', {
+  track('Error', {
     ...(details && serializeObjectAttributes(details)),
     _errorMessage: message,
   });
