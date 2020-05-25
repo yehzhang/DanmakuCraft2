@@ -1,8 +1,8 @@
 import { readdir } from 'fs/promises';
 import { basename, join } from 'path';
-import buildCommand from './buildCommand';
-import execute from './execute';
-import fetchBackend, { Body, Response } from './fetchBackend';
+import buildCommand from './internal/buildCommand';
+import execute from './internal/execute';
+import fetchBackend, { Body, Response } from './internal/fetchBackend';
 
 async function pushResource(path: string) {
   const filename = basename(path);

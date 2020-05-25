@@ -1,7 +1,7 @@
 import mimetype from 'mime-types';
 import { URL } from 'url';
+import config from '../../config';
 import buildCommand from './buildCommand';
-import config from './config';
 import execute from './execute';
 
 async function fetchBackend(method: 'GET', path: string, query?: Query): Promise<Response>;

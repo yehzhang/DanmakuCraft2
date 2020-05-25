@@ -2,9 +2,9 @@ import { mkdir, writeFile } from 'fs/promises';
 import * as _ from 'lodash';
 import { customAlphabet } from 'nanoid';
 import path from 'path';
-import commentDump from '../data/dump/comment.json';
-import commentUserDump from '../data/dump/comment_user.json';
-import externalUserDump from '../data/dump/external_user.json';
+import commentDump from '../../data/dump/comment.json';
+import commentUserDump from '../../data/dump/comment_user.json';
+import externalUserDump from '../../data/dump/external_user.json';
 
 async function outputEntityTable() {
   const table = (commentDump as any).map(

@@ -2,9 +2,9 @@
   "name": "danmakucraft2-parse",
   "private": true,
   "scripts": {
-    "configure": "ts-node configureBackend.ts",
-    "migratePsql": "node --max-old-space-size=8192 -r ts-node/register migratePsqlJson.ts",
-    "pushBgm": "ts-node pushBackgroundMusic.ts"
+    "configure": "ts-node script/configureBackend.ts",
+    "migratePsql": "node --max-old-space-size=8192 -r ts-node/register script/migratePsqlJson.ts",
+    "pushBgm": "ts-node script/pushBackgroundMusic.ts"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.152",
