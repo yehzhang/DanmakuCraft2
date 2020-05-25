@@ -3,11 +3,11 @@ import { Component } from 'react';
 import logError from '../shim/logging/logError';
 
 interface Props {
-  readonly children: React.ReactElement;
+  readonly children: React.ReactNode;
 }
 
 class ErrorBoundary extends Component<Props> {
-  componentDidCatch(error: Error) {
+  static getDerivedStateFromError(error: Error) {
     logError(error);
   }
 

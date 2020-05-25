@@ -2,7 +2,11 @@ import { track } from 'mixpanel-browser';
 
 function logErrorMessage(message: string, details?: { readonly [key: string]: unknown }) {
   if (__DEV__) {
-    console.error(message, details);
+    if (details === undefined) {
+      console.error(message);
+    } else {
+      console.error(message, details);
+    }
     return;
   }
   track('error', {

@@ -10,6 +10,7 @@ import application, { setRendererView } from '../shim/pixi/application';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 import { ViewName } from '../state';
+import ErrorBoundary from './ErrorBoundary';
 
 interface Props {
   readonly children: readonly (ReactElement | false)[];
@@ -71,7 +72,12 @@ function PixiStage({ children }: Props) {
 
   const store = useStore();
   useEffect(() => {
-    render(<Provider store={store}>{children.filter(isValidElement)}</Provider>, application.stage);
+    render(
+      <Provider store={store}>
+        <ErrorBoundary>{children.filter(isValidElement)}</ErrorBoundary>
+      </Provider>,
+      application.stage
+    );
   }, [store, children]);
 
   return (
