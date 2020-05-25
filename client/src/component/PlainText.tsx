@@ -10,7 +10,8 @@ interface Props {
   readonly x?: number;
   readonly y?: number;
   readonly text: string;
-  readonly color: Color;
+  readonly color?: Color;
+  readonly tint?: Color;
   readonly size: number;
   readonly anchor?: PointLike;
   readonly scale?: PointLike;
@@ -24,6 +25,7 @@ interface Props {
 function PlainText({
   text,
   color,
+  tint = white,
   size,
   x = 0,
   y = 0,
@@ -41,6 +43,7 @@ function PlainText({
         size,
         shadowAngle === undefined ? null : shadowAngle,
         wordWrapWidth === undefined ? null : wordWrapWidth,
+        color,
         fontWeight,
         fontStyle
       )}
@@ -49,7 +52,7 @@ function PlainText({
       text={text}
       anchor={anchor}
       scale={scale}
-      tint={toRgbNumber(color)}
+      tint={toRgbNumber(tint)}
       alpha={alpha}
     />
   );
@@ -59,13 +62,14 @@ export function getTextStyleProperties(
   fontSize: number,
   shadowAngle: number | null,
   wordWrapWidth: number | null,
+  color: Color = white,
   fontWeight: FontWeight = 'normal',
   fontStyle: FontStyle = defaultFontStyle
 ): TextStyleProperties {
   return {
     fontFamily: 'SimHei, "Microsoft JhengHei", Arial, Helvetica, sans-serif',
     fontWeight,
-    fill: toRgbNumber(white),
+    fill: toRgbNumber(color),
     fontSize,
     lineHeight: fontSize,
     fontStyle,

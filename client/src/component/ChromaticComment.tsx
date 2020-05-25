@@ -16,7 +16,7 @@ interface Props {
 
 function ChromaticComment({ x, y, text, size }: Props) {
   const color = useChromaticColor();
-  return <ShadowedText x={x} y={y} text={text} size={size} color={color} />;
+  return <ShadowedText x={x} y={y} text={text} size={size} tint={color} />;
 }
 
 function useChromaticColor(): Color {
