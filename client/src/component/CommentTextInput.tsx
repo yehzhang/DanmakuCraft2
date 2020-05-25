@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChangeEvent, FormEvent, useCallback, useEffect, useRef } from 'react';
+import { ChangeEvent, FormEvent, ReactElement, useCallback, useEffect, useRef } from 'react';
 import { Key } from 'ts-keycode-enum';
 import { CommentEntity } from '../data/entity';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
@@ -82,7 +82,7 @@ function CommentTextInput() {
     return true;
   }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled]);
 
-  return selectDomain({
+  return selectDomain<() => ReactElement | null>({
     danmakucraft: () => {
       const onFormSubmit = useCallback(
         (event: FormEvent) => {
