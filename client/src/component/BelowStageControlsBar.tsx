@@ -18,13 +18,13 @@ function BelowStageControlsBar() {
 
 const styles = createStyleSheet({
   container: selectDomain<CSSProperties>({
-    bilibili: {
+    danmakucraft: {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       margin: '10px 0',
     },
-    danmakucraft: {
+    bilibili: {
       display: 'none',
     },
   }),
