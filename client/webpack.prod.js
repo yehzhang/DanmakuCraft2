@@ -4,6 +4,10 @@ const config = require('./webpack.common.js');
 
 console.error('Bundle in production mode.');
 
+if (process.env.WEBPACK_DEV_SERVER) {
+  throw new TypeError('Webpack Dev Sever should never be used in Production mode');
+}
+
 module.exports = merge(config, {
   mode: 'production',
   output: {
