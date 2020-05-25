@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "debug": "node debug app.js",
-    "copy:client": "cp ../build/bundle.js assets/",
-    "start:dev": "yarn run copy:client && node app.js",
-    "start:prod": "yarn run copy:client && sudo node app.js --prod",
+    "copy:client": "",
+    "start:dev": "cp ../build/bundle.dev.js assets/ && node app.js",
+    "start:prod": "cp ../build/bundle.js assets/ && sudo node app.js --prod",
     "db:terminal": "sudo su postgres -c 'psql -d danmakucraft_2'",
     "db:terminal:dev": "sudo su postgres -c 'psql -d danmakucraft_2_dev'"
   },
