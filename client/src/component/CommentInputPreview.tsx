@@ -28,7 +28,7 @@ function CommentInputPreview_({ text }: Props) {
   const { position, collision, color, size, chromatic } = useSelector(commentInputSelector);
   const submitting = useSelector((state) => state.commentInputSubmitting);
   return (
-    <Container {...position} alpha={submitting ? 0.7 : 1}>
+    <Container {...position} alpha={submitting ? 0.3 : 1}>
       <Sprite
         texture={PIXI.Texture.WHITE}
         y={warningBoxOffsetY}
