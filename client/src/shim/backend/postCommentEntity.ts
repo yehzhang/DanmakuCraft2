@@ -1,8 +1,16 @@
 import { toRgbNumber } from '../../data/color';
 import { CommentEntity } from '../../data/entity';
-import { BilibiliUserCommentConstructor, CommentEntityConstructor } from './parse';
+import {
+  BilibiliUserCommentConstructor,
+  CommentEntityConstructor,
+  OutboundAttributes,
+} from './parse';
 
-async function postCommentEntity(commentEntity: CommentEntity, bilibiliUserId?: string) {
+/** Resolves to the id of the comment entity. */
+async function postCommentEntity(
+  commentEntity: OutboundAttributes<CommentEntity>,
+  bilibiliUserId?: string
+): Promise<[string, CommentEntity]> {
   const serializedCommentEntity =
     commentEntity.type === 'plain'
       ? {
@@ -15,12 +23,24 @@ async function postCommentEntity(commentEntity: CommentEntity, bilibiliUserId?: 
   commentEntityObject.set(serializedCommentEntity);
   await commentEntityObject.save();
 
-  if (bilibiliUserId === undefined) {
-    return;
+  const { id, createdAt } = commentEntityObject;
+  if (bilibiliUserId !== undefined) {
+    postBilibiliUserComment(bilibiliUserId, id);
   }
+
+  return [
+    id,
+    {
+      ...commentEntity,
+      createdAt,
+    },
+  ];
+}
+
+function postBilibiliUserComment(bilibiliUserId: string, commentEntityObjectId: string) {
   const bilibiliUserComment = new BilibiliUserCommentConstructor();
   bilibiliUserComment.set('bilibiliUserId', bilibiliUserId);
-  bilibiliUserComment.set('commentId', commentEntityObject.id);
+  bilibiliUserComment.set('commentEntityId', commentEntityObjectId);
   const ignored = bilibiliUserComment.save();
 }
 

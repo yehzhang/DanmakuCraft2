@@ -29,6 +29,7 @@ export interface State {
   readonly tutorial: TutorialState;
   readonly domain: DomainState;
   readonly backgroundMusic: BackgroundMusicState;
+  readonly receivedCommentEntities: ReceivedCommentEntityState;
 }
 
 export interface PlayerState {
@@ -38,8 +39,11 @@ export interface PlayerState {
 }
 
 export interface EntitiesState<T> {
-  readonly data: readonly T[];
+  readonly data: IdKeyed<T>;
   readonly index: EntityIndex<T>;
+}
+export interface IdKeyed<T> {
+  readonly [id: string]: T;
 }
 
 export interface MovementState {
@@ -130,3 +134,7 @@ export interface BilibiliExternalDependency {
 export type DomainState = DanmakuCraftDomainState | BilibiliDomainState;
 
 export type BackgroundMusicState = Howl | null;
+
+export interface ReceivedCommentEntityState {
+  [commentEntityId: string]: Date;
+}

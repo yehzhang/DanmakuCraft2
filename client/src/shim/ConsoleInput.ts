@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
+import { nanoid } from 'nanoid';
 import { Channel255 } from '../data/channel';
-import { Color, fromRgbNumbers } from '../data/color';
-import { Buff } from '../data/entity';
+import { Color, fromRgbNumbers, white } from '../data/color';
+import { Buff, ChromaticCommentEntity, CommentEntity, PlainCommentEntity } from '../data/entity';
 import { ConsoleDisplayLevel, ViewName } from '../state';
 import { Store } from './redux';
 
@@ -78,17 +79,24 @@ class ConsoleInput {
   private addChromaticComment(text: string) {
     this.store.dispatch({
       type: '[ConsoleInput] chromatic comment wanted',
-      position: this.store.getState().player.position,
-      text,
+      id: nanoid(),
+      commentEntity: createDevComment({
+        type: 'chromatic',
+        ...this.store.getState().player.position,
+        text,
+      }),
     });
   }
 
   private addComment(text: string) {
     this.store.dispatch({
       type: '[ConsoleInput] comment wanted',
-      position: this.store.getState().player.position,
-      text,
-      color: randomDevColor(),
+      id: nanoid(),
+      commentEntity: createDevComment({
+        ...this.store.getState().player.position,
+        text,
+        color: randomDevColor(),
+      }),
     });
   }
 
@@ -117,6 +125,21 @@ function switchDisplayLevel(level: ConsoleDisplayLevel): ConsoleDisplayLevel {
     case 'info':
       return 'none';
   }
+}
+
+function createDevComment(data: Partial<PlainCommentEntity>): PlainCommentEntity;
+function createDevComment(data: Partial<ChromaticCommentEntity>): ChromaticCommentEntity;
+function createDevComment(data: Partial<CommentEntity>): CommentEntity {
+  return {
+    type: 'plain',
+    text: '',
+    size: 25,
+    color: white,
+    x: 0,
+    y: 0,
+    createdAt: new Date(),
+    ...data,
+  };
 }
 
 export default ConsoleInput;

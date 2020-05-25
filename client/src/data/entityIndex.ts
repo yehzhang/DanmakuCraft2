@@ -9,7 +9,7 @@ export interface EntityIndex<T> {
 
 export interface EntityIndexNode<T> extends BoundingBox {
   /** ID that is unique to each index. */
-  readonly id: number;
+  readonly id: string;
   readonly entity: T;
 }
 

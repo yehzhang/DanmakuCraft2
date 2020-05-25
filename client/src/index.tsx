@@ -62,12 +62,12 @@ function loadCommentsFromBackend(): () => Promise<LoadingResult> {
     const commentEntities = await commentEntitiesPromise;
     const throttler = new RenderThrottler();
     const sleepDurationMs = 2;
-    for (const commentEntityChunk of _.chunk(commentEntities, 100)) {
+    for (const commentEntityChunk of chunkObject(commentEntities, 100)) {
       while (
         !throttler.run(() => {
           store.dispatch({
-            type: '[index] comments loaded',
-            data: commentEntityChunk,
+            type: '[index] comment entities loaded',
+            commentEntities: commentEntityChunk,
           });
         }, sleepDurationMs)
       ) {
@@ -75,6 +75,10 @@ function loadCommentsFromBackend(): () => Promise<LoadingResult> {
       }
     }
   };
+}
+
+function chunkObject<T extends object>(data: T, size: number): T[] {
+  return _.chunk(Object.entries(data), size).map(Object.fromEntries);
 }
 
 async function loadBackgroundMusic(): Promise<void> {

@@ -6,6 +6,7 @@ import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useQuerySelector from '../hook/useQuerySelector';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
+import { OutboundAttributes } from '../shim/backend/parse';
 import postCommentEntity from '../shim/backend/postCommentEntity';
 import bindFirst from '../shim/bilibili/bindFirst';
 import { selectDomain } from '../shim/domain';
@@ -57,7 +58,7 @@ function CommentTextInput() {
 
     dispatch({ type: '[CommentTextInput] started submission' });
 
-    const commentEntity: CommentEntity = {
+    const outboundCommentEntity: OutboundAttributes<CommentEntity> = {
       ...(chromatic
         ? {
             type: 'chromatic',
@@ -69,11 +70,10 @@ function CommentTextInput() {
       size,
       text: commentText,
       ...position,
-      createdAt: new Date(),
     };
-    postCommentEntity(commentEntity, bilibiliUserId)
-      .then(() => {
-        dispatch({ type: '[CommentTextInput] submitted', data: commentEntity });
+    postCommentEntity(outboundCommentEntity, bilibiliUserId)
+      .then(([id, commentEntity]) => {
+        dispatch({ type: '[CommentTextInput] submitted', id, commentEntity });
       })
       .catch((error) => {
         logError(error);

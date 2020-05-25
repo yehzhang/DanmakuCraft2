@@ -18,6 +18,7 @@ import hastyRemainingMsReducer from './hastyRemainingMsReducer';
 import movementReducer from './movementReducer';
 import notificationReducer from './notificationReducer';
 import playerReducer from './playerReducer';
+import receivedCommentEntitiesReducer from './receivedCommentEntitiesReducer';
 import sendChromaticCommentReducer from './sendChromaticCommentReducer';
 import signEntitiesReducer from './signEntitiesReducer';
 import tutorialReducer from './tutorialReducer';
@@ -47,6 +48,7 @@ const reducer = combineReducers<State, Action>({
   tutorial: tutorialReducer,
   domain: domainReducer,
   backgroundMusic: backgroundMusicReducer,
+  receivedCommentEntities: receivedCommentEntitiesReducer,
 });
 
 export default reducer;

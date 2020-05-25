@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRef } from 'react';
 import { Color } from '../data/color';
 import { memo } from '../shim/react';
+import { useSelector } from '../shim/redux';
 import Blink from './Blink';
 import ChromaticComment from './ChromaticComment';
 import ShadowedText from './ShadowedText';
@@ -18,17 +19,18 @@ interface ChromaticCommentEntityProps extends CommentEntityPropsCommon {
 }
 
 interface CommentEntityPropsCommon {
+  readonly id?: string;
   readonly x?: number;
   readonly y?: number;
   readonly text: string;
   readonly size: number;
-  readonly createdAt?: Date;
 }
 
 function Comment(props: Props) {
-  const { x, y, text, size, createdAt } = props;
+  const { id, x, y, text, size } = props;
+  const receivedAt = useSelector((state) => (id && state.receivedCommentEntities[id]) || null);
   const { current: fresh } = useRef(
-    Date.now() < (createdAt ? createdAt.getTime() : -Infinity) + maxFreshCommentAgeMs
+    Date.now() < (receivedAt ? receivedAt.getTime() : -Infinity) + maxFreshCommentAgeMs
   );
   const commentElement =
     props.type === 'chromatic' ? (
@@ -39,6 +41,6 @@ function Comment(props: Props) {
   return fresh ? <Blink>{commentElement}</Blink> : commentElement;
 }
 
-const maxFreshCommentAgeMs = 20000;
+const maxFreshCommentAgeMs = 2000;
 
 export default memo(Comment);

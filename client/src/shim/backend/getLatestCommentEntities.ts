@@ -1,19 +1,41 @@
 import { fromRgbNumber } from '../../data/color';
 import { CommentEntity } from '../../data/entity';
+import { IdKeyed } from '../../state';
 import checkExhaustive from '../checkExhaustive';
-import existsObject from '../existsObject';
+import logError from '../logging/logError';
 import ParametricTypeError from '../logging/ParametricTypeError';
-import { CommentEntityConstructor, InboundParseObject, ParseQueryConstructor } from './parse';
+import { CommentEntityConstructor, InboundAttributes, ParseQueryConstructor } from './parse';
 
-async function getLatestCommentEntities(): Promise<CommentEntity[]> {
+async function getLatestCommentEntities(): Promise<IdKeyed<CommentEntity>> {
   const commentParseObjects = await new ParseQueryConstructor(CommentEntityConstructor)
     .descending('createdAt')
     .limit(15000)
     .find();
-  return commentParseObjects.map(buildCommentEntity).filter(existsObject);
+
+  const commentEntities: Writeable<IdKeyed<CommentEntity>> = {};
+  let errorCount = 0;
+  for (const parseObject of commentParseObjects) {
+    try {
+      const commentEntity = buildCommentEntity(parseObject);
+      commentEntities[parseObject.id] = commentEntity;
+    } catch (error) {
+      errorCount++;
+      logError(error);
+    }
+  }
+
+  if (errorCount && errorCount === commentParseObjects.length) {
+    throw new TypeError('Expected at least one valid comment entity');
+  }
+
+  return commentEntities;
 }
 
-function buildCommentEntity(parseObject: InboundParseObject<CommentEntity>): CommentEntity {
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+
+function buildCommentEntity(
+  parseObject: Parse.Object<InboundAttributes<CommentEntity>>
+): CommentEntity {
   const { createdAt, attributes } = parseObject;
   const { x, y, text, size, type: rawType, color } = attributes;
   if (typeof x !== 'number') {

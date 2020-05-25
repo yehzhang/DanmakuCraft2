@@ -1,6 +1,6 @@
 interface BilibiliUserComment {
   readonly bilibiliUserId: string;
-  readonly commentId: string;
+  readonly commentEntityId: string;
 }
 
 export default BilibiliUserComment;
