@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "build:dev": "LOCAL_BACKEND=1 webpack-dev-server --config webpack.dev.js",
-    "build:prod": "webpack-dev-server --config webpack.prod.js",
-    "build:analysis": "ANALYSIS=1 webpack --watch --config webpack.prod.js"
+    "build:prod": "webpack --config webpack.prod.js",
+    "build:analysis": "ANALYSIS=1 yarn run build:prod -- --watch"
   },
   "devDependencies": {
     "@types/color": "3.0.1",
@@ -20,6 +20,7 @@
     "@types/react-dom": "16.9.8",
     "@types/react-redux": "7.1.8",
     "@welldone-software/why-did-you-render": "^4.2.1",
+    "clean-webpack-plugin": "^3.0.0",
     "ts-loader": "7.0.3",
     "webpack": "4.43.0",
     "webpack-bundle-analyzer": "3.7.0",

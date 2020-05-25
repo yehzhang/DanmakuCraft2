@@ -23,8 +23,4 @@ module.exports = merge(config, {
     //   sourceMap: true,
     // }),
   ],
-  devServer: {
-    hot: false,
-    inline: false,
-  },
 });

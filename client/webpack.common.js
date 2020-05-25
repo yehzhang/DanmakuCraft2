@@ -1,6 +1,7 @@
 const path = require('path');
 const { DefinePlugin } = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const sourcePath = path.resolve(__dirname, 'src');
 const outPath = path.resolve(__dirname, '../build');
@@ -21,6 +22,7 @@ module.exports = {
     ],
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new DefinePlugin({
       __LOCAL_BACKEND__: JSON.stringify(localBackend),
     }),
