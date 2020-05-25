@@ -4,7 +4,7 @@ import devServerUrl from '../../../../parse/config/dev/serverUrl.json';
 import prodApplicationId from '../../../../parse/config/prod/applicationId.json';
 import prodServerUrl from '../../../../parse/config/prod/serverUrl.json';
 
-function initialize() {
+function initializeBackend() {
   const javaScriptKey = __DEV__
     ? 'z6FeA6kRsDJKvLXMzTMwbWRB07Ioxa3hmFVQyRFU'
     : '5Zfjq6zZHrIDR8scvgdebjqTMdbKVDWjzK695Ycm';
@@ -12,4 +12,4 @@ function initialize() {
   Parse.serverURL = __DEV__ ? devServerUrl : prodServerUrl;
 }
 
-export default initialize;
+export default initializeBackend;

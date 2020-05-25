@@ -9,6 +9,7 @@ import commentInputSelector from '../selector/commentInputSelector';
 import postCommentEntity from '../shim/backend/postCommentEntity';
 import bindFirst from '../shim/bilibili/bindFirst';
 import { selectDomain } from '../shim/domain';
+import logError from '../shim/logging/logError';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
@@ -75,7 +76,7 @@ function CommentTextInput() {
         dispatch({ type: '[CommentTextInput] submitted', data: commentEntity });
       })
       .catch((error) => {
-        console.error('Failed to submit comment', error);
+        logError(error);
         dispatch({ type: '[CommentTextInput] submit failed due to network error' });
       });
 

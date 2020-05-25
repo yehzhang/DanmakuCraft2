@@ -4,6 +4,11 @@ A new world to come...
 
 ## Changelog
 
+### 1.4
+
+- Migrated file storage to Parse Server.
+- Supported monitoring of errors happened in the client. 
+
 ### 1.3
 
 - Migrated database from Sails.js & Postgres to Parse Server & MongoDB.

@@ -1,4 +1,4 @@
-import ParametricTypeError from '../ParametricTypeError';
+import ParametricTypeError from '../logging/ParametricTypeError';
 import { ParseQueryConstructor, ResourceConstructor } from './parse';
 
 async function getResourceUrls(filename: string, ...more: string[]): Promise<string[]> {
@@ -20,10 +20,10 @@ async function getResourceUrls(filename: string, ...more: string[]): Promise<str
   return resourceObjects
     .map(({ attributes }) => {
       if (typeof attributes.filename !== 'string') {
-        throw new ParametricTypeError('Expected valid URL from Resource Object', { attributes });
+        throw new ParametricTypeError('Expected valid URL from Resource Object', attributes);
       }
       if (typeof attributes.url !== 'string') {
-        throw new ParametricTypeError('Expected valid URL from Resource Object', { attributes });
+        throw new ParametricTypeError('Expected valid URL from Resource Object', attributes);
       }
 
       return {

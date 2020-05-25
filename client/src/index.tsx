@@ -12,11 +12,12 @@ import { addLoadingTask, LoadingResult } from './component/Loading';
 import './data/entity';
 import getLatestCommentEntities from './shim/backend/getLatestCommentEntities';
 import getResourceUrls from './shim/backend/getResourceUrls';
-import initialize from './shim/backend/initialize';
+import initializeBackend from './shim/backend/initializeBackend';
 import setUpBilibiliShim from './shim/bilibili';
 import ConsoleInput from './shim/ConsoleInput';
 import { selectDomain } from './shim/domain';
-import ParametricTypeError from './shim/ParametricTypeError';
+import initializeLogging from './shim/logging/initializeLogging';
+import ParametricTypeError from './shim/logging/ParametricTypeError';
 import RenderThrottler from './shim/pixi/RenderThrottler';
 import sleep from './shim/sleep';
 import './state';
@@ -37,7 +38,8 @@ async function main() {
     window.persistor = persistor;
   }
 
-  initialize();
+  initializeLogging();
+  initializeBackend();
   addLoadingTask(loadCommentsFromBackend());
   addLoadingTask(_.constant(loadBackgroundMusic()));
 

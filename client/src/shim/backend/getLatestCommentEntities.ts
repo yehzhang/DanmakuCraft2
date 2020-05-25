@@ -2,7 +2,7 @@ import { fromRgbNumber } from '../../data/color';
 import { CommentEntity } from '../../data/entity';
 import checkExhaustive from '../checkExhaustive';
 import existsObject from '../existsObject';
-import ParametricTypeError from '../ParametricTypeError';
+import ParametricTypeError from '../logging/ParametricTypeError';
 import { CommentEntityConstructor, InboundParseObject, ParseQueryConstructor } from './parse';
 
 async function getLatestCommentEntities(): Promise<CommentEntity[]> {
@@ -10,53 +10,32 @@ async function getLatestCommentEntities(): Promise<CommentEntity[]> {
     .descending('createdAt')
     .limit(15000)
     .find();
-
-  const commentEntities = [];
-  const errors = [];
-  for (const commentParseObject of commentParseObjects) {
-    try {
-      commentEntities.push(buildCommentEntity(commentParseObject));
-    } catch (error) {
-      errors.push(error);
-    }
-  }
-
-  if (errors.length) {
-    const errorSummary = errors.reduce((summary, error) => {
-      summary[error.message] = (summary[error.message] || 0) + 1;
-      return summary;
-    }, {});
-    console.error('Failed to parse some comments', errors[0], errorSummary);
-  }
-
   return commentParseObjects.map(buildCommentEntity).filter(existsObject);
 }
 
 function buildCommentEntity(parseObject: InboundParseObject<CommentEntity>): CommentEntity {
-  const {
-    createdAt,
-    attributes: { x, y, text, size, type: rawType, color },
-  } = parseObject;
+  const { createdAt, attributes } = parseObject;
+  const { x, y, text, size, type: rawType, color } = attributes;
   if (typeof x !== 'number') {
-    throw new ParametricTypeError('Expected valid attribute x', parseObject);
+    throw new ParametricTypeError('Expected valid attribute x', attributes);
   }
   if (typeof y !== 'number') {
-    throw new ParametricTypeError('Expected valid attribute y', parseObject);
+    throw new ParametricTypeError('Expected valid attribute y', attributes);
   }
   if (typeof text !== 'string') {
-    throw new ParametricTypeError('Expected valid attribute text', parseObject);
+    throw new ParametricTypeError('Expected valid attribute text', attributes);
   }
   if (typeof size !== 'number') {
-    throw new ParametricTypeError('Expected valid attribute size', parseObject);
+    throw new ParametricTypeError('Expected valid attribute size', attributes);
   }
 
   if (typeof rawType !== 'string') {
-    throw new ParametricTypeError('Expected valid attribute type', parseObject);
+    throw new ParametricTypeError('Expected valid attribute type', attributes);
   }
   const type = rawType as CommentEntity['type'];
   if (type === 'plain') {
     if (typeof color !== 'number') {
-      throw new ParametricTypeError('Expected valid attribute color', { parseObject });
+      throw new ParametricTypeError('Expected valid attribute color', attributes);
     }
     return {
       type,

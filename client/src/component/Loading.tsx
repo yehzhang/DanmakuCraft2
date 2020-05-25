@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { grey } from '../data/color';
 import { I18nTextIdentifier } from '../data/i18n';
 import i18nData from '../data/i18n/zh';
+import logError from '../shim/logging/logError';
+import logErrorMessage from '../shim/logging/logErrorMessage';
 import { memo } from '../shim/react';
 import { PointLike } from '../shim/reactPixi';
 import { useDispatch } from '../shim/redux';
@@ -31,7 +33,7 @@ function Loading({ x, y, anchor, dispatch: parentDispatch, startHeavyTasks }: Pr
         ]);
         loadingResult = loadingResults.find(Boolean);
       } catch (error) {
-        console.error('Error when executing loading task queue.', error);
+        logError(error);
         loadingResult = 'mainSceneLoadingFailed';
       }
 
@@ -132,7 +134,7 @@ export type LoadingResult = I18nTextIdentifier | void;
 /** Adds a global loading task executed independent of React lifecycle. */
 export function addLoadingTask(load: LoadingTask) {
   if (!globalLoadingTasks) {
-    console.error('Unexpected to register a task after loading started');
+    logErrorMessage('Unexpected to register a task after loading started');
     load();
     return;
   }
