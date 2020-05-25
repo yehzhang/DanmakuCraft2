@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { Action } from '../action';
 import { State } from '../state';
+import backgroundMusicReducer from './backgroundMusicReducer';
 import cameraPositionReducer from './cameraPositionReducer';
 import chestReducer from './chestReducer';
 import commentEntitiesReducer from './commentEntitiesReducer';
@@ -45,6 +46,7 @@ const reducer = combineReducers<State, Action>({
   sendChromaticComment: sendChromaticCommentReducer,
   tutorial: tutorialReducer,
   domain: domainReducer,
+  backgroundMusic: backgroundMusicReducer,
 });
 
 export default reducer;

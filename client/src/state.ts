@@ -1,3 +1,4 @@
+import { Howl } from 'howler';
 import { Channel1 } from './data/channel';
 import { Color } from './data/color';
 import { ChestEntity, CommentEntity, SignEntity } from './data/entity';
@@ -27,6 +28,7 @@ export interface State {
   readonly sendChromaticComment: boolean;
   readonly tutorial: TutorialState;
   readonly domain: DomainState;
+  readonly backgroundMusic: BackgroundMusicState;
 }
 
 export interface PlayerState {
@@ -126,3 +128,5 @@ export interface BilibiliExternalDependency {
   readonly $: JQueryStatic;
 }
 export type DomainState = DanmakuCraftDomainState | BilibiliDomainState;
+
+export type BackgroundMusicState = Howl | null;

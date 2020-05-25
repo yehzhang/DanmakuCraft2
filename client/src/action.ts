@@ -1,3 +1,4 @@
+import { Howl } from 'howler';
 import { Color } from './data/color';
 import { Buff, CommentEntity, SignEntity } from './data/entity';
 import { Point } from './data/point';
@@ -18,6 +19,7 @@ export type Action =
   | { type: '[SpeechBubble] display expired' }
   | { type: '[Opening] Genesis'; spawnPosition: Point; signEntities: readonly SignEntity[] }
   | { type: '[index] Comments loaded from backend'; data: readonly CommentEntity[] }
+  | { type: '[index] background music created'; album: Howl }
   | { type: '[Opening] completed' }
   | { type: '[ConsoleInput] chest wanted'; position: Point; lootType: Buff['type'] }
   | { type: '[ConsoleInput] comment wanted'; position: Point; text: string; color: Color }
