@@ -14,7 +14,7 @@ function commentEntitiesReducer(
       const { data } = action;
       return updateState(state, [data]);
     }
-    case '[index] Comments loaded from backend': {
+    case '[index] comments loaded': {
       const { data } = action;
       return updateState(state, data);
     }
@@ -38,7 +38,7 @@ function commentEntitiesReducer(
         }),
       ]);
     }
-    case '[Opening] Genesis':
+    case '[Opening] genesis':
       return buildInitialEntitiesState();
     default:
       return state;

@@ -138,7 +138,7 @@ function genesis(): Action {
   };
 
   return {
-    type: '[Opening] Genesis',
+    type: '[Opening] genesis',
     spawnPosition: generateRandomPointAround(__DEV__ ? empty : getRandomSpawnPoint(spawnPoints)),
     signEntities: [...spawnPoints, worldCenterEntity, worldOriginEntity],
   };

@@ -21,7 +21,7 @@ function playerReducer(state = initialState, action: Action): PlayerState {
         fly,
       };
     }
-    case '[Opening] Genesis': {
+    case '[Opening] genesis': {
       const { spawnPosition } = action;
       return {
         ...initialState,

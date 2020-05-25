@@ -17,8 +17,8 @@ export type Action =
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }
   | { type: '[SpeechBubble] display expired' }
-  | { type: '[Opening] Genesis'; spawnPosition: Point; signEntities: readonly SignEntity[] }
-  | { type: '[index] Comments loaded from backend'; data: readonly CommentEntity[] }
+  | { type: '[Opening] genesis'; spawnPosition: Point; signEntities: readonly SignEntity[] }
+  | { type: '[index] comments loaded'; data: readonly CommentEntity[] }
   | { type: '[index] background music created'; album: Howl }
   | { type: '[Opening] completed' }
   | { type: '[ConsoleInput] chest wanted'; position: Point; lootType: Buff['type'] }

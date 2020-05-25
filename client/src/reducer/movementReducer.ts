@@ -40,7 +40,7 @@ function movementReducer(state = initialState, action: Action): MovementState {
     }
     case '[PixiStage] blurred':
     case '[PixiStage] context menu opened':
-    case '[Opening] Genesis':
+    case '[Opening] genesis':
       return initialState;
     default:
       return state;

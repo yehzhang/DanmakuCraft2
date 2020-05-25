@@ -15,7 +15,7 @@ function signEntitiesReducer(
   action: Action
 ): EntitiesState<SignEntity> {
   switch (action.type) {
-    case '[Opening] Genesis': {
+    case '[Opening] genesis': {
       const { signEntities } = action;
       return updateEntitiesState(state, signEntities, measureDimensions);
     }

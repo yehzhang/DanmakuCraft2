@@ -25,7 +25,7 @@ const compose = composeWithDevTools({
     '\\[Ticker]',
     '\\[PixiStage] (up|down|left|right)',
     '\\[Console]',
-    '[index] Comments loaded from backend',
+    '[index] comments loaded',
     'Console entry used',
     'Console entry released',
   ],

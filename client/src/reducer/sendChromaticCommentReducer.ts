@@ -10,7 +10,7 @@ function sendChromaticCommentReducer(state = initialState, action: Action): bool
     }
     case '[CommentTextInput] submitted':
       return false;
-    case '[Opening] Genesis':
+    case '[Opening] genesis':
       return initialState;
     default:
       return state;

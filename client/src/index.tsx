@@ -64,7 +64,7 @@ function loadCommentsFromBackend(): () => Promise<LoadingResult> {
       while (
         !throttler.run(() => {
           store.dispatch({
-            type: '[index] Comments loaded from backend',
+            type: '[index] comments loaded',
             data: commentEntityChunk,
           });
         }, sleepDurationMs)
