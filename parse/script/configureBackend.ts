@@ -1,6 +1,5 @@
 import BilibiliUserCommentSchema from '../schema/BilibiliUserComment.json';
 import EntitySchema from '../schema/Entity.json';
-import ResourceSchema from '../schema/Resource.json';
 import fetchBackend from './internal/fetchBackend';
 
 async function pushDatabaseSchema(className: string, schema: any) {
@@ -28,7 +27,6 @@ async function configureBackend() {
   await Promise.all([
     pushDatabaseSchema('Entity', EntitySchema),
     pushDatabaseSchema('BilibiliUserComment', BilibiliUserCommentSchema),
-    pushDatabaseSchema('Resource', ResourceSchema),
   ]);
 }
 

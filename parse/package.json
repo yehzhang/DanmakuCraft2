@@ -4,9 +4,11 @@
   "scripts": {
     "configure": "ts-node script/configureBackend.ts",
     "migratePsql": "node --max-old-space-size=8192 -r ts-node/register script/migratePsqlJson.ts",
-    "pushBgm": "ts-node script/pushBackgroundMusic.ts"
+    "deploy": "b4a deploy",
+    "build:bgm": "node node_modules/audiosprite/cli.js -b 192 -v 6 -f howler --export=ogg,m4a,mp3 -o public/resource/background_music ../data/audio/background/* && mv public/resource/background_music.json ../data/audio"
   },
   "devDependencies": {
+    "@types/app-root-path": "^1.2.4",
     "@types/lodash": "^4.14.152",
     "@types/mime-types": "^2.1.0",
     "@types/nanoid": "^2.1.0",
