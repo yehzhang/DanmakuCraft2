@@ -15,7 +15,7 @@ export type Action =
   | { type: '[PixiStage] down'; keyDown: boolean }
   | { type: '[PixiStage] left'; keyDown: boolean }
   | { type: '[PixiStage] right'; keyDown: boolean }
-  | { type: '[PixiStage] enter'; keyDown: boolean; view: ViewName }
+  | { type: '[PixiStage] enter'; keyDown: boolean; view: ViewName; commentInputSubmitting: boolean }
   | { type: '[PixiStage] focused' }
   | { type: '[PixiStage] blurred' }
   | { type: '[PixiStage] context menu opened' }
