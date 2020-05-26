@@ -1,7 +1,6 @@
 import Parse from 'parse';
 import { CommentEntity } from '../../data/entity';
 import BilibiliUserComment from './BilibiliUserComment';
-import Resource from './Resource';
 
 const createParseObjectConstructor: CreateParseObjectConstructor = (tableName: string) =>
   Parse.Object.extend(tableName);
@@ -11,7 +10,6 @@ interface CreateParseObjectConstructor {
   (tableName: 'BilibiliUserComment'): new () => Parse.Object<
     OutboundAttributes<BilibiliUserComment>
   >;
-  (tableName: 'Resource'): new () => Parse.Object<OutboundAttributes<Resource>>;
 }
 export type OutboundAttributes<T extends Parse.Attributes> = T extends unknown
   ? Omit<T, keyof Parse.BaseAttributes>
@@ -19,7 +17,6 @@ export type OutboundAttributes<T extends Parse.Attributes> = T extends unknown
 
 export const CommentEntityConstructor = createParseObjectConstructor('Entity');
 export const BilibiliUserCommentConstructor = createParseObjectConstructor('BilibiliUserComment');
-export const ResourceConstructor = createParseObjectConstructor('Resource');
 
 export const ParseQueryConstructor: new <T extends Parse.Attributes>(
   ParseObjectConstructor: new () => Parse.Object<T>
