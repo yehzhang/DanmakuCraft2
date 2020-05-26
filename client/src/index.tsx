@@ -24,6 +24,10 @@ import sleep from './shim/sleep';
 import './state';
 import store, { persistor } from './store';
 
+declare global {
+  const __DEV__: boolean;
+}
+
 async function main() {
   if (__DEV__) {
     const { default: whyDidYouRender_ } = await import('@welldone-software/why-did-you-render');
@@ -34,9 +38,12 @@ async function main() {
       trackExtraHooks: [[ReactRedux, 'useSelector']],
     });
 
-    window.d = new ConsoleInput(store);
-    window.store = store;
-    window.persistor = persistor;
+    // Expose crucial API for debugging.
+    Object.assign(window, {
+      d: new ConsoleInput(store),
+      store,
+      persistor,
+    });
   }
 
   initializeLogging();
