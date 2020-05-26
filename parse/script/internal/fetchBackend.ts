@@ -1,13 +1,13 @@
 import mimetype from 'mime-types';
 import { URL } from 'url';
-import config from '../../config';
+import appConfig from './appConfig';
 import buildCommand from './buildCommand';
 import execute from './execute';
 
 async function fetchBackend(method: 'GET', path: string, query?: Query): Promise<Response>;
 async function fetchBackend(method: 'POST' | 'PUT', path: string, body: Body): Promise<Response>;
 async function fetchBackend(method: string, path: string, payload?: Payload) {
-  const url = new URL(path, config.serverUrl);
+  const url = new URL(path, appConfig.serverUrl);
   const { contentType, extraFlags } = payload
     ? getCurlFlags(payload)
     : {
@@ -17,8 +17,8 @@ async function fetchBackend(method: string, path: string, payload?: Payload) {
   const command = buildCommand([
     'curl',
     `-X ${method}`,
-    `-H 'X-Parse-Application-Id: ${config.applicationId}'`,
-    `-H 'X-Parse-Master-Key: ${config.masterKey}'`,
+    `-H 'X-Parse-Application-Id: ${appConfig.applicationId}'`,
+    `-H 'X-Parse-Master-Key: ${appConfig.masterKey}'`,
     contentType && `-H "Content-Type: ${contentType}"`,
     '--silent',
     ...extraFlags,

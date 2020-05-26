@@ -81,15 +81,14 @@ function chunkObject<T extends object>(data: T, size: number): T[] {
   return _.chunk(Object.entries(data), size).map(Object.fromEntries);
 }
 
-async function loadBackgroundMusic(): Promise<void> {
-  const urls = await getResourceUrls(
-    'background_music.mp3',
-    'background_music.ogg',
-    'background_music.m4a'
-  );
+function loadBackgroundMusic(): Promise<void> {
   return new Promise((resolve, reject) => {
     const album = new Howl({
-      src: urls,
+      src: [
+        getResourceUrls('background_music.mp3'),
+        getResourceUrls('background_music.ogg'),
+        getResourceUrls('background_music.m4a'),
+      ],
       sprite: backgroundMusicConfig.sprite as any,
       onload: () => void resolve(),
       onloaderror: (id, error) =>
