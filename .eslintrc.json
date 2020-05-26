@@ -2,14 +2,8 @@
   "env": {
     "es2020": true
   },
-  "extends": [
-    "eslint:recommended",
-    "prettier"
-  ],
-  "plugins": [
-    "jsdoc",
-    "prettier"
-  ],
+  "extends": ["eslint:recommended", "prettier"],
+  "plugins": ["jsdoc", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "sourceType": "module"
@@ -28,6 +22,10 @@
       {
         "name": "lodash",
         "message": "Import from individual module instead, e.g., `import identity from 'lodash/identity';`"
+      },
+      {
+        "name": "parse",
+        "message": "Import from individual module instead, e.g., `import ParseObject from 'parse/lib/browser/ParseObject';`"
       }
     ],
     "dot-notation": "warn",
@@ -51,10 +49,7 @@
     "jsdoc/check-indentation": "warn",
     "jsdoc/newline-after-description": "warn",
     "no-caller": "warn",
-    "no-cond-assign": [
-      "error",
-      "always"
-    ],
+    "no-cond-assign": ["error", "always"],
     "no-eval": "warn",
     "no-invalid-this": "warn",
     "no-new-wrappers": "error",
@@ -77,10 +72,7 @@
   "overrides": [
     {
       // TypeScript
-      "files": [
-        "*.ts",
-        "*.tsx"
-      ],
+      "files": ["*.ts", "*.tsx"],
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
@@ -89,10 +81,7 @@
         "prettier/@typescript-eslint",
         "prettier/react"
       ],
-      "plugins": [
-        "@typescript-eslint",
-        "react"
-      ],
+      "plugins": ["@typescript-eslint", "react"],
       "rules": {
         "react/display-name": "off", // Inccorectly reports arrow functions that return JSX.
         // Checked by TS.
@@ -127,10 +116,7 @@
     },
     {
       // Running in browsers
-      "files": [
-        "client/**/*.*",
-        "**/*.user.js"
-      ],
+      "files": ["client/**/*.*", "**/*.user.js"],
       "env": {
         "browser": true
       },
@@ -138,21 +124,14 @@
         "no-console": [
           "warn",
           {
-            "allow": [
-              "warn",
-              "error"
-            ]
+            "allow": ["warn", "error"]
           }
         ]
       }
     },
     {
       // Running in Node envrionement
-      "files": [
-        "scripts/**/*.*",
-        "server/**/*.*",
-        "**/*.js"
-      ],
+      "files": ["scripts/**/*.*", "server/**/*.*", "**/*.js"],
       "env": {
         "node": true
       }

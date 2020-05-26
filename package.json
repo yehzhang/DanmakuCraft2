@@ -30,7 +30,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": [
+    "*.{js,ts,tsx,d.ts,json}": [
       "eslint --fix --max-warnings=0"
     ]
   }
