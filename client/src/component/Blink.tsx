@@ -1,5 +1,5 @@
 import { Container } from '@inlet/react-pixi';
-import * as _ from 'lodash';
+import times from 'lodash/times';
 import * as React from 'react';
 import { ReactNode } from 'react';
 import { Tweens } from '../data/tween';
@@ -19,7 +19,7 @@ const alphaTweens: Tweens = [
   {
     to: 1,
   },
-  ..._.times(2, () => [
+  ...times(2, () => [
     {
       to: 0,
       durationMs: 100,

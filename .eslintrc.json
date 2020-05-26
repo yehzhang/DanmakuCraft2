@@ -23,6 +23,13 @@
         "message": "Use `Number()` instead."
       }
     ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "name": "lodash",
+        "message": "Import from individual module instead, e.g., `import identity from 'lodash/identity';`"
+      }
+    ],
     "dot-notation": "warn",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "guard-for-in": "error",

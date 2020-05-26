@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import add from 'lodash/add';
 import { createSelector } from 'reselect';
 import { Color, fromHsl, toHsl, white } from '../data/color';
 import { cartesianToPolar, polarToCartesian } from '../data/coordinate';
@@ -38,7 +38,7 @@ yesterday.setDate(yesterday.getDate() - 1);
 function addColorToHSVector(hSVector: Point, color: Color): Point {
   const { h, s } = toHsl(color);
   const colorHSVector = polarToCartesian({ azimuth: (h / 360) * Math.PI * 2, radius: s });
-  return zip(hSVector, colorHSVector, _.add);
+  return zip(hSVector, colorHSVector, add);
 }
 
 function getEffectiveLightnessWeight(bright: boolean): number {

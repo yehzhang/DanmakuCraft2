@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import clamp from 'lodash/clamp';
 import { createSelector } from 'reselect';
 import { BoundingBox, inflatePoint } from '../data/boundingBox';
 import { EntityIndex, EntityIndexNode } from '../data/entityIndex';
@@ -38,7 +38,7 @@ export function equalEntityNodeArrays<T>(nodes: readonly T[], nodes_: readonly T
 function getVisibleAreasAroundCoordinates(coordinates: Point, visibility: Point): BoundingBox[] {
   const { x, y } = map(coordinates, getWorldCoordinate);
   const safeVisibility = map(visibility, (dx) =>
-    _.clamp(dx / 2 + minDistanceToRefreshVisibility, 0, maxSafeVisibility)
+    clamp(dx / 2 + minDistanceToRefreshVisibility, 0, maxSafeVisibility)
   );
   return congruentOffsets.flatMap((dx) =>
     congruentOffsets.map((dy) => {

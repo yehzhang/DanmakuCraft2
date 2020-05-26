@@ -1,4 +1,6 @@
-import * as _ from 'lodash';
+import add from 'lodash/add';
+import sample from 'lodash/sample';
+import times from 'lodash/times';
 import { nanoid } from 'nanoid';
 import { Action } from '../action';
 import {
@@ -78,7 +80,7 @@ function updateByTick(
         id: nanoid(),
         chestEntity: {
           ...generateChestPositionAround(cameraPosition, safeRadius),
-          loot: { type: _.sample(buffDistribution) || 'none' },
+          loot: { type: sample(buffDistribution) || 'none' },
         },
       };
     }
@@ -131,7 +133,7 @@ function generateChestPositionAround(point: Point, radius: number): Point {
     azimuth: sampledAzimuth,
     radius,
   });
-  return zip(point, sampledOffsets, _.add);
+  return zip(point, sampledOffsets, add);
 }
 
 /** Radius out of which it is safe to spawn or despawn a chest (without user noticing). */
@@ -143,7 +145,7 @@ const buffDistribution = [
   'none',
   'chromatic',
   'chromatic',
-  ..._.times(7, () => 'hasty' as const),
+  ...times(7, () => 'hasty' as const),
 ] as const;
 
 export default chestReducer;

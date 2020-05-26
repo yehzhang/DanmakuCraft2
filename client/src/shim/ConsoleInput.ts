@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import sample from 'lodash/sample';
 import { nanoid } from 'nanoid';
 import { Channel255 } from '../data/channel';
 import { Color, fromRgbNumbers, white } from '../data/color';
@@ -10,7 +10,7 @@ class ConsoleInput {
   constructor(private readonly store: Store) {}
 
   get chest() {
-    const lootType = _.sample(['none', 'chromatic', 'hasty'] as const) || 'none';
+    const lootType = sample(['none', 'chromatic', 'hasty'] as const) || 'none';
     this.wantChest(lootType);
 
     return lootType;

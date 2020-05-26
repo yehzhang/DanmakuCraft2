@@ -1,5 +1,5 @@
 import { Container, Sprite } from '@inlet/react-pixi';
-import * as _ from 'lodash';
+import add from 'lodash/add';
 import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -71,7 +71,7 @@ function useMessage(message: I18nTextIdentifier | JustText): string {
 
 function useBubblePosition(): Point {
   const playerPosition = useSelector((state) => state.player.position);
-  return zip(playerPosition, bubbleTailToCenterOffsets, _.add);
+  return zip(playerPosition, bubbleTailToCenterOffsets, add);
 }
 
 const bubbleTailToCenterOffsets: Point = {

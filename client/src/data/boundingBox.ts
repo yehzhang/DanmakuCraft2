@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import subtract from 'lodash/subtract';
 import { map, Point, show, zip } from './point';
 import { mean } from './stats';
 
@@ -50,7 +50,7 @@ export function intersect(b1: BoundingBox, b2: BoundingBox): boolean {
 }
 
 export function centerTo(center: Point, b: BoundingBox): BoundingBox {
-  const offset = zip(center, reduceMinMax(b, mean), _.subtract);
+  const offset = zip(center, reduceMinMax(b, mean), subtract);
   return map2d(
     b,
     map(offset, (x) => (x_: number) => x + x_)

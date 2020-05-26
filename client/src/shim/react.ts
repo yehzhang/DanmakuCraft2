@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import identity from 'lodash/identity';
 import * as React from 'react';
 import { ComponentType, CSSProperties } from 'react';
 
@@ -13,5 +13,6 @@ export function lazyModuleMemo<T extends ComponentType<any>>(Component: T) {
   return React.memo(Component);
 }
 
-export const createStyleSheet: <T extends string>(styleSheet: StyleSheet<T>) => StyleSheet<T> =
-  _.identity;
+export const createStyleSheet: <T extends string>(
+  styleSheet: StyleSheet<T>
+) => StyleSheet<T> = identity;

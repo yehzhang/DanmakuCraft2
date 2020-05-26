@@ -1,5 +1,6 @@
 import { Howl } from 'howler';
-import * as _ from 'lodash';
+import chunk from 'lodash/chunk';
+import constant from 'lodash/constant';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactRedux from 'react-redux';
@@ -41,7 +42,7 @@ async function main() {
   initializeLogging();
   initializeBackend();
   addLoadingTask(loadCommentsFromBackend());
-  addLoadingTask(_.constant(loadBackgroundMusic()));
+  addLoadingTask(constant(loadBackgroundMusic()));
 
   const gameContainerId = await selectDomain<() => Promise<string> | string>({
     bilibili: () => setUpBilibiliShim(store),
@@ -78,7 +79,7 @@ function loadCommentsFromBackend(): () => Promise<LoadingResult> {
 }
 
 function chunkObject<T extends object>(data: T, size: number): T[] {
-  return _.chunk(Object.entries(data), size).map(Object.fromEntries);
+  return chunk(Object.entries(data), size).map(Object.fromEntries);
 }
 
 function loadBackgroundMusic(): Promise<void> {

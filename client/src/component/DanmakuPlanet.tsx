@@ -1,5 +1,5 @@
 import { Sprite } from '@inlet/react-pixi';
-import * as _ from 'lodash';
+import partial from 'lodash/partial';
 import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -30,7 +30,7 @@ function DanmakuPlanet(props: Props) {
   const projectedPosition = zip(
     props,
     { x: vanishingPointX, y: vanishingPointY },
-    _.partial(projectToPerspective, perspective)
+    partial(projectToPerspective, perspective)
   );
 
   useEffect(() => {

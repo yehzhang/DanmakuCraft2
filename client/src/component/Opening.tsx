@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import add from 'lodash/add';
 import { nanoid } from 'nanoid';
 import * as React from 'react';
 import { useCallback, useEffect, useReducer } from 'react';
@@ -164,7 +164,7 @@ function getRandomSpawnPoint(spawnPoints: readonly Point[]): Point {
 function generateRandomPointAround(point: Point): Point {
   const maxOffset = __DEV__ ? 300 : 675;
   const randomOffsets = sampleUniformDistributionInCircle(maxOffset);
-  return zip(point, randomOffsets, _.add);
+  return zip(point, randomOffsets, add);
 }
 
 export default Opening;

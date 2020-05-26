@@ -1,5 +1,5 @@
 import { Sprite } from '@inlet/react-pixi';
-import * as _ from 'lodash';
+import times from 'lodash/times';
 import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useEffect, useRef } from 'react';
@@ -75,7 +75,7 @@ function useOpeningState(chestEntity: ChestEntity): boolean {
 
 const chestOpeningTweens: Tweens = [
   getShakingTween(-1, 0.5),
-  ..._.times(5, () => [getShakingTween(1, 1), getShakingTween(-1, 1)]).flat(),
+  ...times(5, () => [getShakingTween(1, 1), getShakingTween(-1, 1)]).flat(),
   getShakingTween(0, 0.5),
 ];
 

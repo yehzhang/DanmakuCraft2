@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import subtract from 'lodash/subtract';
 import { Point, zip } from './point';
 
 export function polarToCartesian({ azimuth, radius }: Polar): Point {
@@ -20,6 +20,6 @@ export function magnitude({ x, y }: Point): number {
 }
 
 export function distance(point: Point, point_: Point): number {
-  const offsets = zip(point, point_, _.subtract);
+  const offsets = zip(point, point_, subtract);
   return magnitude(offsets);
 }

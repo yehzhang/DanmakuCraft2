@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import shuffle from 'lodash/shuffle';
 import { useEffect, useRef } from 'react';
 import backgroundMusicConfig from '../../../data/audio/background_music.json';
 import useTick from '../hook/useTick';
@@ -52,7 +52,7 @@ type AvailableSong = keyof typeof backgroundMusicConfig.sprite;
 
 function updatePlaylist(playlist: Playlist): Playlist {
   if (playlist.length === 1) {
-    return _.shuffle(initialPlaylist.filter((song) => song !== playlist[0]));
+    return shuffle(initialPlaylist.filter((song) => song !== playlist[0]));
   }
   return initialPlaylist.slice(1);
 }
