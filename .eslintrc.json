@@ -17,17 +17,6 @@
         "message": "Use `Number()` instead."
       }
     ],
-    "no-restricted-imports": [
-      "error",
-      {
-        "name": "lodash",
-        "message": "Import from individual module instead, e.g., `import identity from 'lodash/identity';`"
-      },
-      {
-        "name": "parse",
-        "message": "Import from individual module instead, e.g., `import ParseObject from 'parse/lib/browser/ParseObject';`"
-      }
-    ],
     "dot-notation": "warn",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "guard-for-in": "error",
@@ -121,6 +110,17 @@
         "browser": true
       },
       "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "name": "lodash",
+            "message": "Import from individual module instead to reduce dependency, e.g., `import identity from 'lodash/identity';`"
+          },
+          {
+            "name": "parse",
+            "message": "Import from individual module instead to reduce dependency, e.g., `import ParseObject from 'parse/lib/browser/ParseObject';`"
+          }
+        ],
         "no-console": [
           "warn",
           {
