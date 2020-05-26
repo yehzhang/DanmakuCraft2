@@ -115,10 +115,6 @@
           {
             "name": "lodash",
             "message": "Import from individual module instead to reduce dependency, e.g., `import identity from 'lodash/identity';`"
-          },
-          {
-            "name": "parse",
-            "message": "Import from individual module instead to reduce dependency, e.g., `import ParseObject from 'parse/lib/browser/ParseObject';`"
           }
         ],
         "no-console": [

@@ -1,8 +1,8 @@
-import ParseQueryConstructor_ from 'parse/lib/browser/ParseQuery';
+import Parse from 'parse';
 
 const ParseQueryConstructor: new <T extends Parse.Attributes>(
   ParseObjectConstructor: new () => Parse.Object<T>
-) => ParseQuery<T> = ParseQueryConstructor_;
+) => ParseQuery<T> = Parse.Query;
 
 interface ParseQuery<T extends Parse.Attributes> {
   descending(key: keyof (T & Parse.BaseAttributes)): this;
