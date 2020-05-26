@@ -39,7 +39,6 @@
     "mixpanel-browser": "^2.36.0",
     "nanoid": "3.1.6",
     "parse": "^2.13.0",
-    "pixi-sound": "3.0.4",
     "pixi.js": "5.2.4",
     "rbush": "3.0.1",
     "react": "16.13.1",
