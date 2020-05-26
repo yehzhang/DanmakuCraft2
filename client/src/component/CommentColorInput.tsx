@@ -28,7 +28,7 @@ type RenderUserInterface = (onChange: (color: Color) => void) => ReactElement | 
 const renderUserInterface = selectDomain<RenderUserInterface>({
   danmakucraft: (onChange) => {
     const { hovered, onMouseOver, onMouseOut } = useHovered();
-    const hexColorString = useSelector((state) => toHexString(state.commentInputColor));
+    const color = useSelector((state) => state.commentInputColor);
     return (
       <div style={styles.container} onMouseEnter={onMouseOver} onMouseLeave={onMouseOut}>
         <span>🎨</span>
@@ -37,11 +37,11 @@ const renderUserInterface = selectDomain<RenderUserInterface>({
             <TwitterPicker
               colors={colors}
               width="315px"
-              color={hexColorString}
+              color={toHexString(color)}
               onChange={({ hex }: ColorResult) => {
-                const color = fromString(hex);
-                if (color) {
-                  onChange(color);
+                const nextColor = fromString(hex);
+                if (nextColor) {
+                  onChange(nextColor);
                 }
               }}
             />
