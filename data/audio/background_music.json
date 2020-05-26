@@ -5,17 +5,8 @@
     "public/resource/background_music.mp3"
   ],
   "sprite": {
-    "all_alone": [
-      0,
-      42057.142857142855
-    ],
-    "eating_cake": [
-      44000,
-      59219.5918367347
-    ],
-    "peaceful_piano_amplified": [
-      105000,
-      149849.31972789115
-    ]
+    "all_alone": [0, 42057.142857142855],
+    "eating_cake": [44000, 59219.5918367347],
+    "peaceful_piano_amplified": [105000, 149849.31972789115]
   }
 }
