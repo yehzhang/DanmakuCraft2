@@ -7,6 +7,7 @@ import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useHovered from '../hook/useHovered';
 import useQuerySelector from '../hook/useQuerySelector';
 import { selectDomain } from '../shim/domain';
+import logErrorMessage from '../shim/logging/logErrorMessage';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
@@ -40,9 +41,11 @@ const renderUserInterface = selectDomain<RenderUserInterface>({
               color={toHexString(color)}
               onChange={({ hex }: ColorResult) => {
                 const nextColor = fromString(hex);
-                if (nextColor) {
-                  onChange(nextColor);
+                if (!nextColor) {
+                  logErrorMessage('Expected valid color string from TwitterPicker', { hex });
+                  return;
                 }
+                onChange(nextColor);
               }}
             />
           </div>
@@ -59,9 +62,11 @@ const renderUserInterface = selectDomain<RenderUserInterface>({
       }
       const data = event.target.getAttribute('data-value');
       const color = data && fromString(data);
-      if (color) {
-        onChange(color);
+      if (!color) {
+        logErrorMessage('Expected valid color string from Bilibili color picker', { data });
+        return;
       }
+      onChange(color);
     });
     useDomEvent(elementRef, 'change', (event: ElementTargetEvent) => {
       if (!event.target.classList.contains('bui-input-input')) {
