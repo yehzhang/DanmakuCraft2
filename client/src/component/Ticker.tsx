@@ -1,13 +1,11 @@
-import * as _ from 'lodash';
 import useTick from '../hook/useTick';
-import { useDispatch, useSelector } from '../shim/redux';
-import { State } from '../state';
+import { useDispatch, useStore } from '../shim/redux';
 
 function Ticker() {
   const dispatch = useDispatch();
-  const state = useSelector<State>(_.identity);
+  const store = useStore();
   useTick((deltaMs: number) => {
-    dispatch({ type: '[Ticker] ticked', deltaMs, state });
+    dispatch({ type: '[Ticker] ticked', deltaMs, state: store.getState() });
   });
 
   return null;
