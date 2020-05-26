@@ -4,7 +4,7 @@
   "scripts": {
     "build:dev": "LOCAL_BACKEND=1 webpack-dev-server --config webpack.dev.js",
     "build:prod": "webpack --config webpack.prod.js",
-    "build:analysis": "ANALYSIS=1 yarn run build:prod -- --watch"
+    "build:analysis": "ANALYSIS=1 yarn run build:prod --watch"
   },
   "devDependencies": {
     "@types/howler": "^2.1.2",
