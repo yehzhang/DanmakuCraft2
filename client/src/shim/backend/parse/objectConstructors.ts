@@ -1,6 +1,6 @@
 import Parse from 'parse';
-import { CommentEntity } from '../../data/entity';
-import BilibiliUserComment from './BilibiliUserComment';
+import { CommentEntity } from '../../../data/entity';
+import BilibiliUserComment from '../BilibiliUserComment';
 
 const createParseObjectConstructor: CreateParseObjectConstructor = (tableName: string) =>
   Parse.Object.extend(tableName);

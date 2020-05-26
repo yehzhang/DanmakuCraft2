@@ -4,7 +4,7 @@ import {
   BilibiliUserCommentConstructor,
   CommentEntityConstructor,
   OutboundAttributes,
-} from './objectConstructors';
+} from './parse/objectConstructors';
 
 /** Resolves to the id of the comment entity. */
 async function postCommentEntity(

@@ -6,7 +6,7 @@ import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useQuerySelector from '../hook/useQuerySelector';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
-import { OutboundAttributes } from '../shim/backend/objectConstructors';
+import { OutboundAttributes } from '../shim/backend/parse/objectConstructors';
 import postCommentEntity from '../shim/backend/postCommentEntity';
 import bindFirst from '../shim/bilibili/bindFirst';
 import { selectDomain } from '../shim/domain';

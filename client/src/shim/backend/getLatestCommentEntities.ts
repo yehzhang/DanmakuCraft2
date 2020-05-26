@@ -4,8 +4,8 @@ import { IdKeyed } from '../../state';
 import checkExhaustive from '../checkExhaustive';
 import logError from '../logging/logError';
 import ParametricTypeError from '../logging/ParametricTypeError';
-import { CommentEntityConstructor } from './objectConstructors';
-import ParseQueryConstructor, { InboundAttributes } from './ParseQueryConstructor';
+import { CommentEntityConstructor } from './parse/objectConstructors';
+import ParseQueryConstructor, { InboundAttributes } from './parse/ParseQueryConstructor';
 
 async function getLatestCommentEntities(): Promise<IdKeyed<CommentEntity>> {
   const commentParseObjects = await new ParseQueryConstructor(CommentEntityConstructor)
