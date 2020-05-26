@@ -8,6 +8,7 @@ A new world to come...
 
 - Migrated file storage to Parse Server.
 - Supported monitoring of errors happened in the client. 
+- Optimized for bundle size by reducing dependency.
 
 ### 1.3
 
