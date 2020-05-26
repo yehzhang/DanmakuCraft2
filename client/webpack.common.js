@@ -22,7 +22,9 @@ module.exports = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(),
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: ['bundle.js', 'bundle.*.js'],
+    }),
     new DefinePlugin({
       __LOCAL_BACKEND__: JSON.stringify(localBackend),
     }),
