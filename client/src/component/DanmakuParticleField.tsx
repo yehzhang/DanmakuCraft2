@@ -1,6 +1,6 @@
 import { ParticleContainer, Sprite } from '@inlet/react-pixi';
+import { Graphics } from '@pixi/graphics';
 import times from 'lodash/times';
-import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useEffect, useRef } from 'react';
 import { center } from '../data/anchors';
@@ -93,7 +93,7 @@ interface XYZ {
   readonly z: number;
 }
 
-function drawParticle(graphics: PIXI.Graphics) {
+function drawParticle(graphics: Graphics) {
   graphics
     .beginFill(toRgbNumber(white))
     .drawRoundedRect(0, 0, particleSize, particleSize, particleSize / 3)

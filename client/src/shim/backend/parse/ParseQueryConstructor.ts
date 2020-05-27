@@ -1,8 +1,8 @@
-import Parse from 'parse';
+import { Query } from 'parse';
 
 const ParseQueryConstructor: new <T extends Parse.Attributes>(
   ParseObjectConstructor: new () => Parse.Object<T>
-) => ParseQuery<T> = Parse.Query;
+) => ParseQuery<T> = Query;
 
 interface ParseQuery<T extends Parse.Attributes> {
   descending(key: keyof (T & Parse.BaseAttributes)): this;

@@ -1,6 +1,6 @@
 import { Sprite } from '@inlet/react-pixi';
+import { Texture } from '@pixi/core';
 import partial from 'lodash/partial';
-import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { center } from '../data/anchors';
@@ -42,7 +42,7 @@ function DanmakuPlanet(props: Props) {
   const alpha = Math.min(perspective * 10, 1);
   return (
     <Sprite
-      texture={PIXI.Texture.WHITE}
+      texture={Texture.WHITE}
       {...projectedPosition}
       width={worldSize}
       height={worldSize}

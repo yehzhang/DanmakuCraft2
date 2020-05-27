@@ -1,4 +1,5 @@
-import * as PIXI from 'pixi.js';
+import { Rectangle } from '@pixi/math';
+import { Text } from '@pixi/text';
 import { defaultFontStyle, getTextStyleProperties } from '../../component/PlainText';
 import { Point } from '../../data/point';
 import { FontStyle } from '../reactPixi';
@@ -22,8 +23,8 @@ function measureTextDimensions({
 }
 
 // Dummy `Text` object to measure text dimensions.
-const dummyPixiText = new PIXI.Text('', getTextStyleProperties(0, null, null));
+const dummyPixiText = new Text('', getTextStyleProperties(0, null, null));
 // `Rectangle` to be shared as a buffer.
-const rectangleBuffer = new PIXI.Rectangle();
+const rectangleBuffer = new Rectangle();
 
 export default measureTextDimensions;

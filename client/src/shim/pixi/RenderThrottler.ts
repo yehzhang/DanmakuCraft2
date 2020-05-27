@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js';
+import { Ticker } from '@pixi/ticker';
 import { StreamStatistics } from '../../data/stats';
 
 class RenderThrottler {
@@ -26,7 +26,7 @@ class RenderThrottler {
       return true;
     }
 
-    const lastTickedMs = PIXI.Ticker.shared.lastTime;
+    const lastTickedMs = Ticker.shared.lastTime;
     const msSinceTickStart = now - lastTickedMs;
     const msLeftForRunner = msPerTick - msSinceTickStart - reservedMsAfterRunner;
     if (msLeftForRunner <= 0) {

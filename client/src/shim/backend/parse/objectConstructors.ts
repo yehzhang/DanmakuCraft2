@@ -1,9 +1,9 @@
-import Parse from 'parse';
+import { Object } from 'parse';
 import { CommentEntity } from '../../../data/entity';
 import BilibiliUserComment from '../BilibiliUserComment';
 
 const createParseObjectConstructor: CreateParseObjectConstructor = (tableName: string) =>
-  Parse.Object.extend(tableName);
+  Object.extend(tableName);
 
 interface CreateParseObjectConstructor {
   (tableName: 'Entity'): new () => Parse.Object<OutboundAttributes<CommentEntity>>;

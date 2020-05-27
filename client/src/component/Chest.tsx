@@ -1,6 +1,7 @@
 import { Sprite } from '@inlet/react-pixi';
+import { Texture } from '@pixi/core';
+import { Graphics } from '@pixi/graphics';
 import times from 'lodash/times';
-import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useEffect, useRef } from 'react';
 import { bottom } from '../data/anchors';
@@ -41,8 +42,8 @@ function Chest() {
 
 interface Props {
   readonly chestEntity: ChestEntity;
-  readonly closedTexture: PIXI.Texture;
-  readonly openTexture: PIXI.Texture;
+  readonly closedTexture: Texture;
+  readonly openTexture: Texture;
 }
 
 const Chest_ = ({ chestEntity, closedTexture, openTexture }: Props) => {
@@ -89,7 +90,7 @@ function getShakingTween(directionMultiplier: number, progressionMultiplier: num
 
 const playerIntersectionDistance = 40;
 
-function drawClosedChest(graphics: PIXI.Graphics) {
+function drawClosedChest(graphics: Graphics) {
   // 73 x 45
   graphics
     // Top
@@ -123,7 +124,7 @@ function drawClosedChest(graphics: PIXI.Graphics) {
     .endFill();
 }
 
-function drawOpenChest(graphics: PIXI.Graphics) {
+function drawOpenChest(graphics: Graphics) {
   graphics
     // Bottom Background
     .lineStyle(0)
