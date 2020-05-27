@@ -2,7 +2,8 @@
   "compileOnSave": true,
   "compilerOptions": {
     "lib": ["esnext"],
-    "module": "commonjs",
+    "module": "esnext",
+    "moduleResolution": "node",
     "target": "esnext",
     "outDir": "build",
     "removeComments": true,
