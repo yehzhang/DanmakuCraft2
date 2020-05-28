@@ -1,5 +1,5 @@
 import { Sprite } from '@inlet/react-pixi';
-import { Texture } from '@pixi/core';
+import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { Color, toRgbNumber } from '../data/color';
 import { useSelector } from '../shim/redux';
@@ -15,7 +15,7 @@ function FullscreenColor({ color, alpha = 1 }: Props) {
     <Sprite
       width={width}
       height={height}
-      texture={Texture.WHITE}
+      texture={PIXI.Texture.WHITE}
       tint={toRgbNumber(color)}
       alpha={alpha}
     />

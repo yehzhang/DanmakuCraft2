@@ -1,7 +1,6 @@
 import { Container, Sprite } from '@inlet/react-pixi';
-import { Texture } from '@pixi/core';
-import { Graphics } from '@pixi/graphics';
 import add from 'lodash/add';
+import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { center } from '../data/anchors';
@@ -30,7 +29,7 @@ function SpeechBubble() {
 
 interface Props {
   readonly message: I18nTextIdentifier | JustText;
-  readonly texture: Texture;
+  readonly texture: PIXI.Texture;
 }
 
 function SpeechBubble_({ message, texture }: Props) {
@@ -100,23 +99,27 @@ const bubbleTweens: Tweens = [
   },
 ];
 
-const draw = wrapDrawWithShadow(black, white, (graphics: Graphics, outline: Color, fill: Color) => {
-  graphics
-    .moveTo(16, 16)
-    .lineStyle(4, toRgbNumber(outline))
-    .beginFill(toRgbNumber(fill))
-    .lineTo(172, 4)
-    .bezierCurveTo(198, 4, 194, 28, 194, 28)
-    .lineTo(180, 130)
-    .bezierCurveTo(178, 150, 158, 148, 158, 148)
-    .lineTo(102, 148)
-    .lineTo(58, 180)
-    .lineTo(66, 148)
-    .lineTo(28, 148)
-    .bezierCurveTo(14, 148, 12, 130, 12, 130)
-    .lineTo(4, 32)
-    .bezierCurveTo(2, 18, 16, 16, 16, 16)
-    .endFill();
-});
+const draw = wrapDrawWithShadow(
+  black,
+  white,
+  (graphics: PIXI.Graphics, outline: Color, fill: Color) => {
+    graphics
+      .moveTo(16, 16)
+      .lineStyle(4, toRgbNumber(outline))
+      .beginFill(toRgbNumber(fill))
+      .lineTo(172, 4)
+      .bezierCurveTo(198, 4, 194, 28, 194, 28)
+      .lineTo(180, 130)
+      .bezierCurveTo(178, 150, 158, 148, 158, 148)
+      .lineTo(102, 148)
+      .lineTo(58, 180)
+      .lineTo(66, 148)
+      .lineTo(28, 148)
+      .bezierCurveTo(14, 148, 12, 130, 12, 130)
+      .lineTo(4, 32)
+      .bezierCurveTo(2, 18, 16, 16, 16, 16)
+      .endFill();
+  }
+);
 
 export default SpeechBubble;

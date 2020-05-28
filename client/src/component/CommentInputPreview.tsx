@@ -1,5 +1,5 @@
 import { Container, Sprite } from '@inlet/react-pixi';
-import { Texture } from '@pixi/core';
+import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useRef } from 'react';
 import { center } from '../data/anchors';
@@ -38,7 +38,7 @@ function CommentInputPreview_({ text }: Props) {
   return (
     <Container {...position} alpha={submitting ? 0.3 : 1}>
       <Sprite
-        texture={Texture.WHITE}
+        texture={PIXI.Texture.WHITE}
         y={warningBoxOffsetY}
         width={width}
         height={height}

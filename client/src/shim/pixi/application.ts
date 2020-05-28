@@ -1,5 +1,4 @@
-import { Application } from '@pixi/app';
-import { autoDetectRenderer } from '@pixi/core';
+import { Application, autoDetectRenderer } from 'pixi.js';
 import { toRgbNumber, white } from '../../data/color';
 import resolution from '../../data/resolution';
 

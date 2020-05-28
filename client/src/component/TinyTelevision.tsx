@@ -1,5 +1,5 @@
 import { AnimatedSprite } from '@inlet/react-pixi';
-import { Graphics } from '@pixi/graphics';
+import * as PIXI from 'pixi.js';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { black, Color, toRgbNumber, white } from '../data/color';
@@ -34,7 +34,7 @@ const stomach: PointLike = [0.5, 0.7];
 const drawFirstFrame = wrapDrawWithShadow(
   black,
   white,
-  (graphics: Graphics, outline: Color, fill: Color) => {
+  (graphics: PIXI.Graphics, outline: Color, fill: Color) => {
     graphics
       // Background
       .moveTo(2, 66)
@@ -96,7 +96,7 @@ const drawFirstFrame = wrapDrawWithShadow(
 const drawSecondFrame = wrapDrawWithShadow(
   black,
   white,
-  (graphics: Graphics, outline: Color, fill: Color) => {
+  (graphics: PIXI.Graphics, outline: Color, fill: Color) => {
     graphics
       // Background
       .moveTo(4, 65)
@@ -157,7 +157,7 @@ const drawSecondFrame = wrapDrawWithShadow(
 const drawThirdFrame = wrapDrawWithShadow(
   black,
   white,
-  (graphics: Graphics, outline: Color, fill: Color) => {
+  (graphics: PIXI.Graphics, outline: Color, fill: Color) => {
     graphics
       // Background
       .moveTo(4, 65)

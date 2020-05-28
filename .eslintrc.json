@@ -105,7 +105,7 @@
     },
     {
       // Running in browsers
-      "files": ["client/src/**/*.*", "**/*.user.js"],
+      "files": ["client/**/*.*", "**/*.user.js"],
       "env": {
         "browser": true
       },
@@ -115,10 +115,6 @@
           {
             "name": "lodash",
             "message": "Import from individual module instead to reduce dependency, e.g., `import identity from 'lodash/identity';`"
-          },
-          {
-            "name": "pixi.js",
-            "message": "Import from individual package instead to reduce dependency, e.g., `import { Text } from '@pixi/text';`"
           }
         ],
         "no-console": [
