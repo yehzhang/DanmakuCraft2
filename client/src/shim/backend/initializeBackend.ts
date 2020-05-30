@@ -1,5 +1,5 @@
 import Parse from 'parse';
-import getAppConfig from '../../../../parse/config/getAppConfig';
+import getAppConfig from '../../../../backend/config/getAppConfig';
 
 function initializeBackend() {
   const javaScriptKey = __DEV__

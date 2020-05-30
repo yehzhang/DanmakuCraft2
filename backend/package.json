@@ -1,5 +1,5 @@
 {
-  "name": "danmakucraft2-parse",
+  "name": "danmakucraft2-backend",
   "private": true,
   "scripts": {
     "configure": "ts-node script/configureBackend.ts",
