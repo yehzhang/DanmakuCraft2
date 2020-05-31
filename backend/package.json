@@ -4,7 +4,7 @@
   "scripts": {
     "configure": "ts-node script/configureBackend.ts",
     "migratePsql": "node --max-old-space-size=8192 -r ts-node/register script/migratePsqlJson.ts",
-    "deploy": "b4a deploy"
+    "deploy": "./script/deploy.sh"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.152",
