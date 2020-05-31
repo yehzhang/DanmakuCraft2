@@ -140,7 +140,7 @@ function genesis(): Action {
 
   return {
     type: '[Opening] genesis',
-    spawnPosition: generateRandomPointAround(__DEV__ ? empty : getRandomSpawnPoint(spawnPoints)),
+    spawnPosition: generateRandomPointAround(getRandomSpawnPoint(spawnPoints)),
     signEntities: [...spawnPoints, worldCenterEntity, worldOriginEntity].reduce(
       (signEntities, signEntity) => Object.assign(signEntities, { [nanoid()]: signEntity }),
       {}
