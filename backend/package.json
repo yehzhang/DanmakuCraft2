@@ -7,7 +7,6 @@
     "deploy": "b4a deploy"
   },
   "devDependencies": {
-    "@types/app-root-path": "^1.2.4",
     "@types/lodash": "^4.14.152",
     "@types/mime-types": "^2.1.0",
     "@types/nanoid": "^2.1.0",
