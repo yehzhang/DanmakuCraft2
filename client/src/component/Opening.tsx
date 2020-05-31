@@ -6,7 +6,7 @@ import { Action } from '../action';
 import { bottomRight } from '../data/anchors';
 import { black, white } from '../data/color';
 import { SpawnPointEntity, WorldCenterEntity, WorldOriginEntity } from '../data/entity';
-import { empty, Point, zip } from '../data/point';
+import { empty, fromNumber, Point, zip } from '../data/point';
 import { sampleUniformDistributionInCircle } from '../data/random';
 import { worldSize } from '../data/unboundedWorld';
 import { useDispatch, useSelector } from '../shim/redux';
@@ -129,8 +129,7 @@ function genesis(): Action {
   const halfWorldSize = worldSize / 2;
   const worldCenterEntity: WorldCenterEntity = {
     type: 'world_center',
-    x: halfWorldSize,
-    y: halfWorldSize,
+    ...fromNumber(halfWorldSize),
   };
 
   const worldOriginEntity: WorldOriginEntity = {
