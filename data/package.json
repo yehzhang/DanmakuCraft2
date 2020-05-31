@@ -1,0 +1,10 @@
+{
+  "name": "data",
+  "private": true,
+  "scripts": {
+    "build:bgm": "node node_modules/audiosprite/cli.js -b 192 -v 6 -f howler --export=ogg,m4a,mp3 -o ../build/audio/background_music ./audio/background/* && mv ../build/audio/background_music.json ./audio"
+  },
+  "devDependencies": {
+    "audiosprite": "^0.7.2"
+  }
+}
