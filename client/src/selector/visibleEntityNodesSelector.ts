@@ -32,7 +32,7 @@ function createVisibleEntityNodesSelector<T extends Point>(
 }
 
 export function equalEntityNodeArrays<T>(nodes: readonly T[], nodes_: readonly T[]): boolean {
-  return nodes.length === 0 && nodes_.length === 0;
+  return (nodes.length === 0 && nodes_.length === 0) || nodes === nodes_;
 }
 
 function getVisibleAreasAroundCoordinates(coordinates: Point, visibility: Point): BoundingBox[] {
