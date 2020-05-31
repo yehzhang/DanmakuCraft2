@@ -1,5 +1,5 @@
-import BilibiliUserCommentSchema from '../schema/BilibiliUserComment.json';
-import EntitySchema from '../schema/Entity.json';
+import BilibiliUserCommentSchema from '../schemas/BilibiliUserComment.json';
+import EntitySchema from '../schemas/Entity.json';
 import fetchBackend from './internal/fetchBackend';
 
 async function pushDatabaseSchema(className: string, schema: any) {
