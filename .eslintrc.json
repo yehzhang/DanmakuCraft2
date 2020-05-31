@@ -127,7 +127,7 @@
     },
     {
       // Running in Node envrionement
-      "files": ["scripts/**/*.*", "server/**/*.*", "**/*.js"],
+      "files": ["scripts/**/*.*", "website/**/*.*", "backend/**/*.*"],
       "env": {
         "node": true
       }
