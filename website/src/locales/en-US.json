@@ -1,0 +1,15 @@
+{
+  "index.prepping": "Coming Soon: DanmakuCraft 2 Standalone Version",
+  "index.publish": "It will be published in this page. Both desktop and mobile devices are supported.",
+  "index.beforeThat": "Meanwhile, you may want to:",
+  "index.playAtBilibili.title": "Play the embedded version",
+  "index.playAtBilibili.description": "Released on Bilibili.com. Desktop only.",
+  "index.github.title": "Become a contributor",
+  "index.github.description": "Interested in shaping a world? Please join us.",
+  "index.share.title": "Share",
+  "index.share.howTo.1": "Visit the page of the embedded version",
+  "index.share.howTo.2": ", and click the share button below the player.",
+  "index.share.description": "The more players, the more fun.",
+
+  "layout.title": "DanmakuCraft"
+}

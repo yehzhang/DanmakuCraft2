@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{locale}}">
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
+    {{! Global site tag (gtag.js) - Google Analytics}}
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-67213305-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -15,21 +15,18 @@
       gtag('config', 'UA-67213305-1');
     </script>
 
-    <!-- Required meta tags -->
+    {{! Required meta tags}}
     <meta charset="utf-8">
-    <!-- TODO maximum-scale=1? -->
+    {{! TODO maximum-scale=1?}}
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap -->
+    {{! Bootstrap}}
     <link rel="stylesheet"
           href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
           crossorigin="anonymous">
 
-    <!-- Custom Stylesheets -->
-    <link rel="stylesheet" href="/styles/importer.css">
-
-    <!-- Favicons -->
+    {{! Favicons}}
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -38,22 +35,29 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <title><%= [__('appName'), typeof subtitle === 'undefined' ? '' : subtitle].filter(Boolean)
-        .join(' | ') %></title>
+    {{! Stylesheets}}
+    <link rel="stylesheet" href="/styles/layout.css">
+
+    {{! Title}}
+    <title>{{#i18n}}layout.title{{/i18n}}</title>
+
+    {{! Description}}
+    {{! TODO move to index when more pages are created}}
+    <meta name="description" content="Wandering in a borderless world of text.">
   </head>
 
   <body>
-    <!-- Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-            crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-            crossorigin="anonymous"></script>
+    {{{yield}}}
 
-    <%- body %>
+    {{! Bootstrap}}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+            integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+            crossorigin="anonymous"></script>
   </body>
 </html>
