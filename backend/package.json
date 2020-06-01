@@ -3,9 +3,11 @@
   "private": true,
   "scripts": {
     "ts": "node -r ts-node/register",
-    "configure": "yarn run ts script/configureBackend.ts",
+    "configure:dev": "ENV=dev yarn run ts script/configureBackend.ts",
+    "configure:prod": "ENV=prod yarn run ts script/configureBackend.ts",
     "migratePsql": "yarn run ts --max-old-space-size=8192 script/migratePsqlJson.ts",
-    "deploy": "./script/deploy.sh"
+    "deploy:dev": "./script/deploy.sh dev",
+    "deploy:prod": "./script/deploy.sh prod"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.152",

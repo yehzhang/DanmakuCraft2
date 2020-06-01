@@ -2,16 +2,19 @@
 
 set -e
 
+# Parse args
+readonly env="$1"
+
 # Setup build directory.
 cd ..
-readonly cwd="$PWD"
-readonly buildPath="$cwd/build"
+readonly buildPath="$PWD/build"
 readonly deployPath="$buildPath/deploy"
 rm -rf "$deployPath"
 mkdir "$deployPath"
 
 readonly publicPath="$deployPath/public"
 mkdir "$publicPath"
+
 readonly resourcePath="$publicPath/resource"
 mkdir "$resourcePath"
 
@@ -25,8 +28,9 @@ cp -a "$buildPath/audio/." "$resourcePath"
 cp -a ./backend/config/b4aProject/. "$deployPath"
 
 # Copy website.
-cp -a "$buildPath/website/." "$cloudPath"
+cp -a "$buildPath/website/src/." "$cloudPath"
+cp -a "$buildPath/website/public/." "$publicPath"
 
 # Deploy.
 cd "$deployPath"
-b4a deploy
+b4a deploy "$env"
