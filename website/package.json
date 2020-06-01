@@ -4,7 +4,7 @@
   "scripts": {
     "start": "node -r ts-node/register devServer.ts",
     "watch": "nodemon",
-    "bundle": "rm -rf ../build/website && tsc --outDir ../build/website"
+    "bundle": "./bundle.sh"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.0",

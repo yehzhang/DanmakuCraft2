@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser';
-import express from 'express';
 import hoganExpress from 'hogan-express';
 import i18n from 'i18n';
 import { join } from 'path';
@@ -9,8 +8,6 @@ app.set('view engine', 'mustache');
 app.set('views', join(__dirname, 'view'));
 app.set('layout', 'layout');
 app.enable('view cache');
-
-app.use(express.static(join(__dirname, 'public')));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
