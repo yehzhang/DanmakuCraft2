@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "start": "node -r ts-node/register devServer.ts",
-    "watch": "nodemon"
+    "watch": "nodemon",
+    "bundle": "rm -rf ../build/website && tsc --outDir ../build/website"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.0",

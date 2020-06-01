@@ -3,7 +3,6 @@ import express from 'express';
 import hoganExpress from 'hogan-express';
 import i18n from 'i18n';
 import { join } from 'path';
-import './hoganExpress';
 
 app.engine('mustache', hoganExpress);
 app.set('view engine', 'mustache');

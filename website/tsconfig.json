@@ -2,8 +2,5 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "module": "CommonJS"
-    // TODO target work on b4a?
-    //    "lib": ["ES2017"],
-    //    "target": "ES2017"
   }
 }
