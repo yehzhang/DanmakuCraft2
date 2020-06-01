@@ -18,17 +18,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(i18n.init);
 i18n.configure({
-  // TODO fallback en* to en-US
-  // TODO fallback zh* to zh-CN
-  // TODO fallback all other to zh
-  defaultLocale: 'zh-CN',
-  // queryParameter: 'lang',
+  defaultLocale: 'zh',
+  updateFiles: false,
   directory: join(__dirname, 'locales'),
 });
 
-app.get('/', (req, res) => {
+const locales = i18n.getLocales();
+app.get(`/:lang((${locales.join('|')})?)`, (req, res) => {
+  const { lang } = req.params;
+  const locale = locales.includes(lang) ? lang : req.locale;
+  res.setLocale(locale);
   res.render('index', {
-    locale: req.locale,
-    i18n: () => (text: string) => req.__(text),
+    locale,
+    locales,
+    defaultSitemapLocale: 'en',
+    i18n: () => (text: string) => res.__(text),
+    indexUrl: 'https://danmakucraft.com',
+    bilibiliClientUrl: 'https://www.bilibili.com/video/BV1GW41177LA',
   });
 });
