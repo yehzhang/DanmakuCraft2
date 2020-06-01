@@ -20,6 +20,7 @@ import { selectDomain } from './shim/domain';
 import initializeLogging from './shim/logging/initializeLogging';
 import ParametricTypeError from './shim/logging/ParametricTypeError';
 import RenderThrottler from './shim/pixi/RenderThrottler';
+import './shim/polyfill';
 import sleep from './shim/sleep';
 import './state';
 import store, { persistor } from './store';
