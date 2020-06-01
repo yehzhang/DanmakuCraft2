@@ -10,6 +10,7 @@ A new world to come...
 - SEO for i18n.
 - Supported monitoring of client side errors. 
 - Optimized for bundle size.
+- Increased browser coverage with polyfill.
 
 ### 1.3
 
