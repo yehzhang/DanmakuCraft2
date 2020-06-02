@@ -47,11 +47,10 @@
 
     {{! I18n sitemap}}
     {{! TODO move to index when more pages are created or parameterize path}}
-    <link rel="canonical" href="{{indexUrl}}"/>
     {{#locales}}
-      <link rel="alternate" href="{{indexUrl}}/{{.}}" hreflang="{{.}}"/>
+      <link rel="alternate" href="/{{.}}" hreflang="{{.}}"/>
     {{/locales}}
-    <link rel="alternate" href="{{indexUrl}}/{{defaultSitemapLocale}}" hreflang="x-default"/>
+    <link rel="alternate" href="/{{defaultSitemapLocale}}" hreflang="x-default"/>
   </head>
 
   <body>
