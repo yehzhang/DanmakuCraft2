@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import express from 'express';
 import hoganExpress from 'hogan-express';
 import i18n from 'i18n';
 import { join } from 'path';
@@ -18,6 +19,8 @@ i18n.configure({
   updateFiles: false,
   directory: join(__dirname, 'locales'),
 });
+
+app.use(express.static(join(__dirname, '..', 'public')));
 
 const locales = i18n.getLocales();
 app.get(`/:lang((${locales.join('|')})?)`, (req, res) => {
