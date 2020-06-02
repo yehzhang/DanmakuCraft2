@@ -31,6 +31,9 @@ cp -a ./backend/config/b4aProject/. "$deployPath"
 cp -a "$buildPath/website/src/." "$cloudPath"
 cp -a "$buildPath/website/public/." "$publicPath"
 
+# Copy client script.
+cp "$buildPath/bundle.js" "$publicPath"
+
 # Deploy.
 cd "$deployPath"
 b4a deploy "$env"
