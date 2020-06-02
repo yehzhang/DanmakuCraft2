@@ -20,6 +20,7 @@ i18n.configure({
   directory: join(__dirname, 'locales'),
 });
 
+express.static.mime.define({ 'application/json': ['webmanifest'] });
 app.use(express.static(join(__dirname, '..', 'public')));
 
 const locales = i18n.getLocales();

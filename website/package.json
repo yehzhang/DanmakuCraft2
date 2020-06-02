@@ -2,8 +2,8 @@
   "name": "danmakucraft2-website",
   "private": true,
   "scripts": {
-    "start": "node -r ts-node/register devServer.ts",
-    "watch": "nodemon",
+    "start": "nodemon",
+    "start:unwatch": "node -r ts-node/register devServer.ts",
     "bundle": "./bundle.sh"
   },
   "devDependencies": {
