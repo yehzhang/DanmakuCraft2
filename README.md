@@ -6,7 +6,7 @@ A new world to come...
 
 ### 1.4
 
-- Migrated file storage and website to Parse Server. DanmakuCraft 2 is now fully server-less.
+- Migrated website and static files to Parse Server. DanmakuCraft 2 is now fully server-less.
 - SEO for i18n.
 - Supported monitoring of client side errors. 
 - Optimized for bundle size.
