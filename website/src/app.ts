@@ -36,7 +36,3 @@ app.get(`/:lang((${locales.join('|')})?)`, (req, res) => {
     bilibiliClientUrl: 'https://www.bilibili.com/video/BV1GW41177LA',
   });
 });
-
-app.get('*', (req, res) => {
-  res.render('404');
-});
