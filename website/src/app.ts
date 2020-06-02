@@ -29,7 +29,6 @@ app.get(`/:lang((${locales.join('|')})?)`, (req, res) => {
     locales,
     defaultSitemapLocale: 'en',
     i18n: () => (text: string) => res.__(text),
-    indexUrl: 'https://danmakucraft.com',
     bilibiliClientUrl: 'https://www.bilibili.com/video/BV1GW41177LA',
   });
 });
