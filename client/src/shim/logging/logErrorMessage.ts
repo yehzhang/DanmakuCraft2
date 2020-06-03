@@ -1,4 +1,4 @@
-import { track } from 'mixpanel-browser';
+import mixpanel from 'mixpanel-browser';
 
 function logErrorMessage(message: string, details?: { readonly [key: string]: unknown }) {
   if (__DEV__) {
@@ -9,7 +9,7 @@ function logErrorMessage(message: string, details?: { readonly [key: string]: un
     }
     return;
   }
-  track('Error', {
+  mixpanel.track('Error', {
     ...(details && serializeObjectAttributes(details)),
     _errorMessage: message,
   });

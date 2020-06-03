@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { track } from 'mixpanel-browser';
+import mixpanel from 'mixpanel-browser';
 import { addLoadingTask, LoadingResult } from '../../component/Loading';
 import { Store } from '../redux';
 
@@ -19,7 +19,7 @@ function setUpUser(store: Store): LoadingResult {
 }
 
 function trackUserSignInState(type: 'signed in' | 'signed out' | 'unknown') {
-  track('Bilibili user setup', { type });
+  mixpanel.track('Bilibili user setup', { type });
 }
 
 export default setUpUser;
