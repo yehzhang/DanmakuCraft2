@@ -4,7 +4,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const sourcePath = path.resolve(__dirname, 'src');
 const outPath = path.resolve(__dirname, '../build');
-const backendAssetsPath = path.resolve(__dirname, '../server/assets');
+const backendPublicPath = path.resolve(__dirname, '../website/public');
 
 const analysis = !!process.env.ANALYSIS;
 
@@ -37,7 +37,7 @@ module.exports = {
   devServer: {
     public: 'https://localhost:8080/',
     open: false,
-    contentBase: [__dirname, outPath, backendAssetsPath],
+    contentBase: [__dirname, outPath, backendPublicPath],
     https: true,
     // Workaround the Socket JS error when serving to HTTPS websites.
     disableHostCheck: true,
