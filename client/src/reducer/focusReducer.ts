@@ -6,6 +6,7 @@ const initialState: FocusTarget | null = null;
 function focusReducer(state = initialState, action: Action): FocusTarget | null {
   switch (action.type) {
     case '[PixiStage] focused':
+    case '[CommentTextInput/bilibili] enter key down when empty':
       return 'stage';
     case '[CommentTextInput] focused':
       return 'comment_input';
@@ -13,7 +14,6 @@ function focusReducer(state = initialState, action: Action): FocusTarget | null 
     case '[CommentTextInput] submitted':
     case '[CommentTextInput] submit failed due to empty text':
     case '[CommentTextInput] submit failed due to collision':
-    case '[CommentTextInput/bilibili] enter key down when empty':
       return state === 'comment_input' ? 'stage' : state;
     case '[PixiStage] enter': {
       const { keyDown, view, commentInputSubmitting } = action;
