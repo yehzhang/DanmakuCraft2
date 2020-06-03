@@ -7,6 +7,7 @@ function focusReducer(state = initialState, action: Action): FocusTarget | null 
   switch (action.type) {
     case '[PixiStage] focused':
     case '[CommentTextInput/bilibili] enter key down when empty':
+      // Bilibili text input blurs before enter key down, so setting the target regardless.
       return 'stage';
     case '[CommentTextInput] focused':
       return 'comment_input';
