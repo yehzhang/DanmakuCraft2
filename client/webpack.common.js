@@ -35,7 +35,7 @@ module.exports = {
     path: outPath,
   },
   devServer: {
-    public: 'https://localhost:8080',
+    public: 'https://localhost:8080/',
     open: false,
     contentBase: [__dirname, outPath, backendAssetsPath],
     https: true,
