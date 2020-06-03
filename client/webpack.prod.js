@@ -10,7 +10,7 @@ module.exports = merge(config, {
   output: {
     filename: 'bundle.js',
   },
-  // devtool: 'source-map',
+  devtool: 'source-map',
   plugins: [
     new DefinePlugin({
       __DEV__: JSON.stringify(false),
