@@ -2,7 +2,8 @@
   "name": "danmakucraft2-client",
   "private": true,
   "scripts": {
-    "build:dev": "cd .. && yarn run webpack-dev-server --config client/webpack.dev.js",
+    "start:dev": "cd .. && yarn run webpack-dev-server --config client/webpack.dev.js",
+    "start:prod": "cd .. && yarn run webpack-dev-server --config client/webpack.prod.js",
     "build:prod": "cd .. && yarn run webpack --config client/webpack.prod.js",
     "build:analysis": "ANALYSIS=1 yarn run build:prod --watch"
   },

@@ -7,9 +7,6 @@ console.error('Bundle in production mode.');
 
 module.exports = merge(config, {
   mode: 'production',
-  output: {
-    filename: 'bundle.js',
-  },
   devtool: 'source-map',
   plugins: [
     new DefinePlugin({

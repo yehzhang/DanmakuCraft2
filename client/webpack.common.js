@@ -10,6 +10,10 @@ const analysis = !!process.env.ANALYSIS;
 
 module.exports = {
   entry: path.join(sourcePath, 'index.tsx'),
+  output: {
+    path: outPath,
+    filename: 'bundle.js',
+  },
   module: {
     rules: [
       {
@@ -21,7 +25,7 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin({
-      cleanOnceBeforeBuildPatterns: ['bundle.js', 'bundle.*.js'],
+      cleanOnceBeforeBuildPatterns: ['bundle.js'],
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: analysis ? 'server' : 'disabled',
@@ -30,9 +34,6 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     modules: [sourcePath, 'node_modules'],
-  },
-  output: {
-    path: outPath,
   },
   devServer: {
     public: 'https://localhost:8080/',
