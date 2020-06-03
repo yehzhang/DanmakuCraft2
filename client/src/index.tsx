@@ -31,9 +31,7 @@ declare global {
 
 async function main() {
   if (__DEV__) {
-    const { default: whyDidYouRender_ } = await import(
-      /* webpackMode: "eager" */ '@welldone-software/why-did-you-render'
-    );
+    const { default: whyDidYouRender_ } = await import('@welldone-software/why-did-you-render');
     whyDidYouRender_(React, {
       trackAllPureComponents: true,
       include: [/.*/],
