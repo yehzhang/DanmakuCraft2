@@ -3,9 +3,9 @@
   "private": true,
   "scripts": {
     "ts": "node -r ts-node/register",
-    "configure:dev": "ENV=dev yarn run ts script/configureBackend.ts",
-    "configure:prod": "ENV=prod yarn run ts script/configureBackend.ts",
-    "migratePsql": "yarn run ts --max-old-space-size=8192 script/migratePsqlJson.ts",
+    "configure:dev": "ENV=dev yarn ts script/configureBackend.ts",
+    "configure:prod": "ENV=prod yarn ts script/configureBackend.ts",
+    "migratePsql": "yarn ts --max-old-space-size=8192 script/migratePsqlJson.ts",
     "deploy:dev": "./script/deploy.sh dev",
     "deploy:prod": "./script/deploy.sh prod"
   },

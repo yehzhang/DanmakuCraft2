@@ -1,6 +1,6 @@
 {
   "ignore": [".git", "node_modules"],
   "watch": ["."],
-  "exec": "yarn run start:unwatch",
+  "exec": "yarn start:unwatch",
   "ext": "*"
 }

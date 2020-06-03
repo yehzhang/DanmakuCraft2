@@ -2,10 +2,10 @@
   "name": "danmakucraft2-client",
   "private": true,
   "scripts": {
-    "start:dev": "cd .. && yarn run webpack-dev-server --config client/webpack.dev.js",
-    "start:prod": "cd .. && yarn run webpack-dev-server --config client/webpack.prod.js",
-    "build:prod": "cd .. && yarn run webpack --config client/webpack.prod.js",
-    "build:analysis": "ANALYSIS=1 yarn run build:prod --watch"
+    "start:dev": "cd .. && yarn webpack-dev-server --config client/webpack.dev.js",
+    "start:prod": "cd .. && yarn webpack-dev-server --config client/webpack.prod.js",
+    "build:prod": "cd .. && yarn webpack --config client/webpack.prod.js",
+    "build:analysis": "ANALYSIS=1 yarn build:prod --watch"
   },
   "devDependencies": {
     "@types/howler": "^2.1.2",
