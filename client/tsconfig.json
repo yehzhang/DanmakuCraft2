@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "lib": ["dom", "ES2019.Object", "ES2019.Array"],
+    "lib": ["dom", "ES2015", "ES2016", "ES2017", "ES2019.Object", "ES2019.Array"],
     // Webpack Terser plugin can parse up to es2017.
     "target": "ES2017"
   }
