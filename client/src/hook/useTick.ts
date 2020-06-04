@@ -18,7 +18,7 @@ export type TickCallback = (deltaMs: number) => void;
 function tick() {
   const lastPerceivedMs = perceivedMs;
 
-  realMs += application.ticker.elapsedMS;
+  realMs += application.ticker.deltaMS;
   perceivedMs = Math.max(perceivedMs + 1000 / 60, realMs - 500);
 
   const lagMs = realMs - perceivedMs;
