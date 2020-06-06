@@ -58,11 +58,11 @@ function getTweens(stage: Stage): Tweens {
   switch (stage) {
     case 'entering':
       return [
-        { to: 1000 },
+        { to: 500 },
         {
           to: midpointZ,
           easing: inOutCubic,
-          durationMs: 3000,
+          durationMs: 1500,
         },
       ];
     case 'exiting':
