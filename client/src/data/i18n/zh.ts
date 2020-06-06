@@ -7,6 +7,9 @@ const i18nData: I18nTextData = {
   title: '弹幕世界2',
   bilibiliNotSignedIn: 'Bilibili 账号未登录。请登陆后刷新页面',
 
+  signUp: '账号注册',
+  signIn: '账号登陆',
+
   firstMovementTutorial: '注意到我身子底下两个凸起了吗？那是我的腿',
   secondMovementTutorial: '我可是会走路的哦',
   finalMovementTutorial: '按方向键移动',
@@ -17,6 +20,10 @@ const i18nData: I18nTextData = {
   hastyBuffNotification: '我健步如飞了！',
 
   commentCollision: '和别的弹幕靠的太近了',
+
+  fontSizeLabel: '字号',
+  fontSizeSmall: '小',
+  fontSizeMedium: '标准',
 
   backendError: '通讯被干扰，请刷新或稍后再试',
 };

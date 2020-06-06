@@ -5,6 +5,9 @@ export interface I18nTextData {
   title: string;
   bilibiliNotSignedIn: string;
 
+  signUp: string;
+  signIn: string;
+
   firstMovementTutorial: string;
   secondMovementTutorial: string;
   finalMovementTutorial: string;
@@ -15,6 +18,10 @@ export interface I18nTextData {
   hastyBuffNotification: string;
 
   commentCollision: string;
+
+  fontSizeLabel: string;
+  fontSizeSmall: string;
+  fontSizeMedium: string;
 
   backendError: string;
 }
