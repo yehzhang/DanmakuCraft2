@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { ChangeEvent, FormEvent, ReactElement, useCallback, useEffect, useRef } from 'react';
+import { FormEvent, ReactElement, useCallback, useEffect, useRef } from 'react';
 import { Key } from 'ts-keycode-enum';
 import { CommentEntity } from '../data/entity';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
+import useDomInputEventValueCallback from '../hook/useDomInputEventValueCallback';
 import useQuerySelector from '../hook/useQuerySelector';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
@@ -94,12 +95,7 @@ function CommentTextInput() {
         },
         [onSubmit]
       );
-      const onTextInputChanged = useCallback(
-        (event: ChangeEvent<HTMLInputElement>) => {
-          onTextChanged(event.target.value);
-        },
-        [onTextChanged]
-      );
+      const onTextInputChangedEvent = useDomInputEventValueCallback(onTextChanged);
       return (
         <form style={styles.container} onSubmit={onFormSubmit}>
           <input
@@ -108,7 +104,7 @@ function CommentTextInput() {
             style={styles.textInput}
             type="text"
             value={commentText}
-            onChange={onTextInputChanged}
+            onChange={onTextInputChangedEvent}
             onFocus={onFocus}
             onBlur={onBlur}
           />
