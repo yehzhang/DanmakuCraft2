@@ -94,6 +94,12 @@ function CommentTextInput() {
         },
         [onSubmit]
       );
+      const onTextInputChanged = useCallback(
+        (event: ChangeEvent<HTMLInputElement>) => {
+          onTextChanged(event.target.value);
+        },
+        [onTextChanged]
+      );
       return (
         <form style={styles.container} onSubmit={onFormSubmit}>
           <input
@@ -102,9 +108,7 @@ function CommentTextInput() {
             style={styles.textInput}
             type="text"
             value={commentText}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
-              onTextChanged(event.target.value);
-            }}
+            onChange={onTextInputChanged}
             onFocus={onFocus}
             onBlur={onBlur}
           />
