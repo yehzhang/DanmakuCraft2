@@ -31,7 +31,7 @@ async function getScriptUrl() {
     return `https://danmakucraft.com/bundle.js?nonsense=${Math.random()}`;
   }
   // Dev URL.
-  return `${devServerBaseUrl}/bundle.dev.js`;
+  return `${devServerBaseUrl}/bundle.js`;
 }
 
 main();
