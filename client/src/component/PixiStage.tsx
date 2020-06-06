@@ -105,6 +105,10 @@ const styles = createStyleSheet({
 
     // Hides the outline introduced by `tabIndex`.
     outline: 'none',
+
+    borderRadius: selectDomain({
+      danmakucraft: 2,
+    }),
   },
 });
 
