@@ -7,6 +7,15 @@ export interface I18nTextData {
 
   signUp: string;
   signIn: string;
+  signInWithExistingAccount: string;
+  signUpForNewAccount: string;
+  email: string;
+  password: string;
+  continue: string;
+  submitting: string;
+  expectedNonEmptyEmail: string;
+  expectedNonEmptyPassword: string;
+  emailTaken: string;
 
   firstMovementTutorial: string;
   secondMovementTutorial: string;
@@ -24,6 +33,7 @@ export interface I18nTextData {
   fontSizeMedium: string;
 
   backendError: string;
+  unknownError: string;
 }
 
 export type I18nTextIdentifier = keyof I18nTextData;

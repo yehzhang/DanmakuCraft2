@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { Action } from '../action';
 import { State } from '../state';
+import authenticatedReducer from './authenticatedReducer';
 import backgroundMusicReducer from './backgroundMusicReducer';
 import cameraPositionReducer from './cameraPositionReducer';
 import chestReducer from './chestReducer';
@@ -22,6 +23,7 @@ import receivedCommentEntitiesReducer from './receivedCommentEntitiesReducer';
 import sendChromaticCommentReducer from './sendChromaticCommentReducer';
 import signEntitiesReducer from './signEntitiesReducer';
 import tutorialReducer from './tutorialReducer';
+import userReducer from './userReducer';
 import viewReducer from './viewReducer';
 import volumeReducer from './volumeReducer';
 
@@ -49,6 +51,8 @@ const reducer = combineReducers<State, Action>({
   domain: domainReducer,
   backgroundMusic: backgroundMusicReducer,
   receivedCommentEntities: receivedCommentEntitiesReducer,
+  user: userReducer,
+  authenticated: authenticatedReducer,
 });
 
 export default reducer;

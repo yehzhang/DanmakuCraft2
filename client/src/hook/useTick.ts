@@ -1,9 +1,11 @@
-import { RefObject, useLayoutEffect, useRef } from 'react';
+import { RefObject, useEffect, useLayoutEffect, useRef } from 'react';
 import application from '../shim/pixi/application';
 
 function useTick(callback: TickCallback | null) {
   const callbackRef = useRef(callback);
-  callbackRef.current = callback;
+  useEffect(() => {
+    callbackRef.current = callback;
+  });
 
   useLayoutEffect(() => {
     callbackRefs.add(callbackRef);

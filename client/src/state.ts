@@ -30,6 +30,8 @@ export interface State {
   readonly domain: DomainState;
   readonly backgroundMusic: BackgroundMusicState;
   readonly receivedCommentEntities: ReceivedCommentEntityState;
+  readonly user: UserState | null;
+  readonly authenticated: boolean;
 }
 
 export interface PlayerState {
@@ -137,4 +139,8 @@ export type BackgroundMusicState = Howl | null;
 
 export interface ReceivedCommentEntityState {
   [commentEntityId: string]: Date;
+}
+
+export interface UserState {
+  readonly sessionToken: string;
 }

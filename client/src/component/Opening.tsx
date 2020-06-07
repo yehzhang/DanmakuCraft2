@@ -18,11 +18,7 @@ import OpeningFadeOut from './OpeningFadeOut';
 import OpeningTitle from './OpeningTitle';
 
 function Opening() {
-  const [state, openingDispatch] = useReducer(reducer, {
-    stage: 'entering',
-    titleEntered: false,
-    planetEntered: false,
-  });
+  const [state, openingDispatch] = useReducer(reducer, initialState);
   const { x: width, y: height } = useSelector((state_) => state_.containerSize);
   const vanishingPoint = { x: width * 0.5, y: height * 0.5 };
   const successfulExiting = state.stage === 'exiting_successful';
@@ -40,6 +36,13 @@ function Opening() {
   useEffect(() => {
     dispatch(genesis());
   }, [dispatch]);
+
+  const authenticated = useSelector((state_) => state_.authenticated);
+  useEffect(() => {
+    if (authenticated) {
+      openingDispatch('Signed in');
+    }
+  }, [authenticated]);
 
   return (
     <>
@@ -78,6 +81,7 @@ type OpeningState =
       readonly stage: 'entering';
       readonly titleEntered: boolean;
       readonly planetEntered: boolean;
+      readonly signedIn: boolean;
     }
   | {
       readonly stage: 'heavy_loading';
@@ -88,7 +92,19 @@ type OpeningState =
   | {
       readonly stage: 'exiting_failed';
     };
-type OpeningAction = 'Title entered' | 'Planet entered' | 'Successfully loaded' | 'Failed to load';
+type OpeningAction =
+  | 'Title entered'
+  | 'Planet entered'
+  | 'Signed in'
+  | 'Successfully loaded'
+  | 'Failed to load';
+
+const initialState: OpeningState = {
+  stage: 'entering',
+  titleEntered: false,
+  planetEntered: false,
+  signedIn: false,
+};
 
 function reducer(state: OpeningState, action: OpeningAction): OpeningState {
   switch (action) {
@@ -100,6 +116,10 @@ function reducer(state: OpeningState, action: OpeningAction): OpeningState {
       return state.stage === 'entering'
         ? transitionToLoadingStateIfAllDone({ ...state, planetEntered: true })
         : state;
+    case 'Signed in':
+      return state.stage === 'entering'
+        ? transitionToLoadingStateIfAllDone({ ...state, signedIn: true })
+        : state;
     case 'Successfully loaded':
       return { stage: 'exiting_successful' };
     case 'Failed to load':
@@ -110,8 +130,8 @@ function reducer(state: OpeningState, action: OpeningAction): OpeningState {
 function transitionToLoadingStateIfAllDone(
   state: Extract<OpeningState, { stage: 'entering' }>
 ): OpeningState {
-  const { titleEntered, planetEntered } = state;
-  return titleEntered && planetEntered ? { stage: 'heavy_loading' } : state;
+  const { titleEntered, planetEntered, signedIn } = state;
+  return titleEntered && planetEntered && signedIn ? { stage: 'heavy_loading' } : state;
 }
 
 function genesis(): Action {

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { memo } from '../shim/react';
+import AuthDialog from './AuthDialog';
 import BelowStageControlsBar from './BelowStageControlsBar';
 import ColumnLayout from './ColumnLayout';
 import ErrorBoundary from './ErrorBoundary';
@@ -15,11 +16,14 @@ function App() {
       <ErrorBoundary>
         <ColumnLayout>
           <LayoutSizeDetector>
+            <View name="opening">
+              <AuthDialog />
+            </View>
+            <View name="main">
+              <VolumeInput />
+            </View>
             <Stage />
           </LayoutSizeDetector>
-          <View name="main">
-            <VolumeInput />
-          </View>
           <BelowStageControlsBar />
         </ColumnLayout>
       </ErrorBoundary>

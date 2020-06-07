@@ -27,6 +27,7 @@ export type Action =
   | { type: '[index] comment entities loaded'; commentEntities: IdKeyed<CommentEntity> }
   | { type: '[index] background music created'; album: Howl }
   | { type: '[Opening] completed' }
+  | { type: '[EmailAuthForm] signed in'; sessionToken: string }
   | { type: '[ConsoleInput] chest wanted'; position: Point; lootType: Buff['type'] }
   | { type: '[ConsoleInput] comment wanted'; id: string; commentEntity: PlainCommentEntity }
   | {

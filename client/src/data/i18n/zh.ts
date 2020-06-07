@@ -7,8 +7,17 @@ const i18nData: I18nTextData = {
   title: '弹幕世界2',
   bilibiliNotSignedIn: 'Bilibili 账号未登录。请登陆后刷新页面',
 
-  signUp: '账号注册',
-  signIn: '账号登陆',
+  signUp: '注册',
+  signIn: '登陆',
+  signInWithExistingAccount: '已有账号登陆',
+  signUpForNewAccount: '新账号注册',
+  email: '邮箱',
+  password: '密码',
+  continue: '继续',
+  submitting: '请稍候……',
+  expectedNonEmptyEmail: '邮箱不能为空',
+  expectedNonEmptyPassword: '密码不能为空',
+  emailTaken: '该邮箱已注册',
 
   firstMovementTutorial: '注意到我身子底下两个凸起了吗？那是我的腿',
   secondMovementTutorial: '我可是会走路的哦',
@@ -26,6 +35,7 @@ const i18nData: I18nTextData = {
   fontSizeMedium: '标准',
 
   backendError: '通讯被干扰，请刷新或稍后再试',
+  unknownError: '未知错误',
 };
 
 export default i18nData;

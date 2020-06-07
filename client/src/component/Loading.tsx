@@ -59,6 +59,8 @@ function Loading({ x, y, anchor, dispatch: parentDispatch, startHeavyTasks }: Pr
       return;
     }
 
+    setState({ type: 'pending' });
+
     let timeoutId: number | undefined;
     run();
 
@@ -66,10 +68,6 @@ function Loading({ x, y, anchor, dispatch: parentDispatch, startHeavyTasks }: Pr
       clearTimeout(timeoutId);
     };
   }, [dispatch, startHeavyTasks]);
-
-  useEffect(() => {
-    setState({ type: 'pending' });
-  }, []);
 
   return (
     <FadeTransitionText x={x} y={y} color={grey} size={18} text={getText(state)} anchor={anchor} />
