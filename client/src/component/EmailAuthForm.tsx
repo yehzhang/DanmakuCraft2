@@ -72,7 +72,6 @@ function EmailAuthForm() {
           const {
             value: { sessionToken },
           } = response;
-          // TODO rename.
           dispatch({ type: '[EmailAuthForm] signed up', sessionToken });
 
           return;
