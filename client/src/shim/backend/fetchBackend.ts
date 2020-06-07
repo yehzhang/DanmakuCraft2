@@ -64,7 +64,16 @@ async function fetchBackend(
   });
 
   const responseJson = await response.json();
-  if (typeof responseJson === 'object' && !responseJson.error) {
+  const success = typeof responseJson === 'object' && !responseJson.error;
+  mixpanel.track('Backend Fetch', {
+    success,
+    path,
+    method,
+    payload,
+    errorCode: success ? undefined : responseJson.code,
+  });
+
+  if (success) {
     return { type: 'resolved', value: responseJson };
   }
 
