@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { ChangeEvent, FormEvent, useCallback, useReducer, useRef, useState } from 'react';
-import { I18nTextIdentifier } from '../data/i18n';
 import i18nData from '../data/i18n/zh';
 import fetchBackend from '../shim/backend/fetchBackend';
 import checkExhaustive from '../shim/checkExhaustive';
@@ -8,12 +7,7 @@ import { createStyle, createStyleSheet, memo } from '../shim/react';
 import { useDispatch } from '../shim/redux';
 
 function EmailAuthForm() {
-  const [type, dispatchType] = useReducer(reducer, 'sign_up');
-  const [username, setUsername] = useState('');
-  const setUsernameFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    usernameInputRef.current?.setCustomValidity('');
-    setUsername(event.target.value);
-  }, []);
+  const [createUser, dispatchCreateUser] = useReducer((x) => !x, true);
   const [email, setEmail] = useState('');
   const setEmailFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     emailInputRef.current?.setCustomValidity('');
@@ -21,13 +15,13 @@ function EmailAuthForm() {
   }, []);
   const [password, setPassword] = useState('');
   const setPasswordFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    emailInputRef.current?.setCustomValidity('');
     setPassword(event.target.value);
   }, []);
 
   const dispatch = useDispatch();
   const [submitting, setSubmitting] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
-  const usernameInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const onFormSubmit = useCallback(
     async (event: FormEvent) => {
@@ -40,26 +34,28 @@ function EmailAuthForm() {
 
       setSubmitting(true);
 
-      // TODO Sign in / sign up
       // TODO enable email verify
-      const response = await fetchBackend('users', 'POST', {
-        type: 'jsonBody',
+      const payload = {
+        type: 'json',
         data: {
-          username,
-          email: email || undefined,
+          username: email,
+          email,
           password,
         },
-      });
+      } as const;
+      const response = await (createUser
+        ? fetchBackend('users', 'POST', payload)
+        : fetchBackend('login', 'GET', payload));
 
       setSubmitting(false);
 
       if (response.type === 'rejected') {
-        if (response.errorType === 'user_email_taken') {
+        if (response.errorType === 'email_taken') {
           emailInputRef.current?.setCustomValidity(i18nData.emailTaken);
-        } else if (response.errorType === 'username_taken') {
-          usernameInputRef.current?.setCustomValidity(i18nData.usernameTaken);
+        } else if (response.errorType === 'invalid_email_or_password') {
+          emailInputRef.current?.setCustomValidity(i18nData.emailOrPasswordIncorrect);
         } else if (response.errorType === 'unknown') {
-          usernameInputRef.current?.setCustomValidity(i18nData.unknownError);
+          emailInputRef.current?.setCustomValidity(i18nData.unknownError);
         } else {
           checkExhaustive(response.errorType);
           return;
@@ -73,27 +69,17 @@ function EmailAuthForm() {
       } = response;
       dispatch({ type: '[EmailAuthForm] signed in', sessionToken });
     },
-    [type, submitting, username, email, password, dispatch]
+    [createUser, submitting, email, password, dispatch]
   );
 
   return (
     <form ref={formRef} style={styles.container} onSubmit={onFormSubmit}>
-      <p style={styles.title}>{i18nData[getTitleIdentifier(type)]}</p>
-      <input
-        ref={usernameInputRef}
-        style={styles.firstTextInput}
-        type="text"
-        minLength={3}
-        maxLength={24}
-        required
-        placeholder={i18nData.username}
-        value={username}
-        onChange={setUsernameFromEvent}
-      />
+      <p style={styles.title}>{createUser ? i18nData.signUp : i18nData.signIn}</p>
       <input
         ref={emailInputRef}
-        style={styles.middleTextInput}
+        style={styles.firstTextInput}
         type="email"
+        required
         placeholder={i18nData.email}
         value={email}
         onChange={setEmailFromEvent}
@@ -115,10 +101,10 @@ function EmailAuthForm() {
         style={styles.switchForm}
         onClick={(event) => {
           event.preventDefault();
-          dispatchType();
+          dispatchCreateUser();
         }}
       >
-        {i18nData[getSubtitleIdentifier(type)]}
+        {createUser ? i18nData.signUpForNewAccount : i18nData.signInWithExistingAccount}
       </span>
     </form>
   );
@@ -161,10 +147,6 @@ const styles = createStyleSheet({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
   },
-  middleTextInput: {
-    ...textInputStyle,
-    borderRadius: 0,
-  },
   lastTextInput: {
     ...textInputStyle,
     borderTopLeftRadius: 0,
@@ -181,34 +163,5 @@ const styles = createStyleSheet({
     lineHeight: 3,
   },
 });
-
-type FormType = 'sign_up' | 'sign_in';
-
-function getTitleIdentifier(type: FormType): I18nTextIdentifier {
-  switch (type) {
-    case 'sign_in':
-      return 'signIn';
-    case 'sign_up':
-      return 'signUp';
-  }
-}
-
-function getSubtitleIdentifier(type: FormType): I18nTextIdentifier {
-  switch (type) {
-    case 'sign_in':
-      return 'signUpForNewAccount';
-    case 'sign_up':
-      return 'signInWithExistingAccount';
-  }
-}
-
-function reducer(state: FormType): FormType {
-  switch (state) {
-    case 'sign_in':
-      return 'sign_up';
-    case 'sign_up':
-      return 'sign_in';
-  }
-}
 
 export default memo(EmailAuthForm);
