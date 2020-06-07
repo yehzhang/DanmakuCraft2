@@ -1,6 +1,7 @@
 import { CommentEntity } from '../../data/entity';
 import checkExhaustive from '../checkExhaustive';
 import logErrorMessage from '../logging/logErrorMessage';
+import track from '../logging/track';
 import { applicationId, javaScriptKey, serverUrl } from './initializeBackend';
 
 function fetchBackend(
@@ -65,7 +66,7 @@ async function fetchBackend(
 
   const responseJson = await response.json();
   const success = typeof responseJson === 'object' && !responseJson.error;
-  mixpanel.track('Backend Fetch', {
+  track('Backend Fetch', {
     success,
     path,
     method,

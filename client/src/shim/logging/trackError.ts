@@ -1,7 +1,7 @@
-import mixpanel from 'mixpanel-browser';
+import track from './track';
 
 function trackError(message: string, stackTrace: string | undefined, details?: ErrorDetails) {
-  mixpanel.track('Error', {
+  track('Error', {
     ...(details && serializeObjectAttributes(details)),
     _errorMessage: message,
     _stackTrace: stackTrace,
