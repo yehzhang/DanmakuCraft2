@@ -15,6 +15,9 @@ export interface I18nTextData {
   submitting: string;
   emailTaken: string;
   emailOrPasswordIncorrect: string;
+  findPassword: string;
+  forgotPasswordQuestion: string;
+  return: string;
 
   firstMovementTutorial: string;
   secondMovementTutorial: string;

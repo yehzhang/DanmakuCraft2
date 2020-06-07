@@ -17,6 +17,9 @@ const i18nData: I18nTextData = {
   submitting: '请稍候……',
   emailTaken: '该邮箱已注册',
   emailOrPasswordIncorrect: '您的用户名或密码不正确',
+  findPassword: '找回密码',
+  forgotPasswordQuestion: '忘记密码？',
+  return: '返回',
 
   firstMovementTutorial: '注意到我身子底下两个凸起了吗？那是我的腿',
   secondMovementTutorial: '我可是会走路的哦',

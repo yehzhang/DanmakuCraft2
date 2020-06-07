@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChangeEvent, FormEvent, useCallback, useReducer, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useRef, useState } from 'react';
 import i18nData from '../data/i18n/zh';
 import fetchBackend from '../shim/backend/fetchBackend';
 import checkExhaustive from '../shim/checkExhaustive';
@@ -7,7 +7,7 @@ import { createStyle, createStyleSheet, memo } from '../shim/react';
 import { useDispatch } from '../shim/redux';
 
 function EmailAuthForm() {
-  const [createUser, dispatchCreateUser] = useReducer((x) => !x, true);
+  const [type, setType] = useState<'sign_in' | 'sign_up' | 'forgot_password'>('sign_up');
   const [email, setEmail] = useState('');
   const setEmailFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     emailInputRef.current?.setCustomValidity('');
@@ -32,9 +32,14 @@ function EmailAuthForm() {
         return;
       }
 
-      setSubmitting(true);
-
       // TODO enable email verify
+      if (type === 'forgot_password') {
+        setSubmitting(true);
+        setSubmitting(false);
+        return;
+      }
+
+      setSubmitting(true);
       const payload = {
         type: 'keyValue',
         data: {
@@ -43,10 +48,11 @@ function EmailAuthForm() {
           password,
         },
       } as const;
-      const response = await (createUser
+      const response = await (type === 'sign_up'
         ? fetchBackend('users', 'POST', payload)
-        : fetchBackend('login', 'GET', payload));
-
+        : type === 'sign_in'
+        ? fetchBackend('login', 'GET', payload)
+        : checkExhaustive(type));
       setSubmitting(false);
 
       if (response.type === 'rejected') {
@@ -70,50 +76,80 @@ function EmailAuthForm() {
       } = response;
       dispatch({ type: '[EmailAuthForm] signed in', sessionToken });
     },
-    [createUser, submitting, email, password, dispatch]
+    [type, submitting, email, password, dispatch]
   );
 
   return (
-    <form ref={formRef} style={styles.container} onSubmit={onFormSubmit}>
-      <p style={styles.title}>{createUser ? i18nData.signUp : i18nData.signIn}</p>
-      <input
-        ref={emailInputRef}
-        style={styles.firstTextInput}
-        type="email"
-        required
-        placeholder={i18nData.email}
-        value={email}
-        onChange={setEmailFromEvent}
-      />
-      <input
-        style={styles.lastTextInput}
-        type="password"
-        minLength={6}
-        maxLength={18}
-        required
-        placeholder={i18nData.password}
-        value={password}
-        onChange={setPasswordFromEvent}
-      />
-      <button style={styles.submitInput} disabled={submitting}>
-        {submitting ? i18nData.submitting : i18nData.continue}
-      </button>
-      <span
-        style={styles.switchForm}
-        onClick={(event) => {
-          event.preventDefault();
-          dispatchCreateUser();
-        }}
-      >
-        {createUser ? i18nData.signUpForNewAccount : i18nData.signInWithExistingAccount}
-      </span>
-    </form>
+    <div style={styles.container}>
+      <form ref={formRef} style={styles.form} onSubmit={onFormSubmit}>
+        <p style={styles.title}>
+          {type === 'sign_up'
+            ? i18nData.signUp
+            : type === 'sign_in'
+            ? i18nData.signIn
+            : type === 'forgot_password'
+            ? i18nData.findPassword
+            : checkExhaustive(type)}
+        </p>
+        <input
+          ref={emailInputRef}
+          style={styles.firstTextInput}
+          type="email"
+          required
+          placeholder={i18nData.email}
+          value={email}
+          onChange={setEmailFromEvent}
+        />
+        {type === 'sign_in' || type === 'sign_up' ? (
+          <input
+            style={styles.lastTextInput}
+            type="password"
+            minLength={6}
+            maxLength={18}
+            required
+            placeholder={i18nData.password}
+            value={password}
+            onChange={setPasswordFromEvent}
+          />
+        ) : null}
+        <button style={styles.submitInput} disabled={submitting}>
+          {submitting ? i18nData.submitting : i18nData.continue}
+        </button>
+      </form>
+      <div style={styles.belowFormRow}>
+        <span
+          style={styles.link}
+          onClick={() =>
+            void setType(
+              type === 'sign_in' ? 'forgot_password' : type === 'forgot_password' ? 'sign_in' : type
+            )
+          }
+        >
+          {type === 'sign_in'
+            ? i18nData.forgotPasswordQuestion
+            : type === 'forgot_password'
+            ? i18nData.return
+            : null}
+        </span>
+        <span
+          style={styles.link}
+          onClick={() =>
+            void setType(type === 'sign_up' ? 'sign_in' : type === 'sign_in' ? 'sign_up' : type)
+          }
+        >
+          {type === 'sign_up'
+            ? i18nData.signInWithExistingAccount
+            : type === 'sign_in'
+            ? i18nData.signUpForNewAccount
+            : null}
+        </span>
+      </div>
+    </div>
   );
 }
 
 const borderWidth = 1;
 const textInputStyle = createStyle({
-  alignSelf: 'stretch',
   borderWidth,
   borderColor: 'silver',
   borderStyle: 'solid',
@@ -129,14 +165,23 @@ const styles = createStyleSheet({
     width: 300,
     padding: '0 50px',
     borderRadius,
+    alignItems: 'stretch',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
   },
   title: {
     fontSize: 22,
     alignSelf: 'center',
   },
-  switchForm: {
-    alignSelf: 'flex-end',
+  belowFormRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
     marginBottom: '1rem',
+  },
+  link: {
     color: '#1a0dab',
     cursor: 'pointer',
     textDecoration: 'underline',
@@ -156,7 +201,6 @@ const styles = createStyleSheet({
     borderBottomRightRadius: borderRadius,
   },
   submitInput: {
-    alignSelf: 'stretch',
     margin: '1rem 0',
     border: 0,
     borderRadius,
