@@ -32,49 +32,86 @@ function EmailAuthForm() {
         return;
       }
 
-      // TODO enable email verify
-      if (type === 'forgot_password') {
-        setSubmitting(true);
-        setSubmitting(false);
-        return;
-      }
-
       setSubmitting(true);
-      const payload = {
-        type: 'keyValue',
-        data: {
-          username: email,
-          email,
-          password,
-        },
-      } as const;
-      const response = await (type === 'sign_up'
-        ? fetchBackend('users', 'POST', payload)
-        : type === 'sign_in'
-        ? fetchBackend('login', 'GET', payload)
-        : checkExhaustive(type));
-      setSubmitting(false);
 
-      if (response.type === 'rejected') {
-        const { errorType } = response;
-        if (errorType === 'email_taken') {
-          emailInputRef.current?.setCustomValidity(i18nData.emailTaken);
-        } else if (errorType === 'invalid_email_or_password') {
-          emailInputRef.current?.setCustomValidity(i18nData.emailOrPasswordIncorrect);
-        } else if (errorType === 'unknown') {
-          emailInputRef.current?.setCustomValidity(i18nData.unknownError);
-        } else {
-          checkExhaustive(errorType);
+      await (async () => {
+        if (type === 'forgot_password') {
+          await fetchBackend('requestPasswordReset', 'POST', {
+            type: 'key_value',
+            data: {
+              email,
+            },
+          });
           return;
         }
-        formRef.current?.reportValidity();
-        return;
-      }
 
-      const {
-        value: { sessionToken },
-      } = response;
-      dispatch({ type: '[EmailAuthForm] signed in', sessionToken });
+        if (type === 'sign_up') {
+          // TODO enable email verify
+          const response = await fetchBackend('users', 'POST', {
+            type: 'key_value',
+            data: {
+              username: email,
+              email,
+              password,
+            },
+          });
+          if (response.type === 'rejected') {
+            const { errorType } = response;
+            if (errorType === 'username_taken') {
+              emailInputRef.current?.setCustomValidity(i18nData.emailTaken);
+            } else if (errorType === 'unknown') {
+              emailInputRef.current?.setCustomValidity(i18nData.unknownError);
+            } else {
+              checkExhaustive(errorType);
+              return;
+            }
+            formRef.current?.reportValidity();
+            return;
+          }
+
+          const {
+            value: { sessionToken },
+          } = response;
+          // TODO rename.
+          dispatch({ type: '[EmailAuthForm] signed in', sessionToken });
+
+          return;
+        }
+
+        if (type === 'sign_in') {
+          const response = await fetchBackend('login', 'GET', {
+            type: 'key_value',
+            data: {
+              username: email,
+              password,
+            },
+          });
+          if (response.type === 'rejected') {
+            const { errorType } = response;
+            if (errorType === 'invalid_username_or_password') {
+              emailInputRef.current?.setCustomValidity(i18nData.emailOrPasswordIncorrect);
+            } else if (errorType === 'unknown') {
+              emailInputRef.current?.setCustomValidity(i18nData.unknownError);
+            } else {
+              checkExhaustive(errorType);
+              return;
+            }
+            formRef.current?.reportValidity();
+            return;
+          }
+
+          const {
+            value: { sessionToken },
+          } = response;
+          dispatch({ type: '[EmailAuthForm] signed in', sessionToken });
+
+          return;
+        }
+
+        checkExhaustive(type);
+      })();
+
+      setSubmitting(false);
     },
     [type, submitting, email, password, dispatch]
   );

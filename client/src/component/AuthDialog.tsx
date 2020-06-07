@@ -22,7 +22,7 @@ function AuthDialog() {
         setAuthRequired(true);
         return;
       }
-      const result = await fetchBackend('users/me', 'GET', { type: 'sessionToken', sessionToken });
+      const result = await fetchBackend('users/me', 'GET', { type: 'session_token', sessionToken });
       if (result.type === 'rejected') {
         dispatch({ type: '[AuthDialog] invalid session token' });
         setAuthRequired(true);

@@ -6,12 +6,12 @@ import { applicationId, javaScriptKey, serverUrl } from './initializeBackend';
 function fetchBackend(
   path: 'users',
   method: 'POST',
-  payload: KeyValuePayload<{ email: string; password: string }>
+  payload: KeyValuePayload<{ username: string; email: string; password: string }>
 ): Result<User, UserSignUpErrorType>;
 function fetchBackend(
   path: 'login',
   method: 'GET',
-  payload: KeyValuePayload<{ email: string; password: string }>
+  payload: KeyValuePayload<{ username: string; password: string }>
 ): Result<User, UserSignInErrorType>;
 function fetchBackend(
   path: 'users/me',
@@ -23,8 +23,13 @@ function fetchBackend(
   method: 'GET',
   payload: QueryPayload<CommentEntity>
 ): Result<QueryResult<CommentEntity>, never>;
+function fetchBackend(
+  path: 'requestPasswordReset',
+  method: 'POST',
+  payload: KeyValuePayload<{ email: string }>
+): Result<void, never>;
 async function fetchBackend(
-  path: 'users' | 'users/me' | 'login' | 'classes/Entity',
+  path: 'users' | 'users/me' | 'login' | 'classes/Entity' | 'requestPasswordReset',
   method: 'GET' | 'POST',
   payload: Payload
 ): Result<ResolvedValue, ErrorType> {
@@ -66,11 +71,11 @@ async function fetchBackend(
   const { error: errorCode } = responseJson;
   if (path === 'users') {
     if (errorCode === 202 || errorCode === 203) {
-      return { type: 'rejected', errorType: 'email_taken' };
+      return { type: 'rejected', errorType: 'username_taken' };
     }
   } else if (path === 'login') {
     if (errorCode === 101) {
-      return { type: 'rejected', errorType: 'invalid_email_or_password' };
+      return { type: 'rejected', errorType: 'invalid_username_or_password' };
     }
   } else if (path === 'users/me') {
     if (errorCode === 209) {
@@ -80,6 +85,10 @@ async function fetchBackend(
     // Swallow the backend error internally.
     logErrorMessage('Expected valid error code', { path, errorCode });
     return { type: 'resolved', value: { results: [] } };
+  } else if (path === 'requestPasswordReset') {
+    // Swallow the backend error internally.
+    logErrorMessage('Expected valid error code', { path, errorCode });
+    return { type: 'resolved', value: undefined };
   } else {
     // Unexpected path.
     checkExhaustive(path);
@@ -91,8 +100,8 @@ async function fetchBackend(
   return { type: 'rejected', errorType: 'unknown' };
 }
 
-type KeyValuePayload<T extends Record<string, string>> = { type: 'keyValue'; data: T };
-type SessionTokenPayload = { type: 'sessionToken'; sessionToken: string };
+type KeyValuePayload<T extends Record<string, string>> = { type: 'key_value'; data: T };
+type SessionTokenPayload = { type: 'session_token'; sessionToken: string };
 type QueryPayload<T extends Attributes> = {
   type: 'query';
   sessionToken: string;
@@ -116,8 +125,8 @@ type UnionToIntersectionHack<U> = (U extends unknown ? (k: U) => void : never) e
   ? I
   : never;
 
-type UserSignUpErrorType = 'email_taken' | 'unknown';
-type UserSignInErrorType = 'invalid_email_or_password' | 'unknown';
+type UserSignUpErrorType = 'username_taken' | 'unknown';
+type UserSignInErrorType = 'invalid_username_or_password' | 'unknown';
 type InvalidSessionTokenErrorType = 'invalid_session_token' | 'unknown';
 type ErrorType = UserSignUpErrorType | UserSignInErrorType | InvalidSessionTokenErrorType;
 
@@ -143,11 +152,11 @@ function getJsonPayload(payload: Payload): Record<string, string> | null {
         limit: limit.toString(),
       };
     }
-    case 'keyValue': {
+    case 'key_value': {
       const { data } = payload;
       return data;
     }
-    case 'sessionToken':
+    case 'session_token':
       return null;
   }
 }
@@ -155,9 +164,9 @@ function getJsonPayload(payload: Payload): Record<string, string> | null {
 function getSessionToken(payload: Payload): string | null {
   switch (payload.type) {
     case 'query':
-    case 'sessionToken':
+    case 'session_token':
       return payload.sessionToken;
-    case 'keyValue':
+    case 'key_value':
       return null;
   }
 }
