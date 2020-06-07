@@ -3,11 +3,14 @@ import { ChangeEvent, FormEvent, useCallback, useRef, useState } from 'react';
 import i18nData from '../data/i18n/zh';
 import fetchBackend from '../shim/backend/fetchBackend';
 import checkExhaustive from '../shim/checkExhaustive';
+import logErrorMessage from '../shim/logging/logErrorMessage';
 import { createStyle, createStyleSheet, memo } from '../shim/react';
 import { useDispatch } from '../shim/redux';
 
 function EmailAuthForm() {
-  const [type, setType] = useState<'sign_in' | 'sign_up' | 'forgot_password'>('sign_up');
+  const [type, setType] = useState<
+    'sign_in' | 'sign_up' | 'forgot_password' | 'done_reset_password'
+  >('sign_up');
   const [email, setEmail] = useState('');
   const setEmailFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     emailInputRef.current?.setCustomValidity('');
@@ -36,13 +39,15 @@ function EmailAuthForm() {
 
       await (async () => {
         if (type === 'forgot_password') {
-          // TODO done reset UI.
           await fetchBackend('requestPasswordReset', 'POST', {
             type: 'key_value',
             data: {
               email,
             },
           });
+
+          setType('done_reset_password');
+
           return;
         }
 
@@ -114,6 +119,11 @@ function EmailAuthForm() {
           return;
         }
 
+        if (type === 'done_reset_password') {
+          logErrorMessage('Unexpected form submission when password is reset');
+          return;
+        }
+
         checkExhaustive(type);
       })();
 
@@ -132,6 +142,8 @@ function EmailAuthForm() {
             ? i18nData.signIn
             : type === 'forgot_password'
             ? i18nData.findPassword
+            : type === 'done_reset_password'
+            ? i18nData.doneResetPassword
             : checkExhaustive(type)}
         </p>
         <input
@@ -142,8 +154,9 @@ function EmailAuthForm() {
           placeholder={i18nData.email}
           value={email}
           onChange={setEmailFromEvent}
+          disabled={type === 'done_reset_password'}
         />
-        {type === 'sign_in' || type === 'sign_up' ? (
+        {(type === 'sign_in' || type === 'sign_up') && (
           <input
             style={styles.lastTextInput}
             type="password"
@@ -154,23 +167,29 @@ function EmailAuthForm() {
             value={password}
             onChange={setPasswordFromEvent}
           />
-        ) : null}
-        <button style={styles.submitInput} disabled={submitting}>
-          {submitting ? i18nData.submitting : i18nData.continue}
-        </button>
+        )}
+        {(type === 'sign_in' || type === 'sign_up' || type === 'forgot_password') && (
+          <button style={styles.submitInput} disabled={submitting}>
+            {submitting ? i18nData.submitting : i18nData.continue}
+          </button>
+        )}
       </form>
       <div style={styles.belowFormRow}>
         <span
           style={styles.link}
           onClick={() =>
             void setType(
-              type === 'sign_in' ? 'forgot_password' : type === 'forgot_password' ? 'sign_in' : type
+              type === 'sign_in'
+                ? 'forgot_password'
+                : type === 'forgot_password' || type === 'done_reset_password'
+                ? 'sign_in'
+                : type
             )
           }
         >
           {type === 'sign_in'
             ? i18nData.forgotPasswordQuestion
-            : type === 'forgot_password'
+            : type === 'forgot_password' || type === 'done_reset_password'
             ? i18nData.return
             : null}
         </span>
@@ -222,7 +241,7 @@ const styles = createStyleSheet({
   belowFormRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: '1rem',
+    margin: '1rem 0',
   },
   link: {
     color: '#1a0dab',
@@ -244,7 +263,7 @@ const styles = createStyleSheet({
     borderBottomRightRadius: borderRadius,
   },
   submitInput: {
-    margin: '1rem 0',
+    marginTop: '1rem',
     border: 0,
     borderRadius,
     background: 'silver',

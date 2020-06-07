@@ -18,6 +18,7 @@ export interface I18nTextData {
   findPassword: string;
   forgotPasswordQuestion: string;
   return: string;
+  doneResetPassword: string;
 
   firstMovementTutorial: string;
   secondMovementTutorial: string;

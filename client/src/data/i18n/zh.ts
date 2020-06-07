@@ -20,6 +20,7 @@ const i18nData: I18nTextData = {
   findPassword: '找回密码',
   forgotPasswordQuestion: '忘记密码？',
   return: '返回',
+  doneResetPassword: '密码重置邮件已发送至：',
 
   firstMovementTutorial: '注意到我身子底下两个凸起了吗？那是我的腿',
   secondMovementTutorial: '我可是会走路的哦',
