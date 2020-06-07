@@ -51,7 +51,7 @@ async function main() {
 
   initializeLogging();
   initializeBackend();
-  addLoadingTask(loadCommentsFromBackend());
+  addLoadingTask(loadCommentsFromBackend);
   addLoadingTask(constant(loadBackgroundMusic()));
 
   const gameContainerId = await selectDomain<() => Promise<string> | string>({
@@ -69,30 +69,28 @@ async function main() {
   );
 }
 
-function loadCommentsFromBackend(): () => Promise<LoadingResult> {
-  return async () => {
-    const { sessionToken } = store.getState().user || {};
-    if (!sessionToken) {
-      logErrorMessage('Expected signed in user before loading comments');
-      return 'unknownError';
-    }
+async function loadCommentsFromBackend(): Promise<LoadingResult> {
+  const { sessionToken } = store.getState().user || {};
+  if (!sessionToken) {
+    logErrorMessage('Expected signed in user before loading comments');
+    return 'unknownError';
+  }
 
-    const commentEntities = await getLatestCommentEntities(sessionToken);
-    const throttler = new RenderThrottler();
-    const sleepDurationMs = 2;
-    for (const commentEntityChunk of chunkObject(commentEntities, 100)) {
-      while (
-        !throttler.run(() => {
-          store.dispatch({
-            type: '[index] comment entities loaded',
-            commentEntities: commentEntityChunk,
-          });
-        }, sleepDurationMs)
-      ) {
-        await sleep(sleepDurationMs);
-      }
+  const commentEntities = await getLatestCommentEntities(sessionToken);
+  const throttler = new RenderThrottler();
+  const sleepDurationMs = 2;
+  for (const commentEntityChunk of chunkObject(commentEntities, 100)) {
+    while (
+      !throttler.run(() => {
+        store.dispatch({
+          type: '[index] comment entities loaded',
+          commentEntities: commentEntityChunk,
+        });
+      }, sleepDurationMs)
+    ) {
+      await sleep(sleepDurationMs);
     }
-  };
+  }
 }
 
 function chunkObject<T extends object>(data: T, size: number): T[] {
