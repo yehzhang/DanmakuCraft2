@@ -74,7 +74,7 @@ function EmailAuthForm() {
           } = response;
           dispatch({ type: '[EmailAuthForm] signed up', sessionToken });
 
-          await fetchBackend('verificationEmailRequest', 'POST', {
+          const ignored = fetchBackend('verificationEmailRequest', 'POST', {
             type: 'key_value',
             data: {
               email,
