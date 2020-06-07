@@ -73,7 +73,7 @@ function EmailAuthForm() {
             value: { sessionToken },
           } = response;
           // TODO rename.
-          dispatch({ type: '[EmailAuthForm] signed in', sessionToken });
+          dispatch({ type: '[EmailAuthForm] signed up', sessionToken });
 
           return;
         }

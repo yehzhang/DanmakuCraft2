@@ -30,6 +30,7 @@ export type Action =
   | { type: '[AuthDialog] invalid session token' }
   | { type: '[AuthDialog] valid session token' }
   | { type: '[EmailAuthForm] signed in'; sessionToken: string }
+  | { type: '[EmailAuthForm] signed up'; sessionToken: string }
   | { type: '[ConsoleInput] chest wanted'; position: Point; lootType: Buff['type'] }
   | { type: '[ConsoleInput] comment wanted'; id: string; commentEntity: PlainCommentEntity }
   | {
