@@ -36,6 +36,7 @@ function EmailAuthForm() {
 
       await (async () => {
         if (type === 'forgot_password') {
+          // TODO done reset UI.
           await fetchBackend('requestPasswordReset', 'POST', {
             type: 'key_value',
             data: {
@@ -46,7 +47,6 @@ function EmailAuthForm() {
         }
 
         if (type === 'sign_up') {
-          // TODO enable email verify
           const response = await fetchBackend('users', 'POST', {
             type: 'key_value',
             data: {
@@ -73,6 +73,13 @@ function EmailAuthForm() {
             value: { sessionToken },
           } = response;
           dispatch({ type: '[EmailAuthForm] signed up', sessionToken });
+
+          await fetchBackend('verificationEmailRequest', 'POST', {
+            type: 'key_value',
+            data: {
+              email,
+            },
+          });
 
           return;
         }

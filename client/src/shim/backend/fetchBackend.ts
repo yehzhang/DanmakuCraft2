@@ -25,12 +25,18 @@ function fetchBackend(
   payload: QueryPayload<CommentEntity>
 ): Result<QueryResult<CommentEntity>, never>;
 function fetchBackend(
-  path: 'requestPasswordReset',
+  path: 'requestPasswordReset' | 'verificationEmailRequest',
   method: 'POST',
   payload: KeyValuePayload<{ email: string }>
 ): Result<void, never>;
 async function fetchBackend(
-  path: 'users' | 'users/me' | 'login' | 'classes/Entity' | 'requestPasswordReset',
+  path:
+    | 'users'
+    | 'users/me'
+    | 'login'
+    | 'classes/Entity'
+    | 'requestPasswordReset'
+    | 'verificationEmailRequest',
   method: 'GET' | 'POST',
   payload: Payload
 ): Result<ResolvedValue, ErrorType> {
@@ -78,7 +84,7 @@ async function fetchBackend(
     return { type: 'resolved', value: responseJson };
   }
 
-  const { error: errorCode } = responseJson;
+  const { code: errorCode } = responseJson;
   if (path === 'users') {
     if (errorCode === 202 || errorCode === 203) {
       return { type: 'rejected', errorType: 'username_taken' };
@@ -95,7 +101,7 @@ async function fetchBackend(
     // Swallow the backend error internally.
     logErrorMessage('Expected valid error code', { path, errorCode });
     return { type: 'resolved', value: { results: [] } };
-  } else if (path === 'requestPasswordReset') {
+  } else if (path === 'requestPasswordReset' || path === 'verificationEmailRequest') {
     // Swallow the backend error internally.
     logErrorMessage('Expected valid error code', { path, errorCode });
     return { type: 'resolved', value: undefined };
