@@ -17,7 +17,6 @@ async function getLatestCommentEntities(sessionToken: string): Promise<IdKeyed<C
   const {
     value: { results },
   } = result;
-
   const commentEntities: Writeable<IdKeyed<CommentEntity>> = {};
   const errors = [];
   for (const attributes of results) {
