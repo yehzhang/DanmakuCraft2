@@ -5,6 +5,7 @@ const initialState = false;
 function authenticatedReducer(state = initialState, action: Action): boolean {
   switch (action.type) {
     case '[EmailAuthForm] signed in':
+    case '[AuthDialog] valid session token':
       return true;
     default:
       return state;

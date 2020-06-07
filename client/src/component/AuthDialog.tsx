@@ -1,25 +1,37 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import useTimerState from '../hook/useTimerState';
+import fetchBackend from '../shim/backend/fetchBackend';
 import { createStyleSheet } from '../shim/react';
-import { useSelector } from '../shim/redux';
+import { useDispatch, useSelector } from '../shim/redux';
 import EmailAuthForm from './EmailAuthForm';
 
 function AuthDialog() {
+  const dispatch = useDispatch();
   const sessionToken = useSelector((state) => state.user?.sessionToken);
   const [authRequired, setAuthRequired] = useState(false);
   useEffect(() => {
-    if (authRequired) {
-      if (sessionToken) {
-        setAuthRequired(false);
+    async function checkAuth() {
+      if (authRequired) {
+        if (sessionToken) {
+          setAuthRequired(false);
+        }
+        return;
       }
-      return;
+      if (!sessionToken) {
+        setAuthRequired(true);
+        return;
+      }
+      const result = await fetchBackend('users/me', 'GET', { type: 'sessionToken', sessionToken });
+      if (result.type === 'rejected') {
+        dispatch({ type: '[AuthDialog] invalid session token' });
+        setAuthRequired(true);
+        return;
+      }
+      dispatch({ type: '[AuthDialog] valid session token' });
     }
-    if (!sessionToken) {
-      setAuthRequired(true);
-      return;
-    }
-    // TODO verify validity and set authRequired if not valid, clearing session token.
+
+    checkAuth();
   }, [sessionToken]);
 
   const enabled = useTimerState((elapsedMs) => elapsedMs >= 2500 && authRequired, false, []);

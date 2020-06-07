@@ -32,7 +32,7 @@ const compose = composeWithDevTools({
   stateSanitizer: stateSanitizer as any,
 });
 
-const persistWhitelist: (keyof State)[] = ['volume', 'tutorial'];
+const persistWhitelist: (keyof State)[] = ['volume', 'tutorial', 'user'];
 
 const persistConfig: PersistConfig<State> = {
   key: 'danmakucraft:root',

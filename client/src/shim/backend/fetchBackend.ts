@@ -7,9 +7,14 @@ function fetchBackend(
   method: 'POST',
   payload: JsonPayload<{ username: string; email: string; password: string }>
 ): Promise<Resolved<User> | Rejected<UserSignUpErrorType>>;
+function fetchBackend(
+  path: 'users/me',
+  method: 'GET',
+  payload: SessionTokenPayload
+): Promise<Resolved<void> | Rejected<InvalidSessionTokenErrorType>>;
 async function fetchBackend(
-  path: 'users',
-  method: 'POST',
+  path: Path,
+  method: string,
   payload: Payload
 ): Promise<Resolved<Response> | Rejected<ErrorType>> {
   const url = new URL(path, serverUrl);
@@ -18,14 +23,19 @@ async function fetchBackend(
     headers: {
       'X-Parse-Application-Id': applicationId,
       'X-Parse-Javascript-Key': javaScriptKey,
-      'Content-Type': 'application/json',
       ...(path === 'users'
         ? {
+            'Content-Type': 'application/json',
             'X-Parse-Revocable-Session': '1',
           }
         : null),
+      ...(payload.type === 'sessionToken'
+        ? {
+            'X-Parse-Session-Token': payload.sessionToken,
+          }
+        : null),
     },
-    body: JSON.stringify(payload.data),
+    body: payload.type === 'jsonBody' ? JSON.stringify(payload.data) : null,
   });
 
   const responseJson = await response.json();
@@ -37,27 +47,35 @@ async function fetchBackend(
 }
 
 type JsonPayload<T> = { type: 'jsonBody'; data: T };
-type Payload = JsonPayload<unknown>;
+type SessionTokenPayload = { type: 'sessionToken'; sessionToken: string };
+type Payload = JsonPayload<unknown> | SessionTokenPayload;
 
 type UserSignUpErrorType = 'user_email_taken';
-type ErrorType = UserSignUpErrorType | 'unknown';
+type InvalidSessionTokenErrorType = 'invalid_session_token';
+type ErrorType = UserSignUpErrorType | InvalidSessionTokenErrorType | 'unknown';
 type Rejected<T> = { type: 'rejected'; errorType: T | 'unknown' };
 
 type User = { sessionToken: string };
-type Response = User;
+type Response = User | void;
 type Resolved<T> = { type: 'resolved'; value: T };
 
-function getErrorType(errorCode: unknown, path: 'users'): ErrorType {
+type Path = 'users' | 'users/me';
+
+function getErrorType(errorCode: unknown, path: Path): ErrorType {
   if (path === 'users') {
-    switch (errorCode) {
-      case 203:
-        return 'user_email_taken';
-      default:
-        logErrorMessage('Expected valid error code', { errorCode });
-        return 'unknown';
+    if (errorCode === 203) {
+      return 'invalid_session_token';
     }
+  } else if (path === 'users/me') {
+    if (errorCode === 209) {
+      return 'invalid_session_token';
+    }
+  } else {
+    checkExhaustive(path);
+    return 'unknown';
   }
-  checkExhaustive(path);
+  logErrorMessage('Expected valid error code', { path, errorCode });
+  return 'unknown';
 }
 
 export default fetchBackend;

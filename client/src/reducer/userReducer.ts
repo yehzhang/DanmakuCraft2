@@ -9,6 +9,8 @@ function userReducer(state = initialState, action: Action): UserState | null {
       const { sessionToken } = action;
       return { sessionToken };
     }
+    case '[AuthDialog] invalid session token':
+      return initialState;
     default:
       return state;
   }

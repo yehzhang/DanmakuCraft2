@@ -5,6 +5,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactRedux from 'react-redux';
 import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import 'resize-observer-polyfill';
 import backgroundMusicConfig from '../../data/audio/background_music.json';
 import './action'; // Hack for webpack to pickup interface-only files.
@@ -59,7 +60,9 @@ async function main() {
 
   ReactDOM.render(
     <Provider store={store}>
-      <App />
+      <PersistGate persistor={persistor}>
+        <App />
+      </PersistGate>
     </Provider>,
     document.getElementById(gameContainerId)
   );
