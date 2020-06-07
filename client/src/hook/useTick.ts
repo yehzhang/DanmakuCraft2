@@ -6,9 +6,9 @@ function useTick(callback: TickCallback | null) {
   callbackRef.current = callback;
 
   useLayoutEffect(() => {
-    listenerRefs.add(callbackRef);
+    callbackRefs.add(callbackRef);
     return () => {
-      listenerRefs.delete(callbackRef);
+      callbackRefs.delete(callbackRef);
     };
   }, []);
 }
@@ -25,16 +25,16 @@ function tick() {
   perceivedMs += Math.min(lagMs, 2, Math.max(lagMs * 0.1, 0.1));
 
   const deltaMs = perceivedMs - lastPerceivedMs;
-  for (const listenerRef of listenerRefs) {
-    if (listenerRef.current) {
-      listenerRef.current(deltaMs);
+  for (const callbackRef of callbackRefs) {
+    if (callbackRef.current) {
+      callbackRef.current(deltaMs);
     }
   }
 }
 
 let realMs = 0;
 let perceivedMs = 0;
-const listenerRefs = new Set<RefObject<TickCallback>>();
+const callbackRefs = new Set<RefObject<TickCallback>>();
 
 application.ticker.add(tick);
 
