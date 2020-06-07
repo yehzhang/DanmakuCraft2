@@ -9,12 +9,12 @@ export interface I18nTextData {
   signIn: string;
   signInWithExistingAccount: string;
   signUpForNewAccount: string;
+  username: string;
   email: string;
   password: string;
   continue: string;
   submitting: string;
-  expectedNonEmptyEmail: string;
-  expectedNonEmptyPassword: string;
+  usernameTaken: string;
   emailTaken: string;
 
   firstMovementTutorial: string;

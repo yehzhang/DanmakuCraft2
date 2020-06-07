@@ -1,14 +1,19 @@
-import { nanoid } from 'nanoid';
 import * as React from 'react';
 import { ChangeEvent, FormEvent, useCallback, useReducer, useRef, useState } from 'react';
 import { I18nTextIdentifier } from '../data/i18n';
 import i18nData from '../data/i18n/zh';
 import fetchBackend from '../shim/backend/fetchBackend';
-import { createStyleSheet, memo } from '../shim/react';
+import checkExhaustive from '../shim/checkExhaustive';
+import { createStyle, createStyleSheet, memo } from '../shim/react';
 import { useDispatch } from '../shim/redux';
 
 function EmailAuthForm() {
   const [type, dispatchType] = useReducer(reducer, 'sign_up');
+  const [username, setUsername] = useState('');
+  const setUsernameFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    usernameInputRef.current?.setCustomValidity('');
+    setUsername(event.target.value);
+  }, []);
   const [email, setEmail] = useState('');
   const setEmailFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     emailInputRef.current?.setCustomValidity('');
@@ -22,6 +27,7 @@ function EmailAuthForm() {
   const dispatch = useDispatch();
   const [submitting, setSubmitting] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const usernameInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const onFormSubmit = useCallback(
     async (event: FormEvent) => {
@@ -39,8 +45,8 @@ function EmailAuthForm() {
       const response = await fetchBackend('users', 'POST', {
         type: 'jsonBody',
         data: {
-          username: nanoid(),
-          email,
+          username,
+          email: email || undefined,
           password,
         },
       });
@@ -48,8 +54,16 @@ function EmailAuthForm() {
       setSubmitting(false);
 
       if (response.type === 'rejected') {
-        const errorIdentifier = getErrorIdentifier(response.errorType);
-        emailInputRef.current?.setCustomValidity(i18nData[errorIdentifier]);
+        if (response.errorType === 'user_email_taken') {
+          emailInputRef.current?.setCustomValidity(i18nData.emailTaken);
+        } else if (response.errorType === 'username_taken') {
+          usernameInputRef.current?.setCustomValidity(i18nData.usernameTaken);
+        } else if (response.errorType === 'unknown') {
+          usernameInputRef.current?.setCustomValidity(i18nData.unknownError);
+        } else {
+          checkExhaustive(response.errorType);
+          return;
+        }
         formRef.current?.reportValidity();
         return;
       }
@@ -59,17 +73,27 @@ function EmailAuthForm() {
       } = response;
       dispatch({ type: '[EmailAuthForm] signed in', sessionToken });
     },
-    [type, submitting, email, password, dispatch]
+    [type, submitting, username, email, password, dispatch]
   );
 
   return (
     <form ref={formRef} style={styles.container} onSubmit={onFormSubmit}>
       <p style={styles.title}>{i18nData[getTitleIdentifier(type)]}</p>
       <input
-        ref={emailInputRef}
+        ref={usernameInputRef}
         style={styles.firstTextInput}
-        type="email"
+        type="text"
+        minLength={3}
+        maxLength={24}
         required
+        placeholder={i18nData.username}
+        value={username}
+        onChange={setUsernameFromEvent}
+      />
+      <input
+        ref={emailInputRef}
+        style={styles.middleTextInput}
+        type="email"
         placeholder={i18nData.email}
         value={email}
         onChange={setEmailFromEvent}
@@ -78,6 +102,7 @@ function EmailAuthForm() {
         style={styles.lastTextInput}
         type="password"
         minLength={6}
+        maxLength={18}
         required
         placeholder={i18nData.password}
         value={password}
@@ -99,10 +124,16 @@ function EmailAuthForm() {
   );
 }
 
-const borderRadius = 4;
 const borderWidth = 1;
-const borderColor = 'silver';
-const borderStyle = 'solid';
+const textInputStyle = createStyle({
+  alignSelf: 'stretch',
+  borderWidth,
+  borderColor: 'silver',
+  borderStyle: 'solid',
+  padding: '1rem',
+  marginBottom: -borderWidth,
+});
+const borderRadius = 4;
 const styles = createStyleSheet({
   container: {
     display: 'flex',
@@ -124,23 +155,18 @@ const styles = createStyleSheet({
     textDecoration: 'underline',
   },
   firstTextInput: {
-    alignSelf: 'stretch',
-    borderWidth,
-    borderColor,
-    borderStyle,
-    padding: '1rem',
+    ...textInputStyle,
     borderTopLeftRadius: borderRadius,
     borderTopRightRadius: borderRadius,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    marginBottom: -borderWidth,
+  },
+  middleTextInput: {
+    ...textInputStyle,
+    borderRadius: 0,
   },
   lastTextInput: {
-    alignSelf: 'stretch',
-    borderWidth,
-    borderColor,
-    borderStyle,
-    padding: '1rem',
+    ...textInputStyle,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: borderRadius,
@@ -182,15 +208,6 @@ function reducer(state: FormType): FormType {
       return 'sign_up';
     case 'sign_up':
       return 'sign_in';
-  }
-}
-
-function getErrorIdentifier(errorType: 'user_email_taken' | 'unknown'): I18nTextIdentifier {
-  switch (errorType) {
-    case 'user_email_taken':
-      return 'emailTaken';
-    case 'unknown':
-      return 'unknownError';
   }
 }
 

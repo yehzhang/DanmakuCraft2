@@ -5,7 +5,7 @@ import { applicationId, javaScriptKey, serverUrl } from './initializeBackend';
 function fetchBackend(
   path: 'users',
   method: 'POST',
-  payload: JsonPayload<{ username: string; email: string; password: string }>
+  payload: JsonPayload<{ username: string; email: string | undefined; password: string }>
 ): Promise<Resolved<User> | Rejected<UserSignUpErrorType>>;
 function fetchBackend(
   path: 'users/me',
@@ -50,7 +50,7 @@ type JsonPayload<T> = { type: 'jsonBody'; data: T };
 type SessionTokenPayload = { type: 'sessionToken'; sessionToken: string };
 type Payload = JsonPayload<unknown> | SessionTokenPayload;
 
-type UserSignUpErrorType = 'user_email_taken';
+type UserSignUpErrorType = 'user_email_taken' | 'username_taken';
 type InvalidSessionTokenErrorType = 'invalid_session_token';
 type ErrorType = UserSignUpErrorType | InvalidSessionTokenErrorType | 'unknown';
 type Rejected<T> = { type: 'rejected'; errorType: T | 'unknown' };
@@ -63,8 +63,11 @@ type Path = 'users' | 'users/me';
 
 function getErrorType(errorCode: unknown, path: Path): ErrorType {
   if (path === 'users') {
+    if (errorCode === 202) {
+      return 'username_taken';
+    }
     if (errorCode === 203) {
-      return 'invalid_session_token';
+      return 'user_email_taken';
     }
   } else if (path === 'users/me') {
     if (errorCode === 209) {
