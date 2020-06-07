@@ -36,7 +36,7 @@ function EmailAuthForm() {
 
       // TODO enable email verify
       const payload = {
-        type: 'json',
+        type: 'keyValue',
         data: {
           username: email,
           email,
@@ -50,14 +50,15 @@ function EmailAuthForm() {
       setSubmitting(false);
 
       if (response.type === 'rejected') {
-        if (response.errorType === 'email_taken') {
+        const { errorType } = response;
+        if (errorType === 'email_taken') {
           emailInputRef.current?.setCustomValidity(i18nData.emailTaken);
-        } else if (response.errorType === 'invalid_email_or_password') {
+        } else if (errorType === 'invalid_email_or_password') {
           emailInputRef.current?.setCustomValidity(i18nData.emailOrPasswordIncorrect);
-        } else if (response.errorType === 'unknown') {
+        } else if (errorType === 'unknown') {
           emailInputRef.current?.setCustomValidity(i18nData.unknownError);
         } else {
-          checkExhaustive(response.errorType);
+          checkExhaustive(errorType);
           return;
         }
         formRef.current?.reportValidity();

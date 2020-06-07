@@ -19,6 +19,7 @@ import setUpBilibiliShim from './shim/bilibili';
 import ConsoleInput from './shim/ConsoleInput';
 import { selectDomain } from './shim/domain';
 import initializeLogging from './shim/logging/initializeLogging';
+import logErrorMessage from './shim/logging/logErrorMessage';
 import ParametricTypeError from './shim/logging/ParametricTypeError';
 import RenderThrottler from './shim/pixi/RenderThrottler';
 import './shim/polyfill';
@@ -69,9 +70,14 @@ async function main() {
 }
 
 function loadCommentsFromBackend(): () => Promise<LoadingResult> {
-  const commentEntitiesPromise = getLatestCommentEntities();
   return async () => {
-    const commentEntities = await commentEntitiesPromise;
+    const { sessionToken } = store.getState().user || {};
+    if (!sessionToken) {
+      logErrorMessage('Expected signed in user before loading comments');
+      return 'unknownError';
+    }
+
+    const commentEntities = await getLatestCommentEntities(sessionToken);
     const throttler = new RenderThrottler();
     const sleepDurationMs = 2;
     for (const commentEntityChunk of chunkObject(commentEntities, 100)) {

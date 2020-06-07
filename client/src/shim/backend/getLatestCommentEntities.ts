@@ -2,31 +2,35 @@ import { fromRgbNumber } from '../../data/color';
 import { CommentEntity } from '../../data/entity';
 import { IdKeyed } from '../../state';
 import checkExhaustive from '../checkExhaustive';
-import logError from '../logging/logError';
 import ParametricTypeError from '../logging/ParametricTypeError';
-import { CommentEntityConstructor } from './parse/objectConstructors';
-import ParseQueryConstructor, { InboundAttributes } from './parse/ParseQueryConstructor';
+import fetchBackend, { InboundAttributes } from './fetchBackend';
 
-async function getLatestCommentEntities(): Promise<IdKeyed<CommentEntity>> {
-  const commentParseObjects = await new ParseQueryConstructor(CommentEntityConstructor)
-    .descending('createdAt')
-    .limit(15000)
-    .find();
+async function getLatestCommentEntities(sessionToken: string): Promise<IdKeyed<CommentEntity>> {
+  const result = await fetchBackend('classes/Entity', 'GET', {
+    type: 'query',
+    sessionToken,
+    order: {
+      createdAt: -1,
+    },
+    limit: 15000,
+  });
+  const {
+    value: { results },
+  } = result;
 
   const commentEntities: Writeable<IdKeyed<CommentEntity>> = {};
-  let errorCount = 0;
-  for (const parseObject of commentParseObjects) {
+  const errors = [];
+  for (const attributes of results) {
     try {
-      const commentEntity = buildCommentEntity(parseObject);
-      commentEntities[parseObject.id] = commentEntity;
+      const keyedCommentEntity = buildCommentEntity(attributes);
+      Object.assign(commentEntities, keyedCommentEntity);
     } catch (error) {
-      errorCount++;
-      logError(error);
+      errors.push(error);
     }
   }
 
-  if (errorCount && errorCount === commentParseObjects.length) {
-    throw new TypeError('Expected at least one valid comment entity');
+  if (errors.length && errors.length === results.length) {
+    throw new ParametricTypeError('Expected at least one valid comment entity', { errors });
   }
 
   return commentEntities;
@@ -34,11 +38,15 @@ async function getLatestCommentEntities(): Promise<IdKeyed<CommentEntity>> {
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-function buildCommentEntity(
-  parseObject: Parse.Object<InboundAttributes<CommentEntity>>
-): CommentEntity {
-  const { createdAt, attributes } = parseObject;
-  const { x, y, text, size, type: rawType, color } = attributes;
+function buildCommentEntity(attributes: InboundAttributes<CommentEntity>): IdKeyed<CommentEntity> {
+  const { objectId, createdAt: rawCreatedAt, x, y, text, size, type: rawType, color } = attributes;
+  if (typeof objectId !== 'string') {
+    throw new ParametricTypeError('Expected valid attribute objectId', attributes);
+  }
+  const createdAt = typeof rawCreatedAt === 'string' && new Date(rawCreatedAt);
+  if (!createdAt || isNaN(createdAt.getTime())) {
+    throw new ParametricTypeError('Expected valid attribute createdAt', attributes);
+  }
   if (typeof x !== 'number') {
     throw new ParametricTypeError('Expected valid attribute x', attributes);
   }
@@ -61,23 +69,27 @@ function buildCommentEntity(
       throw new ParametricTypeError('Expected valid attribute color', attributes);
     }
     return {
-      type,
-      color: fromRgbNumber(color),
-      x,
-      y,
-      text,
-      size,
-      createdAt,
+      [objectId]: {
+        type,
+        color: fromRgbNumber(color),
+        x,
+        y,
+        text,
+        size,
+        createdAt,
+      },
     };
   }
   if (type === 'chromatic') {
     return {
-      type,
-      x,
-      y,
-      text,
-      size,
-      createdAt,
+      [objectId]: {
+        type,
+        x,
+        y,
+        text,
+        size,
+        createdAt,
+      },
     };
   }
   checkExhaustive(type);

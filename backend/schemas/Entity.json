@@ -2,10 +2,10 @@
   "className": "Entity",
   "classLevelPermissions": {
     "find": {
-      "*": true
+      "requiresAuthentication": true
     },
     "create": {
-      "*": true
+      "requiresAuthentication": true
     },
     "get": {},
     "update": {},

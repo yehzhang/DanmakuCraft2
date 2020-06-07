@@ -1,10 +1,8 @@
 {
-  "className": "BilibiliUserComment",
+  "className": "User",
   "classLevelPermissions": {
     "find": {},
-    "create": {
-      "requiresAuthentication": true
-    },
+    "create": {},
     "get": {},
     "update": {},
     "addField": {},
