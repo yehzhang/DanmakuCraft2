@@ -16,22 +16,39 @@
 
 async function main() {
   const scriptElement = document.createElement('script');
-  scriptElement.src = await getScriptUrl();
+  scriptElement.src = (await isDev())
+    ? `${devServerBaseUrl}/bundle.js`
+    : `https://danmakucraft.com/bundle.js?nonsense=${Math.random()}`;
 
   const bodyElement = document.querySelector('body');
   bodyElement.appendChild(scriptElement);
 }
 
-async function getScriptUrl() {
-  const devServerBaseUrl = 'https://localhost:8080';
+async function isDev() {
+  const params = Object.fromEntries(
+    location.hash
+      .slice(1)
+      .split('&')
+      .map((paramString) => paramString.split('='))
+  );
+  if (Object.prototype.hasOwnProperty.call(params, 'env')) {
+    if (params.env === 'prod') {
+      return false;
+    }
+    if (params.env === 'dev') {
+      return true;
+    }
+    throw new TypeError('Expected valid env param');
+  }
+
   try {
     await fetch(devServerBaseUrl);
   } catch {
-    // Prod URL.
-    return `https://danmakucraft.com/bundle.js?nonsense=${Math.random()}`;
+    return false;
   }
-  // Dev URL.
-  return `${devServerBaseUrl}/bundle.js`;
+  return true;
 }
+
+const devServerBaseUrl = 'https://localhost:8080';
 
 main();
