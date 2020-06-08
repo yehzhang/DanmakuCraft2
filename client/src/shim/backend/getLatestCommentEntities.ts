@@ -15,6 +15,12 @@ async function getLatestCommentEntities(sessionToken: string): Promise<IdKeyed<C
     },
     limit: 15000,
   });
+  if (result.type === 'rejected') {
+    throw new ParametricTypeError('Unexpected error when listing latest comment entities', {
+      result,
+    });
+  }
+
   const {
     value: { results },
   } = result;

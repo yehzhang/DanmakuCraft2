@@ -3,6 +3,7 @@ import { CommentEntity } from '../../data/entity';
 import checkExhaustive from '../checkExhaustive';
 import logErrorMessage from '../logging/logErrorMessage';
 import track from '../logging/track';
+import BilibiliUserComment from './BilibiliUserComment';
 import { applicationId, javaScriptKey, serverUrl } from './initializeBackend';
 
 function fetchBackend(
@@ -24,12 +25,17 @@ function fetchBackend(
   path: 'classes/Entity',
   method: 'GET',
   payload: QueryPayload<CommentEntity>
-): Result<QueryResult<CommentEntity>, never>;
+): Result<QueryResult<CommentEntity>, 'unknown'>;
 function fetchBackend(
   path: 'classes/Entity',
   method: 'POST',
   payload: ParseObjectPayload<CommentEntity>
-): Result<ParseObject, never>;
+): Result<ParseObject, 'unknown'>;
+function fetchBackend(
+  path: 'classes/BilibiliUserComment',
+  method: 'POST',
+  payload: ParseObjectPayload<BilibiliUserComment>
+): Result<ParseObject, 'unknown'>;
 function fetchBackend(
   path: 'requestPasswordReset' | 'verificationEmailRequest',
   method: 'POST',
@@ -41,6 +47,7 @@ async function fetchBackend(
     | 'users/me'
     | 'login'
     | 'classes/Entity'
+    | 'classes/BilibiliUserComment'
     | 'requestPasswordReset'
     | 'verificationEmailRequest',
   method: 'GET' | 'POST',
@@ -106,10 +113,8 @@ async function fetchBackend(
     if (errorCode === 209) {
       return { type: 'rejected', errorType: 'invalid_session_token' };
     }
-  } else if (path === 'classes/Entity') {
-    // Swallow the backend error internally.
-    logErrorMessage('Expected valid error code', { path, errorCode });
-    return { type: 'resolved', value: { results: [] } };
+  } else if (path === 'classes/Entity' || path === 'classes/BilibiliUserComment') {
+    // Unexpected error.
   } else if (path === 'requestPasswordReset' || path === 'verificationEmailRequest') {
     // Swallow the backend error internally.
     logErrorMessage('Expected valid error code', { path, errorCode });
@@ -117,7 +122,6 @@ async function fetchBackend(
   } else {
     // Unexpected path.
     checkExhaustive(path);
-    return { type: 'rejected', errorType: 'unknown' };
   }
 
   // Unexpected error code for some path.
@@ -178,7 +182,11 @@ type ParseObject = InboundAttributes<{ objectId: string; createdAt: string }>;
 type ResolvedValue = User | QueryResult<CommentEntity> | ParseObject | void;
 
 type Result<L, R> = Promise<
-  { type: 'resolved'; value: L } | (R extends never ? never : { type: 'rejected'; errorType: R })
+  R extends never
+    ? L extends void
+      ? { type: 'resolved'; value: L }
+      : never // Error can be `never` only when the resolved value can be 'empty'.
+    : { type: 'resolved'; value: L } | { type: 'rejected'; errorType: R }
 >;
 
 function getJsonPayload(payload: Payload): Record<string, unknown> | null {

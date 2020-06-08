@@ -22,6 +22,9 @@ async function postCommentEntity(
         : outboundCommentEntity,
     sessionToken,
   });
+  if (result.type === 'rejected') {
+    throw new ParametricTypeError('Unexpected error when posting comment entity', { result });
+  }
 
   const {
     value: { objectId, createdAt: rawCreatedAt },
