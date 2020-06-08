@@ -7,4 +7,6 @@ function track(message: string, dimensions: Record<string, unknown>) {
   });
 }
 
+mixpanel.init('c0ec520e4eda0a1acb3728101f995335');
+
 export default track;

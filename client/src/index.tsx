@@ -17,7 +17,6 @@ import getResourceUrls from './shim/backend/getResourceUrls';
 import setUpBilibiliShim from './shim/bilibili';
 import ConsoleInput from './shim/ConsoleInput';
 import { selectDomain } from './shim/domain';
-import initializeLogging from './shim/logging/initializeLogging';
 import logErrorMessage from './shim/logging/logErrorMessage';
 import ParametricTypeError from './shim/logging/ParametricTypeError';
 import RenderThrottler from './shim/pixi/RenderThrottler';
@@ -48,7 +47,6 @@ async function main() {
     });
   }
 
-  initializeLogging();
   addLoadingTask(loadCommentsFromBackend);
   addLoadingTask(constant(loadBackgroundMusic()));
 
