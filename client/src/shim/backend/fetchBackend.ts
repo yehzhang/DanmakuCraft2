@@ -22,6 +22,11 @@ function fetchBackend(
   payload: SessionTokenPayload
 ): Result<void, InvalidSessionTokenErrorType>;
 function fetchBackend(
+  path: 'requestPasswordReset' | 'verificationEmailRequest',
+  method: 'POST',
+  payload: KeyValuePayload<{ email: string }>
+): Result<void, never>;
+function fetchBackend(
   path: 'classes/Entity',
   method: 'GET',
   payload: QueryPayload<CommentEntity>
@@ -36,11 +41,6 @@ function fetchBackend(
   method: 'POST',
   payload: ParseObjectPayload<BilibiliUserComment>
 ): Result<ParseObject, 'unknown'>;
-function fetchBackend(
-  path: 'requestPasswordReset' | 'verificationEmailRequest',
-  method: 'POST',
-  payload: KeyValuePayload<{ email: string }>
-): Result<void, never>;
 async function fetchBackend(
   path:
     | 'users'
@@ -53,6 +53,7 @@ async function fetchBackend(
   method: 'GET' | 'POST',
   payload: Payload
 ): Result<ResolvedValue, ErrorType> {
+  // Make API call.
   const url = new URL(path, serverUrl);
   const jsonPayload = getJsonPayload(payload);
   if (method === 'GET' && jsonPayload) {
@@ -85,6 +86,7 @@ async function fetchBackend(
     body: method === 'POST' && jsonPayload ? JSON.stringify(jsonPayload) : null,
   });
 
+  // Track API call.
   const responseJson = await response.json();
   const success = typeof responseJson === 'object' && !responseJson.error;
   track('Backend Fetch', {
@@ -100,6 +102,7 @@ async function fetchBackend(
     return { type: 'resolved', value: responseJson };
   }
 
+  // Parse error.
   const { code: errorCode } = responseJson;
   if (path === 'users') {
     if (errorCode === 202 || errorCode === 203) {
@@ -120,10 +123,8 @@ async function fetchBackend(
     logErrorMessage('Expected valid error code', { path, errorCode });
     return { type: 'resolved', value: undefined };
   } else {
-    // Unexpected path.
     checkExhaustive(path);
   }
-
   // Unexpected error code for some path.
   logErrorMessage('Expected valid error code', { path, errorCode });
   return { type: 'rejected', errorType: 'unknown' };

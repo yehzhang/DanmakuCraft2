@@ -1,8 +1,8 @@
 import { toRgbNumber } from '../../data/color';
 import { CommentEntity } from '../../data/entity';
+import logErrorMessage from '../logging/logErrorMessage';
 import ParametricTypeError from '../logging/ParametricTypeError';
-import fetchBackend from './fetchBackend';
-import { BilibiliUserCommentConstructor, OutboundAttributes } from './parse/objectConstructors';
+import fetchBackend, { OutboundAttributes } from './fetchBackend';
 import parseDateData from './parseDateData';
 
 /** Resolves to the id of the comment entity. */
@@ -38,7 +38,7 @@ async function postCommentEntity(
   }
 
   if (bilibiliUserId !== undefined) {
-    postBilibiliUserComment(bilibiliUserId, objectId);
+    const ignored = postBilibiliUserComment(bilibiliUserId, objectId, sessionToken);
   }
 
   return [
@@ -50,11 +50,22 @@ async function postCommentEntity(
   ];
 }
 
-function postBilibiliUserComment(bilibiliUserId: string, commentEntityObjectId: string) {
-  const bilibiliUserComment = new BilibiliUserCommentConstructor();
-  bilibiliUserComment.set('bilibiliUserId', bilibiliUserId);
-  bilibiliUserComment.set('commentEntityId', commentEntityObjectId);
-  const ignored = bilibiliUserComment.save();
+async function postBilibiliUserComment(
+  bilibiliUserId: string,
+  commentEntityId: string,
+  sessionToken: string
+) {
+  const result = await fetchBackend('classes/BilibiliUserComment', 'POST', {
+    type: 'parse_object',
+    data: {
+      bilibiliUserId,
+      commentEntityId,
+    },
+    sessionToken,
+  });
+  if (result.type === 'rejected') {
+    logErrorMessage('Expected Bilibili user comment posted', { result });
+  }
 }
 
 export default postCommentEntity;
