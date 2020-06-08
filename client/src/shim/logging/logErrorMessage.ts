@@ -7,7 +7,6 @@ function logErrorMessage(message: string, details?: { readonly [key: string]: un
     } else {
       console.error(message, details);
     }
-    return;
   }
 
   const stackTrace = new Error().stack;

@@ -9,8 +9,8 @@ function logError(error: Error) {
     } else {
       console.error(error);
     }
-    return;
   }
+
   trackError(error.message, error.stack, details);
 }
 
