@@ -1,4 +1,5 @@
 import add from 'lodash/add';
+import mapKeys from 'lodash/mapKeys';
 import { nanoid } from 'nanoid';
 import * as React from 'react';
 import { useCallback, useEffect, useReducer } from 'react';
@@ -160,10 +161,7 @@ function genesis(): Action {
   return {
     type: '[Opening] genesis',
     spawnPosition: generateRandomPointAround(getRandomSpawnPoint(spawnPoints)),
-    signEntities: [...spawnPoints, worldCenterEntity, worldOriginEntity].reduce(
-      (signEntities, signEntity) => Object.assign(signEntities, { [nanoid()]: signEntity }),
-      {}
-    ),
+    signEntities: mapKeys([...spawnPoints, worldCenterEntity, worldOriginEntity], () => nanoid()),
   };
 }
 

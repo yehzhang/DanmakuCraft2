@@ -1,3 +1,4 @@
+import transform from 'lodash/transform';
 import mixpanel from 'mixpanel-browser';
 
 function track(message: string, dimensions: Record<string, unknown>) {
@@ -9,11 +10,11 @@ function track(message: string, dimensions: Record<string, unknown>) {
   });
 }
 
-function serializeObjectAttributes(attributes: Record<string, unknown>): Record<string, string> {
-  return Object.entries(attributes).reduce(
-    (details, [key, value]) =>
-      Object.assign(details, { [`_${key}`]: value instanceof Date ? value.toISOString() : value }),
-    {}
+function serializeObjectAttributes(attributes: Record<string, unknown>): Record<string, unknown> {
+  return transform(
+    attributes,
+    (result, value, key) =>
+      void (result[`_${key}`] = value instanceof Date ? value.toISOString() : value)
   );
 }
 
