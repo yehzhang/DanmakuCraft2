@@ -247,7 +247,8 @@ const styles = createStyleSheet({
   belowFormRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    margin: '1rem 0',
+    marginTop: '1.5rem',
+    marginBottom: '1rem',
   },
   link: {
     color: '#1a0dab',
