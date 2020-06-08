@@ -116,7 +116,7 @@ async function fetchBackend(
       return { type: 'rejected', errorType: 'invalid_session_token' };
     }
   } else if (path === 'classes/Entity' || path === 'classes/BilibiliUserComment') {
-    // Unexpected error.
+    // Fallthrough.
   } else if (path === 'requestPasswordReset' || path === 'verificationEmailRequest') {
     // Swallow the backend error internally.
     logErrorMessage('Expected valid error code', { path, errorCode });
@@ -124,7 +124,7 @@ async function fetchBackend(
   } else {
     checkExhaustive(path);
   }
-  // Unexpected error code for some path.
+  // Fallback for all unexpected errors. This indicates client side assumptions are broken.
   logErrorMessage('Expected valid error code', { path, errorCode });
   return { type: 'rejected', errorType: 'unknown' };
 }
