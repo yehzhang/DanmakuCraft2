@@ -71,7 +71,8 @@ const particleCount = 120;
 const particleDeltaZPerMs = 0.015;
 const maxTweenDurationMs = Number.MAX_SAFE_INTEGER;
 const particleZOffsetTweens: Tweens = [
-  { to: -particleMaxZ * 1.4 },
+  { to: -particleMaxZ },
+  { durationMs: 3000 },
   {
     to: maxTweenDurationMs * particleDeltaZPerMs,
     easing: linear,
