@@ -12,7 +12,7 @@ function fetchBackend(
 ): Result<User, UserSignUpErrorType>;
 function fetchBackend(
   path: 'login',
-  method: 'GET',
+  method: 'POST',
   payload: KeyValuePayload<{ username: string; password: string }>
 ): Result<User, UserSignInErrorType>;
 function fetchBackend(

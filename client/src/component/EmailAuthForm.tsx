@@ -95,7 +95,7 @@ function EmailAuthForm() {
         }
 
         if (type === 'sign_in') {
-          const response = await fetchBackend('login', 'GET', {
+          const response = await fetchBackend('login', 'POST', {
             type: 'key_value',
             data: {
               username: email,
