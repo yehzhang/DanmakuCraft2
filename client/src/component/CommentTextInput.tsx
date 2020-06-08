@@ -11,6 +11,7 @@ import postCommentEntity from '../shim/backend/postCommentEntity';
 import bindFirst from '../shim/bilibili/bindFirst';
 import { selectDomain } from '../shim/domain';
 import logError from '../shim/logging/logError';
+import logErrorMessage from '../shim/logging/logErrorMessage';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
@@ -39,8 +40,10 @@ function CommentTextInput() {
     (state) => (state.domain.type === 'bilibili' && state.domain.userId) || undefined
   );
   const disabled = useSelector((state) => state.view !== 'main' || submitting);
+  const sessionToken = useSelector((state) => state.user?.sessionToken);
   const onSubmit = useCallback(() => {
-    if (disabled) {
+    if (disabled || !sessionToken) {
+      logErrorMessage('Unexpected text input submission');
       return false;
     }
 
@@ -71,7 +74,7 @@ function CommentTextInput() {
       text: commentText,
       ...position,
     };
-    postCommentEntity(outboundCommentEntity, bilibiliUserId)
+    postCommentEntity(outboundCommentEntity, sessionToken, bilibiliUserId)
       .then(([id, commentEntity]) => {
         dispatch({ type: '[CommentTextInput] submitted', id, commentEntity });
       })
@@ -81,7 +84,7 @@ function CommentTextInput() {
       });
 
     return true;
-  }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled]);
+  }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled, sessionToken]);
 
   return selectDomain<() => ReactElement | null>({
     danmakucraft: () => {

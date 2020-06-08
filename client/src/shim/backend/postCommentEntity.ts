@@ -8,10 +8,11 @@ import parseDateData from './parseDateData';
 /** Resolves to the id of the comment entity. */
 async function postCommentEntity(
   outboundCommentEntity: OutboundAttributes<CommentEntity>,
+  sessionToken: string,
   bilibiliUserId?: string
 ): Promise<[string, CommentEntity]> {
   const result = await fetchBackend('classes/Entity', 'POST', {
-    type: 'key_value',
+    type: 'parse_object',
     data:
       outboundCommentEntity.type === 'plain'
         ? {
@@ -19,6 +20,7 @@ async function postCommentEntity(
             color: toRgbNumber(outboundCommentEntity.color),
           }
         : outboundCommentEntity,
+    sessionToken,
   });
 
   const {

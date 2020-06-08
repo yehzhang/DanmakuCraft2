@@ -85,6 +85,7 @@ async function fetchBackend(
     path,
     method,
     payload,
+    errorMessage: responseJson.error,
     errorCode: success ? undefined : responseJson.code,
   });
 
@@ -124,17 +125,25 @@ async function fetchBackend(
   return { type: 'rejected', errorType: 'unknown' };
 }
 
-type KeyValuePayload<T extends Record<string, unknown>> = { type: 'key_value'; data: T };
-type SessionTokenPayload = { type: 'session_token'; sessionToken: string };
-type QueryPayload<T extends Attributes> = {
+interface KeyValuePayload<T extends Record<string, unknown>> {
+  type: 'key_value';
+  data: T;
+}
+interface SessionTokenPayload {
+  type: 'session_token';
+  sessionToken: string;
+}
+interface QueryPayload<T extends Attributes> {
   type: 'query';
   sessionToken: string;
   order: { [_ in keyof T]?: 1 | -1 };
   limit: number;
-};
-type ParseObjectPayload<T extends Attributes> = KeyValuePayload<
-  OutboundAttributes<Serializable<T>>
->;
+}
+interface ParseObjectPayload<T extends Attributes> {
+  type: 'parse_object';
+  data: OutboundAttributes<Serializable<T>>;
+  sessionToken: string;
+}
 type Payload =
   | KeyValuePayload<Record<string, unknown>>
   | ParseObjectPayload<Attributes>
@@ -186,6 +195,7 @@ function getJsonPayload(payload: Payload): Record<string, unknown> | null {
         limit,
       };
     }
+    case 'parse_object':
     case 'key_value': {
       const { data } = payload;
       return data;
@@ -199,6 +209,7 @@ function getSessionToken(payload: Payload): string | null {
   switch (payload.type) {
     case 'query':
     case 'session_token':
+    case 'parse_object':
       return payload.sessionToken;
     case 'key_value':
       return null;

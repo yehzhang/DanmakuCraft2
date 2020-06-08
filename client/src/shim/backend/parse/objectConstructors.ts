@@ -15,5 +15,4 @@ export type OutboundAttributes<T extends Parse.Attributes> = T extends unknown
   ? Omit<T, keyof Parse.BaseAttributes>
   : never;
 
-export const CommentEntityConstructor = createParseObjectConstructor('Entity');
 export const BilibiliUserCommentConstructor = createParseObjectConstructor('BilibiliUserComment');
