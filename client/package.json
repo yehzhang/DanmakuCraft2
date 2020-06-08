@@ -5,7 +5,7 @@
     "start": "cd .. && yarn webpack-dev-server --config client/webpack.dev.js",
     "start:prod": "cd .. && yarn webpack-dev-server --config client/webpack.prod.js",
     "build": "cd .. && yarn webpack --config client/webpack.prod.js",
-    "build:analysis": "ANALYSIS=1 yarn build:prod --watch"
+    "analyze": "ANALYSIS=1 yarn build --watch"
   },
   "devDependencies": {
     "@types/howler": "^2.1.2",
