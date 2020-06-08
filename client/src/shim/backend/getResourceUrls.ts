@@ -1,4 +1,4 @@
-import { serverUrl } from './initializeBackend';
+import { serverUrl } from './config';
 
 function getResourceUrls(filename: string): string {
   const url = new URL(`resource/${filename}`, serverUrl);

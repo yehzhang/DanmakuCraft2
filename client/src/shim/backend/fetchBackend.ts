@@ -3,8 +3,7 @@ import { CommentEntity } from '../../data/entity';
 import checkExhaustive from '../checkExhaustive';
 import logErrorMessage from '../logging/logErrorMessage';
 import track from '../logging/track';
-import BilibiliUserComment from './BilibiliUserComment';
-import { applicationId, javaScriptKey, serverUrl } from './initializeBackend';
+import { applicationId, javaScriptKey, serverUrl } from './config';
 
 function fetchBackend(
   path: 'users',
@@ -39,7 +38,7 @@ function fetchBackend(
 function fetchBackend(
   path: 'classes/BilibiliUserComment',
   method: 'POST',
-  payload: ParseObjectPayload<BilibiliUserComment>
+  payload: ParseObjectPayload<{ bilibiliUserId: string; commentEntityId: string }>
 ): Result<ParseObject, 'unknown'>;
 async function fetchBackend(
   path:

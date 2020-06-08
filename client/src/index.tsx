@@ -14,7 +14,6 @@ import { addLoadingTask, LoadingResult } from './component/Loading';
 import './data/entity';
 import getLatestCommentEntities from './shim/backend/getLatestCommentEntities';
 import getResourceUrls from './shim/backend/getResourceUrls';
-import initializeBackend from './shim/backend/initializeBackend';
 import setUpBilibiliShim from './shim/bilibili';
 import ConsoleInput from './shim/ConsoleInput';
 import { selectDomain } from './shim/domain';
@@ -50,7 +49,6 @@ async function main() {
   }
 
   initializeLogging();
-  initializeBackend();
   addLoadingTask(loadCommentsFromBackend);
   addLoadingTask(constant(loadBackgroundMusic()));
 
