@@ -33,7 +33,7 @@ cp -a "$buildPath/website/public/." "$publicPath"
 
 # Build and copy client binary.
 cd ./client
-yarn build:prod
+yarn build
 cd ..
 
 cp "$buildPath/bundle.js" "$publicPath"
@@ -42,3 +42,6 @@ cp "$buildPath/bundle.js.map" "$publicPath"
 # Deploy.
 cd "$deployPath"
 b4a deploy "$env"
+
+# Configure
+yarn "configure:$env"

@@ -26,7 +26,15 @@ async function fetchBackend(method: string, path: string, payload?: Payload) {
   ]);
   const stdout = await execute(command);
 
-  const response = JSON.parse(stdout);
+  let response;
+  try {
+    response = JSON.parse(stdout);
+  } catch (error) {
+    console.error(error);
+    console.error(stdout);
+    throw new TypeError('Expected valid stdout');
+  }
+
   if (typeof response !== 'object' || response.error) {
     throw new TypeError(`Expected valid response: ${stdout}`);
   }
