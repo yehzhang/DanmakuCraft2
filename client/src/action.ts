@@ -43,6 +43,7 @@ export type Action =
   | { type: '[ConsoleInput] view set'; viewName: ViewName }
   | { type: '[ConsoleInput] player flying toggled'; state: boolean }
   | { type: '[ConsoleInput] display level set'; level: ConsoleDisplayLevel }
+  | { type: '[ConsoleInput] signed out' }
   | { type: '[CommentTextInput] changed'; value: string }
   | { type: '[CommentTextInput] submit failed due to collision' }
   | { type: '[CommentTextInput] submit failed due to empty text' }

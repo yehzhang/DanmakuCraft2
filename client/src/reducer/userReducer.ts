@@ -11,6 +11,7 @@ function userReducer(state = initialState, action: Action): UserState | null {
       return { sessionToken };
     }
     case '[AuthDialog] invalid session token':
+    case '[ConsoleInput] signed out':
       return initialState;
     default:
       return state;

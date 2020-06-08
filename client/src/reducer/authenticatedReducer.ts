@@ -8,6 +8,8 @@ function authenticatedReducer(state = initialState, action: Action): boolean {
     case '[EmailAuthForm] signed up':
     case '[AuthDialog] valid session token':
       return true;
+    case '[ConsoleInput] signed out':
+      return initialState;
     default:
       return state;
   }
