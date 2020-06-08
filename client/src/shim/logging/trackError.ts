@@ -2,20 +2,17 @@ import track from './track';
 
 function trackError(message: string, stackTrace: string | undefined, details?: ErrorDetails) {
   track('Error', {
-    ...(details && serializeObjectAttributes(details)),
-    _errorMessage: message,
-    _stackTrace: stackTrace,
+    ...(details && prefixErrorDetails(details)),
+    errorMessage: message,
+    stackTrace,
   });
 }
 
-export interface ErrorDetails {
-  readonly [key: string]: unknown;
-}
+type ErrorDetails = Record<string, unknown>;
 
-function serializeObjectAttributes(attributes: object): { [key: string]: string } {
+function prefixErrorDetails(attributes: ErrorDetails): ErrorDetails {
   return Object.entries(attributes).reduce(
-    (details, [key, value]) =>
-      Object.assign(details, { [`__${key}`]: value instanceof Date ? value.toISOString() : value }),
+    (details, [key, value]) => Object.assign(details, { [`_${key}`]: value }),
     {}
   );
 }
