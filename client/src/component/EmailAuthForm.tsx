@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChangeEvent, FormEvent, useCallback, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import i18nData from '../data/i18n/zh';
 import fetchBackend from '../shim/backend/fetchBackend';
 import checkExhaustive from '../shim/checkExhaustive';
@@ -13,14 +13,19 @@ function EmailAuthForm() {
   >('sign_up');
   const [email, setEmail] = useState('');
   const setEmailFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    emailInputRef.current?.setCustomValidity('');
+    clearErrorMessages();
     setEmail(event.target.value);
   }, []);
   const [password, setPassword] = useState('');
   const setPasswordFromEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    emailInputRef.current?.setCustomValidity('');
+    clearErrorMessages();
     setPassword(event.target.value);
   }, []);
+
+  const clearErrorMessages = () => {
+    emailInputRef.current?.setCustomValidity('');
+  };
+  useEffect(() => void clearErrorMessages(), [type]);
 
   const dispatch = useDispatch();
   const [submitting, setSubmitting] = useState(false);
