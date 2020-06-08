@@ -4,6 +4,7 @@ import { IdKeyed } from '../../state';
 import checkExhaustive from '../checkExhaustive';
 import ParametricTypeError from '../logging/ParametricTypeError';
 import fetchBackend, { InboundAttributes } from './fetchBackend';
+import parseDateData from './parseDateData';
 
 async function getLatestCommentEntities(sessionToken: string): Promise<IdKeyed<CommentEntity>> {
   const result = await fetchBackend('classes/Entity', 'GET', {
@@ -42,8 +43,8 @@ function buildCommentEntity(attributes: InboundAttributes<CommentEntity>): IdKey
   if (typeof objectId !== 'string') {
     throw new ParametricTypeError('Expected valid attribute objectId', attributes);
   }
-  const createdAt = typeof rawCreatedAt === 'string' && new Date(rawCreatedAt);
-  if (!createdAt || isNaN(createdAt.getTime())) {
+  const createdAt = parseDateData(rawCreatedAt);
+  if (!createdAt) {
     throw new ParametricTypeError('Expected valid attribute createdAt', attributes);
   }
   if (typeof x !== 'number') {

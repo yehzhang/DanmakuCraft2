@@ -77,7 +77,7 @@ function CommentTextInput() {
       })
       .catch((error) => {
         logError(error);
-        dispatch({ type: '[CommentTextInput] submit failed due to network error' });
+        dispatch({ type: '[CommentTextInput] submit failed due to backend error' });
       });
 
     return true;

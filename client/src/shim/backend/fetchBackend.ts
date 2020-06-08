@@ -1,3 +1,4 @@
+import { Color } from '../../data/color';
 import { CommentEntity } from '../../data/entity';
 import checkExhaustive from '../checkExhaustive';
 import logErrorMessage from '../logging/logErrorMessage';
@@ -25,6 +26,11 @@ function fetchBackend(
   payload: QueryPayload<CommentEntity>
 ): Result<QueryResult<CommentEntity>, never>;
 function fetchBackend(
+  path: 'classes/Entity',
+  method: 'POST',
+  payload: ParseObjectPayload<CommentEntity>
+): Result<ParseObject, never>;
+function fetchBackend(
   path: 'requestPasswordReset' | 'verificationEmailRequest',
   method: 'POST',
   payload: KeyValuePayload<{ email: string }>
@@ -43,7 +49,9 @@ async function fetchBackend(
   const url = new URL(path, serverUrl);
   const jsonPayload = getJsonPayload(payload);
   if (method === 'GET' && jsonPayload) {
-    Object.entries(jsonPayload).forEach((entry) => void url.searchParams.append(...entry));
+    Object.entries(jsonPayload).forEach(
+      ([key, value]) => void url.searchParams.append(key, JSON.stringify(value))
+    );
   }
   const sessionToken = getSessionToken(payload);
   const response = await fetch(url.href, {
@@ -116,7 +124,7 @@ async function fetchBackend(
   return { type: 'rejected', errorType: 'unknown' };
 }
 
-type KeyValuePayload<T extends Record<string, string>> = { type: 'key_value'; data: T };
+type KeyValuePayload<T extends Record<string, unknown>> = { type: 'key_value'; data: T };
 type SessionTokenPayload = { type: 'session_token'; sessionToken: string };
 type QueryPayload<T extends Attributes> = {
   type: 'query';
@@ -124,8 +132,12 @@ type QueryPayload<T extends Attributes> = {
   order: { [_ in keyof T]?: 1 | -1 };
   limit: number;
 };
+type ParseObjectPayload<T extends Attributes> = KeyValuePayload<
+  OutboundAttributes<Serializable<T>>
+>;
 type Payload =
-  | KeyValuePayload<Record<string, string>>
+  | KeyValuePayload<Record<string, unknown>>
+  | ParseObjectPayload<Attributes>
   | SessionTokenPayload
   | QueryPayload<Attributes>;
 
@@ -133,13 +145,18 @@ interface Attributes {
   readonly [key: string]: any;
 }
 export type InboundAttributes<T extends Attributes> = {
-  [P in keyof UnionToIntersectionHack<T> | 'objectId' | 'createdAt' | 'updatedAt']?: unknown;
+  [P in keyof UnionToIntersectionHack<T> | BuiltInAttributes]?: unknown;
 };
 type UnionToIntersectionHack<U> = (U extends unknown ? (k: U) => void : never) extends (
   k: infer I
 ) => void
   ? I
   : never;
+export type OutboundAttributes<T extends Parse.Attributes> = T extends unknown
+  ? Omit<T, BuiltInAttributes>
+  : never;
+type Serializable<T extends Attributes> = { [K in keyof T]: T[K] extends Color ? number : T[K] };
+type BuiltInAttributes = 'objectId' | 'createdAt' | 'updatedAt';
 
 type UserSignUpErrorType = 'username_taken' | 'unknown';
 type UserSignInErrorType = 'invalid_username_or_password' | 'unknown';
@@ -148,13 +165,14 @@ type ErrorType = UserSignUpErrorType | UserSignInErrorType | InvalidSessionToken
 
 type User = { sessionToken: string };
 type QueryResult<T> = { results: InboundAttributes<T>[] };
-type ResolvedValue = User | QueryResult<CommentEntity> | void;
+type ParseObject = InboundAttributes<{ objectId: string; createdAt: string }>;
+type ResolvedValue = User | QueryResult<CommentEntity> | ParseObject | void;
 
 type Result<L, R> = Promise<
   { type: 'resolved'; value: L } | (R extends never ? never : { type: 'rejected'; errorType: R })
 >;
 
-function getJsonPayload(payload: Payload): Record<string, string> | null {
+function getJsonPayload(payload: Payload): Record<string, unknown> | null {
   switch (payload.type) {
     case 'query': {
       const { order, limit } = payload;
@@ -165,7 +183,7 @@ function getJsonPayload(payload: Payload): Record<string, string> | null {
           )
           .filter(Boolean)
           .join(','),
-        limit: limit.toString(),
+        limit,
       };
     }
     case 'key_value': {

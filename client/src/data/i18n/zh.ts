@@ -37,7 +37,7 @@ const i18nData: I18nTextData = {
   fontSizeSmall: '小',
   fontSizeMedium: '标准',
 
-  backendError: '通讯被干扰，请刷新或稍后再试',
+  backendError: '通讯被干扰，请稍后再试或刷新',
   unknownError: '未知错误',
 };
 

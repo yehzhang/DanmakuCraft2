@@ -1,37 +1,45 @@
 import { toRgbNumber } from '../../data/color';
 import { CommentEntity } from '../../data/entity';
-import {
-  BilibiliUserCommentConstructor,
-  CommentEntityConstructor,
-  OutboundAttributes,
-} from './parse/objectConstructors';
+import ParametricTypeError from '../logging/ParametricTypeError';
+import fetchBackend from './fetchBackend';
+import { BilibiliUserCommentConstructor, OutboundAttributes } from './parse/objectConstructors';
+import parseDateData from './parseDateData';
 
 /** Resolves to the id of the comment entity. */
 async function postCommentEntity(
-  commentEntity: OutboundAttributes<CommentEntity>,
+  outboundCommentEntity: OutboundAttributes<CommentEntity>,
   bilibiliUserId?: string
 ): Promise<[string, CommentEntity]> {
-  const serializedCommentEntity =
-    commentEntity.type === 'plain'
-      ? {
-          ...commentEntity,
-          color: toRgbNumber(commentEntity.color),
-        }
-      : commentEntity;
+  const result = await fetchBackend('classes/Entity', 'POST', {
+    type: 'key_value',
+    data:
+      outboundCommentEntity.type === 'plain'
+        ? {
+            ...outboundCommentEntity,
+            color: toRgbNumber(outboundCommentEntity.color),
+          }
+        : outboundCommentEntity,
+  });
 
-  const commentEntityObject = new CommentEntityConstructor();
-  commentEntityObject.set(serializedCommentEntity);
-  await commentEntityObject.save();
+  const {
+    value: { objectId, createdAt: rawCreatedAt },
+  } = result;
+  if (typeof objectId !== 'string') {
+    throw new ParametricTypeError('Expected valid objectId in posted comment entity', { result });
+  }
+  const createdAt = parseDateData(rawCreatedAt);
+  if (!createdAt) {
+    throw new ParametricTypeError('Expected valid createdAt in posted comment entity', { result });
+  }
 
-  const { id, createdAt } = commentEntityObject;
   if (bilibiliUserId !== undefined) {
-    postBilibiliUserComment(bilibiliUserId, id);
+    postBilibiliUserComment(bilibiliUserId, objectId);
   }
 
   return [
-    id,
+    objectId,
     {
-      ...commentEntity,
+      ...outboundCommentEntity,
       createdAt,
     },
   ];

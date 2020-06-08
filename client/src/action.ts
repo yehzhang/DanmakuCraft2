@@ -46,7 +46,7 @@ export type Action =
   | { type: '[CommentTextInput] changed'; value: string }
   | { type: '[CommentTextInput] submit failed due to collision' }
   | { type: '[CommentTextInput] submit failed due to empty text' }
-  | { type: '[CommentTextInput] submit failed due to network error' }
+  | { type: '[CommentTextInput] submit failed due to backend error' }
   | { type: '[CommentTextInput] started submission' }
   | { type: '[CommentTextInput] submitted'; id: string; commentEntity: CommentEntity }
   | { type: '[CommentTextInput] focused' }
