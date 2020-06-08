@@ -238,6 +238,7 @@ const styles = createStyleSheet({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
+    margin: 0,
   },
   title: {
     fontSize: 22,
