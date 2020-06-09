@@ -22,10 +22,11 @@ function AuthDialog() {
         setAuthRequired(true);
         return;
       }
+
+      // Validate persisted token.
       const result = await fetchBackend('users/me', 'GET', { type: 'session_token', sessionToken });
       if (result.type === 'rejected') {
         dispatch({ type: '[AuthDialog] invalid session token' });
-        setAuthRequired(true);
         return;
       }
       dispatch({ type: '[AuthDialog] valid session token' });
