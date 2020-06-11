@@ -72,7 +72,7 @@ const particleDeltaZPerMs = 0.015;
 const maxTweenDurationMs = Number.MAX_SAFE_INTEGER;
 const particleZOffsetTweens: Tweens = [
   { to: -particleMaxZ },
-  { durationMs: 3000 },
+  { durationMs: 200 },
   {
     to: maxTweenDurationMs * particleDeltaZPerMs,
     easing: linear,

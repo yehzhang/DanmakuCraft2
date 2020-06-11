@@ -19,10 +19,10 @@ import OpeningFadeOut from './OpeningFadeOut';
 import OpeningTitle from './OpeningTitle';
 
 function Opening() {
-  const [state, openingDispatch] = useReducer(reducer, initialState);
+  const [{ stage }, openingDispatch] = useReducer(reducer, initialState);
   const { x: width, y: height } = useSelector((state_) => state_.containerSize);
   const vanishingPoint = { x: width * 0.5, y: height * 0.5 };
-  const successfulExiting = state.stage === 'exiting_successful';
+  const successfulExiting = stage === 'exiting_successful';
   const dispatch = useDispatch();
   const onComplete = useCallback(async () => {
     if (successfulExiting) {
@@ -47,7 +47,9 @@ function Opening() {
 
   return (
     <>
-      <DanmakuParticleField observerZ={successfulExiting ? 60 : 0} />
+      {(stage === 'heavy_loading' || stage === 'exiting_successful') && (
+        <DanmakuParticleField observerZ={successfulExiting ? 60 : 0} />
+      )}
       <DanmakuPlanet
         x={width * 0.5}
         y={height * 0.5}
@@ -64,13 +66,13 @@ function Opening() {
         stage={successfulExiting ? 'exiting' : 'entering'}
         dispatch={openingDispatch}
       />
-      {state.stage === 'exiting_failed' && <OpeningFadeOut color={black} onComplete={onComplete} />}
+      {stage === 'exiting_failed' && <OpeningFadeOut color={black} onComplete={onComplete} />}
       <Loading
         x={width * 0.95}
         y={height * 0.95}
         anchor={bottomRight}
         dispatch={openingDispatch}
-        startHeavyTasks={state.stage === 'heavy_loading'}
+        startHeavyTasks={stage === 'heavy_loading'}
       />
       {successfulExiting && <OpeningFadeOut color={white} onComplete={onComplete} />}
     </>
