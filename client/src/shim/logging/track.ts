@@ -2,12 +2,13 @@ import transform from 'lodash/transform';
 import mixpanel from 'mixpanel-browser';
 
 function track(message: string, dimensions: Record<string, unknown>) {
-  mixpanel.track(message, {
-    ...serializeObjectAttributes({
+  mixpanel.track(
+    message,
+    serializeObjectAttributes({
       ...dimensions,
       env: __DEV__ ? 'dev' : 'prod',
-    }),
-  });
+    })
+  );
 }
 
 function serializeObjectAttributes(attributes: Record<string, unknown>): Record<string, unknown> {
