@@ -43,7 +43,7 @@ function tutorialReducer(state = initialState, action: Action): TutorialState {
 }
 
 function updateStage(state: TutorialState): TutorialState {
-  const { stage, msSinceThisStage: msSinceThisStage, moved, enterKeyPressed } = state;
+  const { stage, msSinceThisStage, moved, enterKeyPressed } = state;
   switch (stage) {
     case 'preMovementKeys':
       return moved
