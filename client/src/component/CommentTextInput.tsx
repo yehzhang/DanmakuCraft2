@@ -6,11 +6,12 @@ import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useQuerySelector from '../hook/useQuerySelector';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
-import { OutboundAttributes } from '../shim/backend/parse/objectConstructors';
+import { OutboundAttributes } from '../shim/backend/fetchBackend';
 import postCommentEntity from '../shim/backend/postCommentEntity';
 import bindFirst from '../shim/bilibili/bindFirst';
 import { selectDomain } from '../shim/domain';
 import logError from '../shim/logging/logError';
+import logErrorMessage from '../shim/logging/logErrorMessage';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useSelector } from '../shim/redux';
 
@@ -35,12 +36,11 @@ function CommentTextInput() {
 
   const commentText = useSelector((state) => state.commentInputText);
   const commentInput = useSelector(commentInputSelector);
-  const bilibiliUserId = useSelector(
-    (state) => (state.domain.type === 'bilibili' && state.domain.userId) || undefined
-  );
   const disabled = useSelector((state) => state.view !== 'main' || submitting);
+  const user = useSelector((state) => state.user);
   const onSubmit = useCallback(() => {
-    if (disabled) {
+    if (disabled || !user) {
+      logErrorMessage('Unexpected text input submission');
       return false;
     }
 
@@ -58,6 +58,7 @@ function CommentTextInput() {
 
     dispatch({ type: '[CommentTextInput] started submission' });
 
+    const { userId, sessionToken } = user;
     const outboundCommentEntity: OutboundAttributes<CommentEntity> = {
       ...(chromatic
         ? {
@@ -70,18 +71,19 @@ function CommentTextInput() {
       size,
       text: commentText,
       ...position,
+      userId,
     };
-    postCommentEntity(outboundCommentEntity, bilibiliUserId)
+    postCommentEntity(outboundCommentEntity, sessionToken)
       .then(([id, commentEntity]) => {
         dispatch({ type: '[CommentTextInput] submitted', id, commentEntity });
       })
       .catch((error) => {
         logError(error);
-        dispatch({ type: '[CommentTextInput] submit failed due to network error' });
+        dispatch({ type: '[CommentTextInput] submit failed due to backend error' });
       });
 
     return true;
-  }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled]);
+  }, [dispatch, commentText, submitting, commentInput, disabled, user]);
 
   return selectDomain<() => ReactElement | null>({
     danmakucraft: () => {
@@ -94,6 +96,9 @@ function CommentTextInput() {
         },
         [onSubmit]
       );
+      const onTextInputChangedEvent = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+        onTextChanged(event.target.value);
+      }, []);
       return (
         <form style={styles.container} onSubmit={onFormSubmit}>
           <input
@@ -102,9 +107,7 @@ function CommentTextInput() {
             style={styles.textInput}
             type="text"
             value={commentText}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
-              onTextChanged(event.target.value);
-            }}
+            onChange={onTextInputChangedEvent}
             onFocus={onFocus}
             onBlur={onBlur}
           />

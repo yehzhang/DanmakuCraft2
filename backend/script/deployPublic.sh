@@ -33,7 +33,7 @@ cp -a "$buildPath/website/public/." "$publicPath"
 
 # Build and copy client binary.
 cd ./client
-yarn build:prod
+yarn build
 cd ..
 
 cp "$buildPath/bundle.js" "$publicPath"

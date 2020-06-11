@@ -1,4 +1,3 @@
-import BilibiliUserCommentSchema from '../schemas/BilibiliUserComment.json';
 import EntitySchema from '../schemas/Entity.json';
 import fetchBackend from './internal/fetchBackend';
 
@@ -24,10 +23,7 @@ function getSchemaPath(className: string): string {
 }
 
 async function configureBackend() {
-  await Promise.all([
-    pushDatabaseSchema('Entity', EntitySchema),
-    pushDatabaseSchema('BilibiliUserComment', BilibiliUserCommentSchema),
-  ]);
+  await pushDatabaseSchema('Entity', EntitySchema);
 }
 
 configureBackend();

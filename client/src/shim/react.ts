@@ -16,3 +16,5 @@ export function lazyModuleMemo<T extends ComponentType<any>>(Component: T) {
 export const createStyleSheet: <T extends string>(
   styleSheet: StyleSheet<T>
 ) => StyleSheet<T> = identity;
+
+export const createStyle: <T extends Readonly<CSSProperties>>(style: T) => T = identity;

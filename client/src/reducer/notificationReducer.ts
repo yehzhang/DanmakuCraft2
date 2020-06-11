@@ -18,7 +18,7 @@ function notificationReducer(state = initialState, action: Action): Notification
     }
     case '[CommentTextInput] submit failed due to collision':
       return createNotification('commentCollision');
-    case '[CommentTextInput] submit failed due to network error':
+    case '[CommentTextInput] submit failed due to backend error':
       return createNotification('backendError');
     case '[Tutorial] hinted movement keys for the first time':
       return createNotification('firstMovementTutorial');

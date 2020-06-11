@@ -30,6 +30,8 @@ export interface State {
   readonly domain: DomainState;
   readonly backgroundMusic: BackgroundMusicState;
   readonly receivedCommentEntities: ReceivedCommentEntityState;
+  readonly user: UserState | null;
+  readonly authenticated: boolean;
 }
 
 export interface PlayerState {
@@ -126,7 +128,6 @@ export interface DanmakuCraftDomainState {
 export interface BilibiliDomainState {
   readonly type: 'bilibili';
   readonly externalDependency: BilibiliExternalDependency | null;
-  readonly userId: string | null;
 }
 export interface BilibiliExternalDependency {
   readonly $: JQueryStatic;
@@ -137,4 +138,9 @@ export type BackgroundMusicState = Howl | null;
 
 export interface ReceivedCommentEntityState {
   [commentEntityId: string]: Date;
+}
+
+export interface UserState {
+  readonly userId: string;
+  readonly sessionToken: string;
 }

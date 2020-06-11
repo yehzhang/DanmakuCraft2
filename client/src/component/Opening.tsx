@@ -1,4 +1,5 @@
 import add from 'lodash/add';
+import mapKeys from 'lodash/mapKeys';
 import { nanoid } from 'nanoid';
 import * as React from 'react';
 import { useCallback, useEffect, useReducer } from 'react';
@@ -18,14 +19,10 @@ import OpeningFadeOut from './OpeningFadeOut';
 import OpeningTitle from './OpeningTitle';
 
 function Opening() {
-  const [state, openingDispatch] = useReducer(reducer, {
-    stage: 'entering',
-    titleEntered: false,
-    planetEntered: false,
-  });
+  const [{ stage }, openingDispatch] = useReducer(reducer, initialState);
   const { x: width, y: height } = useSelector((state_) => state_.containerSize);
   const vanishingPoint = { x: width * 0.5, y: height * 0.5 };
-  const successfulExiting = state.stage === 'exiting_successful';
+  const successfulExiting = stage === 'exiting_successful';
   const dispatch = useDispatch();
   const onComplete = useCallback(async () => {
     if (successfulExiting) {
@@ -41,9 +38,18 @@ function Opening() {
     dispatch(genesis());
   }, [dispatch]);
 
+  const authenticated = useSelector((state_) => state_.authenticated);
+  useEffect(() => {
+    if (authenticated) {
+      openingDispatch('Signed in');
+    }
+  }, [authenticated]);
+
   return (
     <>
-      <DanmakuParticleField observerZ={successfulExiting ? 60 : 0} />
+      {(stage === 'heavy_loading' || stage === 'exiting_successful') && (
+        <DanmakuParticleField observerZ={successfulExiting ? 60 : 0} />
+      )}
       <DanmakuPlanet
         x={width * 0.5}
         y={height * 0.5}
@@ -60,13 +66,13 @@ function Opening() {
         stage={successfulExiting ? 'exiting' : 'entering'}
         dispatch={openingDispatch}
       />
-      {state.stage === 'exiting_failed' && <OpeningFadeOut color={black} onComplete={onComplete} />}
+      {stage === 'exiting_failed' && <OpeningFadeOut color={black} onComplete={onComplete} />}
       <Loading
         x={width * 0.95}
         y={height * 0.95}
         anchor={bottomRight}
         dispatch={openingDispatch}
-        startHeavyTasks={state.stage === 'heavy_loading'}
+        startHeavyTasks={stage === 'heavy_loading'}
       />
       {successfulExiting && <OpeningFadeOut color={white} onComplete={onComplete} />}
     </>
@@ -78,6 +84,7 @@ type OpeningState =
       readonly stage: 'entering';
       readonly titleEntered: boolean;
       readonly planetEntered: boolean;
+      readonly signedIn: boolean;
     }
   | {
       readonly stage: 'heavy_loading';
@@ -88,7 +95,19 @@ type OpeningState =
   | {
       readonly stage: 'exiting_failed';
     };
-type OpeningAction = 'Title entered' | 'Planet entered' | 'Successfully loaded' | 'Failed to load';
+type OpeningAction =
+  | 'Title entered'
+  | 'Planet entered'
+  | 'Signed in'
+  | 'Successfully loaded'
+  | 'Failed to load';
+
+const initialState: OpeningState = {
+  stage: 'entering',
+  titleEntered: false,
+  planetEntered: false,
+  signedIn: false,
+};
 
 function reducer(state: OpeningState, action: OpeningAction): OpeningState {
   switch (action) {
@@ -100,6 +119,10 @@ function reducer(state: OpeningState, action: OpeningAction): OpeningState {
       return state.stage === 'entering'
         ? transitionToLoadingStateIfAllDone({ ...state, planetEntered: true })
         : state;
+    case 'Signed in':
+      return state.stage === 'entering'
+        ? transitionToLoadingStateIfAllDone({ ...state, signedIn: true })
+        : state;
     case 'Successfully loaded':
       return { stage: 'exiting_successful' };
     case 'Failed to load':
@@ -110,8 +133,8 @@ function reducer(state: OpeningState, action: OpeningAction): OpeningState {
 function transitionToLoadingStateIfAllDone(
   state: Extract<OpeningState, { stage: 'entering' }>
 ): OpeningState {
-  const { titleEntered, planetEntered } = state;
-  return titleEntered && planetEntered ? { stage: 'heavy_loading' } : state;
+  const { titleEntered, planetEntered, signedIn } = state;
+  return titleEntered && planetEntered && signedIn ? { stage: 'heavy_loading' } : state;
 }
 
 function genesis(): Action {
@@ -140,10 +163,7 @@ function genesis(): Action {
   return {
     type: '[Opening] genesis',
     spawnPosition: generateRandomPointAround(getRandomSpawnPoint(spawnPoints)),
-    signEntities: [...spawnPoints, worldCenterEntity, worldOriginEntity].reduce(
-      (signEntities, signEntity) => Object.assign(signEntities, { [nanoid()]: signEntity }),
-      {}
-    ),
+    signEntities: mapKeys([...spawnPoints, worldCenterEntity, worldOriginEntity], () => nanoid()),
   };
 }
 

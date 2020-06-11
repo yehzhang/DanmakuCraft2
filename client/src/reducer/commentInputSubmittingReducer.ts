@@ -7,7 +7,7 @@ function commentInputSubmittingReducer(state = initialState, action: Action): bo
     case '[CommentTextInput] started submission':
       return true;
     case '[CommentTextInput] submitted':
-    case '[CommentTextInput] submit failed due to network error':
+    case '[CommentTextInput] submit failed due to backend error':
       return false;
     default:
       return state;

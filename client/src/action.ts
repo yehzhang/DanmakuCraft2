@@ -27,6 +27,10 @@ export type Action =
   | { type: '[index] comment entities loaded'; commentEntities: IdKeyed<CommentEntity> }
   | { type: '[index] background music created'; album: Howl }
   | { type: '[Opening] completed' }
+  | { type: '[AuthDialog] invalid session token' }
+  | { type: '[AuthDialog] valid session token' }
+  | { type: '[EmailAuthForm] signed in'; userId: string; sessionToken: string }
+  | { type: '[EmailAuthForm] signed up'; userId: string; sessionToken: string }
   | { type: '[ConsoleInput] chest wanted'; position: Point; lootType: Buff['type'] }
   | { type: '[ConsoleInput] comment wanted'; id: string; commentEntity: PlainCommentEntity }
   | {
@@ -39,10 +43,11 @@ export type Action =
   | { type: '[ConsoleInput] view set'; viewName: ViewName }
   | { type: '[ConsoleInput] player flying toggled'; state: boolean }
   | { type: '[ConsoleInput] display level set'; level: ConsoleDisplayLevel }
+  | { type: '[ConsoleInput] signed out' }
   | { type: '[CommentTextInput] changed'; value: string }
   | { type: '[CommentTextInput] submit failed due to collision' }
   | { type: '[CommentTextInput] submit failed due to empty text' }
-  | { type: '[CommentTextInput] submit failed due to network error' }
+  | { type: '[CommentTextInput] submit failed due to backend error' }
   | { type: '[CommentTextInput] started submission' }
   | { type: '[CommentTextInput] submitted'; id: string; commentEntity: CommentEntity }
   | { type: '[CommentTextInput] focused' }
@@ -55,7 +60,6 @@ export type Action =
   | { type: '[Tutorial] hinted movement keys for the second time' }
   | { type: '[Tutorial] hinted movement keys for the last time' }
   | { type: '[Tutorial] hinted comment key' }
-  | { type: '[shim/bilibili] detected maybe signed-in user'; userId: string | null }
   | { type: '[shim/bilibili] external dependency ready'; $: JQueryStatic }
   | { type: 'Console entry used'; key: string; entry: ConsoleEntry }
   | { type: 'Console entry released'; key: string };

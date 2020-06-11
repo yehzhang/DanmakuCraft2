@@ -68,6 +68,14 @@ class ConsoleInput {
     return level;
   }
 
+  get signOut() {
+    const sessionToken = this.store.getState().user?.sessionToken;
+
+    this.store.dispatch({ type: '[ConsoleInput] signed out' });
+
+    return sessionToken;
+  }
+
   private wantChest(lootType: Buff['type']) {
     this.store.dispatch({
       type: '[ConsoleInput] chest wanted',
@@ -138,6 +146,7 @@ function createDevComment(data: Partial<CommentEntity>): CommentEntity {
     x: 0,
     y: 0,
     createdAt: new Date(),
+    userId: undefined,
     ...data,
   };
 }

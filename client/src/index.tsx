@@ -5,6 +5,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactRedux from 'react-redux';
 import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import 'resize-observer-polyfill';
 import backgroundMusicConfig from '../../data/audio/background_music.json';
 import './action'; // Hack for webpack to pickup interface-only files.
@@ -13,11 +14,10 @@ import { addLoadingTask, LoadingResult } from './component/Loading';
 import './data/entity';
 import getLatestCommentEntities from './shim/backend/getLatestCommentEntities';
 import getResourceUrls from './shim/backend/getResourceUrls';
-import initializeBackend from './shim/backend/initializeBackend';
 import setUpBilibiliShim from './shim/bilibili';
 import ConsoleInput from './shim/ConsoleInput';
 import { selectDomain } from './shim/domain';
-import initializeLogging from './shim/logging/initializeLogging';
+import logErrorMessage from './shim/logging/logErrorMessage';
 import ParametricTypeError from './shim/logging/ParametricTypeError';
 import RenderThrottler from './shim/pixi/RenderThrottler';
 import './shim/polyfill';
@@ -47,9 +47,7 @@ async function main() {
     });
   }
 
-  initializeLogging();
-  initializeBackend();
-  addLoadingTask(loadCommentsFromBackend());
+  addLoadingTask(loadCommentsFromBackend);
   addLoadingTask(constant(loadBackgroundMusic()));
 
   const gameContainerId = await selectDomain<() => Promise<string> | string>({
@@ -59,31 +57,36 @@ async function main() {
 
   ReactDOM.render(
     <Provider store={store}>
-      <App />
+      <PersistGate persistor={persistor}>
+        <App />
+      </PersistGate>
     </Provider>,
     document.getElementById(gameContainerId)
   );
 }
 
-function loadCommentsFromBackend(): () => Promise<LoadingResult> {
-  const commentEntitiesPromise = getLatestCommentEntities();
-  return async () => {
-    const commentEntities = await commentEntitiesPromise;
-    const throttler = new RenderThrottler();
-    const sleepDurationMs = 2;
-    for (const commentEntityChunk of chunkObject(commentEntities, 100)) {
-      while (
-        !throttler.run(() => {
-          store.dispatch({
-            type: '[index] comment entities loaded',
-            commentEntities: commentEntityChunk,
-          });
-        }, sleepDurationMs)
-      ) {
-        await sleep(sleepDurationMs);
-      }
+async function loadCommentsFromBackend(): Promise<LoadingResult> {
+  const { sessionToken } = store.getState().user || {};
+  if (!sessionToken) {
+    logErrorMessage('Expected signed in user before loading comments');
+    return 'unknownError';
+  }
+
+  const commentEntities = await getLatestCommentEntities(sessionToken);
+  const throttler = new RenderThrottler();
+  const sleepDurationMs = 2;
+  for (const commentEntityChunk of chunkObject(commentEntities, 100)) {
+    while (
+      !throttler.run(() => {
+        store.dispatch({
+          type: '[index] comment entities loaded',
+          commentEntities: commentEntityChunk,
+        });
+      }, sleepDurationMs)
+    ) {
+      await sleep(sleepDurationMs);
     }
-  };
+  }
 }
 
 function chunkObject<T extends object>(data: T, size: number): T[] {

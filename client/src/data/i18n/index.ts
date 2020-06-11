@@ -5,6 +5,21 @@ export interface I18nTextData {
   title: string;
   bilibiliNotSignedIn: string;
 
+  signUp: string;
+  signIn: string;
+  signInWithExistingAccount: string;
+  signUpForNewAccount: string;
+  email: string;
+  password: string;
+  continue: string;
+  submitting: string;
+  emailTaken: string;
+  emailOrPasswordIncorrect: string;
+  findPassword: string;
+  forgotPasswordQuestion: string;
+  return: string;
+  doneResetPassword: string;
+
   firstMovementTutorial: string;
   secondMovementTutorial: string;
   finalMovementTutorial: string;
@@ -16,7 +31,12 @@ export interface I18nTextData {
 
   commentCollision: string;
 
+  fontSizeLabel: string;
+  fontSizeSmall: string;
+  fontSizeMedium: string;
+
   backendError: string;
+  unknownError: string;
 }
 
 export type I18nTextIdentifier = keyof I18nTextData;

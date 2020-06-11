@@ -4,6 +4,10 @@ A new world to come...
 
 ## Changelog
 
+### 1.5
+
+- Added user sign up and sign in.
+
 ### 1.4
 
 - Migrated website and static files to Parse Server. DanmakuCraft 2 is now fully server-less.

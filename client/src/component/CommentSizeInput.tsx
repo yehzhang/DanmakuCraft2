@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ChangeEvent, ReactElement, useCallback, useRef } from 'react';
+import i18nData from '../data/i18n/zh';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
 import useQuerySelector from '../hook/useQuerySelector';
 import { selectDomain } from '../shim/domain';
@@ -25,7 +26,7 @@ const renderUserInterface = selectDomain<RenderUserInterface>({
     return (
       <div style={styles.container}>
         <label htmlFor={selectElementId} style={styles.label}>
-          字号
+          {i18nData.fontSizeLabel}
         </label>
         <select
           id={selectElementId}
@@ -38,8 +39,8 @@ const renderUserInterface = selectDomain<RenderUserInterface>({
             }
           }}
         >
-          <option value="18">小</option>
-          <option value="25">标准</option>
+          <option value="18">{i18nData.fontSizeSmall}</option>
+          <option value="25">{i18nData.fontSizeMedium}</option>
         </select>
       </div>
     );

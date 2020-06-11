@@ -18,6 +18,8 @@ const styles = createStyleSheet({
     width: '100%',
     height: '100%',
 
+    borderRadius: 2,
+
     fontFamily:
       '-apple-system,BlinkMacSystemFont,Helvetica Neue,Helvetica,Arial,PingFang SC,' +
       'Hiragino Sans GB,Microsoft YaHei,sans-serif',

@@ -1,25 +1,19 @@
 import Cookies from 'js-cookie';
-import mixpanel from 'mixpanel-browser';
-import { addLoadingTask, LoadingResult } from '../../component/Loading';
-import { Store } from '../redux';
+import track from '../logging/track';
 
-function setUpUser(store: Store): LoadingResult {
-  addLoadingTask(() => {
-    const signedOutElement = document.querySelector('.nav-user-center .user-con.logout');
-    if (signedOutElement) {
-      trackUserSignInState('signed out');
-      return 'bilibiliNotSignedIn';
-    }
+function setUpUser() {
+  const signedOutElement = document.querySelector('.nav-user-center .user-con.logout');
+  if (signedOutElement) {
+    trackUserSignInState('signed out');
+    return;
+  }
 
-    const userId = Cookies.get('DedeUserID') || null;
-    trackUserSignInState(userId ? 'signed in' : 'unknown');
-
-    store.dispatch({ type: '[shim/bilibili] detected maybe signed-in user', userId });
-  });
+  const userId = Cookies.get('DedeUserID') || null;
+  trackUserSignInState(userId ? 'signed in' : 'unknown');
 }
 
 function trackUserSignInState(type: 'signed in' | 'signed out' | 'unknown') {
-  mixpanel.track('Bilibili user setup', { type });
+  track('Bilibili User Setup', { type });
 }
 
 export default setUpUser;
