@@ -176,7 +176,7 @@ type UserSignInErrorType = 'invalid_username_or_password' | 'unknown';
 type InvalidSessionTokenErrorType = 'invalid_session_token' | 'unknown';
 type ErrorType = UserSignUpErrorType | UserSignInErrorType | InvalidSessionTokenErrorType;
 
-type User = { sessionToken: string };
+type User = { objectId: string; sessionToken: string };
 type QueryResult<T> = { results: InboundAttributes<T>[] };
 type ParseObject = InboundAttributes<{ objectId: string; createdAt: string }>;
 type ResolvedValue = User | QueryResult<CommentEntity> | ParseObject | void;

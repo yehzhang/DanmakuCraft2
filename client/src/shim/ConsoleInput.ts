@@ -146,6 +146,7 @@ function createDevComment(data: Partial<CommentEntity>): CommentEntity {
     x: 0,
     y: 0,
     createdAt: new Date(),
+    userId: undefined,
     ...data,
   };
 }

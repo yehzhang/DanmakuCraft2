@@ -45,7 +45,17 @@ async function getLatestCommentEntities(sessionToken: string): Promise<IdKeyed<C
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 function buildCommentEntity(attributes: InboundAttributes<CommentEntity>): IdKeyed<CommentEntity> {
-  const { objectId, createdAt: rawCreatedAt, x, y, text, size, type: rawType, color } = attributes;
+  const {
+    objectId,
+    createdAt: rawCreatedAt,
+    x,
+    y,
+    text,
+    size,
+    type: rawType,
+    color,
+    userId,
+  } = attributes;
   if (typeof objectId !== 'string') {
     throw new ParametricTypeError('Expected valid attribute objectId', attributes);
   }
@@ -65,6 +75,9 @@ function buildCommentEntity(attributes: InboundAttributes<CommentEntity>): IdKey
   if (typeof size !== 'number') {
     throw new ParametricTypeError('Expected valid attribute size', attributes);
   }
+  if (userId !== undefined && typeof userId !== 'string') {
+    throw new ParametricTypeError('Expected valid attribute userId', attributes);
+  }
 
   if (typeof rawType !== 'string') {
     throw new ParametricTypeError('Expected valid attribute type', attributes);
@@ -83,6 +96,7 @@ function buildCommentEntity(attributes: InboundAttributes<CommentEntity>): IdKey
         text,
         size,
         createdAt,
+        userId,
       },
     };
   }
@@ -95,6 +109,7 @@ function buildCommentEntity(attributes: InboundAttributes<CommentEntity>): IdKey
         text,
         size,
         createdAt,
+        userId,
       },
     };
   }

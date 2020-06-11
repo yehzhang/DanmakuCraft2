@@ -142,5 +142,6 @@ export interface ReceivedCommentEntityState {
 }
 
 export interface UserState {
+  readonly userId: string;
   readonly sessionToken: string;
 }

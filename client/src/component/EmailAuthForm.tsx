@@ -80,9 +80,9 @@ function EmailAuthForm() {
           }
 
           const {
-            value: { sessionToken },
+            value: { objectId, sessionToken },
           } = response;
-          dispatch({ type: '[EmailAuthForm] signed up', sessionToken });
+          dispatch({ type: '[EmailAuthForm] signed up', userId: objectId, sessionToken });
 
           const ignored = fetchBackend('verificationEmailRequest', 'POST', {
             type: 'key_value',
@@ -117,9 +117,9 @@ function EmailAuthForm() {
           }
 
           const {
-            value: { sessionToken },
+            value: { objectId, sessionToken },
           } = response;
-          dispatch({ type: '[EmailAuthForm] signed in', sessionToken });
+          dispatch({ type: '[EmailAuthForm] signed in', userId: objectId, sessionToken });
 
           return;
         }

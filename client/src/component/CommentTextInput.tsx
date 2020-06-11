@@ -40,9 +40,9 @@ function CommentTextInput() {
     (state) => (state.domain.type === 'bilibili' && state.domain.userId) || undefined
   );
   const disabled = useSelector((state) => state.view !== 'main' || submitting);
-  const sessionToken = useSelector((state) => state.user?.sessionToken);
+  const user = useSelector((state) => state.user);
   const onSubmit = useCallback(() => {
-    if (disabled || !sessionToken) {
+    if (disabled || !user) {
       logErrorMessage('Unexpected text input submission');
       return false;
     }
@@ -61,6 +61,7 @@ function CommentTextInput() {
 
     dispatch({ type: '[CommentTextInput] started submission' });
 
+    const { userId, sessionToken } = user;
     const outboundCommentEntity: OutboundAttributes<CommentEntity> = {
       ...(chromatic
         ? {
@@ -73,6 +74,7 @@ function CommentTextInput() {
       size,
       text: commentText,
       ...position,
+      userId,
     };
     postCommentEntity(outboundCommentEntity, sessionToken, bilibiliUserId)
       .then(([id, commentEntity]) => {
@@ -84,7 +86,7 @@ function CommentTextInput() {
       });
 
     return true;
-  }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled, sessionToken]);
+  }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled, user]);
 
   return selectDomain<() => ReactElement | null>({
     danmakucraft: () => {

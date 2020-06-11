@@ -7,8 +7,8 @@ function userReducer(state = initialState, action: Action): UserState | null {
   switch (action.type) {
     case '[EmailAuthForm] signed up':
     case '[EmailAuthForm] signed in': {
-      const { sessionToken } = action;
-      return { sessionToken };
+      const { userId, sessionToken } = action;
+      return { userId, sessionToken };
     }
     case '[AuthDialog] invalid session token':
     case '[ConsoleInput] signed out':
