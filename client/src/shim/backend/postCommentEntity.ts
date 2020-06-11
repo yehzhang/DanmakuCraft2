@@ -1,6 +1,5 @@
 import { toRgbNumber } from '../../data/color';
 import { CommentEntity } from '../../data/entity';
-import logErrorMessage from '../logging/logErrorMessage';
 import ParametricTypeError from '../logging/ParametricTypeError';
 import fetchBackend, { OutboundAttributes } from './fetchBackend';
 import parseDateData from './parseDateData';
@@ -8,8 +7,7 @@ import parseDateData from './parseDateData';
 /** Resolves to the id of the comment entity. */
 async function postCommentEntity(
   outboundCommentEntity: OutboundAttributes<CommentEntity>,
-  sessionToken: string,
-  bilibiliUserId?: string
+  sessionToken: string
 ): Promise<[string, CommentEntity]> {
   const result = await fetchBackend('classes/Entity', 'POST', {
     type: 'parse_object',
@@ -37,10 +35,6 @@ async function postCommentEntity(
     throw new ParametricTypeError('Expected valid createdAt in posted comment entity', { result });
   }
 
-  if (bilibiliUserId !== undefined) {
-    const ignored = postBilibiliUserComment(bilibiliUserId, objectId, sessionToken);
-  }
-
   return [
     objectId,
     {
@@ -48,24 +42,6 @@ async function postCommentEntity(
       createdAt,
     },
   ];
-}
-
-async function postBilibiliUserComment(
-  bilibiliUserId: string,
-  commentEntityId: string,
-  sessionToken: string
-) {
-  const result = await fetchBackend('classes/BilibiliUserComment', 'POST', {
-    type: 'parse_object',
-    data: {
-      bilibiliUserId,
-      commentEntityId,
-    },
-    sessionToken,
-  });
-  if (result.type === 'rejected') {
-    logErrorMessage('Expected Bilibili user comment posted', { result });
-  }
 }
 
 export default postCommentEntity;

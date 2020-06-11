@@ -4,7 +4,7 @@ import setUpGameContainerElement from './setUpGameContainerElement';
 import setUpUser from './setUpUser';
 
 async function setUpBilibiliShim(store: Store): Promise<string> {
-  setUpUser(store);
+  setUpUser();
   setupExternalDependency(store);
   return setUpGameContainerElement();
 }

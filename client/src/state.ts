@@ -128,7 +128,6 @@ export interface DanmakuCraftDomainState {
 export interface BilibiliDomainState {
   readonly type: 'bilibili';
   readonly externalDependency: BilibiliExternalDependency | null;
-  readonly userId: string | null;
 }
 export interface BilibiliExternalDependency {
   readonly $: JQueryStatic;

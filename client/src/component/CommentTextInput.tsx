@@ -36,9 +36,6 @@ function CommentTextInput() {
 
   const commentText = useSelector((state) => state.commentInputText);
   const commentInput = useSelector(commentInputSelector);
-  const bilibiliUserId = useSelector(
-    (state) => (state.domain.type === 'bilibili' && state.domain.userId) || undefined
-  );
   const disabled = useSelector((state) => state.view !== 'main' || submitting);
   const user = useSelector((state) => state.user);
   const onSubmit = useCallback(() => {
@@ -76,7 +73,7 @@ function CommentTextInput() {
       ...position,
       userId,
     };
-    postCommentEntity(outboundCommentEntity, sessionToken, bilibiliUserId)
+    postCommentEntity(outboundCommentEntity, sessionToken)
       .then(([id, commentEntity]) => {
         dispatch({ type: '[CommentTextInput] submitted', id, commentEntity });
       })
@@ -86,7 +83,7 @@ function CommentTextInput() {
       });
 
     return true;
-  }, [dispatch, commentText, submitting, commentInput, bilibiliUserId, disabled, user]);
+  }, [dispatch, commentText, submitting, commentInput, disabled, user]);
 
   return selectDomain<() => ReactElement | null>({
     danmakucraft: () => {

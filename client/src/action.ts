@@ -60,7 +60,6 @@ export type Action =
   | { type: '[Tutorial] hinted movement keys for the second time' }
   | { type: '[Tutorial] hinted movement keys for the last time' }
   | { type: '[Tutorial] hinted comment key' }
-  | { type: '[shim/bilibili] detected maybe signed-in user'; userId: string | null }
   | { type: '[shim/bilibili] external dependency ready'; $: JQueryStatic }
   | { type: 'Console entry used'; key: string; entry: ConsoleEntry }
   | { type: 'Console entry released'; key: string };
