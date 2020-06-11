@@ -42,6 +42,3 @@ cp "$buildPath/bundle.js.map" "$publicPath"
 # Deploy.
 cd "$deployPath"
 b4a deploy "$env"
-
-# Configure
-yarn "configure:$env"

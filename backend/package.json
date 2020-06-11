@@ -6,8 +6,8 @@
     "configure:dev": "ENV=dev yarn ts script/configureBackend.ts",
     "configure:prod": "ENV=prod yarn ts script/configureBackend.ts",
     "migratePsql": "yarn ts --max-old-space-size=8192 script/migratePsqlJson.ts",
-    "deploy:dev": "./script/deploy.sh dev",
-    "deploy:prod": "./script/deploy.sh prod"
+    "deployPublic:dev": "./script/deployPublic.sh dev",
+    "deployPublic:prod": "./script/deployPublic.sh prod"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.152",
