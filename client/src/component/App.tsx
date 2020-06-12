@@ -22,10 +22,9 @@ function App() {
             </View>
             <View name="main">
               <VolumeInput />
+              <StageBodyControl />
             </View>
-            <StageBodyControl>
-              <PixiApp />
-            </StageBodyControl>
+            <PixiApp />
           </Stage>
           <BelowStageControlBar />
         </ColumnLayout>

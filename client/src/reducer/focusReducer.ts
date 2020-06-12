@@ -17,10 +17,8 @@ function focusReducer(state = initialState, action: Action): FocusTarget | null 
     case '[CommentTextInput] submit failed due to collision':
       return state === 'comment_input' ? 'stage' : state;
     case '[StageBodyControl] enter': {
-      const { keyDown, view, commentInputSubmitting } = action;
-      return view === 'main' && state === 'stage' && keyDown && !commentInputSubmitting
-        ? 'comment_input'
-        : state;
+      const { keyDown, commentInputSubmitting } = action;
+      return state === 'stage' && keyDown && !commentInputSubmitting ? 'comment_input' : state;
     }
     case '[StageBodyControl] blurred':
       return state === 'stage' ? null : state;

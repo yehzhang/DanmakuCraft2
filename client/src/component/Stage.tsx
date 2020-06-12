@@ -20,7 +20,7 @@ function Stage({ children }: Props) {
 
   return (
     <div ref={containerRef} style={styles.container}>
-      {children}
+      <div style={styles.childrenHeightHack}>{children}</div>
     </div>
   );
 }
@@ -30,6 +30,10 @@ const styles = createStyleSheet({
     width: '100%',
     height: '100%',
     position: 'relative',
+  },
+  childrenHeightHack: {
+    // Prevent children height from growing.
+    display: 'flex',
   },
 });
 

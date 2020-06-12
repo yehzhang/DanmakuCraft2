@@ -10,11 +10,7 @@ import { createStyleSheet } from '../shim/react';
 import { useDispatch, useStore } from '../shim/redux';
 import { State } from '../state';
 
-interface Props {
-  children: React.ReactNode;
-}
-
-function StageBodyControl({ children }: Props) {
+function StageBodyControl() {
   const store = useStore();
   const dispatch = useDispatch();
   const onKeyDown = useCallback(
@@ -152,7 +148,6 @@ function StageBodyControl({ children }: Props) {
           </div>
         </div>
       )}
-      {children}
     </div>
   );
 }
@@ -160,8 +155,9 @@ function StageBodyControl({ children }: Props) {
 const maxBallTopOffset = 100;
 const styles = createStyleSheet({
   container: {
-    // Inherit height from parent.
-    display: 'flex',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
     // Hides the outline introduced by `tabIndex`.
     outline: 'none',
   },
@@ -184,7 +180,7 @@ const styles = createStyleSheet({
 function getActionByKeyboardEvent(
   event: KeyboardEvent,
   keyDown: boolean,
-  { view, commentInputSubmitting }: State
+  { commentInputSubmitting }: State
 ): Action | null {
   switch (event.which || event.keyCode) {
     case Key.UpArrow:
@@ -200,7 +196,7 @@ function getActionByKeyboardEvent(
     case Key.D:
       return { type: '[StageBodyControl] right', keyDown };
     case Key.Enter:
-      return { type: '[StageBodyControl] enter', keyDown, view, commentInputSubmitting };
+      return { type: '[StageBodyControl] enter', keyDown, commentInputSubmitting };
     default:
       return null;
   }

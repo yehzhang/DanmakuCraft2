@@ -15,12 +15,7 @@ export type Action =
   | { type: '[StageBodyControl] down'; keyDown: boolean }
   | { type: '[StageBodyControl] left'; keyDown: boolean }
   | { type: '[StageBodyControl] right'; keyDown: boolean }
-  | {
-      type: '[StageBodyControl] enter';
-      keyDown: boolean;
-      view: ViewName;
-      commentInputSubmitting: boolean;
-    }
+  | { type: '[StageBodyControl] enter'; keyDown: boolean; commentInputSubmitting: boolean }
   | { type: '[StageBodyControl] focused' }
   | { type: '[StageBodyControl] blurred' }
   | { type: '[StageBodyControl] context menu opened' }
