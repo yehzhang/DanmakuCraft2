@@ -4,7 +4,7 @@ import MainView from './MainView';
 import OpeningView from './OpeningView';
 import PixiCanvas from './PixiCanvas';
 
-function PixiView() {
+function PixiApp() {
   return (
     <PixiCanvas>
       <OpeningView />
@@ -14,4 +14,4 @@ function PixiView() {
   );
 }
 
-export default PixiView;
+export default PixiApp;

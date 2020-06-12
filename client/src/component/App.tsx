@@ -5,7 +5,7 @@ import BelowStageControlBar from './BelowStageControlBar';
 import ColumnLayout from './ColumnLayout';
 import ErrorBoundary from './ErrorBoundary';
 import Frame from './Frame';
-import PixiView from './PixiView';
+import PixiApp from './PixiApp';
 import Stage from './Stage';
 import StageControl from './StageControl';
 import View from './View';
@@ -24,7 +24,7 @@ function App() {
               <VolumeInput />
             </View>
             <StageControl>
-              <PixiView />
+              <PixiApp />
             </StageControl>
           </Stage>
           <BelowStageControlBar />
