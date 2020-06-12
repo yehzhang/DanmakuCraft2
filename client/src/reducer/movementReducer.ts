@@ -10,35 +10,35 @@ const initialState: MovementState = {
 
 function movementReducer(state = initialState, action: Action): MovementState {
   switch (action.type) {
-    case '[StageBodyControl] up': {
+    case '[StageControlOverlay] up': {
       const { keyDown } = action;
       return {
         ...state,
         up: keyDown ? 1 : 0,
       };
     }
-    case '[StageBodyControl] down': {
+    case '[StageControlOverlay] down': {
       const { keyDown } = action;
       return {
         ...state,
         down: keyDown ? 1 : 0,
       };
     }
-    case '[StageBodyControl] left': {
+    case '[StageControlOverlay] left': {
       const { keyDown } = action;
       return {
         ...state,
         left: keyDown ? 1 : 0,
       };
     }
-    case '[StageBodyControl] right': {
+    case '[StageControlOverlay] right': {
       const { keyDown } = action;
       return {
         ...state,
         right: keyDown ? 1 : 0,
       };
     }
-    case '[StageBodyControl] mouse dragged': {
+    case '[StageControlOverlay] mouse dragged': {
       const {
         startOffsetRatio: { x, y },
       } = action;
@@ -49,10 +49,10 @@ function movementReducer(state = initialState, action: Action): MovementState {
         right: Math.max(x, 0),
       };
     }
-    case '[StageBodyControl] blurred':
-    case '[StageBodyControl] context menu opened':
-    case '[StageBodyControl] mouse up':
-    case '[StageBodyControl] mouse out':
+    case '[StageControlOverlay] blurred':
+    case '[StageControlOverlay] context menu opened':
+    case '[StageControlOverlay] mouse up':
+    case '[StageControlOverlay] mouse out':
     case '[Opening] genesis':
       return initialState;
     default:

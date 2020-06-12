@@ -11,17 +11,17 @@ import { Point } from './data/point';
 import { ConsoleDisplayLevel, ConsoleEntry, IdKeyed, State, ViewName } from './state';
 
 export type Action =
-  | { type: '[StageBodyControl] up'; keyDown: boolean }
-  | { type: '[StageBodyControl] down'; keyDown: boolean }
-  | { type: '[StageBodyControl] left'; keyDown: boolean }
-  | { type: '[StageBodyControl] right'; keyDown: boolean }
-  | { type: '[StageBodyControl] enter'; keyDown: boolean; commentInputSubmitting: boolean }
-  | { type: '[StageBodyControl] focused' }
-  | { type: '[StageBodyControl] blurred' }
-  | { type: '[StageBodyControl] context menu opened' }
-  | { type: '[StageBodyControl] mouse dragged'; startOffsetRatio: Point }
-  | { type: '[StageBodyControl] mouse up' }
-  | { type: '[StageBodyControl] mouse out' }
+  | { type: '[StageControlOverlay] up'; keyDown: boolean }
+  | { type: '[StageControlOverlay] down'; keyDown: boolean }
+  | { type: '[StageControlOverlay] left'; keyDown: boolean }
+  | { type: '[StageControlOverlay] right'; keyDown: boolean }
+  | { type: '[StageControlOverlay] enter'; keyDown: boolean; commentInputSubmitting: boolean }
+  | { type: '[StageControlOverlay] focused' }
+  | { type: '[StageControlOverlay] blurred' }
+  | { type: '[StageControlOverlay] context menu opened' }
+  | { type: '[StageControlOverlay] mouse dragged'; startOffsetRatio: Point }
+  | { type: '[StageControlOverlay] mouse up' }
+  | { type: '[StageControlOverlay] mouse out' }
   | { type: '[Stage] resized'; size: Point }
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }

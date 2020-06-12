@@ -10,15 +10,15 @@ const initialState: TutorialState = {
 
 function tutorialReducer(state = initialState, action: Action): TutorialState {
   switch (action.type) {
-    case '[StageBodyControl] up':
-    case '[StageBodyControl] down':
-    case '[StageBodyControl] left':
-    case '[StageBodyControl] right':
+    case '[StageControlOverlay] up':
+    case '[StageControlOverlay] down':
+    case '[StageControlOverlay] left':
+    case '[StageControlOverlay] right':
       return {
         ...state,
         moved: true,
       };
-    case '[StageBodyControl] enter':
+    case '[StageControlOverlay] enter':
       return {
         ...state,
         enterKeyPressed: true,

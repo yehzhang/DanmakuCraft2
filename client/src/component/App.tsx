@@ -7,7 +7,7 @@ import ErrorBoundary from './ErrorBoundary';
 import Frame from './Frame';
 import PixiApp from './PixiApp';
 import Stage from './Stage';
-import StageBodyControl from './StageBodyControl';
+import StageControlOverlay from './StageControlOverlay';
 import View from './View';
 import VolumeInput from './VolumeInput';
 
@@ -22,7 +22,7 @@ function App() {
             </View>
             <View name="main">
               <VolumeInput />
-              <StageBodyControl />
+              <StageControlOverlay />
             </View>
             <PixiApp />
           </Stage>

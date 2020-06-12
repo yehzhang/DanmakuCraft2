@@ -5,7 +5,7 @@ const initialState: FocusTarget | null = null;
 
 function focusReducer(state = initialState, action: Action): FocusTarget | null {
   switch (action.type) {
-    case '[StageBodyControl] focused':
+    case '[StageControlOverlay] focused':
     case '[CommentTextInput/bilibili] enter key down when empty':
       // Bilibili text input blurs before enter key down, so setting the target regardless.
       return 'stage';
@@ -16,11 +16,11 @@ function focusReducer(state = initialState, action: Action): FocusTarget | null 
     case '[CommentTextInput] submit failed due to empty text':
     case '[CommentTextInput] submit failed due to collision':
       return state === 'comment_input' ? 'stage' : state;
-    case '[StageBodyControl] enter': {
+    case '[StageControlOverlay] enter': {
       const { keyDown, commentInputSubmitting } = action;
       return state === 'stage' && keyDown && !commentInputSubmitting ? 'comment_input' : state;
     }
-    case '[StageBodyControl] blurred':
+    case '[StageControlOverlay] blurred':
       return state === 'stage' ? null : state;
     case '[CommentTextInput] blurred':
       return state === 'comment_input' ? null : state;

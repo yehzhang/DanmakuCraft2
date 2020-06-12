@@ -10,7 +10,7 @@ import { createStyleSheet } from '../shim/react';
 import { useDispatch, useStore } from '../shim/redux';
 import { State } from '../state';
 
-function StageBodyControl() {
+function StageControlOverlay() {
   const store = useStore();
   const dispatch = useDispatch();
   const onKeyDown = useCallback(
@@ -54,15 +54,15 @@ function StageBodyControl() {
     focusTarget: 'stage',
   });
   const onFocus = useCallback(() => {
-    dispatch({ type: '[StageBodyControl] focused' });
+    dispatch({ type: '[StageControlOverlay] focused' });
   }, [dispatch]);
   const onBlur = useCallback(() => {
     setDragStartPosition(null);
-    dispatch({ type: '[StageBodyControl] blurred' });
+    dispatch({ type: '[StageControlOverlay] blurred' });
   }, [dispatch]);
   const onContextMenu = useCallback(() => {
     setDragStartPosition(null);
-    dispatch({ type: '[StageBodyControl] context menu opened' });
+    dispatch({ type: '[StageControlOverlay] context menu opened' });
   }, [dispatch]);
 
   const [dragStartPosition, setDragStartPosition] = useState<Point | null>(null);
@@ -99,7 +99,7 @@ function StageBodyControl() {
       setDragStartOffset(startOffset);
 
       dispatch({
-        type: '[StageBodyControl] mouse dragged',
+        type: '[StageControlOverlay] mouse dragged',
         startOffsetRatio: map(startOffset, (x) => x / maxBallTopOffset),
       });
     },
@@ -107,11 +107,11 @@ function StageBodyControl() {
   );
   const onMouseUp = useCallback(() => {
     setDragStartPosition(null);
-    dispatch({ type: '[StageBodyControl] mouse up' });
+    dispatch({ type: '[StageControlOverlay] mouse up' });
   }, [dispatch]);
   const onMouseOut = useCallback(() => {
     setDragStartPosition(null);
-    dispatch({ type: '[StageBodyControl] mouse out' });
+    dispatch({ type: '[StageControlOverlay] mouse out' });
   }, [dispatch]);
   return (
     <div
@@ -185,18 +185,18 @@ function getActionByKeyboardEvent(
   switch (event.which || event.keyCode) {
     case Key.UpArrow:
     case Key.W:
-      return { type: '[StageBodyControl] up', keyDown };
+      return { type: '[StageControlOverlay] up', keyDown };
     case Key.DownArrow:
     case Key.S:
-      return { type: '[StageBodyControl] down', keyDown };
+      return { type: '[StageControlOverlay] down', keyDown };
     case Key.LeftArrow:
     case Key.A:
-      return { type: '[StageBodyControl] left', keyDown };
+      return { type: '[StageControlOverlay] left', keyDown };
     case Key.RightArrow:
     case Key.D:
-      return { type: '[StageBodyControl] right', keyDown };
+      return { type: '[StageControlOverlay] right', keyDown };
     case Key.Enter:
-      return { type: '[StageBodyControl] enter', keyDown, commentInputSubmitting };
+      return { type: '[StageControlOverlay] enter', keyDown, commentInputSubmitting };
     default:
       return null;
   }
@@ -208,4 +208,4 @@ function getMousePosition({ clientX, clientY }: MouseEvent, parentElement: Eleme
   return zip(clientPosition, boundingClientRect, subtract);
 }
 
-export default StageBodyControl;
+export default StageControlOverlay;
