@@ -49,10 +49,10 @@ export interface IdKeyed<T> {
 }
 
 export interface MovementState {
-  readonly up: boolean;
-  readonly down: boolean;
-  readonly left: boolean;
-  readonly right: boolean;
+  readonly up: number;
+  readonly down: number;
+  readonly left: number;
+  readonly right: number;
 }
 
 export type ChestState = ChestIdleState | ChestSpawningState | ChestSpawnedState;

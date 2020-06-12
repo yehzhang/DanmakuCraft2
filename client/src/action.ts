@@ -24,6 +24,9 @@ export type Action =
   | { type: '[StageBodyControl] focused' }
   | { type: '[StageBodyControl] blurred' }
   | { type: '[StageBodyControl] context menu opened' }
+  | { type: '[StageBodyControl] mouse dragged'; startOffsetRatio: Point }
+  | { type: '[StageBodyControl] mouse up' }
+  | { type: '[StageBodyControl] mouse out' }
   | { type: '[Stage] resized'; size: Point }
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }

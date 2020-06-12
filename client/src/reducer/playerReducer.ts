@@ -79,8 +79,8 @@ function updatePositionByMovement(
   distance: number
 ): Point {
   return {
-    x: x + (left ? -distance : 0) + (right ? distance : 0),
-    y: y + (up ? -distance : 0) + (down ? distance : 0),
+    x: x + (right - left) * distance,
+    y: y + (down - up) * distance,
   };
 }
 
