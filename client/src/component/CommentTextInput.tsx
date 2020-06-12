@@ -3,8 +3,8 @@ import { ChangeEvent, FormEvent, ReactElement, useCallback, useEffect, useRef } 
 import { Key } from 'ts-keycode-enum';
 import { CommentEntity } from '../data/entity';
 import useDomEvent, { ElementTargetEvent } from '../hook/useDomEvent';
+import useFocusState from '../hook/useFocusState';
 import useQuerySelector from '../hook/useQuerySelector';
-import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import commentInputSelector from '../selector/commentInputSelector';
 import { OutboundAttributes } from '../shim/backend/fetchBackend';
 import postCommentEntity from '../shim/backend/postCommentEntity';
@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from '../shim/redux';
 function CommentTextInput() {
   const submitting = useSelector((state) => state.commentInputSubmitting);
   const elementRef = useRef<HTMLInputElement | null>(null);
-  useUncontrolledFocus({
+  useFocusState({
     targetRef: elementRef,
     focusTarget: 'comment_input',
     extraDeps: [submitting],

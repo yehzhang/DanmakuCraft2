@@ -3,7 +3,7 @@ import { KeyboardEvent, MouseEvent, useCallback, useRef, useState } from 'react'
 import { Key } from 'ts-keycode-enum';
 import { Action } from '../action';
 import { Point } from '../data/point';
-import useUncontrolledFocus from '../hook/useUncontrolledFocus';
+import useFocusState from '../hook/useFocusState';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useStore } from '../shim/redux';
 import { State } from '../state';
@@ -51,7 +51,7 @@ function StageBodyControl({ children }: Props) {
   );
 
   const elementRef = useRef<HTMLDivElement>(null);
-  useUncontrolledFocus({
+  useFocusState({
     targetRef: elementRef,
     focusTarget: 'stage',
   });

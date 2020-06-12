@@ -2,7 +2,7 @@ import { DependencyList, RefObject, useEffect } from 'react';
 import { useSelector } from '../shim/redux';
 import { FocusTarget } from '../state';
 
-function useUncontrolledFocus<T extends HTMLElement>({
+function useFocusState<T extends HTMLElement>({
   targetRef,
   focusTarget,
   extraDeps = [],
@@ -21,4 +21,4 @@ function useUncontrolledFocus<T extends HTMLElement>({
   }, [focused, ...extraDeps]);
 }
 
-export default useUncontrolledFocus;
+export default useFocusState;
