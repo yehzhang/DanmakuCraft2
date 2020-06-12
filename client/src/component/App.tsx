@@ -7,6 +7,7 @@ import ErrorBoundary from './ErrorBoundary';
 import Frame from './Frame';
 import LayoutSizeDetector from './LayoutSizeDetector';
 import Stage from './Stage';
+import StageControl from './StageControl';
 import View from './View';
 import VolumeInput from './VolumeInput';
 
@@ -22,7 +23,9 @@ function App() {
             <View name="main">
               <VolumeInput />
             </View>
-            <Stage />
+            <StageControl>
+              <Stage />
+            </StageControl>
           </LayoutSizeDetector>
           <BelowStageControlBar />
         </ColumnLayout>

@@ -23,7 +23,7 @@ const stateSanitizer = (state: State): any => {
 const compose = composeWithDevTools({
   actionsBlacklist: [
     '\\[Ticker]',
-    '\\[PixiStage] (up|down|left|right)',
+    '\\[StageControl] (up|down|left|right)',
     '\\[Console]',
     '\\[index] comment entities loaded',
     'Console entry used',
