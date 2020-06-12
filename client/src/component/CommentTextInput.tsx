@@ -18,15 +18,19 @@ import { useDispatch, useSelector } from '../shim/redux';
 function CommentTextInput() {
   const submitting = useSelector((state) => state.commentInputSubmitting);
   const elementRef = useRef<HTMLInputElement | null>(null);
-  const { onFocus, onBlur } = useUncontrolledFocus({
+  useUncontrolledFocus({
     targetRef: elementRef,
     focusTarget: 'comment_input',
-    onFocusActionType: '[CommentTextInput] focused',
-    onBlurActionType: '[CommentTextInput] blurred',
     extraDeps: [submitting],
   });
-
   const dispatch = useDispatch();
+  const onFocus = useCallback(() => {
+    dispatch({ type: '[CommentTextInput] focused' });
+  }, [dispatch]);
+  const onBlur = useCallback(() => {
+    dispatch({ type: '[CommentTextInput] blurred' });
+  }, [dispatch]);
+
   const onTextChanged = useCallback(
     (value: string) => {
       dispatch({ type: '[CommentTextInput] changed', value: value.trimLeft() });

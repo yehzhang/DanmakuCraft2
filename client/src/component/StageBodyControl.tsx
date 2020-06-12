@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { KeyboardEvent, useCallback, useRef } from 'react';
+import { KeyboardEvent, MouseEvent, useCallback, useRef, useState } from 'react';
 import { Key } from 'ts-keycode-enum';
 import { Action } from '../action';
+import { Point } from '../data/point';
 import useUncontrolledFocus from '../hook/useUncontrolledFocus';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useStore } from '../shim/redux';
@@ -50,12 +51,16 @@ function StageBodyControl({ children }: Props) {
   );
 
   const elementRef = useRef<HTMLDivElement>(null);
-  const { onFocus, onBlur } = useUncontrolledFocus({
+  useUncontrolledFocus({
     targetRef: elementRef,
     focusTarget: 'stage',
-    onFocusActionType: '[StageBodyControl] focused',
-    onBlurActionType: '[StageBodyControl] blurred',
   });
+  const onFocus = useCallback(() => {
+    dispatch({ type: '[StageBodyControl] focused' });
+  }, [dispatch]);
+  const onBlur = useCallback(() => {
+    dispatch({ type: '[StageBodyControl] blurred' });
+  }, [dispatch]);
   const onContextMenu = useCallback(() => {
     dispatch({ type: '[StageBodyControl] context menu opened' });
   }, [dispatch]);
