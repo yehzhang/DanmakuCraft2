@@ -4,7 +4,7 @@ import MainView from './MainView';
 import OpeningView from './OpeningView';
 import PixiApplication from './PixiApplication';
 
-function Stage() {
+function PixiView() {
   return (
     <PixiApplication>
       <OpeningView />
@@ -14,4 +14,4 @@ function Stage() {
   );
 }
 
-export default Stage;
+export default PixiView;
