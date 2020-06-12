@@ -6,7 +6,7 @@ import CommentColorInput from './CommentColorInput';
 import CommentSizeInput from './CommentSizeInput';
 import CommentTextInput from './CommentTextInput';
 
-function BelowStageControlsBar() {
+function BelowStageControlBar() {
   return (
     <div style={styles.container}>
       <CommentSizeInput />
@@ -30,4 +30,4 @@ const styles = createStyleSheet({
   }),
 });
 
-export default BelowStageControlsBar;
+export default BelowStageControlBar;

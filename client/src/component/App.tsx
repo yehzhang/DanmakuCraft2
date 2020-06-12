@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { memo } from '../shim/react';
 import AuthDialog from './AuthDialog';
-import BelowStageControlsBar from './BelowStageControlsBar';
+import BelowStageControlBar from './BelowStageControlBar';
 import ColumnLayout from './ColumnLayout';
 import ErrorBoundary from './ErrorBoundary';
 import Frame from './Frame';
@@ -24,7 +24,7 @@ function App() {
             </View>
             <Stage />
           </LayoutSizeDetector>
-          <BelowStageControlsBar />
+          <BelowStageControlBar />
         </ColumnLayout>
       </ErrorBoundary>
     </Frame>
