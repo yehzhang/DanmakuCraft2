@@ -165,7 +165,7 @@ type UnionToIntersectionHack<U> = (U extends unknown ? (k: U) => void : never) e
 ) => void
   ? I
   : never;
-export type OutboundAttributes<T extends Parse.Attributes> = T extends unknown
+export type OutboundAttributes<T extends Attributes> = T extends unknown
   ? Omit<T, BuiltInAttributes>
   : never;
 type Serializable<T extends Attributes> = { [K in keyof T]: T[K] extends Color ? number : T[K] };
