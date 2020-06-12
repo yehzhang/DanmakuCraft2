@@ -5,8 +5,8 @@ import BelowStageControlBar from './BelowStageControlBar';
 import ColumnLayout from './ColumnLayout';
 import ErrorBoundary from './ErrorBoundary';
 import Frame from './Frame';
-import LayoutSizeDetector from './LayoutSizeDetector';
 import PixiView from './PixiView';
+import Stage from './Stage';
 import StageControl from './StageControl';
 import View from './View';
 import VolumeInput from './VolumeInput';
@@ -16,7 +16,7 @@ function App() {
     <Frame>
       <ErrorBoundary>
         <ColumnLayout>
-          <LayoutSizeDetector>
+          <Stage>
             <View name="opening">
               <AuthDialog />
             </View>
@@ -26,7 +26,7 @@ function App() {
             <StageControl>
               <PixiView />
             </StageControl>
-          </LayoutSizeDetector>
+          </Stage>
           <BelowStageControlBar />
         </ColumnLayout>
       </ErrorBoundary>

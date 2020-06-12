@@ -24,7 +24,7 @@ export type Action =
   | { type: '[StageControl] focused' }
   | { type: '[StageControl] blurred' }
   | { type: '[StageControl] context menu opened' }
-  | { type: '[LayoutSizeDetector] resized'; size: Point }
+  | { type: '[Stage] resized'; size: Point }
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }
   | { type: '[SpeechBubble] display expired' }

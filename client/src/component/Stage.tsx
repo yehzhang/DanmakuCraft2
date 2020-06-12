@@ -9,13 +9,13 @@ interface Props {
   children: ReactNode;
 }
 
-function LayoutSizeDetector({ children }: Props) {
+function Stage({ children }: Props) {
   const dispatch = useDispatch();
   const containerRef = useRef(null);
   const { width, height } = useComponentSize(containerRef);
   useEffect(() => {
     application.renderer.resize(width, height);
-    dispatch({ type: '[LayoutSizeDetector] resized', size: { x: width, y: height } });
+    dispatch({ type: '[Stage] resized', size: { x: width, y: height } });
   }, [dispatch, width, height]);
 
   return (
@@ -33,4 +33,4 @@ const styles = createStyleSheet({
   },
 });
 
-export default LayoutSizeDetector;
+export default Stage;
