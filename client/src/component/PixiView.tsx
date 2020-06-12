@@ -2,15 +2,15 @@ import * as React from 'react';
 import ConsoleDisplay from './ConsoleDisplay';
 import MainView from './MainView';
 import OpeningView from './OpeningView';
-import PixiApplication from './PixiApplication';
+import PixiCanvas from './PixiCanvas';
 
 function PixiView() {
   return (
-    <PixiApplication>
+    <PixiCanvas>
       <OpeningView />
       <MainView />
       {__DEV__ && <ConsoleDisplay />}
-    </PixiApplication>
+    </PixiCanvas>
   );
 }
 
