@@ -9,8 +9,10 @@ import useFocusState from '../hook/useFocusState';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useStore } from '../shim/redux';
 import { State } from '../state';
+import Joystick from './Joystick';
 
 function StageControlOverlay() {
+  // Keyboard.
   const store = useStore();
   const dispatch = useDispatch();
   const onKeyDown = useCallback(
@@ -48,6 +50,7 @@ function StageControlOverlay() {
     [dispatch, store]
   );
 
+  // Focus and blur.
   const elementRef = useRef<HTMLDivElement>(null);
   useFocusState({
     targetRef: elementRef,
@@ -65,6 +68,7 @@ function StageControlOverlay() {
     dispatch({ type: '[StageControlOverlay] context menu opened' });
   }, [dispatch]);
 
+  // Joystick.
   const [dragStartPosition, setDragStartPosition] = useState<Point | null>(null);
   const [dragStartOffset, setDragStartOffset] = useState<Point>(empty);
   const onMouseDown = useCallback(
@@ -91,7 +95,7 @@ function StageControlOverlay() {
 
       const currentPosition = getMousePosition(event, elementRef.current);
       const startOffset = map(zip(currentPosition, dragStartPosition, subtract), (x) =>
-        clamp(x, -maxBallTopOffset, maxBallTopOffset)
+        clamp(x, -maxDragOffset, maxDragOffset)
       );
       if (equal(startOffset, dragStartOffset)) {
         return;
@@ -100,7 +104,7 @@ function StageControlOverlay() {
 
       dispatch({
         type: '[StageControlOverlay] mouse dragged',
-        startOffsetRatio: map(startOffset, (x) => x / maxBallTopOffset),
+        startOffsetRatio: map(startOffset, (x) => x / maxDragOffset),
       });
     },
     [dispatch, dragStartPosition, dragStartOffset]
@@ -113,6 +117,7 @@ function StageControlOverlay() {
     setDragStartPosition(null);
     dispatch({ type: '[StageControlOverlay] mouse out' });
   }, [dispatch]);
+
   return (
     <div
       ref={elementRef}
@@ -129,30 +134,16 @@ function StageControlOverlay() {
       onMouseOut={onMouseOut}
     >
       {dragStartPosition && (
-        <div
-          style={{
-            ...styles.joystick,
-            left: dragStartPosition.x,
-            top: dragStartPosition.y,
-          }}
-        >
-          <div style={styles.joystickBase}>Base</div>
-          <div
-            style={{
-              ...styles.ballTop,
-              left: dragStartOffset.x,
-              top: dragStartOffset.y,
-            }}
-          >
-            Ball Top
-          </div>
-        </div>
+        <Joystick
+          {...dragStartPosition}
+          ballTopOffsetX={dragStartOffset.x}
+          ballTopOffsetY={dragStartOffset.y}
+        />
       )}
     </div>
   );
 }
 
-const maxBallTopOffset = 100;
 const styles = createStyleSheet({
   container: {
     position: 'absolute',
@@ -161,21 +152,9 @@ const styles = createStyleSheet({
     // Hides the outline introduced by `tabIndex`.
     outline: 'none',
   },
-  joystick: {
-    position: 'absolute',
-    pointerEvents: 'none',
-  },
-  joystickBase: {
-    position: 'absolute',
-    transform: 'translate(-50%, -50%)',
-    background: 'red',
-  },
-  ballTop: {
-    position: 'absolute',
-    transform: 'translate(-50%, -50%)',
-    background: 'yellow',
-  },
 });
+
+const maxDragOffset = 100;
 
 function getActionByKeyboardEvent(
   event: KeyboardEvent,
