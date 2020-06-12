@@ -11,19 +11,19 @@ import { Point } from './data/point';
 import { ConsoleDisplayLevel, ConsoleEntry, IdKeyed, State, ViewName } from './state';
 
 export type Action =
-  | { type: '[StageControl] up'; keyDown: boolean }
-  | { type: '[StageControl] down'; keyDown: boolean }
-  | { type: '[StageControl] left'; keyDown: boolean }
-  | { type: '[StageControl] right'; keyDown: boolean }
+  | { type: '[StageBodyControl] up'; keyDown: boolean }
+  | { type: '[StageBodyControl] down'; keyDown: boolean }
+  | { type: '[StageBodyControl] left'; keyDown: boolean }
+  | { type: '[StageBodyControl] right'; keyDown: boolean }
   | {
-      type: '[StageControl] enter';
+      type: '[StageBodyControl] enter';
       keyDown: boolean;
       view: ViewName;
       commentInputSubmitting: boolean;
     }
-  | { type: '[StageControl] focused' }
-  | { type: '[StageControl] blurred' }
-  | { type: '[StageControl] context menu opened' }
+  | { type: '[StageBodyControl] focused' }
+  | { type: '[StageBodyControl] blurred' }
+  | { type: '[StageBodyControl] context menu opened' }
   | { type: '[Stage] resized'; size: Point }
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }

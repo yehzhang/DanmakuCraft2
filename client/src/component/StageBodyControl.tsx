@@ -11,7 +11,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-function StageControl({ children }: Props) {
+function StageBodyControl({ children }: Props) {
   const store = useStore();
   const dispatch = useDispatch();
   const onKeyDown = useCallback(
@@ -53,11 +53,11 @@ function StageControl({ children }: Props) {
   const { onFocus, onBlur } = useUncontrolledFocus({
     targetRef: elementRef,
     focusTarget: 'stage',
-    onFocusActionType: '[StageControl] focused',
-    onBlurActionType: '[StageControl] blurred',
+    onFocusActionType: '[StageBodyControl] focused',
+    onBlurActionType: '[StageBodyControl] blurred',
   });
   const onContextMenu = useCallback(() => {
-    dispatch({ type: '[StageControl] context menu opened' });
+    dispatch({ type: '[StageBodyControl] context menu opened' });
   }, [dispatch]);
 
   return (
@@ -93,21 +93,21 @@ function getActionByKeyboardEvent(
   switch (event.which || event.keyCode) {
     case Key.UpArrow:
     case Key.W:
-      return { type: '[StageControl] up', keyDown };
+      return { type: '[StageBodyControl] up', keyDown };
     case Key.DownArrow:
     case Key.S:
-      return { type: '[StageControl] down', keyDown };
+      return { type: '[StageBodyControl] down', keyDown };
     case Key.LeftArrow:
     case Key.A:
-      return { type: '[StageControl] left', keyDown };
+      return { type: '[StageBodyControl] left', keyDown };
     case Key.RightArrow:
     case Key.D:
-      return { type: '[StageControl] right', keyDown };
+      return { type: '[StageBodyControl] right', keyDown };
     case Key.Enter:
-      return { type: '[StageControl] enter', keyDown, view, commentInputSubmitting };
+      return { type: '[StageBodyControl] enter', keyDown, view, commentInputSubmitting };
     default:
       return null;
   }
 }
 
-export default StageControl;
+export default StageBodyControl;
