@@ -12,7 +12,7 @@ interface Props {
   readonly children: readonly (ReactElement | false)[];
 }
 
-function PixiStage({ children }: Props) {
+function PixiApplication({ children }: Props) {
   const elementRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     if (elementRef.current) {
@@ -44,4 +44,4 @@ const styles = createStyleSheet({
   },
 });
 
-export default PixiStage;
+export default PixiApplication;
