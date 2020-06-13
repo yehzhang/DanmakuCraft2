@@ -1,4 +1,3 @@
-import clamp from 'lodash/clamp';
 import find from 'lodash/find';
 import subtract from 'lodash/subtract';
 import * as React from 'react';
@@ -13,6 +12,7 @@ import {
 } from 'react';
 import { Key } from 'ts-keycode-enum';
 import { Action } from '../action';
+import { magnitude } from '../data/coordinate';
 import { empty, equal, map, Point, zip } from '../data/point';
 import useFocusState from '../hook/useFocusState';
 import { createStyleSheet } from '../shim/react';
@@ -196,16 +196,15 @@ function dragReducer(state: DragState, action: DragAction): DragState {
   }
 
   const currentPosition = getLocalPositionFromClientArea(touch, parentElement);
-  // TODO circle
-  const currentOffset = map(zip(currentPosition, startPosition, subtract), (x) =>
-    clamp(x, -maxDragOffset, maxDragOffset)
-  );
-  if (equal(currentOffset, offset)) {
+  const currentOffset = zip(currentPosition, startPosition, subtract);
+  const normalizationScale = Math.min(maxDragOffset / magnitude(currentOffset), 1);
+  const normalizedOffset = map(currentOffset, (x) => x * normalizationScale);
+  if (equal(normalizedOffset, offset)) {
     return state;
   }
   return {
     ...state,
-    offset: currentOffset,
+    offset: normalizedOffset,
   };
 }
 
