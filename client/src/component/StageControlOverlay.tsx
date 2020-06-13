@@ -81,13 +81,19 @@ function StageControlOverlay() {
   // Joystick.
   const [drag, dispatchDrag] = useReducer(dragReducer, null);
   const onTouchEvent = useCallback(({ touches }: TouchEvent) => {
-    if (elementRef.current) {
-      dispatchDrag({
-        touches,
-        parentElement: elementRef.current,
-        msSinceStart: msSinceStartRef.current,
-      });
+    if (!elementRef.current) {
+      return;
     }
+
+    if (msSinceStartRef.current < 0) {
+      msSinceStartRef.current = 0;
+    }
+
+    dispatchDrag({
+      touches,
+      parentElement: elementRef.current,
+      msSinceStart: msSinceStartRef.current,
+    });
   }, []);
   useEffect(() => {
     if (!drag) {
@@ -100,7 +106,7 @@ function StageControlOverlay() {
     });
   }, [dispatch, drag]);
 
-  const msSinceStartRef = useRef(0);
+  const msSinceStartRef = useRef(-Infinity);
   useTick((deltaMs: number) => {
     msSinceStartRef.current += deltaMs;
   });
