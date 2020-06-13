@@ -105,7 +105,7 @@ export interface PixelSteppingState {
 }
 
 export interface TutorialState {
-  readonly stage: TutorialStage;
+  readonly primaryStage: TutorialStage;
   readonly msSinceThisStage: number;
   readonly moved: boolean;
   readonly enterKeyPressed: boolean;

@@ -3,7 +3,7 @@ import checkExhaustive from '../shim/checkExhaustive';
 import { useDispatch, useSelector } from '../shim/redux';
 
 function Tutorial() {
-  const stage = useSelector((state) => state.tutorial.stage);
+  const stage = useSelector((state) => state.tutorial.primaryStage);
   const dispatch = useDispatch();
   useEffect(() => {
     switch (stage) {
