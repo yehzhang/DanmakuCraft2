@@ -109,7 +109,6 @@ export interface TutorialState {
   readonly msSinceThisStage: number;
   readonly moved: boolean;
   readonly enterKeyPressed: boolean;
-  readonly msSinceJoystickVisible: number;
 }
 
 export type TutorialStage =

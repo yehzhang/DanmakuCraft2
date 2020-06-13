@@ -6,7 +6,6 @@ const initialState: TutorialState = {
   msSinceThisStage: 0,
   moved: false,
   enterKeyPressed: false,
-  msSinceJoystickVisible: 0,
 };
 
 function tutorialReducer(state = initialState, action: Action): TutorialState {
