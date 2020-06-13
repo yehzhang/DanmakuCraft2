@@ -209,7 +209,7 @@ function dragReducer(state: DragState, action: DragAction): DragState {
   };
 }
 
-const maxDragOffset = 35;
+const maxDragOffset = 50;
 
 function getLocalPositionFromClientArea(
   { clientX, clientY }: { clientX: number; clientY: number },

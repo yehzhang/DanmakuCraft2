@@ -17,15 +17,7 @@ function Joystick({ x, y, ballTopOffsetX, ballTopOffsetY }: Props) {
         top: y,
       }}
     >
-      <div style={styles.base}>
-        <span style={styles.arrowUp}>⬆</span>
-        <div style={styles.baseMiddleRow}>
-          <span>⬅</span>
-          <span style={styles.arrowRight}>⬅</span>
-        </div>
-        <span style={styles.basePlate} />
-        <span style={styles.arrowDown}>⬇</span>
-      </div>
+      <span style={styles.base} />
       <div
         style={{
           ...styles.ballTop,
@@ -38,15 +30,13 @@ function Joystick({ x, y, ballTopOffsetX, ballTopOffsetY }: Props) {
 }
 
 const basePlateSize = 64;
-const ballTopSize = 48;
-const shadowStyle = '3px 0 3px silver, -3px 0 3px silver, 0 -3px 3px silver, 0 3px 3px silver';
+const ballTopSize = 52;
+const shadowStyle = '2px 0 2px silver, -2px 0 2px silver, 0 -2px 2px silver, 0 2px 2px silver';
 const baseColor = 'white';
-const arrowVerticalMargin = -31;
 const styles = createStyleSheet({
   container: {
     position: 'absolute',
     pointerEvents: 'none',
-    fontSize: 48,
     userSelect: 'none',
     MozUserSelect: 'none',
     msUserSelect: 'none',
@@ -56,47 +46,22 @@ const styles = createStyleSheet({
   base: {
     position: 'absolute',
     transform: 'translate(-50%, -50%)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    color: baseColor,
-    textShadow: shadowStyle,
-    opacity: 0.6,
-  },
-  baseMiddleRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: 112,
-    justifyContent: 'space-between',
-  },
-  arrowUp: {
-    marginBottom: arrowVerticalMargin,
-  },
-  arrowDown: {
-    marginTop: arrowVerticalMargin,
-  },
-  arrowRight: {
-    transform: 'scaleX(-1)',
-  },
-  basePlate: {
     width: basePlateSize,
     height: basePlateSize,
     borderRadius: '50%',
     backgroundColor: baseColor,
     boxShadow: shadowStyle,
-    marginTop: -65,
-    zIndex: -1,
+    opacity: 0.4,
   },
   ballTop: {
     position: 'absolute',
     transform: 'translate(-50%, -50%)',
     width: ballTopSize,
     height: ballTopSize,
+    borderRadius: '50%',
     backgroundColor: '#fc331c',
     boxShadow: shadowStyle,
-    borderRadius: '50%',
-    opacity: 0.8,
+    opacity: 0.6,
   },
 });
 
