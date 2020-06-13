@@ -2,10 +2,11 @@ import { Action } from '../action';
 import { TutorialStage, TutorialState } from '../state';
 
 const initialState: TutorialState = {
-  primaryStage: 'preMovementKeys',
+  stage: 'preMovementKeys',
   msSinceThisStage: 0,
   moved: false,
   enterKeyPressed: false,
+  msSinceJoystickVisible: 0,
 };
 
 function tutorialReducer(state = initialState, action: Action): TutorialState {
@@ -43,8 +44,8 @@ function tutorialReducer(state = initialState, action: Action): TutorialState {
 }
 
 function updateStage(state: TutorialState): TutorialState {
-  const { primaryStage, msSinceThisStage, moved, enterKeyPressed } = state;
-  switch (primaryStage) {
+  const { stage, msSinceThisStage, moved, enterKeyPressed } = state;
+  switch (stage) {
     case 'preMovementKeys':
       return moved
         ? transitionTo('preCommentKeys', state)
@@ -86,7 +87,7 @@ const commentKeyHintWaitMs = __DEV__ ? 7000 : 3 * 60 * 1000;
 function transitionTo(stage: TutorialStage, state: TutorialState): TutorialState {
   return {
     ...state,
-    primaryStage: stage,
+    stage,
     msSinceThisStage: 0,
   };
 }
