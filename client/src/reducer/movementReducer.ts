@@ -38,7 +38,7 @@ function movementReducer(state = initialState, action: Action): MovementState {
         right: keyDown ? 1 : 0,
       };
     }
-    case '[StageControlOverlay] mouse dragged': {
+    case '[StageControlOverlay] dragged': {
       const {
         startOffsetRatio: { x, y },
       } = action;
@@ -51,8 +51,7 @@ function movementReducer(state = initialState, action: Action): MovementState {
     }
     case '[StageControlOverlay] blurred':
     case '[StageControlOverlay] context menu opened':
-    case '[StageControlOverlay] mouse up':
-    case '[StageControlOverlay] mouse out':
+    case '[StageControlOverlay] drag ended':
     case '[Opening] genesis':
       return initialState;
     default:

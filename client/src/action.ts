@@ -19,9 +19,8 @@ export type Action =
   | { type: '[StageControlOverlay] focused' }
   | { type: '[StageControlOverlay] blurred' }
   | { type: '[StageControlOverlay] context menu opened' }
-  | { type: '[StageControlOverlay] mouse dragged'; startOffsetRatio: Point }
-  | { type: '[StageControlOverlay] mouse up' }
-  | { type: '[StageControlOverlay] mouse out' }
+  | { type: '[StageControlOverlay] dragged'; startOffsetRatio: Point }
+  | { type: '[StageControlOverlay] drag ended' }
   | { type: '[Stage] resized'; size: Point }
   | { type: '[Ticker] ticked'; deltaMs: number; state: State }
   | { type: '[Chest] opened by player'; buff: Buff }

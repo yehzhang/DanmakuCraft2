@@ -1,7 +1,16 @@
 import clamp from 'lodash/clamp';
+import find from 'lodash/find';
 import subtract from 'lodash/subtract';
 import * as React from 'react';
-import { KeyboardEvent, MouseEvent, useCallback, useRef, useState } from 'react';
+import {
+  KeyboardEvent,
+  TouchEvent,
+  TouchList,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+} from 'react';
 import { Key } from 'ts-keycode-enum';
 import { Action } from '../action';
 import { empty, equal, map, Point, zip } from '../data/point';
@@ -60,63 +69,34 @@ function StageControlOverlay() {
     dispatch({ type: '[StageControlOverlay] focused' });
   }, [dispatch]);
   const onBlur = useCallback(() => {
-    setDragStartPosition(null);
+    dispatchDrag(null);
     dispatch({ type: '[StageControlOverlay] blurred' });
   }, [dispatch]);
   const onContextMenu = useCallback(() => {
-    setDragStartPosition(null);
+    dispatchDrag(null);
     dispatch({ type: '[StageControlOverlay] context menu opened' });
   }, [dispatch]);
 
   // Joystick.
-  const [dragStartPosition, setDragStartPosition] = useState<Point | null>(null);
-  const [dragStartOffset, setDragStartOffset] = useState<Point>(empty);
-  const onMouseDown = useCallback(
-    (event: MouseEvent) => {
-      if (!elementRef.current) {
-        return;
-      }
-
-      const startPosition = getMousePosition(event, elementRef.current);
-      if (dragStartPosition && equal(startPosition, dragStartPosition)) {
-        return;
-      }
-
-      setDragStartPosition(startPosition);
-      setDragStartOffset(empty);
-    },
-    [dragStartPosition]
-  );
-  const onMouseMove = useCallback(
-    (event: MouseEvent) => {
-      if (!dragStartPosition || !elementRef.current) {
-        return;
-      }
-
-      const currentPosition = getMousePosition(event, elementRef.current);
-      const startOffset = map(zip(currentPosition, dragStartPosition, subtract), (x) =>
-        clamp(x, -maxDragOffset, maxDragOffset)
-      );
-      if (equal(startOffset, dragStartOffset)) {
-        return;
-      }
-      setDragStartOffset(startOffset);
-
-      dispatch({
-        type: '[StageControlOverlay] mouse dragged',
-        startOffsetRatio: map(startOffset, (x) => x / maxDragOffset),
+  const [drag, dispatchDrag] = useReducer(dragReducer, null);
+  const onTouchEvent = useCallback(({ touches }: TouchEvent) => {
+    if (elementRef.current) {
+      dispatchDrag({
+        touches,
+        parentElement: elementRef.current,
       });
-    },
-    [dispatch, dragStartPosition, dragStartOffset]
-  );
-  const onMouseUp = useCallback(() => {
-    setDragStartPosition(null);
-    dispatch({ type: '[StageControlOverlay] mouse up' });
-  }, [dispatch]);
-  const onMouseOut = useCallback(() => {
-    setDragStartPosition(null);
-    dispatch({ type: '[StageControlOverlay] mouse out' });
-  }, [dispatch]);
+    }
+  }, []);
+  useEffect(() => {
+    if (!drag) {
+      dispatch({ type: '[StageControlOverlay] drag ended' });
+      return;
+    }
+    dispatch({
+      type: '[StageControlOverlay] dragged',
+      startOffsetRatio: map(drag.offset, (x) => x / maxDragOffset),
+    });
+  }, [dispatch, drag]);
 
   return (
     <div
@@ -128,16 +108,16 @@ function StageControlOverlay() {
       onFocus={onFocus}
       onBlur={onBlur}
       onContextMenu={onContextMenu}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseOut={onMouseOut}
+      onTouchStart={onTouchEvent}
+      onTouchMove={onTouchEvent}
+      onTouchEnd={onTouchEvent}
+      onTouchCancel={onTouchEvent}
     >
-      {dragStartPosition && (
+      {drag && (
         <Joystick
-          {...dragStartPosition}
-          ballTopOffsetX={dragStartOffset.x}
-          ballTopOffsetY={dragStartOffset.y}
+          {...drag.startPosition}
+          ballTopOffsetX={drag.offset.x}
+          ballTopOffsetY={drag.offset.y}
         />
       )}
     </div>
@@ -153,8 +133,6 @@ const styles = createStyleSheet({
     outline: 'none',
   },
 });
-
-const maxDragOffset = 35;
 
 function getActionByKeyboardEvent(
   event: KeyboardEvent,
@@ -181,7 +159,62 @@ function getActionByKeyboardEvent(
   }
 }
 
-function getMousePosition({ clientX, clientY }: MouseEvent, parentElement: Element): Point {
+type DragState = {
+  readonly id: number;
+  readonly startPosition: Point;
+  readonly offset: Point;
+} | null;
+
+type DragAction = {
+  readonly touches: TouchList;
+  readonly parentElement: Element;
+} | null;
+
+function dragReducer(state: DragState, action: DragAction): DragState {
+  if (!action) {
+    return null;
+  }
+
+  const { touches, parentElement } = action;
+  if (!state) {
+    if (!touches.length) {
+      return state;
+    }
+
+    const touch = touches[0];
+    return {
+      startPosition: getLocalPositionFromClientArea(touch, parentElement),
+      id: touch.identifier,
+      offset: empty,
+    };
+  }
+
+  const { id, startPosition, offset } = state;
+  const touch = find(touches, (touch_) => touch_.identifier === id);
+  if (!touch) {
+    return dragReducer(/* state= */ null, action);
+  }
+
+  const currentPosition = getLocalPositionFromClientArea(touch, parentElement);
+  // TODO circle
+  const currentOffset = map(zip(currentPosition, startPosition, subtract), (x) =>
+    clamp(x, -maxDragOffset, maxDragOffset)
+  );
+  if (equal(currentOffset, offset)) {
+    return state;
+  }
+  return {
+    ...state,
+    offset: currentOffset,
+  };
+}
+
+const maxDragOffset = 35;
+
+function getLocalPositionFromClientArea(
+  { clientX, clientY }: { clientX: number; clientY: number },
+  parentElement: Element
+): Point {
   const clientPosition = { x: clientX, y: clientY };
   const boundingClientRect = parentElement.getBoundingClientRect();
   return zip(clientPosition, boundingClientRect, subtract);
