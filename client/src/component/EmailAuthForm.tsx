@@ -222,6 +222,9 @@ const textInputStyle = createStyle({
   borderStyle: 'solid',
   padding: '1rem',
   marginBottom: -borderWidth,
+  MozAppearance: 'none',
+  WebkitAppearance: 'none',
+  appearance: 'none',
 });
 const borderRadius = 4;
 const styles = createStyleSheet({
