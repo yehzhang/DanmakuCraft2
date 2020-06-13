@@ -15,6 +15,7 @@ import { Action } from '../action';
 import { magnitude } from '../data/coordinate';
 import { empty, equal, map, Point, zip } from '../data/point';
 import useFocusState from '../hook/useFocusState';
+import useTick from '../hook/useTick';
 import { createStyleSheet } from '../shim/react';
 import { useDispatch, useStore } from '../shim/redux';
 import { State } from '../state';
@@ -84,6 +85,7 @@ function StageControlOverlay() {
       dispatchDrag({
         touches,
         parentElement: elementRef.current,
+        msSinceStart: msSinceStartRef.current,
       });
     }
   }, []);
@@ -97,6 +99,11 @@ function StageControlOverlay() {
       startOffsetRatio: map(drag.offset, (x) => x / maxDragOffset),
     });
   }, [dispatch, drag]);
+
+  const msSinceStartRef = useRef(0);
+  useTick((deltaMs: number) => {
+    msSinceStartRef.current += deltaMs;
+  });
 
   return (
     <div
@@ -113,7 +120,7 @@ function StageControlOverlay() {
       onTouchEnd={onTouchEvent}
       onTouchCancel={onTouchEvent}
     >
-      {drag && (
+      {drag && drag.tutorial && (
         <Joystick
           {...drag.startPosition}
           ballTopOffsetX={drag.offset.x}
@@ -163,11 +170,13 @@ type DragState = {
   readonly id: number;
   readonly startPosition: Point;
   readonly offset: Point;
+  readonly tutorial: boolean;
 } | null;
 
 type DragAction = {
   readonly touches: TouchList;
   readonly parentElement: Element;
+  readonly msSinceStart: number;
 } | null;
 
 function dragReducer(state: DragState, action: DragAction): DragState {
@@ -175,7 +184,7 @@ function dragReducer(state: DragState, action: DragAction): DragState {
     return null;
   }
 
-  const { touches, parentElement } = action;
+  const { touches, parentElement, msSinceStart } = action;
   if (!state) {
     if (!touches.length) {
       return state;
@@ -186,6 +195,7 @@ function dragReducer(state: DragState, action: DragAction): DragState {
       startPosition: getLocalPositionFromClientArea(touch, parentElement),
       id: touch.identifier,
       offset: empty,
+      tutorial: msSinceStart <= maxJoystickVisibleMs,
     };
   }
 
@@ -209,6 +219,7 @@ function dragReducer(state: DragState, action: DragAction): DragState {
 }
 
 const maxDragOffset = 50;
+const maxJoystickVisibleMs = 20000;
 
 function getLocalPositionFromClientArea(
   { clientX, clientY }: { clientX: number; clientY: number },
