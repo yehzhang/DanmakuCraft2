@@ -1,8 +1,11 @@
 import * as React from 'react';
 import { ReactElement, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Helmet } from 'react-helmet';
 import { domain } from '../shim/domain';
 import { createStyleSheet } from '../shim/react';
+
+const { default: normalizeCss } = require('normalize.css');
 
 interface Props {
   readonly children: ReactElement;
@@ -10,7 +13,12 @@ interface Props {
 
 function Frame({ children }: Props) {
   if (domain !== 'bilibili') {
-    return children;
+    return (
+      <>
+        <Helmet>{renderCommonStyle()}</Helmet>
+        {children}
+      </>
+    );
   }
 
   // Wrap the app in an iframe to fend off css corruption.
@@ -20,7 +28,14 @@ function Frame({ children }: Props) {
   const body = document?.body;
   return (
     <iframe style={styles.container} ref={setElement}>
-      {head && createPortal(<IFrameStyle />, head)}
+      {head &&
+        createPortal(
+          <>
+            <IFrameStyle />
+            {renderCommonStyle()}
+          </>,
+          head
+        )}
       {body && createPortal(children, body)}
     </iframe>
   );
@@ -36,6 +51,10 @@ function IFrameStyle() {
       `}
     </style>
   );
+}
+
+function renderCommonStyle() {
+  return <style>{normalizeCss}</style>;
 }
 
 const styles = createStyleSheet({

@@ -21,6 +21,10 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'ts-loader',
       },
+      {
+        test: /\.css$/,
+        use: 'raw-loader',
+      },
     ],
   },
   plugins: [
@@ -36,7 +40,9 @@ module.exports = {
     modules: [sourcePath, 'node_modules'],
   },
   devServer: {
-    public: 'https://localhost:8080/',
+    public: 'https://192.168.29.101:8080/',
+    // Listen for requests from the network.
+    host: '0.0.0.0',
     open: false,
     contentBase: [__dirname, outPath, backendPublicPath],
     https: true,
