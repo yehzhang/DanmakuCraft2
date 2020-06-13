@@ -21,8 +21,8 @@ function App() {
               <AuthDialog />
             </View>
             <View name="main">
-              <VolumeInput />
               <StageControlOverlay />
+              <VolumeInput />
             </View>
             <PixiApp />
           </Stage>

@@ -154,7 +154,7 @@ const styles = createStyleSheet({
   },
 });
 
-const maxDragOffset = 100;
+const maxDragOffset = 35;
 
 function getActionByKeyboardEvent(
   event: KeyboardEvent,
