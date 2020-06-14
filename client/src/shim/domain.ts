@@ -8,7 +8,7 @@ type DomainData<T> = {
   readonly [key in Domain]: T;
 };
 
-export const domain: Domain =
+const domain: Domain =
   document.location.hostname === 'www.bilibili.com' ? 'bilibili' : 'danmakucraft';
 
 type Domain = 'danmakucraft' | 'bilibili';

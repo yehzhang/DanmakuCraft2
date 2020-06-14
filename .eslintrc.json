@@ -73,6 +73,7 @@
       "plugins": ["@typescript-eslint", "react"],
       "rules": {
         "react/display-name": "off", // Inccorectly reports arrow functions that return JSX.
+        "react/prop-types": "off",
         // Checked by TS.
         "no-undef": "off",
         "no-fallthrough": "off",
