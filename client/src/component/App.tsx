@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { selectDevice } from '../shim/device';
 import { memo } from '../shim/react';
 import AuthDialog from './AuthDialog';
 import BelowStageControlBar from './BelowStageControlBar';
@@ -22,7 +23,9 @@ function App() {
             </View>
             <View name="main">
               <StageControlOverlay />
-              <VolumeInput />
+              {selectDevice({
+                desktop: <VolumeInput />,
+              })}
             </View>
             <PixiApp />
           </Stage>
