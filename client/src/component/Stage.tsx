@@ -14,8 +14,12 @@ function Stage({ children }: Props) {
   const containerRef = useRef(null);
   const { width, height } = useComponentSize(containerRef);
   useEffect(() => {
-    application.renderer.resize(width, height);
-    dispatch({ type: '[Stage] resized', size: { x: width, y: height } });
+    // Resize after a while for better performance.
+    const timeoutID = setTimeout(() => {
+      application.renderer.resize(width, height);
+      dispatch({ type: '[Stage] resized', size: { x: width, y: height } });
+    }, 500);
+    return () => void clearTimeout(timeoutID);
   }, [dispatch, width, height]);
 
   return (
