@@ -16,6 +16,7 @@ import getLatestCommentEntities from './shim/backend/getLatestCommentEntities';
 import getResourceUrls from './shim/backend/getResourceUrls';
 import setUpBilibiliShim from './shim/bilibili';
 import ConsoleInput from './shim/ConsoleInput';
+import { selectDevice } from './shim/device';
 import { selectDomain } from './shim/domain';
 import logErrorMessage from './shim/logging/logErrorMessage';
 import ParametricTypeError from './shim/logging/ParametricTypeError';
@@ -75,7 +76,11 @@ async function loadCommentsFromBackend(): Promise<LoadingResult> {
   const commentEntities = await getLatestCommentEntities(sessionToken);
   const throttler = new RenderThrottler();
   const sleepDurationMs = 2;
-  for (const commentEntityChunk of chunkObject(commentEntities, 100)) {
+  const chunkSize = selectDevice({
+    mobile: 50,
+    desktop: 150,
+  });
+  for (const commentEntityChunk of chunkObject(commentEntities, chunkSize)) {
     while (
       !throttler.run(() => {
         store.dispatch({
