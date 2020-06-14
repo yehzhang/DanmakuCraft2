@@ -17,7 +17,7 @@ function Joystick({ x, y, ballTopOffsetX, ballTopOffsetY }: Props) {
         top: y,
       }}
     >
-      <span style={styles.base} />
+      <div style={styles.base} />
       <div
         style={{
           ...styles.ballTop,
@@ -36,12 +36,11 @@ const baseColor = 'white';
 const styles = createStyleSheet({
   container: {
     position: 'absolute',
-    pointerEvents: 'none',
-    userSelect: 'none',
     MozUserSelect: 'none',
     msUserSelect: 'none',
     KhtmlUserSelect: 'none',
     WebkitUserSelect: 'none',
+    userSelect: 'none',
   },
   base: {
     position: 'absolute',

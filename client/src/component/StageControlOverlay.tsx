@@ -144,6 +144,11 @@ const styles = createStyleSheet({
     height: '100%',
     // Hides the outline introduced by `tabIndex`.
     outline: 'none',
+    MozUserSelect: 'none',
+    msUserSelect: 'none',
+    KhtmlUserSelect: 'none',
+    WebkitUserSelect: 'none',
+    userSelect: 'none',
   },
 });
 
