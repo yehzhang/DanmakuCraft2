@@ -1,9 +1,13 @@
 import { Container } from '@inlet/react-pixi';
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { center } from '../data/anchors';
 import { Color } from '../data/color';
+import visibleCommentEntityNodesSelector from '../selector/visibleCommentEntityNodesSelector';
+import application from '../shim/pixi/application';
 import { memo } from '../shim/react';
 import { FontStyle, PointLike } from '../shim/reactPixi';
+import store from '../store';
 import PlainText from './PlainText';
 
 interface Props {
@@ -29,7 +33,12 @@ function ShadowedText({
   fontStyle,
   scale,
 }: Props) {
-  return (
+  const [render, setRender] = useState(false);
+  useEffect(() => {
+    setRenders.push(setRender);
+  }, []);
+
+  return !render ? null : (
     <Container x={x} y={y}>
       <PlainText
         size={size}
@@ -74,5 +83,23 @@ function ShadowedText({
     </Container>
   );
 }
+
+const setRenders: ((render: boolean) => void)[] = [];
+let lastCommentEntities: object | null = null;
+
+application.ticker.add(() => {
+  const commentEntities = visibleCommentEntityNodesSelector(store.getState());
+  if (commentEntities !== lastCommentEntities) {
+    lastCommentEntities = commentEntities;
+    return;
+  }
+
+  const setRender = setRenders.pop();
+  if (!setRender) {
+    return;
+  }
+
+  setRender(true);
+});
 
 export default memo(ShadowedText);

@@ -20,6 +20,6 @@ function areCoordinatesClose(x: number, x_: number): boolean {
   return Math.abs(x - x_) < minDistanceToRefreshVisibility;
 }
 
-export const minDistanceToRefreshVisibility = 100;
+export const minDistanceToRefreshVisibility = 50;
 
 export default visibilityAnchorSelector;
