@@ -3,12 +3,10 @@
 // @namespace    danmakucraft.com
 // @version      0.1
 // @author       yehzhang
-// @match        *://www.bilibili.com/video/av19771370
-// @match        *://www.bilibili.com/video/av19771370?*
-// @match        *://www.bilibili.com/video/av19771370/*
-// @match        *://www.bilibili.com/video/BV1GW41177LA
-// @match        *://www.bilibili.com/video/BV1GW41177LA?*
-// @match        *://www.bilibili.com/video/BV1GW41177LA/*
+// 改成正则表达式包含匹配
+// @include        /^http(s)?:\/\/www\.bilibili\.com\/video\/(av19771370|BV1GW41177LA)((\?|\/)(.*))?$/
+// 支持HTML5独立播放器地址
+// @include        /^http(s)?:\/\/www\.bilibili\.com/blackboard\/(.*)player\.html\?(aid=19771370|(bvid=(BV)?1GW41177LA))(&(.*))?$/
 // @grant        none
 // @run-at       document-end
 // @license      AGPL-3.0
