@@ -3,7 +3,7 @@
 // @namespace    danmakucraft.com
 // @version      0.1
 // @author       yehzhang
-// 改成正则表达式包含匹配
+// 改成正则表达式包含
 // @include        /^http(s)?:\/\/www\.bilibili\.com\/video\/(av19771370|BV1GW41177LA)((\?|\/)(.*))?$/
 // 支持HTML5独立播放器地址
 // @include        /^http(s)?:\/\/www\.bilibili\.com/blackboard\/(.*)player\.html\?(aid=19771370|(bvid=(BV)?1GW41177LA))(&(.*))?$/
