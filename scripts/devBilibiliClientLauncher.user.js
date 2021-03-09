@@ -4,8 +4,8 @@
 // @version      0.1
 // @author       yehzhang
 // @include      /^http(s)?:\/\/www\.bilibili\.com\/video\/(av19771370|BV1GW41177LA)((\?|\/)(.*))?$/
-// @include      /^http(s)?:\/\/www\.bilibili\.com/blackboard\/html5player\.html\?aid=19771370&cid=32239646(&(.*))?$/
-// @include      /^http(s)?:\/\/www\.bilibili\.com/blackboard\/(new)?player\.html\?(aid=19771370|(bvid=(BV)?1GW41177LA))(&(.*))?$/
+// @include      /^http(s)?:\/\/www\.bilibili\.com\/blackboard\/html5player\.html\?aid=19771370&cid=32239646(&(.*))?$/
+// @include      /^http(s)?:\/\/www\.bilibili\.com\/blackboard\/(new)?player\.html\?(aid=19771370|(bvid=(BV)?1GW41177LA))(&(.*))?$/
 // @grant        none
 // @run-at       document-end
 // @license      AGPL-3.0
