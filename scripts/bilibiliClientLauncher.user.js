@@ -4,10 +4,8 @@
 // @version      0.5
 // @description  在 B 站播放器内玩《弹幕世界2》：https://www.bilibili.com/video/av19771370/。官网：https://danmakucraft.com
 // @author       yehzhang
-// 改成正则表达式包含
-// @include        /^http(s)?:\/\/www\.bilibili\.com\/video\/(av19771370|BV1GW41177LA)((\?|\/)(.*))?$/
-// 支持HTML5独立播放器地址
-// @include        /^http(s)?:\/\/www\.bilibili\.com/blackboard\/(.*)player\.html\?(aid=19771370|(bvid=(BV)?1GW41177LA))(&(.*))?$/
+// @include      /^http(s)?:\/\/www\.bilibili\.com\/video\/(av19771370|BV1GW41177LA)((\?|\/)(.*))?$/
+// @include      /^http(s)?:\/\/www\.bilibili\.com/blackboard\/(html5|new)?player\.html\?(aid=19771370|(bvid=(BV)?1GW41177LA))(&(.*))?$/
 // @grant        none
 // @run-at       document-idle
 // @license      AGPL-3.0
